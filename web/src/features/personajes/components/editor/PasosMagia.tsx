@@ -51,9 +51,9 @@ function ConjuroPropio({ pj }: { pj: any }) {
   const id = useId();
   const val = (k: string) => (document.getElementById(id + k) as HTMLInputElement | null)?.value || '';
   const chk = (k: string) => !!(document.getElementById(id + k) as HTMLInputElement | null)?.checked;
-  const agregar = () => {
+  const agregar = async () => {
     const n = val('N').trim(); if (!n) { avisar('Ponle nombre al conjuro.', 'aviso'); return; }
-    if (!confirmarNoLanzador()) return;
+    if (!(await confirmarNoLanzador())) return;
     pj.conjuros.push({ nombre: n, nivel: +val('Nv'), tiempo: val('T'), salv: val('S'), dados: val('D').replace(/\s/g, ''), ataque: chk('At'), mod: chk('M'), conc: chk('C'), extra: chk('E'), alcance: val('A'), desc: val('X') });
     savePj(); render(); avisar(`${n} agregado.`);
   };

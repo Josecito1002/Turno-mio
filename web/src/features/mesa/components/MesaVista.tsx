@@ -4,6 +4,7 @@ import { useId } from 'react';
 import { S, render, irArriba } from '@/app-shell/estado';
 import { almacen } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
+import { confirmar } from '@/shared/ui/confirmar';
 import { modStr, sign } from '@/shared/utils/texto';
 import { Aviso, Boton, Campo, EncabezadoPagina, Fila, Lista, Nota, PanelPestana, Pestanas, Plegable, Seccion, Tarjeta, claseCampo, cx, foco } from '@/shared/ui/kit';
 import { useDados } from '@/features/dados/components/Bandeja';
@@ -170,8 +171,8 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
   quitarDelOrdenLosQueNoEstan(cb, cp);
   const actual = cb.orden[cb.turno];
   const siguiente = () => conCamp(c => { const b = c.combate; if (!b.orden.length) return false; b.turno++; if (b.turno >= b.orden.length) { b.turno = 0; b.ronda++; } });
-  const terminar = () => {
-    const quitar = cp.monstruos.length && confirm('¿Quitar también a los enemigos?');
+  const terminar = async () => {
+    const quitar = cp.monstruos.length > 0 && await confirmar({ titulo: '¿Quitar también a los enemigos?', texto: 'El combate termina igual; puedes dejarlos para el siguiente.', si: 'Quitarlos', no: 'Dejarlos' });
     conCamp(c => { c.combate = { activo: false, ronda: 1, turno: 0, orden: [] }; if (quitar) c.monstruos = []; });
   };
   const fijarInit = (k: string, v: number) => conCamp(c => { const o = c.combate.orden.find((o: any) => o.k === k); if (!o) return false; o.init = v; ordenar(c); });
@@ -229,8 +230,8 @@ function crearCampana(n: string) {
   guardarCamp(nueva); S.camp = nueva.id; S.mtab = 'grupo'; render();
 }
 function abrirCampana(id: string | null) { S.camp = id; if (id) S.mtab = 'grupo'; render(); irArriba(); }
-function borrarCampana(cp: any) {
-  if (!confirm(`¿Borrar la campaña ${cp.nombre}? Los personajes no se borran.`)) return;
+async function borrarCampana(cp: any) {
+  if (!(await confirmar({ titulo: `¿Borrar la campaña ${cp.nombre}?`, texto: 'Los personajes no se borran.', si: 'Borrar campaña', peligro: true }))) return;
   almacen.borrarCampana(cp.id); S.camp = null; render(); avisar('Campaña borrada.');
 }
 

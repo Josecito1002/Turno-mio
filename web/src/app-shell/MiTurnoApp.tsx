@@ -5,6 +5,7 @@ import { cargarTodo, vaciarPendientes, almacen } from './almacen';
 import { leerArchivos } from './importar';
 import { Aviso, Boton, cx, foco } from '@/shared/ui/kit';
 import { BandejaDados } from '@/features/dados/components/Bandeja';
+import { DialogoConfirmar } from '@/shared/ui/confirmar';
 import { compute } from '@/features/personajes/domain/calculo';
 import { reparar } from '@/features/personajes/domain/modelo';
 import { Ficha } from '@/features/personajes/components/ficha/Ficha';
@@ -189,6 +190,7 @@ export function MiTurnoApp() {
         </nav>
       )}
       <SubidaNivel />
+      <DialogoConfirmar />
     </BandejaDados>
   );
 }

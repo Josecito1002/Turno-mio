@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { S, render, esAdmin, nuevoDraft } from '@/app-shell/estado';
 import { guardarLib } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
+import { confirmar } from '@/shared/ui/confirmar';
 import { setPath, slug } from '@/shared/utils/texto';
 import { Aviso, Boton, Campo, EncabezadoPagina, Fila, Lista, Nota, Plegable, Seccion, Tarjeta, claseCampo } from '@/shared/ui/kit';
 import { CLASES } from '@/features/reglas/data/clases';
@@ -13,9 +14,9 @@ import { RasgoForm } from '@/features/personajes/components/editor/PasosMagia';
 import { bajarArchivo, leerRasgo } from '@/features/personajes/acciones';
 import { getC, getLib } from '../domain/biblioteca';
 
-function quitar(ref: string, nombre: string) {
+async function quitar(ref: string, nombre: string) {
   const LIB: any = getLib(), [t, k, sk] = ref.split('|');
-  if (!confirm(`¿Quitar «${nombre}» de la biblioteca? Los personajes que ya lo usan lo conservan.`)) return;
+  if (!(await confirmar({ titulo: `¿Quitar «${nombre}» de la biblioteca?`, texto: 'Los personajes que ya lo usan lo conservan.', si: 'Quitar', peligro: true }))) return;
   if (t === 'sub') delete LIB.clases[k].subclases[sk];
   else if (t === 'clase') {
     const subs = LIB.clases[k].subclases; delete LIB.clases[k];
@@ -38,8 +39,8 @@ function guardarSubclase() {
   LIB.clases[s.clase].subclases[slug(s.n)] = { n: s.n.trim(), rasgos: s.rasgos };
   guardarLib(true); avisar(`${s.n} guardada.`); S.draft = nuevoDraft(); render();
 }
-function quitarConjurosImportados() {
-  if (!confirm('¿Quitar todos los conjuros importados? Los personajes conservan los que ya tienen.')) return;
+async function quitarConjurosImportados() {
+  if (!(await confirmar({ titulo: '¿Quitar todos los conjuros importados?', texto: 'Los personajes conservan los que ya tienen.', si: 'Quitar todos', peligro: true }))) return;
   getLib().conjuros = {}; guardarLib(true); render();
 }
 

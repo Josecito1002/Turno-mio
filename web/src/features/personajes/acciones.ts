@@ -3,6 +3,7 @@
 import { S, render, esAdmin, irArriba } from '@/app-shell/estado';
 import { almacen, guardarLib } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
+import { confirmar } from '@/shared/ui/confirmar';
 import { norm, setPath } from '@/shared/utils/texto';
 import { TIPOS } from '@/features/reglas/data/caracteristicas';
 import { getC, getLib, getSubs, getT, subNivel } from '@/features/biblioteca/domain/biblioteca';
@@ -121,11 +122,12 @@ export function deshacerSubida() {
   S.subida = null; savePj(); render(); avisar(`Volvió a nivel ${pj.nivel}.`, 'info');
 }
 export function cerrarSubida() { S.subida = null; render(); }
-export function bajarNivel() {
+export async function bajarNivel() {
   const pj = S.pj;
-  if (pj.nivel > 1 && confirm(`¿Bajar a ${pj.nombre || 'este personaje'} a nivel ${pj.nivel - 1}? Se quita la tirada de PG de este nivel; lo que elegiste en niveles altos se guarda por si vuelve a subir.`)) {
-    pj.pgTiradas[pj.nivel - 2] = null; pj.nivel--; S.subida = null; savePj(); render(); avisar(`Ahora es nivel ${pj.nivel}.`, 'info');
-  }
+  if (pj.nivel <= 1) return;
+  if (!(await confirmar({ titulo: `¿Bajar a nivel ${pj.nivel - 1}?`, si: 'Bajar de nivel',
+    texto: `${pj.nombre || 'Este personaje'} pierde la tirada de PG de este nivel. Lo que elegiste en niveles altos se guarda por si vuelve a subir.` }))) return;
+  pj.pgTiradas[pj.nivel - 2] = null; pj.nivel--; S.subida = null; savePj(); render(); avisar(`Ahora es nivel ${pj.nivel}.`, 'info');
 }
 export function tirarPg(tirar: Tirar, i: number) {
   const pj = S.pj;
@@ -153,7 +155,7 @@ export function tomarEquipoClase(op: number | 'oro') {
 }
 
 /* ---- Quitar un kit ya tomado: se deshace exactamente lo que agregó ---- */
-export function quitarEquipoClase() {
+export async function quitarEquipoClase() {
   const pj = S.pj, kit = kitClase(pj.clase);
   if (!pj.inicial) return;
   // Personajes que tomaron el kit antes de que se anotara lo agregado: se reconstruye desde el kit
@@ -162,16 +164,18 @@ export function quitarEquipoClase() {
     const v = kit.variantes[String(pj.inicial).charCodeAt(0) - 65];
     ap = v ? aporteClase(getC(pj, pj.clase), v) : { oro: typeof kit.alternativa === 'number' ? kit.alternativa : 0 };
   }
-  if (!confirm('¿Quitar el equipo de la clase? Se quitan sus armas, armadura, objetos y oro para que puedas elegir otra opción.')) return;
+  if (!(await confirmar({ titulo: '¿Quitar el equipo de la clase?', si: 'Quitar equipo', peligro: true,
+    texto: 'Se quitan sus armas, armadura, objetos y oro, y puedes elegir otra opción. Lo que cambiaste después se respeta.' }))) return;
   if (ap) quitarAporte(pj, ap);
   pj.inicial = false; if (pj.kits) delete pj.kits.clase;
   savePj(); render(); avisar('Equipo de la clase quitado.');
 }
-export function quitarEquipoTrasfondo() {
+export async function quitarEquipoTrasfondo() {
   const pj = S.pj, T = getT(pj, pj.trasfondo?.key), kit = kitTrasfondo(pj.trasfondo?.key, T), op = pj.trasfondo?.equipo;
   if (!op) return;
   const ap: Aporte | null = pj.kits?.trasfondo || (kit ? (op === 'A' ? aporteTrasfondo(T, kit) : { oro: kit.alternativa || 0 }) : null);
-  if (!confirm('¿Quitar el equipo del trasfondo? Se quitan sus armas, objetos y oro para que puedas elegir otra opción.')) return;
+  if (!(await confirmar({ titulo: '¿Quitar el equipo del trasfondo?', si: 'Quitar equipo', peligro: true,
+    texto: 'Se quitan sus armas, objetos y oro, y puedes elegir otra opción. Lo que cambiaste después se respeta.' }))) return;
   if (ap) quitarAporte(pj, ap);
   pj.trasfondo.equipo = ''; if (pj.kits) delete pj.kits.trasfondo;
   savePj(); render(); avisar('Equipo del trasfondo quitado.');
@@ -212,9 +216,10 @@ export function tomarEquipoTrasfondo(op: 'A' | 'B') {
 export function irAPaso(paso: string) { S.subida = null; S.view = 'editor'; S.step = paso; render(); irArriba(); }
 
 /* ---- Conjuros y rasgos ---- */
-export function confirmarNoLanzador() {
+export async function confirmarNoLanzador() {
   if (puedeLanzar(S.c)) return true;
-  return confirm(`${S.pj.nombre || 'Tu personaje'} no lanza conjuros por su clase ni por su especie. Agrégalo solo si se lo dio una dote, un objeto o tu DM. ¿Agregarlo de todas formas?`);
+  return confirmar({ titulo: '¿Agregar el conjuro de todas formas?', si: 'Agregar',
+    texto: `${S.pj.nombre || 'Tu personaje'} no lanza conjuros por su clase ni por su especie. Agrégalo solo si se lo dio una dote, un objeto o tu DM.` });
 }
 export function leerRasgo(p: string) {
   const v = (id: string) => (document.getElementById(p + id) as HTMLInputElement | null)?.value || '';
@@ -230,9 +235,10 @@ export function bajarArchivo(nombre: string, texto: string) {
   a.download = nombre; document.body.appendChild(a); a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
 }
-export function borrarPj() {
+export async function borrarPj() {
   const pj = S.pj;
-  if (!confirm(`¿Quitar a ${pj.nombre || 'este personaje'} de tu cuenta?`)) return;
+  if (!(await confirmar({ titulo: `¿Borrar a ${pj.nombre || 'este personaje'}?`, si: 'Borrar personaje', peligro: true,
+    texto: 'Se quita de tu cuenta y no se puede deshacer. Si quieres conservar una copia, usa antes «Descargar respaldo».' }))) return;
   almacen.borrarPj(pj.id); S.list = S.list.filter(p => p.id !== pj.id); almacen.ultimo(null);
   S.pj = null; S.view = 'home'; render();
 }
