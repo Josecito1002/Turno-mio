@@ -7,6 +7,8 @@ import { compute } from '../../domain/calculo';
 import { setVal } from '../../acciones';
 import { Entrada } from '../piezas';
 import { Selector } from './campos';
+import { EtiquetaFuente } from './Tarjetas';
+import { fuenteSubclase } from '@/features/reglas/data/fuentes';
 
 /* Qué da una subclase en cada nivel: calcula el personaje en cada nivel en que la subclase da algo,
    con esa subclase puesta, para mostrar los rasgos con sus números y reglas revisadas de ese nivel. */
@@ -109,7 +111,7 @@ export function InfoSubclase({ pj, sk, lvl, soloVer }: { pj: any; sk: string; lv
   const desc = descSubclase(sk);
   return (
     <section aria-labelledby="info-subclase" className="mt-4 rounded-2xl bg-soft p-4 ring-1 ring-rule/60">
-      <h3 id="info-subclase" className="m-0 font-serif text-xl font-bold">{S.n}{soloVer && <span className="ml-2 text-sm font-normal text-muted">(vista previa)</span>}</h3>
+      <h3 id="info-subclase" className="m-0 font-serif text-xl font-bold">{S.n}{soloVer && <span className="ml-2 text-sm font-normal text-muted">(vista previa)</span>}<EtiquetaFuente fuente={fuenteSubclase(S, pj.clase)} className="ml-2 align-middle font-sans" /></h3>
       {desc && <p className="mb-0 mt-1">{desc}</p>}
       <ElegirElecciones pj={pj} elecciones={elecciones} soloVer={soloVer} />
       {niveles.length ? niveles.map(n => (

@@ -3,7 +3,7 @@
 Rasgos de la biblioteca sin regla revisada en `web/src/features/reglas/data/reglas-revisadas.ts` cuyo tipo es dudoso:
 el clasificador los deja como pasiva aunque su texto sugiere que se activan, o su texto no menciona ningún tipo de acción.
 
-Generado con `npx tsx scripts/auditar-reglas.ts` (desde `web/`). Pendientes al generar: 248.
+Generado con `npx tsx scripts/auditar-reglas.ts` (desde `web/`). Pendientes al generar: 245.
 Al marcar una casilla, agrega al final una nota corta con la fuente si hubo que investigar.
 
 ## Selectores
@@ -62,6 +62,121 @@ Las que se deciden al usar el rasgo (a quién, qué efecto) no llevan selector: 
 ### Lote 16: Pícaro
 
 - [ ] **Vástago de los Tres: Lealtad Temible**: Bane, Bhaal o Myrkul: su resistencia y su truco. <!-- selector|lealtad-tres -->
+
+## Por agregar (faltan respecto a D&D Beyond)
+
+Se agregan en el lote de su clase, con su versión oficial más reciente. Las marcadas con «no se agrega» ya las reemplazó el contenido de 2024.
+
+### Lote 5: Bárbaro
+
+- [ ] **Senda de la Bestia** (Tasha's Cauldron of Everything) <!-- agregar|senda de la bestia -->
+- [ ] **Senda de la Magia Salvaje** (Tasha's Cauldron of Everything) <!-- agregar|senda de la magia salvaje -->
+- [ ] **Senda del Guardián Ancestral** (Xanathar's Guide to Everything) <!-- agregar|senda del guardian ancestral -->
+- [ ] **Senda del Heraldo de la Tormenta** (Xanathar's Guide to Everything) <!-- agregar|senda del heraldo de la tormenta -->
+- [ ] **Senda del Gigante** (Bigby Presents: Glory of the Giants) <!-- agregar|senda del gigante -->
+- [ ] **Senda del Rabioso de Batalla** (Sword Coast Adventurer's Guide) <!-- agregar|senda del rabioso de batalla -->
+- [x] **Senda del Guerrero Totémico** (Manual del Jugador 2014): no se agrega, la reemplaza la Senda del Corazón Salvaje (2024), que ya está. <!-- agregar|senda del guerrero totemico -->
+
+### Lote 6: Bardo
+
+- [ ] **Colegio de la Creación** (Tasha's Cauldron of Everything) <!-- agregar|colegio de la creacion -->
+- [ ] **Colegio de la Elocuencia** (Tasha's Cauldron of Everything) <!-- agregar|colegio de la elocuencia -->
+- [ ] **Colegio de las Espadas** (Xanathar's Guide to Everything) <!-- agregar|colegio de las espadas -->
+- [ ] **Colegio de los Susurros** (Xanathar's Guide to Everything) <!-- agregar|colegio de los susurros -->
+
+### Lote 7: Brujo
+
+- [ ] **El Filo Maldito (Hexblade)** (Xanathar's Guide to Everything) <!-- agregar|el filo maldito (hexblade) -->
+- [ ] **El Genio** (Tasha's Cauldron of Everything) <!-- agregar|el genio -->
+- [ ] **El Insondable** (Tasha's Cauldron of Everything) <!-- agregar|el insondable -->
+- [ ] **El Inmortal** (Sword Coast Adventurer's Guide) <!-- agregar|el inmortal -->
+
+### Lote 8: Clérigo
+
+- [ ] **Dominio de la Tempestad** (Manual del Jugador 2014) <!-- agregar|dominio de la tempestad -->
+- [ ] **Dominio de la Naturaleza** (Manual del Jugador 2014) <!-- agregar|dominio de la naturaleza -->
+- [ ] **Dominio de la Forja** (Xanathar's Guide to Everything) <!-- agregar|dominio de la forja -->
+- [ ] **Dominio del Orden** (Tasha's Cauldron of Everything) <!-- agregar|dominio del orden -->
+- [ ] **Dominio de la Paz** (Tasha's Cauldron of Everything) <!-- agregar|dominio de la paz -->
+- [ ] **Dominio del Crepúsculo** (Tasha's Cauldron of Everything) <!-- agregar|dominio del crepusculo -->
+- [ ] **Dominio Arcano** (Sword Coast Adventurer's Guide) <!-- agregar|dominio arcano -->
+- [ ] **Dominio de la Muerte** (Guía del Dungeon Master 2014) <!-- agregar|dominio de la muerte -->
+
+### Lote 9: Druida
+
+- [ ] **Círculo de los Sueños** (Xanathar's Guide to Everything) <!-- agregar|circulo de los suenos -->
+- [ ] **Círculo del Pastor** (Xanathar's Guide to Everything) <!-- agregar|circulo del pastor -->
+- [ ] **Círculo de las Esporas** (Tasha's Cauldron of Everything) <!-- agregar|circulo de las esporas -->
+- [ ] **Círculo del Fuego Salvaje** (Tasha's Cauldron of Everything) <!-- agregar|circulo del fuego salvaje -->
+
+### Lote 10: Explorador
+
+- [ ] **Trotamundos del Horizonte** (Xanathar's Guide to Everything) <!-- agregar|trotamundos del horizonte -->
+- [ ] **Cazador de Monstruos** (Xanathar's Guide to Everything) <!-- agregar|cazador de monstruos -->
+- [ ] **Guardián del Enjambre** (Tasha's Cauldron of Everything) <!-- agregar|guardian del enjambre -->
+- [ ] **Guardián Dracónico** (Fizban's Treasury of Dragons) <!-- agregar|guardian draconico -->
+
+### Lote 11: Guerrero
+
+- [ ] **Arquero Arcano** (Xanathar's Guide to Everything) <!-- agregar|arquero arcano -->
+- [ ] **Caballero (Cavalier)** (Xanathar's Guide to Everything) <!-- agregar|caballero (cavalier) -->
+- [ ] **Samurái** (Xanathar's Guide to Everything) <!-- agregar|samurai -->
+- [ ] **Caballero Rúnico** (Tasha's Cauldron of Everything) <!-- agregar|caballero runico -->
+- [ ] **Caballero del Eco** (Explorer's Guide to Wildemount) <!-- agregar|caballero del eco -->
+
+### Lote 12: Hechicero
+
+- [ ] **Alma Divina** (Xanathar's Guide to Everything) <!-- agregar|alma divina -->
+- [ ] **Hechicería de la Tormenta** (Xanathar's Guide to Everything) <!-- agregar|hechiceria de la tormenta -->
+- [ ] **Hechicería Lunar** (Dragonlance: Shadow of the Dragon Queen) <!-- agregar|hechiceria lunar -->
+
+### Lote 13: Mago
+
+- [ ] **Magia de Guerra** (Xanathar's Guide to Everything) <!-- agregar|magia de guerra -->
+- [ ] **Orden de los Escribas** (Tasha's Cauldron of Everything) <!-- agregar|orden de los escribas -->
+- [ ] **Cronurgia** (Explorer's Guide to Wildemount) <!-- agregar|cronurgia -->
+- [ ] **Graviturgia** (Explorer's Guide to Wildemount) <!-- agregar|graviturgia -->
+
+### Lote 14: Monje
+
+- [ ] **Camino del Maestro Borracho** (Xanathar's Guide to Everything) <!-- agregar|camino del maestro borracho -->
+- [ ] **Camino del Kensei** (Xanathar's Guide to Everything) <!-- agregar|camino del kensei -->
+- [ ] **Camino del Alma Solar** (Xanathar's Guide to Everything) <!-- agregar|camino del alma solar -->
+- [ ] **Camino del Yo Astral** (Tasha's Cauldron of Everything) <!-- agregar|camino del yo astral -->
+- [ ] **Camino del Dragón Ascendente** (Fizban's Treasury of Dragons) <!-- agregar|camino del dragon ascendente -->
+- [ ] **Camino de la Larga Muerte** (Sword Coast Adventurer's Guide) <!-- agregar|camino de la larga muerte -->
+
+### Lote 15: Paladín
+
+- [ ] **Juramento de Conquista** (Xanathar's Guide to Everything) <!-- agregar|juramento de conquista -->
+- [ ] **Juramento de Redención** (Xanathar's Guide to Everything) <!-- agregar|juramento de redencion -->
+- [ ] **Juramento de los Vigilantes** (Tasha's Cauldron of Everything) <!-- agregar|juramento de los vigilantes -->
+- [ ] **Juramento de la Corona** (Sword Coast Adventurer's Guide) <!-- agregar|juramento de la corona -->
+- [ ] **Rompejuramentos** (Guía del Dungeon Master 2014) <!-- agregar|rompejuramentos -->
+
+### Lote 16: Pícaro
+
+- [ ] **Mente Maestra** (Xanathar's Guide to Everything) <!-- agregar|mente maestra -->
+- [ ] **Espadachín** (Xanathar's Guide to Everything) <!-- agregar|espadachin -->
+- [ ] **Explorador (Scout)** (Xanathar's Guide to Everything) <!-- agregar|explorador (scout) -->
+
+### Especies
+
+- [ ] **Aarakocra** (Monsters of the Multiverse) <!-- agregar|aarakocra -->
+- [ ] **Gnomo de las Profundidades** (Monsters of the Multiverse) <!-- agregar|gnomo de las profundidades -->
+- [ ] **Duergar** (Monsters of the Multiverse) <!-- agregar|duergar -->
+- [ ] **Dracónido de gema (amatista, cristal, esmeralda, zafiro, topacio): agregar a los linajes del Dracónido** (Fizban's Treasury of Dragons) <!-- agregar|draconido de gema (amatista, cristal, esmeralda, zafiro, topacio): agregar a los linajes del draconido -->
+- [x] **Semielfo y Semiorco** (Manual del Jugador 2014): no se agrega, el Manual 2024 los quitó (se juega con los padres de cada especie); solo quedan como contenido antiguo. <!-- agregar|semielfo y semiorco -->
+- [x] **Aasimar: variantes Protector, Azote y Caído** (Volo's Guide to Monsters): no se agrega, el Aasimar 2024 ya no tiene variantes: sus poderes se eligen al usar Revelación Celestial. <!-- agregar|aasimar: variantes protector, azote y caido -->
+- [x] **Tiefling: variantes de Mordenkainen** (Mordenkainen's Tome of Foes): no se agrega, el Tiefling 2024 usa los legados Abisal, Ctónico e Infernal, que ya están. <!-- agregar|tiefling: variantes de mordenkainen -->
+
+### Trasfondos
+
+- [x] **Héroe del Pueblo** (Manual del Jugador 2014): no se agrega, el Manual 2024 los reemplazó por sus 16 trasfondos (Artesano, Guía, Vagabundo...). <!-- agregar|heroe del pueblo -->
+- [x] **Huérfano** (Manual del Jugador 2014): no se agrega, el Manual 2024 los reemplazó por sus 16 trasfondos (Artesano, Guía, Vagabundo...). <!-- agregar|huerfano -->
+- [x] **Forastero** (Manual del Jugador 2014): no se agrega, el Manual 2024 los reemplazó por sus 16 trasfondos (Artesano, Guía, Vagabundo...). <!-- agregar|forastero -->
+- [x] **Artesano Gremial** (Manual del Jugador 2014): no se agrega, el Manual 2024 los reemplazó por sus 16 trasfondos (Artesano, Guía, Vagabundo...). <!-- agregar|artesano gremial -->
+- [x] **Viajero Lejano** (Sword Coast Adventurer's Guide): no se agrega, ya está como «Forastero Errante». <!-- agregar|viajero lejano -->
 
 ## Lote 1: Cazador de Sangre (clase y sus 4 órdenes)
 
@@ -669,7 +784,7 @@ Dudosos: 21. Con tipo claro: 5. Ya revisados: 0.
 
 ## Lote 11: Guerrero (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 21. Con tipo claro: 3. Ya revisados: 0.
+Dudosos: 20. Con tipo claro: 3. Ya revisados: 1.
 
 ### Guerrero
 
@@ -686,7 +801,6 @@ Dudosos: 21. Con tipo claro: 3. Ya revisados: 0.
 ### Maestro de Batalla
 
 - [ ] **Superioridad en Combate** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- maestro de batalla|superioridad en combate -->
-- [ ] **Estudiante de la Guerra** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- maestro de batalla|estudiante de la guerra -->
 - [ ] **Conoce a tu Enemigo** (nivel 7): hoy `pasiva`, no menciona tipo de acción <!-- maestro de batalla|conoce a tu enemigo -->
 - [ ] **Implacable** (nivel 15): hoy `gratis`, no menciona tipo de acción <!-- maestro de batalla|implacable -->
 
@@ -944,7 +1058,7 @@ Dudosos: 28. Con tipo claro: 8. Ya revisados: 0.
 
 ## Lote 17: dotes generales
 
-Dudosos: 45. Con tipo claro: 12. Ya revisados: 0.
+Dudosos: 43. Con tipo claro: 12. Ya revisados: 2.
 
 ### Dote general
 
@@ -965,7 +1079,6 @@ Dudosos: 45. Con tipo claro: 12. Ya revisados: 0.
 - [ ] **Perforador (Piercer)** (nivel 4): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- dote general|perforador (piercer) -->
 - [ ] **Envenenador** (nivel 4): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- dote general|envenenador -->
 - [ ] **Maestro de Armas de Astil** (nivel 4): hoy `pasiva`, queda pasiva pero parece activarse <!-- dote general|maestro de armas de astil -->
-- [ ] **Resiliente** (nivel 4): hoy `pasiva`, no menciona tipo de acción <!-- dote general|resiliente -->
 - [ ] **Centinela** (nivel 4): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- dote general|centinela -->
 - [ ] **Tirador de Primera** (nivel 4): hoy `pasiva`, no menciona tipo de acción <!-- dote general|tirador de primera -->
 - [ ] **Experto en Habilidades** (nivel 4): hoy `pasiva`, no menciona tipo de acción <!-- dote general|experto en habilidades -->
@@ -973,7 +1086,6 @@ Dudosos: 45. Con tipo claro: 12. Ya revisados: 0.
 - [ ] **Cortador (Slasher)** (nivel 4): hoy `pasiva`, no menciona tipo de acción <!-- dote general|cortador (slasher) -->
 - [ ] **Velocista (Speedster)** (nivel 4): hoy `pasiva`, no menciona tipo de acción <!-- dote general|velocista (speedster) -->
 - [ ] **Francotirador de Conjuros** (nivel 4): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- dote general|francotirador de conjuros -->
-- [ ] **Maestro de Armas** (nivel 4): hoy `pasiva`, no menciona tipo de acción <!-- dote general|maestro de armas -->
 - [ ] **Toque Feérico** (nivel 4): hoy `pasiva`, no menciona tipo de acción <!-- dote general|toque feerico -->
 - [ ] **Toque de las Sombras** (nivel 4): hoy `pasiva`, no menciona tipo de acción <!-- dote general|toque de las sombras -->
 - [ ] **Telepático** (nivel 4): hoy `pasiva`, no menciona tipo de acción <!-- dote general|telepatico -->

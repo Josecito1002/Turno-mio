@@ -39,7 +39,7 @@ export function libEspecieDeBuilder(race){
   const subs = {}, rasgos = (race.rasgos || []).map(r => ({...rasgoDe(r, minNivel(r.descripcion) || 0)}));
   (race.subespecies || []).forEach(s => { const k = slug(s.id || s.nombre || s.name); subs[k] = {n: s.nombre || s.name}; (s.rasgos || []).forEach(r => rasgos.push({...rasgoDe(r, minNivel(r.descripcion) || 0), sub:k})); });
   rasgos.forEach(r => { if (r.n <= 1) delete r.n; });
-  return {n: race.nombre || race.name, lib:true, src:'D&D Builder', r:'De tu biblioteca', vel: +race.velocidad || 30, vision: race.vision_oscura ? 60 : 0, subL:'Subespecie', subs: Object.keys(subs).length ? subs : null, rasgos};
+  return {n: race.nombre || race.name, lib:true, src:'D&D Builder', r:'', vel: +race.velocidad || 30, vision: race.vision_oscura ? 60 : 0, subL:'Subespecie', subs: Object.keys(subs).length ? subs : null, rasgos};
 }
 export function especieBuiltin(race){
   const rk = norm(race?.id || race?.nombre);

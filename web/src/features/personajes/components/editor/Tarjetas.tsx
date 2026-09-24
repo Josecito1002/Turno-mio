@@ -2,6 +2,7 @@
 import { useId, useState, type ReactNode } from 'react';
 import { norm } from '@/shared/utils/texto';
 import { claseCampo, cx, foco } from '@/shared/ui/kit';
+import { ETIQUETA_FUENTE, type Fuente } from '@/features/reglas/data/fuentes';
 
 export type Tarjeta = { key: string; q: string; node: ReactNode };
 
@@ -24,7 +25,7 @@ export function TarjetasBuscables({ que, items }: { que: string; items: Tarjeta[
   );
 }
 
-export function Tarjeta({ on, onClick, img, titulo, sub, clampSub }: { on: boolean; onClick: () => void; img?: string; titulo: string; sub: string; clampSub?: boolean; clase?: string }) {
+export function Tarjeta({ on, onClick, img, titulo, sub, clampSub, fuente }: { on: boolean; onClick: () => void; img?: string; titulo: string; sub: string; clampSub?: boolean; clase?: string; fuente?: Fuente }) {
   return (
     <button type="button" aria-pressed={on} onClick={onClick}
       className={cx('flex w-full cursor-pointer flex-col rounded-2xl bg-surface p-3 text-left ring-1 transition-shadow hover:shadow-md', foco,
@@ -32,7 +33,20 @@ export function Tarjeta({ on, onClick, img, titulo, sub, clampSub }: { on: boole
       {/* eslint-disable-next-line @next/next/no-img-element */}
       {img && <img src={img} alt="" className="mb-2 aspect-square w-full rounded-xl bg-soft object-cover" />}
       <b className="flex items-center gap-1.5 font-serif text-[1.08rem] leading-tight">{on && <span aria-hidden="true">✓</span>}{titulo}</b>
-      <span className={cx('mt-0.5 text-sm text-muted', clampSub && 'line-clamp-3')}>{sub}</span>
+      {sub && <span className={cx('mt-0.5 text-sm text-muted', clampSub && 'line-clamp-3')}>{sub}</span>}
+      {fuente && <EtiquetaFuente fuente={fuente} className="mt-auto self-start pt-2" />}
     </button>
+  );
+}
+
+/** Etiqueta pequeña con el origen: Reglas básicas, D&D Beyond u Homebrew (el libro va en el título al pasar el ratón). */
+export function EtiquetaFuente({ fuente, className }: { fuente: Fuente; className?: string }) {
+  return (
+    <span className={className}>
+      <span title={fuente.libro} className={cx('inline-block rounded-full px-1.5 py-px text-[0.68rem] font-bold leading-tight ring-1',
+        fuente.tipo === 'homebrew' ? 'text-warn ring-warn/40' : 'text-muted ring-rule')}>
+        {ETIQUETA_FUENTE[fuente.tipo]}
+      </span>
+    </span>
   );
 }

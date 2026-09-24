@@ -30,7 +30,7 @@ function agregarRasgoBorrador(tipo: 'esp' | 'sub') { const r = leerRasgo(tipo ==
 function quitarRasgoBorrador(tipo: 'esp' | 'sub', i: number) { S.draft[tipo].rasgos.splice(i, 1); S.draft.abierto = tipo; render(); }
 function guardarEspecie() {
   const LIB: any = getLib(), e = S.draft.esp; if (!e.n.trim()) { avisar('Ponle nombre a la especie.', 'aviso'); return; }
-  LIB.especies['lib:' + slug(e.n)] = { n: e.n.trim(), lib: true, src: 'Creada', r: 'De tu biblioteca', vel: +e.vel || 30, vision: +e.vision || 0, subL: 'Subespecie', subs: null, rasgos: e.rasgos };
+  LIB.especies['lib:' + slug(e.n)] = { n: e.n.trim(), lib: true, src: 'Creada', r: '', vel: +e.vel || 30, vision: +e.vision || 0, subL: 'Subespecie', subs: null, rasgos: e.rasgos };
   guardarLib(true); avisar(`${e.n} guardada.`); S.draft = nuevoDraft(); render();
 }
 function guardarSubclase() {

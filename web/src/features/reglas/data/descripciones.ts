@@ -117,6 +117,7 @@ export const DESC_SUBCLASES: Record<string, any> = {
   'mano-pavor':'Peleadores con un pacto oscuro: invocaciones de brujo, crecimiento grotesco y golpes brutales.',
   'mala-leche':'Peleadores sucios que provocan, hacen trampas y castigan a quien los ignora.',
   'circulo-cuadrado':'Luchadores de llaves: apresan con facilidad, usan al rival de escudo y rematan en el suelo.',
+  'santo-callejero':'Pugilistas de fe callejera: curan con las manos, protegen a sus aliados y golpean con fuerza divina.',
   'dulce-ciencia':'Estilistas del boxeo que encadenan combinaciones y buscan el nocaut.',
   // Bárbaro
   'senda-berserker':'La furia pura: golpes con daño extra, inmunidad al miedo y represalias contra quien te hiere.',

@@ -5,6 +5,8 @@ import { guardarLib } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
 import { Boton, Plegable, Tarjeta, claseCampo, cx, foco } from '@/shared/ui/kit';
 import { getLib } from '../domain/biblioteca';
+import type { Fuente } from '@/features/reglas/data/fuentes';
+import { EtiquetaFuente } from '@/features/personajes/components/editor/Tarjetas';
 
 function cargarImagen(src: string) {
   return new Promise<HTMLImageElement>((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
@@ -110,7 +112,7 @@ function Recorte({ nombre }: { nombre: string }) {
 }
 
 /** Imagen y descripción de una especie o clase; el administrador las edita. */
-export function PanelMedia({ k, n, d }: { k: string; n: string; d: string }) {
+export function PanelMedia({ k, n, d, fuente }: { k: string; n: string; d: string; fuente?: Fuente }) {
   const LIB = getLib(), img = LIB.img?.[k], editando = S.crop && S.crop.k === k;
   const idArchivo = useId();
   return (
@@ -118,7 +120,7 @@ export function PanelMedia({ k, n, d }: { k: string; n: string; d: string }) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       {editando ? <Recorte nombre={n} /> : img ? <img className="size-32 shrink-0 rounded-xl object-cover sm:size-36" src={img} alt={`Ilustración de ${n}`} /> : null}
       <div className="min-w-56 flex-1">
-        <h2 className="m-0 font-serif text-2xl font-bold">{n}</h2>
+        <h2 className="m-0 font-serif text-2xl font-bold">{n}{fuente && <EtiquetaFuente fuente={fuente} className="ml-2 align-middle" />}</h2>
         {d ? <p className="mb-0 mt-1">{d}</p> : <p className="mb-0 mt-1 text-sm text-muted">Sin descripción todavía.</p>}
         {esAdmin() && !editando && (
           <Plegable titulo="Editar descripción o imagen" className="mt-3">

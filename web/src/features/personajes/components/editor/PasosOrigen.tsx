@@ -12,6 +12,7 @@ import { ESTILOS } from '@/features/reglas/data/estilos';
 import { ARMAS } from '@/features/reglas/data/equipo';
 import { kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
 import { esDoteOrigen } from '@/features/reglas/domain/restricciones';
+import { fuenteClase, fuenteEspecie, fuenteSubclase, fuenteTrasfondo } from '@/features/reglas/data/fuentes';
 import { getLib, getSubs, getT, allDotes, descEspecie, descClase, descSubclase, sinRepetidas } from '@/features/biblioteca/domain/biblioteca';
 import { PanelMedia } from '@/features/biblioteca/components/PanelMedia';
 import { Entrada } from '../piezas';
@@ -39,13 +40,13 @@ export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
   const elegir = (k: string) => elegirEspecie(k);
   const lista: [string, any][] = [...Object.entries(ESPECIES).filter(([k]) => k !== 'custom'), ...sinRepetidas(LIB.especies, ESPECIES, pj.especie.key), ['custom', ESPECIES.custom]];
   const items = lista.map(([k, e]) => {
-    const d = k === 'custom' ? e.r : (descEspecie(k) || (e.lib ? 'De la biblioteca' : e.r));
-    return { key: k, q: norm(e.n + ' ' + d), node: <Tarjeta on={pj.especie.key === k} onClick={() => elegir(k)} img={LIB.img?.[k]} titulo={e.n} sub={d} clampSub /> };
+    const d = k === 'custom' ? e.r : (descEspecie(k) || (e.lib ? '' : e.r));
+    return { key: k, q: norm(e.n + ' ' + d), node: <Tarjeta on={pj.especie.key === k} onClick={() => elegir(k)} img={LIB.img?.[k]} titulo={e.n} sub={d} clampSub fuente={k === 'custom' ? undefined : fuenteEspecie(k, e)} /> };
   });
   const ents = c.entries.filter((e: any) => e.grupo === 'especie');
   return (
     <>
-      {E && pj.especie.key !== 'custom' && <PanelMedia k={pj.especie.key} n={E.n} d={descEspecie(pj.especie.key)} />}
+      {E && pj.especie.key !== 'custom' && <PanelMedia k={pj.especie.key} n={E.n} d={descEspecie(pj.especie.key)} fuente={fuenteEspecie(pj.especie.key, E)} />}
       {E?.subs && (
         <Campo etiqueta={E.subL} className="max-w-sm">
           <Selector path="especie.sub" value={pj.especie.sub}>
@@ -80,8 +81,8 @@ export function ElegirSubclase({ pj, c }: { pj: any; c: any }) {
   const elegirSub = (k: string) => puede ? setVal('subclase', k) : setVista(v => ({ k: v.k === k && v.lvl === c.lvl ? '' : k, lvl: c.lvl }));
   const marcada = puede ? pj.subclase : (vista.lvl === c.lvl ? vista.k : '');
   const tarjetas = (on: (k: string) => boolean) => subs.map(s => {
-    const d = descSubclase(s.key) || (s.lib ? 'De la biblioteca.' : '');
-    return { key: s.key, q: norm(s.n + ' ' + d), node: <Tarjeta on={on(s.key)} onClick={() => elegirSub(s.key)} titulo={s.n} sub={d} clampSub /> };
+    const d = descSubclase(s.key);
+    return { key: s.key, q: norm(s.n + ' ' + d), node: <Tarjeta on={on(s.key)} onClick={() => elegirSub(s.key)} titulo={s.n} sub={d} clampSub fuente={fuenteSubclase(s, pj.clase)} /> };
   });
   // Antes de su nivel no se elige: las subclases quedan plegadas y solo se leen (ninguna se marca como elegida)
   if (!puede) return (
@@ -123,14 +124,14 @@ export function PasoClase({ pj, c }: { pj: any; c: any }) {
   const elegir = (k: string) => elegirClase(k);
   const lista: [string, any][] = [...Object.entries(CLASES), ...sinRepetidas(LIB.clases, CLASES, pj.clase).filter(([, x]) => x.dado)];
   const items = lista.map(([k, x]) => {
-    const sub = `d${x.dado}, ${x.lanz ? 'conjuros con ' + abInfo(x.lanz)[2] : 'sin conjuros'}${x.lib ? ', de la biblioteca' : ''}`;
-    return { key: k, q: norm(x.n + ' ' + descClase(k)), node: <Tarjeta on={pj.clase === k} onClick={() => elegir(k)} img={LIB.img?.['c:' + k]} titulo={x.n} sub={sub} /> };
+    const sub = `d${x.dado}, ${x.lanz ? 'conjuros con ' + abInfo(x.lanz)[2] : 'sin conjuros'}`;
+    return { key: k, q: norm(x.n + ' ' + descClase(k)), node: <Tarjeta on={pj.clase === k} onClick={() => elegir(k)} img={LIB.img?.['c:' + k]} titulo={x.n} sub={sub} fuente={fuenteClase(k)} /> };
   });
   const tarjetas = <Seccion titulo={C ? 'Cambiar de clase' : 'Elige tu clase'} descripcion={C ? 'Cambiar de clase borra las habilidades, pericias y maestrías que elegiste.' : undefined}><TarjetasBuscables que="clase" items={items} /></Seccion>;
   if (!C) return tarjetas;
   return (
     <>
-      <PanelMedia k={'c:' + pj.clase} n={C.n} d={descClase(pj.clase)} />
+      <PanelMedia k={'c:' + pj.clase} n={C.n} d={descClase(pj.clase)} fuente={fuenteClase(pj.clase)} />
       <div className="grid gap-3 sm:grid-cols-2">
         <Campo etiqueta="Nivel">
           <Selector path="nivel" value={+pj.nivel} num>{Array.from({ length: 20 }, (_, i) => <option key={i} value={i + 1}>{i + 1}</option>)}</Selector>
@@ -179,8 +180,8 @@ export function PasoTrasfondo({ pj, c }: { pj: any; c: any }) {
   const elegir = (k: string) => elegirTrasfondo(k);
   const lista: [string, any][] = [...Object.entries(TRASFONDOS).filter(([, t]) => !t.custom), ...sinRepetidas(LIB.trasfondos, TRASFONDOS, tb.key), ['custom', TRASFONDOS.custom]];
   const items = lista.map(([k, t]) => {
-    const sub = t.custom ? 'Arma el tuyo' : t.habs.join(' y ') + (t.lib ? ', biblioteca' : '');
-    return { key: k, q: norm(t.n + ' ' + sub), node: <Tarjeta on={tb.key === k} onClick={() => elegir(k)} titulo={t.n} sub={sub} /> };
+    const sub = t.custom ? 'Arma el tuyo' : t.habs.join(' y ');
+    return { key: k, q: norm(t.n + ' ' + sub), node: <Tarjeta on={tb.key === k} onClick={() => elegir(k)} titulo={t.n} sub={sub} fuente={t.custom ? undefined : fuenteTrasfondo(k, t)} /> };
   });
   const tarjetas = <Seccion titulo={T ? 'Cambiar de trasfondo' : 'Elige tu trasfondo'}><TarjetasBuscables que="trasfondo" items={items} /></Seccion>;
   if (!T) return tarjetas;

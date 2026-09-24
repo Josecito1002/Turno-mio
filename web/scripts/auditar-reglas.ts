@@ -52,6 +52,48 @@ const SELECTORES: { id: string; donde: string; que: string; detalle: string; hec
   { id: 'lealtad-tres', donde: 'Lote 16: Pícaro', que: 'Vástago de los Tres: Lealtad Temible', detalle: 'Bane, Bhaal o Myrkul: su resistencia y su truco.' },
 ];
 
+/* Lo que tiene D&D Beyond y falta en la app (lista del 24/09/2026). Se agrega en el lote de su clase, en su versión
+   oficial más reciente. `no`: por qué no se agrega (reemplazado en 2024 o sin versión vigente); cuenta como resuelto. */
+const POR_AGREGAR: { lote: string; que: string; libro: string; no?: string }[] = [
+  ...[['Senda de la Bestia', "Tasha's Cauldron of Everything"], ['Senda de la Magia Salvaje', "Tasha's Cauldron of Everything"], ['Senda del Guardián Ancestral', "Xanathar's Guide to Everything"],
+    ['Senda del Heraldo de la Tormenta', "Xanathar's Guide to Everything"], ['Senda del Gigante', "Bigby Presents: Glory of the Giants"], ['Senda del Rabioso de Batalla', "Sword Coast Adventurer's Guide"]]
+    .map(([que, libro]) => ({ lote: 'Lote 5: Bárbaro', que, libro })),
+  { lote: 'Lote 5: Bárbaro', que: 'Senda del Guerrero Totémico', libro: 'Manual del Jugador 2014', no: 'la reemplaza la Senda del Corazón Salvaje (2024), que ya está.' },
+  ...[['Colegio de la Creación', "Tasha's Cauldron of Everything"], ['Colegio de la Elocuencia', "Tasha's Cauldron of Everything"], ['Colegio de las Espadas', "Xanathar's Guide to Everything"], ['Colegio de los Susurros', "Xanathar's Guide to Everything"]]
+    .map(([que, libro]) => ({ lote: 'Lote 6: Bardo', que, libro })),
+  ...[['El Filo Maldito (Hexblade)', "Xanathar's Guide to Everything"], ['El Genio', "Tasha's Cauldron of Everything"], ['El Insondable', "Tasha's Cauldron of Everything"], ['El Inmortal', "Sword Coast Adventurer's Guide"]]
+    .map(([que, libro]) => ({ lote: 'Lote 7: Brujo', que, libro })),
+  ...[['Dominio de la Tempestad', 'Manual del Jugador 2014'], ['Dominio de la Naturaleza', 'Manual del Jugador 2014'], ['Dominio de la Forja', "Xanathar's Guide to Everything"], ['Dominio del Orden', "Tasha's Cauldron of Everything"],
+    ['Dominio de la Paz', "Tasha's Cauldron of Everything"], ['Dominio del Crepúsculo', "Tasha's Cauldron of Everything"], ['Dominio Arcano', "Sword Coast Adventurer's Guide"], ['Dominio de la Muerte', 'Guía del Dungeon Master 2014']]
+    .map(([que, libro]) => ({ lote: 'Lote 8: Clérigo', que, libro })),
+  ...[['Círculo de los Sueños', "Xanathar's Guide to Everything"], ['Círculo del Pastor', "Xanathar's Guide to Everything"], ['Círculo de las Esporas', "Tasha's Cauldron of Everything"], ['Círculo del Fuego Salvaje', "Tasha's Cauldron of Everything"]]
+    .map(([que, libro]) => ({ lote: 'Lote 9: Druida', que, libro })),
+  ...[['Trotamundos del Horizonte', "Xanathar's Guide to Everything"], ['Cazador de Monstruos', "Xanathar's Guide to Everything"], ['Guardián del Enjambre', "Tasha's Cauldron of Everything"], ['Guardián Dracónico', "Fizban's Treasury of Dragons"]]
+    .map(([que, libro]) => ({ lote: 'Lote 10: Explorador', que, libro })),
+  ...[['Arquero Arcano', "Xanathar's Guide to Everything"], ['Caballero (Cavalier)', "Xanathar's Guide to Everything"], ['Samurái', "Xanathar's Guide to Everything"], ['Caballero Rúnico', "Tasha's Cauldron of Everything"], ['Caballero del Eco', "Explorer's Guide to Wildemount"]]
+    .map(([que, libro]) => ({ lote: 'Lote 11: Guerrero', que, libro })),
+  ...[['Alma Divina', "Xanathar's Guide to Everything"], ['Hechicería de la Tormenta', "Xanathar's Guide to Everything"], ['Hechicería Lunar', 'Dragonlance: Shadow of the Dragon Queen']]
+    .map(([que, libro]) => ({ lote: 'Lote 12: Hechicero', que, libro })),
+  ...[['Magia de Guerra', "Xanathar's Guide to Everything"], ['Orden de los Escribas', "Tasha's Cauldron of Everything"], ['Cronurgia', "Explorer's Guide to Wildemount"], ['Graviturgia', "Explorer's Guide to Wildemount"]]
+    .map(([que, libro]) => ({ lote: 'Lote 13: Mago', que, libro })),
+  ...[['Camino del Maestro Borracho', "Xanathar's Guide to Everything"], ['Camino del Kensei', "Xanathar's Guide to Everything"], ['Camino del Alma Solar', "Xanathar's Guide to Everything"], ['Camino del Yo Astral', "Tasha's Cauldron of Everything"],
+    ['Camino del Dragón Ascendente', "Fizban's Treasury of Dragons"], ['Camino de la Larga Muerte', "Sword Coast Adventurer's Guide"]]
+    .map(([que, libro]) => ({ lote: 'Lote 14: Monje', que, libro })),
+  ...[['Juramento de Conquista', "Xanathar's Guide to Everything"], ['Juramento de Redención', "Xanathar's Guide to Everything"], ['Juramento de los Vigilantes', "Tasha's Cauldron of Everything"], ['Juramento de la Corona', "Sword Coast Adventurer's Guide"], ['Rompejuramentos', 'Guía del Dungeon Master 2014']]
+    .map(([que, libro]) => ({ lote: 'Lote 15: Paladín', que, libro })),
+  ...[['Mente Maestra', "Xanathar's Guide to Everything"], ['Espadachín', "Xanathar's Guide to Everything"], ['Explorador (Scout)', "Xanathar's Guide to Everything"]]
+    .map(([que, libro]) => ({ lote: 'Lote 16: Pícaro', que, libro })),
+  ...[['Aarakocra', 'Monsters of the Multiverse'], ['Gnomo de las Profundidades', 'Monsters of the Multiverse'], ['Duergar', 'Monsters of the Multiverse'],
+    ['Dracónido de gema (amatista, cristal, esmeralda, zafiro, topacio): agregar a los linajes del Dracónido', "Fizban's Treasury of Dragons"]]
+    .map(([que, libro]) => ({ lote: 'Especies', que, libro })),
+  { lote: 'Especies', que: 'Semielfo y Semiorco', libro: 'Manual del Jugador 2014', no: 'el Manual 2024 los quitó (se juega con los padres de cada especie); solo quedan como contenido antiguo.' },
+  { lote: 'Especies', que: 'Aasimar: variantes Protector, Azote y Caído', libro: "Volo's Guide to Monsters", no: 'el Aasimar 2024 ya no tiene variantes: sus poderes se eligen al usar Revelación Celestial.' },
+  { lote: 'Especies', que: 'Tiefling: variantes de Mordenkainen', libro: "Mordenkainen's Tome of Foes", no: 'el Tiefling 2024 usa los legados Abisal, Ctónico e Infernal, que ya están.' },
+  ...[['Héroe del Pueblo', 'Manual del Jugador 2014'], ['Huérfano', 'Manual del Jugador 2014'], ['Forastero', 'Manual del Jugador 2014'], ['Artesano Gremial', 'Manual del Jugador 2014']]
+    .map(([que, libro]) => ({ lote: 'Trasfondos', que, libro, no: 'el Manual 2024 los reemplazó por sus 16 trasfondos (Artesano, Guía, Vagabundo...).' })),
+  { lote: 'Trasfondos', que: 'Viajero Lejano', libro: "Sword Coast Adventurer's Guide", no: 'ya está como «Forastero Errante».' },
+];
+
 const reglaDe =(nombre: string, src: string) => REGLAS.some((r: any) => r.n.test(norm(nombre)) && (!r.de || r.de.test(norm(src))));
 
 function auditar(rasgos: Rasgo[], origen: (r: Rasgo) => string, lote: Lote, tipoDe: (r: Rasgo) => string = r => clasificar(r.texto || '')) {
@@ -135,6 +177,16 @@ function main() {
     if (s.donde !== grupo) { if (grupo) md.push(''); grupo = s.donde; md.push(`### ${grupo}`, ''); }
     const id = `selector|${s.id}`;
     md.push(previas.get(id) ?? `- [${s.hecho ? 'x' : ' '}] **${s.que}**: ${s.detalle} <!-- ${id} -->`);
+    previas.delete(id);
+  }
+  md.push('');
+  /* Lo que falta de D&D Beyond: se agrega en el lote de su clase, en su versión oficial más reciente */
+  md.push('## Por agregar (faltan respecto a D&D Beyond)', '', 'Se agregan en el lote de su clase, con su versión oficial más reciente. Las marcadas con «no se agrega» ya las reemplazó el contenido de 2024.', '');
+  grupo = '';
+  for (const a of POR_AGREGAR) {
+    if (a.lote !== grupo) { if (grupo) md.push(''); grupo = a.lote; md.push(`### ${grupo}`, ''); }
+    const id = `agregar|${norm(a.que)}`;
+    md.push(previas.get(id) ?? `- [${a.no ? 'x' : ' '}] **${a.que}** (${a.libro})${a.no ? `: no se agrega, ${a.no}` : ''} <!-- ${id} -->`);
     previas.delete(id);
   }
   md.push('');
