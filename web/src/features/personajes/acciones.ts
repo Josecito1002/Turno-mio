@@ -142,29 +142,68 @@ export function tomarEquipoClase(op: number | 'oro') {
     const oro = typeof a === 'number' ? a : Array.from({ length: a.n }, () => 1 + Math.floor(Math.random() * a.caras)).reduce((s, x) => s + x, 0) * a.por;
     pj.oro = (+pj.oro || 0) + oro;
     avisar(`${oro} po agregadas${typeof a === 'number' ? '' : ` (tiraste ${a.dados})`}.`);
+    pj.kits = { ...(pj.kits || {}), clase: { oro } };
   } else {
     const v = kit.variantes[op];
-    (v.armas || []).forEach(([k, q]) => { const ex = pj.armas.find((x: any) => x[0] === k); if (ex) ex[1] += q; else pj.armas.push([k, q]); });
-    if (v.armadura) pj.armadura = v.armadura;
-    if (v.escudo) pj.escudo = true;
-    pj.inventario = [pj.inventario, `De la clase (${C?.n || 'clase'}):\n${v.objetos.map(o => `- ${o}`).join('\n')}`].filter(Boolean).join('\n\n');
-    pj.oro = (+pj.oro || 0) + v.oro;
+    pj.kits = { ...(pj.kits || {}), clase: agregarAporte(pj, aporteClase(C, v)) };
     avisar(`Kit ${letra} de ${C?.n || 'tu clase'} agregado.`);
   }
   pj.inicial = letra;
   savePj(); render();
 }
 
+/* ---- Quitar un kit ya tomado: se deshace exactamente lo que agregó ---- */
+export function quitarEquipoClase() {
+  const pj = S.pj, kit = kitClase(pj.clase);
+  if (!pj.inicial) return;
+  // Personajes que tomaron el kit antes de que se anotara lo agregado: se reconstruye desde el kit
+  let ap: Aporte | null = pj.kits?.clase || null;
+  if (!ap && kit) {
+    const v = kit.variantes[String(pj.inicial).charCodeAt(0) - 65];
+    ap = v ? aporteClase(getC(pj, pj.clase), v) : { oro: typeof kit.alternativa === 'number' ? kit.alternativa : 0 };
+  }
+  if (!confirm('¿Quitar el equipo de la clase? Se quitan sus armas, armadura, objetos y oro para que puedas elegir otra opción.')) return;
+  if (ap) quitarAporte(pj, ap);
+  pj.inicial = false; if (pj.kits) delete pj.kits.clase;
+  savePj(); render(); avisar('Equipo de la clase quitado.');
+}
+export function quitarEquipoTrasfondo() {
+  const pj = S.pj, T = getT(pj, pj.trasfondo?.key), kit = kitTrasfondo(pj.trasfondo?.key, T), op = pj.trasfondo?.equipo;
+  if (!op) return;
+  const ap: Aporte | null = pj.kits?.trasfondo || (kit ? (op === 'A' ? aporteTrasfondo(T, kit) : { oro: kit.alternativa || 0 }) : null);
+  if (!confirm('¿Quitar el equipo del trasfondo? Se quitan sus armas, objetos y oro para que puedas elegir otra opción.')) return;
+  if (ap) quitarAporte(pj, ap);
+  pj.trasfondo.equipo = ''; if (pj.kits) delete pj.kits.trasfondo;
+  savePj(); render(); avisar('Equipo del trasfondo quitado.');
+}
+
+/* Lo que agrega un kit: armas, armadura, escudo, un bloque de inventario y oro. Se guarda en pj.kits para poder quitarlo */
+type Aporte = { armas?: [string, number][]; armadura?: string; armaduraAntes?: string; escudo?: boolean; escudoAntes?: boolean; bloque?: string; oro: number };
+const aporteClase = (C: any, v: any): Aporte => ({ armas: v.armas || [], armadura: v.armadura, escudo: !!v.escudo, bloque: `De la clase (${C?.n || 'clase'}):\n${v.objetos.map((o: string) => `- ${o}`).join('\n')}`, oro: v.oro || 0 });
+const aporteTrasfondo = (T: any, kit: any): Aporte => ({ armas: kit.armas || [], bloque: `Del trasfondo (${T?.n || 'trasfondo'}):\n${kit.objetos.map((o: string) => `- ${o}`).join('\n')}`, oro: kit.oro || 0 });
+export function agregarAporte(pj: any, ap: Aporte): Aporte {
+  (ap.armas || []).forEach(([k, q]) => { const ex = pj.armas.find((a: any) => a[0] === k); if (ex) ex[1] += q; else pj.armas.push([k, q]); });
+  if (ap.armadura) { ap.armaduraAntes = pj.armadura || 'ninguna'; pj.armadura = ap.armadura; }
+  if (ap.escudo) { ap.escudoAntes = !!pj.escudo; pj.escudo = true; }
+  if (ap.bloque) pj.inventario = [pj.inventario, ap.bloque].filter(Boolean).join('\n\n');
+  pj.oro = (+pj.oro || 0) + ap.oro;
+  return ap;
+}
+export function quitarAporte(pj: any, ap: Aporte) {
+  (ap.armas || []).forEach(([k, q]) => { const i = pj.armas.findIndex((a: any) => a[0] === k); if (i < 0) return; pj.armas[i][1] -= q; if (pj.armas[i][1] <= 0) pj.armas.splice(i, 1); });
+  // La armadura y el escudo solo se devuelven si siguen siendo los del kit (si los cambiaste después, se respetan)
+  if (ap.armadura && pj.armadura === ap.armadura) pj.armadura = ap.armaduraAntes || 'ninguna';
+  if (ap.escudo && !ap.escudoAntes) pj.escudo = false;
+  if (ap.bloque && pj.inventario) pj.inventario = String(pj.inventario).replace(ap.bloque, '').replace(/\n{3,}/g, '\n\n').trim();
+  pj.oro = Math.max(0, (+pj.oro || 0) - ap.oro);
+}
+
 /* ---- Equipo del trasfondo: kit (A) o 50 po (B), una sola vez por trasfondo ---- */
 export function tomarEquipoTrasfondo(op: 'A' | 'B') {
   const pj = S.pj, T = getT(pj, pj.trasfondo?.key), kit = kitTrasfondo(pj.trasfondo?.key, T);
   if (!kit || pj.trasfondo.equipo) return;
-  if (op === 'A') {
-    (kit.armas || []).forEach(([k, q]) => { const ex = pj.armas.find((a: any) => a[0] === k); if (ex) ex[1] += q; else pj.armas.push([k, q]); });
-    const lineas = kit.objetos.map(o => `- ${o}`).join('\n');
-    pj.inventario = [pj.inventario, `Del trasfondo (${T?.n || 'trasfondo'}):\n${lineas}`].filter(Boolean).join('\n\n');
-    pj.oro = (+pj.oro || 0) + kit.oro;
-  } else pj.oro = (+pj.oro || 0) + (kit.alternativa || 0);
+  const ap = op === 'A' ? aporteTrasfondo(T, kit) : { oro: kit.alternativa || 0 };
+  pj.kits = { ...(pj.kits || {}), trasfondo: agregarAporte(pj, ap) };
   pj.trasfondo.equipo = op;
   savePj(); render();
   avisar(op === 'A' ? `Kit de ${T?.n || 'trasfondo'} agregado: armas, inventario y ${kit.oro} po.` : `${kit.alternativa} po agregadas.`);

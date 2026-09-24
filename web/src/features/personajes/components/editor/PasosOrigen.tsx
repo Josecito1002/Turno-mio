@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { S, render } from '@/app-shell/estado';
 import { norm } from '@/shared/utils/texto';
-import { Boton, Campo, Nota, Seccion } from '@/shared/ui/kit';
+import { Boton, Campo, Nota, Plegable, Seccion } from '@/shared/ui/kit';
 import { ALL_AB, SKILLS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { ESPECIES } from '@/features/reglas/data/especies';
 import { CLASES } from '@/features/reglas/data/clases';
@@ -15,7 +15,7 @@ import { esDoteOrigen } from '@/features/reglas/domain/restricciones';
 import { getLib, getSubs, getT, allDotes, descEspecie, descClase, descSubclase, sinRepetidas } from '@/features/biblioteca/domain/biblioteca';
 import { PanelMedia } from '@/features/biblioteca/components/PanelMedia';
 import { Entrada } from '../piezas';
-import { savePj, setVal, tomarEquipoTrasfondo } from '../../acciones';
+import { quitarEquipoTrasfondo, savePj, setVal, tomarEquipoTrasfondo } from '../../acciones';
 import { TarjetasBuscables, Tarjeta } from './Tarjetas';
 import { ElegirElecciones, InfoSubclase } from './InfoSubclase';
 import { AbSel, Casilla, CampoNumero, CampoTexto, Selector } from './campos';
@@ -79,19 +79,30 @@ export function ElegirSubclase({ pj, c }: { pj: any; c: any }) {
   const [vista, setVista] = useState({ k: '', lvl: 0 });
   const elegirSub = (k: string) => puede ? setVal('subclase', k) : setVista(v => ({ k: v.k === k && v.lvl === c.lvl ? '' : k, lvl: c.lvl }));
   const marcada = puede ? pj.subclase : (vista.lvl === c.lvl ? vista.k : '');
+  const tarjetas = (on: (k: string) => boolean) => subs.map(s => {
+    const d = descSubclase(s.key) || (s.lib ? 'De la biblioteca.' : '');
+    return { key: s.key, q: norm(s.n + ' ' + d), node: <Tarjeta on={on(s.key)} onClick={() => elegirSub(s.key)} titulo={s.n} sub={d} clampSub /> };
+  });
+  // Antes de su nivel no se elige: las subclases quedan plegadas y solo se leen (ninguna se marca como elegida)
+  if (!puede) return (
+    <Plegable titulo={`Ver las subclases (se eligen a nivel ${c.subNivel})`}>
+      <div className="px-4 pb-4">
+        <Nota>Solo para leer: tocar una muestra qué da, pero no la elige.</Nota>
+        <TarjetasBuscables que="subclase" items={tarjetas(() => false)} />
+        {marcada && <InfoSubclase pj={pj} sk={marcada} lvl={c.lvl} soloVer />}
+      </div>
+    </Plegable>
+  );
   return (
     <>
       <TarjetasBuscables que="subclase" items={[
-        ...subs.map(s => {
-          const d = descSubclase(s.key) || (s.lib ? 'De la biblioteca.' : '');
-          return { key: s.key, q: norm(s.n + ' ' + d), node: <Tarjeta on={marcada === s.key} onClick={() => elegirSub(s.key)} titulo={s.n} sub={d} clampSub /> };
-        }),
-        ...(puede ? [{ key: 'otra', q: 'otra', node: <Tarjeta on={pj.subclase === 'otra'} onClick={() => elegirSub('otra')} titulo="Otra" sub="Escribe su nombre; sus rasgos van en Rasgos propios." /> }] : []),
+        ...tarjetas(k => marcada === k),
+        { key: 'otra', q: 'otra', node: <Tarjeta on={pj.subclase === 'otra'} onClick={() => elegirSub('otra')} titulo="Otra" sub="Escribe su nombre; sus rasgos van en Rasgos propios." /> },
       ]} />
-      {puede && pj.subclase === 'otra' && (
+      {pj.subclase === 'otra' && (
         <Campo etiqueta="Nombre de la subclase" ayuda="Sus rasgos van en Rasgos propios."><CampoTexto path="subclaseNombre" value={pj.subclaseNombre} /></Campo>
       )}
-      {marcada && marcada !== 'otra' && <InfoSubclase pj={pj} sk={marcada} lvl={c.lvl} soloVer={!puede} />}
+      {marcada && marcada !== 'otra' && <InfoSubclase pj={pj} sk={marcada} lvl={c.lvl} />}
     </>
   );
 }
@@ -128,7 +139,7 @@ export function PasoClase({ pj, c }: { pj: any; c: any }) {
       </div>
       <ElegirElecciones pj={pj} elecciones={(c.elecciones || []).filter((e: any) => e.grupo === 'clase')} />
       {pj.clase === 'brujo' && <Casilla path="pactoCadena" checked={pj.pactoCadena}>Tiene la invocación Pacto de la Cadena</Casilla>}
-      <Seccion titulo="Subclase" descripcion={c.lvl < c.subNivel ? `La eliges al llegar a nivel ${c.subNivel}. Por ahora puedes tocar una para ver qué da, sin elegirla.` : 'Toca una para ver qué da en cada nivel.'}>
+      <Seccion titulo="Subclase" descripcion={c.lvl < c.subNivel ? `La eliges al llegar a nivel ${c.subNivel}.` : 'Toca una para ver qué da en cada nivel.'}>
         <ElegirSubclase pj={pj} c={c} />
       </Seccion>
       <Seccion titulo={`Rasgos hasta nivel ${c.lvl}`}>
@@ -152,7 +163,7 @@ export function EquipoTrasfondo({ pj }: { pj: any }) {
       {kit.alternativa != null && <p className="mb-0 mt-1"><b>Opción B:</b> {kit.alternativa} po para comprar tu equipo.</p>}
       <p className="mb-0 mt-1 text-xs text-muted">{kit.sugerido ? 'Kit sugerido: este trasfondo no tiene versión oficial con equipo.' : `Fuente: ${kit.fuente}.`}</p>
       {tomado
-        ? <p className="mb-0 mt-3 font-bold text-pas">✓ Ya tomaste la opción {tomado}{tomado === 'A' ? ': las armas están en Equipo y lo demás en tu inventario.' : '.'}</p>
+        ? <div className="mt-3 flex flex-wrap items-center gap-3"><p className="m-0 font-bold text-pas">✓ Ya tomaste la opción {tomado}{tomado === 'A' ? ': las armas están en Equipo y lo demás en tu inventario.' : '.'}</p><Boton tamano="sm" variante="fantasma" onClick={quitarEquipoTrasfondo}>Quitar y elegir otra</Boton></div>
         : (
           <div className="mt-3 flex flex-wrap gap-2">
             <Boton variante="primario" onClick={() => tomarEquipoTrasfondo('A')}>Tomar el kit (A)</Boton>

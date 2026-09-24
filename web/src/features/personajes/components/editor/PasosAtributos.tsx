@@ -13,7 +13,7 @@ import { competenteArma, textoArmaduras, textoArmas } from '@/features/reglas/do
 import { mejoraDeDote } from '@/features/reglas/domain/mejora-dote';
 import { allDotes } from '@/features/biblioteca/domain/biblioteca';
 import { useDados } from '@/features/dados/components/Bandeja';
-import { savePj, tirarPg, tomarEquipoClase } from '../../acciones';
+import { quitarEquipoClase, savePj, tirarPg, tomarEquipoClase } from '../../acciones';
 import { AbSel, Casilla, CampoArea, CampoNumero, CampoTexto, Selector } from './campos';
 import { EquipoTrasfondo } from './PasosOrigen';
 import { ElegirElecciones } from './InfoSubclase';
@@ -221,7 +221,7 @@ export function EquipoClase({ pj }: { pj: any }) {
       <p className="m-0"><b>Opción {letra(kit.variantes.length)}:</b> {oro} para comprar tu equipo.</p>
       <p className="mb-0 mt-1 text-xs text-muted">Fuente: {kit.fuente}.</p>
       {pj.inicial
-        ? <p className="mb-0 mt-3 font-bold text-pas">✓ Ya tomaste {typeof pj.inicial === 'string' ? `la opción ${pj.inicial}` : 'el equipo inicial'}.</p>
+        ? <div className="mt-3 flex flex-wrap items-center gap-3"><p className="m-0 font-bold text-pas">✓ Ya tomaste {typeof pj.inicial === 'string' ? `la opción ${pj.inicial}` : 'el equipo inicial'}.</p><Boton tamano="sm" variante="fantasma" onClick={quitarEquipoClase}>Quitar y elegir otra</Boton></div>
         : (
           <div className="mt-3 flex flex-wrap gap-2">
             {kit.variantes.map((_, i) => <Boton key={i} variante={i === 0 ? 'primario' : undefined} onClick={() => tomarEquipoClase(i)}>Tomar el kit {letra(i)}</Boton>)}
