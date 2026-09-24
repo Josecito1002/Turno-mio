@@ -23,7 +23,9 @@ export function crearDb(url = process.env.DATABASE_URL || 'pglite:./.data/pg') {
     return { db: db as unknown as DB, migrar: (carpeta: string) => migrateLite(db, { migrationsFolder: carpeta }), cerrar: () => cliente.close() };
   }
   // Con Supabase usar el pooler en modo sesión (5432). prepare:false sirve también para Neon y poolers.
-  const cliente = postgres(url, { prepare: false, max: 5 });
+  // El modo sesión del plan gratuito admite pocas conexiones (15): en Vercel cada función abre las suyas,
+  // así que ahí se usa una sola por función, y en todos lados las inactivas se cierran a los 20 s.
+  const cliente = postgres(url, { prepare: false, max: process.env.VERCEL ? 1 : 5, idle_timeout: 20, connect_timeout: 15 });
   const db = drizzlePg(cliente, { schema: esquema });
   return { db, migrar: (carpeta: string) => migratePg(db, { migrationsFolder: carpeta }), cerrar: () => cliente.end() };
 }
