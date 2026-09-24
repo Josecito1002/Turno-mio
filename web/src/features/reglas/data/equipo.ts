@@ -1,4 +1,3 @@
-// @ts-nocheck -- datos portados tal cual de index.html
 /* eslint-disable */
 import { norm } from '@/shared/utils/texto';
 
