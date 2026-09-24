@@ -41,4 +41,6 @@ export const useRender = () => useSyncExternalStore(suscribir, () => version, ()
 export const puedeUsarMesa = (rol?: string | null) => rol === 'dm' || rol === 'admin';
 export const esAdmin = () => S.usuario?.rol === 'admin';
 export const esDM = () => puedeUsarMesa(S.usuario?.rol);
+/** Sin cuenta: los personajes se guardan solo en este navegador. */
+export const esInvitado = () => S.usuario?.rol === 'invitado';
 export const irArriba = () => window.scrollTo(0, 0);

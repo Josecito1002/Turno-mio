@@ -37,7 +37,37 @@ export function vaciarPendientes() { [...pendientes.keys()].forEach(k => ejecuta
 
 export type Carga = { usuario: Usuario | null; lista: { id: string; name: string; sub: string }[] };
 
-export async function cargarTodo(): Promise<Carga> {
+/* ---- Modo invitado: sin cuenta, nada va al servidor; los personajes quedan en este navegador (localStorage) ---- */
+let invitado = false;
+const CLAVE_PJS = 'miturno-invitado-personajes', CLAVE_ULTIMO = 'miturno-invitado-ultimo';
+type PjLocal = { nombre: string; resumen: string; datos: any };
+function leerLocal(): Record<string, PjLocal> {
+  try { return JSON.parse(localStorage.getItem(CLAVE_PJS) || '{}') || {}; } catch { return {}; }
+}
+function escribirLocal(pjs: Record<string, PjLocal>) {
+  try { localStorage.setItem(CLAVE_PJS, JSON.stringify(pjs)); }
+  catch { avisar('No se pudo guardar en este navegador (¿modo privado o sin espacio?). Descarga el respaldo para no perder el personaje.', 'error'); }
+}
+const leerUltimo = () => { try { return localStorage.getItem(CLAVE_ULTIMO); } catch { return null; } };
+const escribirUltimo = (id: string | null) => { try { if (id) localStorage.setItem(CLAVE_ULTIMO, id); else localStorage.removeItem(CLAVE_ULTIMO); } catch { /* sin almacenamiento: no pasa nada */ } };
+
+async function cargarInvitado(): Promise<Carga> {
+  invitado = true;
+  const d = await gql<RespuestaBiblioteca>(`{ ${QUERY_BIBLIOTECA} }`);
+  setLib(filasALib(d.biblioteca));
+  limpiarBestias();
+  const locales = leerLocal();
+  mem.pjs = new Map(Object.entries(locales).map(([id, p]) => [id, p.datos]));
+  mem.campanas = [];
+  return {
+    usuario: { id: 'invitado', email: '', nombre: 'Invitado', rol: 'invitado', ultimoPj: leerUltimo() },
+    lista: Object.entries(locales).map(([id, p]) => ({ id, name: p.nombre, sub: p.resumen || '' })),
+  };
+}
+
+export async function cargarTodo(comoInvitado = false): Promise<Carga> {
+  if (comoInvitado) return cargarInvitado();
+  invitado = false; // por si antes se usó como invitado en esta misma pestaña
   const d = await gql<RespuestaBiblioteca & { yo: Usuario | null; personajes: PersonajeServidor[] }>(
     `{ yo { id email nombre rol ultimoPj } ${QUERY_BIBLIOTECA} ${QUERY_PERSONAJES} }`);
   setLib(filasALib(d.biblioteca));
@@ -55,17 +85,20 @@ export const almacen = {
   guardarPj(pj: any, resumen: string) {
     mem.pjs.set(pj.id, copia(pj));
     const datos = copia(pj);
+    if (invitado) { const l = leerLocal(); l[pj.id] = { nombre: pj.nombre || 'Sin nombre', resumen, datos }; escribirLocal(l); return; }
     programar('pj:' + pj.id, k => guardarPersonaje({ id: pj.id, nombre: pj.nombre || 'Sin nombre', resumen, datos }, k));
   },
   borrarPj(id: string) {
     mem.pjs.delete(id);
+    if (invitado) { const l = leerLocal(); delete l[id]; escribirLocal(l); return; }
     const p = pendientes.get('pj:' + id); if (p) { clearTimeout(p.t); pendientes.delete('pj:' + id); }
     borrarPersonaje(id).catch((e: Error) => avisar(`No se pudo borrar en el servidor: ${e.message}`, 'error'));
   },
-  ultimo(id: string | null) { programar('ultimo', () => marcarUltimo(id), 1500); },
+  ultimo(id: string | null) { if (invitado) { escribirUltimo(id); return; } programar('ultimo', () => marcarUltimo(id), 1500); },
 
   campanas() { return copia(mem.campanas); },
   guardarCampana(cp: any) {
+    if (invitado) return; // la mesa del DM necesita cuenta
     const i = mem.campanas.findIndex(x => x.id === cp.id);
     if (i >= 0) mem.campanas[i] = copia(cp); else mem.campanas.push(copia(cp));
     const datos = copia(cp);
@@ -80,6 +113,7 @@ export const almacen = {
 
 /** Guarda la biblioteca: el administrador la reemplaza; los demás solo aportan lo nuevo que importaron. */
 export function guardarLib(admin: boolean) {
+  if (invitado) return; // lo que importe un invitado queda solo en esta sesión
   const lib = copia(getLib());
   programar('lib', () => (admin ? guardarBiblioteca(lib) : aportarBiblioteca(lib)), 900);
 }

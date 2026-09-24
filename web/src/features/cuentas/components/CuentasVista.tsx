@@ -2,8 +2,9 @@
 import { useEffect, useState } from 'react';
 import { S } from '@/app-shell/estado';
 import { avisar } from '@/shared/ui/avisos';
-import { Aviso, EncabezadoPagina, Fila, Lista, Nota, Seccion, claseCampo, cx } from '@/shared/ui/kit';
-import { cambiarRol, listarCuentas, type Cuenta } from '../api';
+import { Aviso, Boton, EncabezadoPagina, Fila, Lista, Nota, Seccion, claseCampo, cx } from '@/shared/ui/kit';
+import { confirmar } from '@/shared/ui/confirmar';
+import { cambiarRol, listarCuentas, restablecerContrasena, type Cuenta } from '../api';
 
 const ROLES: [string, string, string][] = [
   ['jugador', 'Jugador', 'Crea y usa sus propios personajes.'],
@@ -18,6 +19,16 @@ export function CuentasVista() {
   const [guardando, setGuardando] = useState('');
 
   useEffect(() => { listarCuentas().then(setCuentas).catch((e: Error) => setError(e.message)); }, []);
+
+  const [temporales, setTemporales] = useState<Record<string, string>>({});
+  const restablecer = async (c: Cuenta) => {
+    if (!(await confirmar({ titulo: `¿Restablecer la contraseña de ${c.nombre}?`, si: 'Restablecer',
+      texto: 'Su contraseña actual deja de servir. Se genera una temporal que tendrás que pasarle; al entrar podrá cambiarla.' }))) return;
+    setGuardando(c.id);
+    try { const t = await restablecerContrasena(c.id); setTemporales(x => ({ ...x, [c.id]: t })); }
+    catch (e) { avisar((e as Error).message, 'error'); }
+    finally { setGuardando(''); }
+  };
 
   const cambiar = async (c: Cuenta, rol: string) => {
     setGuardando(c.id);
@@ -50,12 +61,20 @@ export function CuentasVista() {
                     <b className="block">{c.nombre}{c.id === S.usuario?.id && <span className="ml-1 font-normal text-muted">(tú)</span>}</b>
                     <span className="block truncate text-sm text-muted">{c.email}</span>
                   </span>
-                  <label className="flex items-center gap-2 text-sm font-bold">
-                    <span className="sr-only">Rol de {c.nombre}</span>
-                    <select value={c.rol} disabled={guardando === c.id} onChange={e => cambiar(c, e.target.value)} className={cx(claseCampo, 'w-44! cursor-pointer')}>
-                      {ROLES.map(([k, n]) => <option key={k} value={k}>{n}</option>)}
-                    </select>
-                  </label>
+                  <span className="flex flex-wrap items-center justify-end gap-2">
+                    <label className="flex items-center gap-2 text-sm font-bold">
+                      <span className="sr-only">Rol de {c.nombre}</span>
+                      <select value={c.rol} disabled={guardando === c.id} onChange={e => cambiar(c, e.target.value)} className={cx(claseCampo, 'w-44! cursor-pointer')}>
+                        {ROLES.map(([k, n]) => <option key={k} value={k}>{n}</option>)}
+                      </select>
+                    </label>
+                    {c.id !== S.usuario?.id && <Boton tamano="sm" variante="fantasma" disabled={guardando === c.id} onClick={() => restablecer(c)}>Restablecer contraseña</Boton>}
+                  </span>
+                  {temporales[c.id] && (
+                    <p role="status" className="m-0 w-full rounded-xl bg-soft p-3 text-sm">
+                      Contraseña temporal de {c.nombre}: <b className="select-all font-mono text-base">{temporales[c.id]}</b>. Pásasela; al entrar, que la cambie en «Cambiar mi contraseña». No se vuelve a mostrar.
+                    </p>
+                  )}
                 </Fila>
               ))}
             </Lista>

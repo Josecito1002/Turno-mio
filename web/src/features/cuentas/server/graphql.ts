@@ -3,6 +3,14 @@ import { GraphQLError } from 'graphql';
 import { requiereUsuario, type Contexto, type ModuloGraphQL } from '@/shared/graphql/servidor';
 import { usuarios } from './tablas';
 import { ROLES, exigir, rolActual } from './permisos';
+import bcrypt from 'bcryptjs';
+import { randomInt } from 'node:crypto';
+
+/** 10 caracteres fáciles de dictar (sin 0/O ni 1/l/I). */
+function contrasenaTemporal() {
+  const letras = 'abcdefghjkmnpqrstuvwxyz23456789';
+  return Array.from({ length: 10 }, () => letras[randomInt(letras.length)]).join('');
+}
 
 const typeDefs = /* GraphQL */ `
   type Usuario {
@@ -24,6 +32,10 @@ const typeDefs = /* GraphQL */ `
     marcarUltimo(id: ID): Boolean!
     "Solo administradores: jugador, dm o admin."
     cambiarRol(id: ID!, rol: String!): Cuenta!
+    "Solo administradores: pone una contraseña temporal y la devuelve (una sola vez) para pasársela a esa persona."
+    restablecerContrasena(id: ID!): String!
+    "Cambia la contraseña propia; pide la actual."
+    cambiarContrasena(actual: String!, nueva: String!): Boolean!
   }
 `;
 
@@ -62,6 +74,21 @@ export const cuentasGraphQL: ModuloGraphQL = {
           .returning({ id: usuarios.id, email: usuarios.email, nombre: usuarios.nombre, rol: usuarios.rol, creadoEn: usuarios.creadoEn });
         if (!c) throw new GraphQLError('Esa cuenta no existe.', { extensions: { code: 'NOT_FOUND' } });
         return { ...c, creadoEn: c.creadoEn.toISOString() };
+      },
+      restablecerContrasena: async (_: unknown, { id }: { id: string }, ctx: Contexto) => {
+        await exigir(ctx, 'administrarCuentas', 'Solo el administrador restablece contraseñas.');
+        const temporal = contrasenaTemporal();
+        const [c] = await ctx.db.update(usuarios).set({ hash: await bcrypt.hash(temporal, 10) }).where(eq(usuarios.id, id)).returning({ id: usuarios.id });
+        if (!c) throw new GraphQLError('Esa cuenta no existe.', { extensions: { code: 'NOT_FOUND' } });
+        return temporal;
+      },
+      cambiarContrasena: async (_: unknown, { actual, nueva }: { actual: string; nueva: string }, ctx: Contexto) => {
+        const u = requiereUsuario(ctx);
+        if (nueva.length < 8) throw new GraphQLError('La contraseña nueva necesita al menos 8 caracteres.', { extensions: { code: 'BAD_USER_INPUT' } });
+        const [fila] = await ctx.db.select({ hash: usuarios.hash }).from(usuarios).where(eq(usuarios.id, u.id)).limit(1);
+        if (!fila || !(await bcrypt.compare(actual, fila.hash))) throw new GraphQLError('La contraseña actual no es correcta.', { extensions: { code: 'BAD_USER_INPUT' } });
+        await ctx.db.update(usuarios).set({ hash: await bcrypt.hash(nueva, 10) }).where(eq(usuarios.id, u.id));
+        return true;
       },
     },
   },

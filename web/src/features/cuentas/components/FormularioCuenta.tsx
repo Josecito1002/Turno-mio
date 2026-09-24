@@ -41,6 +41,16 @@ export function FormularioCuenta({ modo }: { modo: 'login' | 'registro' }) {
         {registro ? <>¿Ya tienes cuenta? <Link href="/login" className="font-bold text-ink">Entra</Link></>
           : <>¿Primera vez? <Link href="/registro" className="font-bold text-ink">Crea una cuenta</Link></>}
       </p>
+      {!registro && (
+        <details className="mt-2 text-center text-sm text-muted">
+          <summary className="cursor-pointer font-bold text-ink">¿Olvidaste tu contraseña?</summary>
+          <p className="mb-0 mt-2">Pídele al administrador de tu grupo que la restablezca desde «Cuentas». Te dará una contraseña temporal; al entrar, cámbiala en «Cambiar mi contraseña».</p>
+        </details>
+      )}
+      <div className="mt-6 border-t border-rule pt-5 text-center">
+        <Link href="/invitado" className="inline-flex min-h-[42px] items-center rounded-lg px-4 font-bold text-ink ring-1 ring-rule hover:bg-surface">Probar sin cuenta</Link>
+        <p className="mb-0 mt-2 text-sm text-muted">Como invitado, tus personajes se guardan solo en este navegador. Puedes descargar el respaldo o imprimir la hoja.</p>
+      </div>
     </main>
   );
 }

@@ -101,7 +101,8 @@ export const bibliotecaGraphQL: ModuloGraphQL = {
   typeDefs,
   resolvers: {
     Query: {
-      biblioteca: (_: unknown, __: unknown, ctx: Contexto) => { requiereUsuario(ctx); return leerBiblioteca(ctx.db); },
+      // Lectura pública: es contenido del juego, y el modo invitado la necesita sin cuenta. Editarla sigue pidiendo permisos.
+      biblioteca: (_: unknown, __: unknown, ctx: Contexto) => leerBiblioteca(ctx.db),
     },
     Mutation: {
       guardarBiblioteca: async (_: unknown, { lib }: { lib: Biblioteca }, ctx: Contexto) => {

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import type { ReactNode } from 'react';
-import { S, render, esAdmin, nuevoDraft } from '@/app-shell/estado';
+import { S, render, esAdmin, esInvitado, nuevoDraft } from '@/app-shell/estado';
 import { guardarLib } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
 import { confirmar } from '@/shared/ui/confirmar';
@@ -86,7 +86,8 @@ export function BibliotecaVista({ elegirArchivos }: { elegirArchivos: () => void
         <Boton variante="primario" onClick={elegirArchivos}>Importar archivos JSON</Boton>
         <Boton onClick={exportar}>Descargar biblioteca</Boton>
       </EncabezadoPagina>
-      {!admin && <Aviso tipo="info" titulo="Solo lectura">Solo las cuentas de administrador editan o quitan contenido. Tú puedes usarlo y agregar lo que importes.</Aviso>}
+      {esInvitado() ? <Aviso tipo="info" titulo="Modo invitado">Puedes consultar la biblioteca. Lo que importes solo queda mientras tengas la página abierta; para aportar contenido al grupo, crea una cuenta.</Aviso>
+        : !admin && <Aviso tipo="info" titulo="Solo lectura">Solo las cuentas de administrador editan o quitan contenido. Tú puedes usarlo y agregar lo que importes.</Aviso>}
       <Seccion titulo="Contenido">
         {categoria('Clases', clases.filter(([, v]) => v.dado).map(([k, v]) => item(v.n, `${Object.keys(v.subclases || {}).length} subclases`, 'clase|' + k)))}
         {categoria('Subclases', clases.flatMap(([k, v]) => Object.entries<any>(v.subclases || {}).map(([sk, s]) => item(s.n, getC(null, k)?.n || '', `sub|${k}|${sk}`))))}

@@ -79,14 +79,15 @@ function Cabecera({ children }: { children: ReactNode }) {
   return <header ref={ref} className="sticky top-0 z-20 border-b border-rule/70 bg-bg pt-[env(safe-area-inset-top)] backdrop-blur print:hidden">{children}</header>;
 }
 
-export function MiTurnoApp() {
+/** invitado: sin cuenta; los personajes se guardan solo en este navegador. */
+export function MiTurnoApp({ invitado = false }: { invitado?: boolean }) {
   useRender();
   const fileIn = useRef<HTMLInputElement>(null);
   const vistaPrevia = useRef('');
 
   useEffect(() => {
     let vivo = true;
-    cargarTodo().then(({ usuario, lista }) => {
+    cargarTodo(invitado).then(({ usuario, lista }) => {
       if (!vivo) return;
       S.usuario = usuario; S.list = lista;
       const last = usuario?.ultimoPj;
@@ -109,7 +110,7 @@ export function MiTurnoApp() {
       document.body.removeEventListener('dragover', sobre);
       document.body.removeEventListener('drop', soltar);
     };
-  }, []);
+  }, [invitado]);
 
   // Al cambiar de pantalla: título de la pestaña del navegador y foco en el encabezado (teclado y lectores de pantalla).
   const clave = S.cargando ? 'cargando' : `${S.view}|${S.pj?.id || ''}|${S.camp || ''}`;
@@ -153,7 +154,13 @@ export function MiTurnoApp() {
                 ? <Boton tamano="sm" onClick={editar}>Editar</Boton>
                 : <Boton tamano="sm" variante="primario" onClick={verHoja}>Ver la hoja</Boton>
             )}
-            {S.usuario && (
+            {S.usuario && invitado && (
+              <span className="flex items-center gap-2">
+                <span className="hidden rounded-full bg-soft px-2 py-0.5 text-xs font-bold text-ink sm:inline">Invitado</span>
+                <a href="/registro" className={cx('inline-flex min-h-11 items-center rounded-xl px-3 text-sm font-bold text-ink hover:bg-soft sm:min-h-9', foco)}>Crear cuenta</a>
+              </span>
+            )}
+            {S.usuario && !invitado && (
               <form action={cerrarSesion} className="flex items-center gap-2">
                 <span className="hidden items-center gap-1.5 text-sm text-muted sm:flex" title={S.usuario.email}>
                   {S.usuario.nombre}<span className="rounded-full bg-soft px-2 py-0.5 text-xs font-bold text-ink">{rol}</span>
@@ -171,7 +178,14 @@ export function MiTurnoApp() {
       <main id="contenido" tabIndex={-1} className="mx-auto max-w-5xl px-4 pb-28 pt-2 outline-none md:pb-14 print:p-0">
         {S.cargando ? <p className="mt-10 text-center text-muted" role="status">Cargando tu mesa…</p>
           : S.error ? <Aviso tipo="error" titulo="No se pudo cargar" accion={<Boton onClick={() => location.reload()}>Reintentar</Boton>}>{S.error}</Aviso>
-          : <Vista elegirArchivos={elegirArchivos} importarHojas={importarHojas} />}
+          : <>
+            {invitado && (
+              <p className="mb-2 mt-1 rounded-xl bg-soft px-4 py-2 text-sm print:hidden">
+                <b>Modo invitado:</b> tus personajes se guardan solo en este navegador, no en la nube. Para no perderlos, usa «Descargar respaldo» en la hoja o <a href="/registro" className="font-bold underline">crea una cuenta</a>.
+              </p>
+            )}
+            <Vista elegirArchivos={elegirArchivos} importarHojas={importarHojas} />
+          </>}
       </main>
 
       {nav.length > 0 && (
