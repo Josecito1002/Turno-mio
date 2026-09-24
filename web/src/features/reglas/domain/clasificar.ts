@@ -1,5 +1,5 @@
-// @ts-nocheck -- lógica portada de index.html
 /* eslint-disable */
+// @ts-nocheck -- lógica portada de index.html
 import { norm, stripTags } from '@/shared/utils/texto';
 
 export function clasificar(txt){

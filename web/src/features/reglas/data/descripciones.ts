@@ -1,5 +1,5 @@
-// @ts-nocheck -- datos portados tal cual de index.html
 /* eslint-disable */
+// @ts-nocheck -- datos portados tal cual de index.html
 
 
 export const DESC_ESPECIES: Record<string, any> = {
@@ -81,4 +81,107 @@ export const DESC_CLASES: Record<string, any> = {
   'cazador-sangre':'Cazadores de monstruos que sacrifican su propia sangre para potenciar armas y maldiciones.',
   pugilista:'Peleadores callejeros que confían en sus puños, su aguante y su descaro.',
   arcanista:'Inventores arcanos que infunden magia en objetos y artefactos.',
+};
+
+/* ============ Descripciones cortas de subclases (clave sin "lib:") ============ */
+export const DESC_SUBCLASES: Record<string, any> = {
+  // Monje, paladín, brujo y hechicero de las reglas
+  sombra:'Monjes que se mueven entre sombras, ven en la oscuridad y saltan de una zona oscura a otra.',
+  manoabierta:'Maestros del combate sin armas que derriban, empujan y desarman con cada golpe de su ráfaga.',
+  devocion:'Paladines del honor y la pureza: su arma brilla con luz sagrada y los protege de encantamientos.',
+  gloria:'Paladines que buscan la hazaña heroica: atletas imparables que inspiran a sus aliados.',
+  antiguos:'Guardianes de la luz y la vida frente a la oscuridad, con magia de la naturaleza y las hadas.',
+  venganza:'Paladines implacables que eligen un enemigo y no lo sueltan hasta castigarlo.',
+  cadena:'Tu patrón te da un familiar especial que ataca por ti y te espía desde lejos.',
+  infernal:'Pactaste con un diablo o demonio: ganas vida al derrotar enemigos y conjuros de fuego.',
+  archihada:'Pactaste con un señor de las hadas: te teletransportas, encantas y confundes.',
+  celestial:'Pactaste con un ser celestial: curas con luz y tus conjuros queman a los malvados.',
+  primigenio:'Pactaste con un ser de más allá de las estrellas: telepatía y magia que quiebra mentes.',
+  draconico:'La sangre de dragón te da escamas resistentes, más vida y poder sobre un elemento.',
+  salvaje:'Tu magia es caótica: a veces se desborda con efectos imprevisibles, y puedes torcer la suerte.',
+  // Cazador de Sangre
+  cazafantasmas:'Cazadores de muertos vivientes: su rito arde con la luz del alba y sus maldiciones alcanzan a los espíritus.',
+  licantropo:'Portan la licantropía bajo control: se transforman en una bestia híbrida con garras y regeneración.',
+  mutante:'Alquimistas de su propia sangre: beben mutágenos que los mejoran a cambio de una merma.',
+  'alma-profana':'Pactan con un patrón como los brujos: ganan magia de pacto y un beneficio según con quién pactaron.',
+  // Arcanista (Artífice)
+  alquimista:'Prepara elixires mágicos que curan y potencian, y mejora sus conjuros de ácido, fuego y veneno.',
+  armero:'Convierte su armadura en una armadura arcana con armas propias: un gigante, un defensor o un infiltrador.',
+  artillero:'Crea cañones mágicos que lanzan fuego, disparan fuerza o protegen, y usa un arma de fuego arcana.',
+  'herrero-batalla':'Combate con armas mágicas junto a su Defensor de Acero, un compañero mecánico que lo protege.',
+  cartografo:'Hace mapas mágicos que guían a sus aliados, los teletransportan y los salvan de la muerte.',
+  // Pugilista
+  'arena-royale':'Luchadores enmascarados de espectáculo: un personaje de ring, saltos acrobáticos y un público que los adora o los teme.',
+  'matones-sabuesos':'Detectives de puños duros: siempre alerta, investigan y se fijan en un enemigo hasta acorralarlo.',
+  'perro-sabueso':'Luchan junto a un sabueso fiel que comparte su Moxie y crece hasta ser un lobo terrible.',
+  'mano-pavor':'Peleadores con un pacto oscuro: invocaciones de brujo, crecimiento grotesco y golpes brutales.',
+  'mala-leche':'Peleadores sucios que provocan, hacen trampas y castigan a quien los ignora.',
+  'circulo-cuadrado':'Luchadores de llaves: apresan con facilidad, usan al rival de escudo y rematan en el suelo.',
+  'dulce-ciencia':'Estilistas del boxeo que encadenan combinaciones y buscan el nocaut.',
+  // Bárbaro
+  'senda-berserker':'La furia pura: golpes con daño extra, inmunidad al miedo y represalias contra quien te hiere.',
+  'senda-corazon-salvaje':'Tu furia canaliza espíritus animales que te dan poderes de oso, águila, lobo y más.',
+  'senda-arbol-mundo':'Tu furia conecta con el Árbol del Mundo: das vida temporal a aliados y te teletransportas entre sus ramas.',
+  'senda-fanatico':'Guerreros de un dios: su furia hace daño divino, curan a aliados y cuesta mucho matarlos.',
+  // Bardo
+  'colegio-conocimiento':'Eruditos que saben un poco de todo: más habilidades, magia de otras listas y palabras cortantes.',
+  'colegio-valor':'Bardos guerreros que inspiran en combate, con armadura media y ataque extra.',
+  'colegio-glamour':'Artistas feéricos que hechizan con su presencia y mueven a sus aliados con encanto.',
+  'colegio-danza':'Bailarines que pelean sin armas con gracia, esquivando y moviendo a sus aliados.',
+  'colegio-luna':'Bardos de la luna y la naturaleza: su inspiración cura y su magia viene de lo primigenio.',
+  'colegio-espiritus':'Narradores que invocan relatos de los muertos, con efectos al azar.',
+  // Brujo
+  'no-muerto':'Pactaste con un ser no muerto: tomas una forma aterradora y dominas la necromancia.',
+  // Clérigo
+  'dominio-vida':'Sanadores por excelencia: sus curaciones rinden más y tienen conjuros de vida siempre listos.',
+  'dominio-luz':'Portadores del fuego y la luz que ciegan a sus enemigos y queman la oscuridad.',
+  'dominio-engano':'Clérigos embaucadores que crean duplicados, se vuelven invisibles y confunden.',
+  'dominio-guerra':'Clérigos de batalla con ataques extra y bendiciones que aseguran el golpe.',
+  'dominio-conocimiento':'Guardianes del saber que leen mentes, dominan habilidades y ven el pasado.',
+  'dominio-tumba':'Guardianes del límite entre la vida y la muerte que protegen a los moribundos.',
+  // Druida
+  'circulo-tierra':'Druidas ligados a un terreno (árido, polar, templado o tropical), con sus conjuros y protecciones.',
+  'circulo-luna':'Maestros de la forma salvaje: se convierten en bestias más fuertes y pelean transformados.',
+  'circulo-mar':'Llaman la furia del mar: un aura de olas y relámpagos que golpea y empuja.',
+  'circulo-estrellas':'Leen las estrellas: toman formas estelares que curan, disparan o dan claridad.',
+  // Explorador
+  cazador:'Especialistas en abatir presas, con técnicas contra enemigos grandes o grupos.',
+  bestias:'Luchan junto a una bestia primigenia que crece con ellos.',
+  hadas:'Tocados por el mundo de las hadas: encantan, se teletransportan y confunden.',
+  sombras:'Cazadores en la oscuridad: invisibles para la visión en la oscuridad y letales en el primer asalto.',
+  'caminante-invierno':'Exploradores del frío extremo que congelan a sus enemigos y resisten el invierno.',
+  // Guerrero
+  campeon:'Guerrero de críticos frecuentes y gran aguante: simple y efectivo.',
+  'maestro-batalla':'Táctico con maniobras especiales que desarman, derriban o protegen.',
+  'caballero-arcano':'Guerrero que mezcla acero y conjuros de mago, con un arma vinculada.',
+  'guerrero-psionico':'Usa poder psíquico para golpear con la mente, protegerse y mover objetos.',
+  'caballero-dragon-purpura':'Líder que inspira y cura a sus aliados en plena batalla.',
+  // Hechicero
+  aberrante:'Magia de más allá de las estrellas: telepatía y conjuros psíquicos.',
+  reloj:'Magia del orden absoluto: equilibra la suerte y protege con escudos.',
+  'fuego-conjuro':'Hechicería ligada al fuego de conjuro de Eberron.',
+  'hechiceria-sombras':'Magia de la oscuridad: un sabueso de sombra, visión en tinieblas y teletransporte.',
+  // Mago
+  abjuracion:'Especialista en protecciones: un escudo arcano absorbe daño y anula la magia enemiga.',
+  adivinacion:'Ve el futuro: guarda tiradas de dados para usarlas cuando quiera.',
+  evocacion:'Maestro de la magia destructiva que no daña a sus aliados.',
+  ilusion:'Crea ilusiones que engañan, se vuelven reales por un momento y lo protegen.',
+  'cantor-hoja':'Mago que baila con la espada y lanza conjuros en pleno combate.',
+  conjuracion:'Invoca criaturas y objetos, y se teletransporta con facilidad.',
+  encantamiento:'Domina mentes: hechiza, desvía ataques y convierte enemigos en aliados.',
+  necromancia:'Se alimenta de la muerte y levanta muertos vivientes más fuertes.',
+  transmutacion:'Transforma la materia y los seres: la piedra del transmutador y el cambio de forma.',
+  // Monje
+  elementos:'Canaliza los elementos en sus golpes: más alcance, daño elemental y ráfagas de aire, agua, fuego y tierra.',
+  misericordia:'Sana con una mano y daña con la otra, con la máscara de los médicos de la plaga.',
+  // Paladín
+  'genios-nobles':'Paladines ligados a los genios nobles, con magia elemental y protección.',
+  // Pícaro
+  embaucador:'Pícaro con magia de ilusión y encantamiento, y una mano mágica invisible.',
+  asesino:'Especialista en matar por sorpresa, con disfraces e infiltración.',
+  'cuchillo-mental':'Pícaro psiónico con cuchillas psíquicas y telepatía.',
+  ladron:'Ágil y rápido con las manos: trepa, usa objetos mágicos y actúa dos veces al empezar.',
+  fantasma:'Tocado por la muerte: habla con fantasmas y roba recuerdos de los caídos.',
+  'vastago-tres':'Pícaro vinculado a un poder oscuro, con magia de sangre y terror.',
+  inquisitivo:'Detective que descubre mentiras y encuentra el punto débil del rival.',
 };

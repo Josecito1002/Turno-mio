@@ -24,6 +24,25 @@ function quitar(ref: string, nombre: string) {
   guardarLib(true); render(); avisar(`${nombre} quitado.`);
 }
 
+/* Borradores de especie y subclase, y cambios a la biblioteca: fuera del componente, que solo los llama */
+function agregarRasgoBorrador(tipo: 'esp' | 'sub') { const r = leerRasgo(tipo === 'esp' ? 'de' : 'ds'); if (!r) return; S.draft[tipo].rasgos.push(r); S.draft.abierto = tipo; render(); }
+function quitarRasgoBorrador(tipo: 'esp' | 'sub', i: number) { S.draft[tipo].rasgos.splice(i, 1); S.draft.abierto = tipo; render(); }
+function guardarEspecie() {
+  const LIB: any = getLib(), e = S.draft.esp; if (!e.n.trim()) { avisar('Ponle nombre a la especie.', 'aviso'); return; }
+  LIB.especies['lib:' + slug(e.n)] = { n: e.n.trim(), lib: true, src: 'Creada', r: 'De tu biblioteca', vel: +e.vel || 30, vision: +e.vision || 0, subL: 'Subespecie', subs: null, rasgos: e.rasgos };
+  guardarLib(true); avisar(`${e.n} guardada.`); S.draft = nuevoDraft(); render();
+}
+function guardarSubclase() {
+  const LIB: any = getLib(), s = S.draft.sub; if (!s.clase || !s.n.trim()) { avisar('Elige la clase y ponle nombre.', 'aviso'); return; }
+  LIB.clases[s.clase] = LIB.clases[s.clase] || { subclases: {} }; LIB.clases[s.clase].subclases = LIB.clases[s.clase].subclases || {};
+  LIB.clases[s.clase].subclases[slug(s.n)] = { n: s.n.trim(), rasgos: s.rasgos };
+  guardarLib(true); avisar(`${s.n} guardada.`); S.draft = nuevoDraft(); render();
+}
+function quitarConjurosImportados() {
+  if (!confirm('¿Quitar todos los conjuros importados? Los personajes conservan los que ya tienen.')) return;
+  getLib().conjuros = {}; guardarLib(true); render();
+}
+
 /** Campo del borrador de especie/subclase: se guarda en S.draft sin redibujar. */
 function Borrador({ path, value, type = 'text', ...rest }: { path: string; value: any; type?: string; id?: string }) {
   return <input {...rest} type={type} defaultValue={value} className={claseCampo} onChange={e => setPath(S.draft, path, type === 'number' ? +e.target.value : e.target.value)} />;
@@ -47,7 +66,7 @@ export function BibliotecaVista({ elegirArchivos }: { elegirArchivos: () => void
     <Lista className="bg-bg">{rs.map((r, i) => (
       <Fila key={i}>
         <span className="flex items-center gap-2"><FormaTipo t={r.t} /> {r.nombre} <span className="text-sm text-muted">nivel {r.n}</span></span>
-        <Boton tamano="sm" onClick={() => { S.draft[tipo].rasgos.splice(i, 1); S.draft.abierto = tipo; render(); }} aria-label={`Quitar ${r.nombre}`}>Quitar</Boton>
+        <Boton tamano="sm" onClick={() => quitarRasgoBorrador(tipo, i)} aria-label={`Quitar ${r.nombre}`}>Quitar</Boton>
       </Fila>
     ))}</Lista>
   ) : <Nota>Sin rasgos todavía.</Nota>;
@@ -57,18 +76,7 @@ export function BibliotecaVista({ elegirArchivos }: { elegirArchivos: () => void
   const dotes = Object.entries<any>(LIB.dotes).filter(([, v]) => esDote(v));
   const objetos = Object.entries<any>(LIB.dotes).filter(([, v]) => !esDote(v));
 
-  const agregarRasgo = (tipo: 'esp' | 'sub') => { const r = leerRasgo(tipo === 'esp' ? 'de' : 'ds'); if (!r) return; S.draft[tipo].rasgos.push(r); S.draft.abierto = tipo; render(); };
-  const guardarEsp = () => {
-    const e = S.draft.esp; if (!e.n.trim()) { avisar('Ponle nombre a la especie.', 'aviso'); return; }
-    LIB.especies['lib:' + slug(e.n)] = { n: e.n.trim(), lib: true, src: 'Creada', r: 'De tu biblioteca', vel: +e.vel || 30, vision: +e.vision || 0, subL: 'Subespecie', subs: null, rasgos: e.rasgos };
-    guardarLib(true); avisar(`${e.n} guardada.`); S.draft = nuevoDraft(); render();
-  };
-  const guardarSub = () => {
-    const s = S.draft.sub; if (!s.clase || !s.n.trim()) { avisar('Elige la clase y ponle nombre.', 'aviso'); return; }
-    LIB.clases[s.clase] = LIB.clases[s.clase] || { subclases: {} }; LIB.clases[s.clase].subclases = LIB.clases[s.clase].subclases || {};
-    LIB.clases[s.clase].subclases[slug(s.n)] = { n: s.n.trim(), rasgos: s.rasgos };
-    guardarLib(true); avisar(`${s.n} guardada.`); S.draft = nuevoDraft(); render();
-  };
+  const agregarRasgo = agregarRasgoBorrador, guardarEsp = guardarEspecie, guardarSub = guardarSubclase;
 
   return (
     <>
@@ -87,7 +95,7 @@ export function BibliotecaVista({ elegirArchivos }: { elegirArchivos: () => void
         {objetos.length > 0 && categoria('Objetos y equipo importados', objetos.map(([k, v]) => item(v.n, v.cat || '', 'dotes|' + k)))}
         <Tarjeta className="mt-2 flex flex-wrap items-center justify-between gap-2">
           <span>{nConj ? <><b>{nConj}</b> conjuros importados</> : <span className="text-muted">Sin conjuros importados.</span>}</span>
-          {nConj > 0 && admin && <Boton tamano="sm" variante="peligro" onClick={() => { if (confirm('¿Quitar todos los conjuros importados? Los personajes conservan los que ya tienen.')) { LIB.conjuros = {}; guardarLib(true); render(); } }}>Quitar todos</Boton>}
+          {nConj > 0 && admin && <Boton tamano="sm" variante="peligro" onClick={quitarConjurosImportados}>Quitar todos</Boton>}
         </Tarjeta>
       </Seccion>
       {admin && (

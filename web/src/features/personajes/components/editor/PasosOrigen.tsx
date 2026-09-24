@@ -1,25 +1,42 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { render } from '@/app-shell/estado';
+import { useState } from 'react';
+import { S, render } from '@/app-shell/estado';
 import { norm } from '@/shared/utils/texto';
-import { Campo, Nota, Seccion } from '@/shared/ui/kit';
+import { Boton, Campo, Nota, Seccion } from '@/shared/ui/kit';
 import { ALL_AB, SKILLS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { ESPECIES } from '@/features/reglas/data/especies';
 import { CLASES } from '@/features/reglas/data/clases';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
 import { ESTILOS } from '@/features/reglas/data/estilos';
+import { ARMAS } from '@/features/reglas/data/equipo';
+import { kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
 import { esDoteOrigen } from '@/features/reglas/domain/restricciones';
-import { getLib, getSubs, getT, allDotes, descEspecie, descClase, sinRepetidas } from '@/features/biblioteca/domain/biblioteca';
+import { getLib, getSubs, getT, allDotes, descEspecie, descClase, descSubclase, sinRepetidas } from '@/features/biblioteca/domain/biblioteca';
 import { PanelMedia } from '@/features/biblioteca/components/PanelMedia';
 import { Entrada } from '../piezas';
-import { savePj } from '../../acciones';
+import { savePj, setVal, tomarEquipoTrasfondo } from '../../acciones';
 import { TarjetasBuscables, Tarjeta } from './Tarjetas';
+import { ElegirElecciones, InfoSubclase } from './InfoSubclase';
 import { AbSel, Casilla, CampoNumero, CampoTexto, Selector } from './campos';
+
+/* Elegir especie, clase o trasfondo reinicia lo que dependía de la anterior. Cambian el personaje fuera del componente. */
+function elegirEspecie(k: string) { const pj = S.pj; pj.especie = { ...pj.especie, key: k, sub: '' }; savePj(); render(); }
+function elegirClase(k: string) {
+  const pj = S.pj;
+  if (pj.clase !== k) Object.assign(pj, { clase: k, subclase: '', estilo: '', habClase: [], pericia: [], maestrias: [], pactoCadena: false, inicial: false });
+  savePj(); render();
+}
+function elegirTrasfondo(k: string) {
+  const pj = S.pj, t = getT(pj, k);
+  pj.trasfondo = { key: k, modo: '21', a: '', b: '', nombre: '', abs: ['', '', ''], habs: ['', ''], dote: t.dote || '', herr: t.herr || '' };
+  savePj(); render();
+}
 
 /* ---------- Especie ---------- */
 export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
   const E = c.E, LIB = getLib();
-  const elegir = (k: string) => { pj.especie = { ...pj.especie, key: k, sub: '' }; savePj(); render(); };
+  const elegir = (k: string) => elegirEspecie(k);
   const lista: [string, any][] = [...Object.entries(ESPECIES).filter(([k]) => k !== 'custom'), ...sinRepetidas(LIB.especies, ESPECIES, pj.especie.key), ['custom', ESPECIES.custom]];
   const items = lista.map(([k, e]) => {
     const d = k === 'custom' ? e.r : (descEspecie(k) || (e.lib ? 'De la biblioteca' : e.r));
@@ -45,6 +62,7 @@ export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
           <Nota className="sm:col-span-3">Sus rasgos los agregas en Rasgos propios.</Nota>
         </div>
       )}
+      <ElegirElecciones pj={pj} elecciones={(c.elecciones || []).filter((e: any) => e.grupo === 'especie')} />
       {ents.length > 0 && <Seccion titulo="Rasgos de tu especie">{ents.map((e: any, i: number) => <Entrada key={i} e={e} />)}</Seccion>}
       <Seccion titulo={E ? 'Cambiar de especie' : 'Elige tu especie'}><TarjetasBuscables que="especie" items={items} /></Seccion>
     </>
@@ -52,12 +70,46 @@ export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
 }
 
 /* ---------- Clase ---------- */
+/** Tarjetas de subclase con su descripción; la elegida muestra qué da en cada nivel. También se usa al subir de nivel.
+    Antes del nivel de subclase solo se pueden ver: tocar una tarjeta abre su vista previa sin elegirla. */
+export function ElegirSubclase({ pj, c }: { pj: any; c: any }) {
+  const subs = getSubs(pj, pj.clase).filter(s => s.key !== 'cadena');
+  const puede = c.lvl >= c.subNivel;
+  // La vista previa vale para el nivel en que se abrió: al cambiar de nivel se cierra
+  const [vista, setVista] = useState({ k: '', lvl: 0 });
+  const elegirSub = (k: string) => puede ? setVal('subclase', k) : setVista(v => ({ k: v.k === k && v.lvl === c.lvl ? '' : k, lvl: c.lvl }));
+  const marcada = puede ? pj.subclase : (vista.lvl === c.lvl ? vista.k : '');
+  return (
+    <>
+      <TarjetasBuscables que="subclase" items={[
+        ...subs.map(s => {
+          const d = descSubclase(s.key) || (s.lib ? 'De la biblioteca.' : '');
+          return { key: s.key, q: norm(s.n + ' ' + d), node: <Tarjeta on={marcada === s.key} onClick={() => elegirSub(s.key)} titulo={s.n} sub={d} clampSub /> };
+        }),
+        ...(puede ? [{ key: 'otra', q: 'otra', node: <Tarjeta on={pj.subclase === 'otra'} onClick={() => elegirSub('otra')} titulo="Otra" sub="Escribe su nombre; sus rasgos van en Rasgos propios." /> }] : []),
+      ]} />
+      {puede && pj.subclase === 'otra' && (
+        <Campo etiqueta="Nombre de la subclase" ayuda="Sus rasgos van en Rasgos propios."><CampoTexto path="subclaseNombre" value={pj.subclaseNombre} /></Campo>
+      )}
+      {marcada && marcada !== 'otra' && <InfoSubclase pj={pj} sk={marcada} lvl={c.lvl} soloVer={!puede} />}
+    </>
+  );
+}
+
+export function ElegirEstilo({ pj, c }: { pj: any; c: any }) {
+  return (
+    <Campo etiqueta="Estilo de combate">
+      <Selector path="estilo" value={pj.estilo}>
+        <option value="">Elige…</option>
+        {c.C.estilos.map((k: string) => <option key={k} value={k}>{ESTILOS[k][0]}</option>)}
+      </Selector>
+    </Campo>
+  );
+}
+
 export function PasoClase({ pj, c }: { pj: any; c: any }) {
   const C = c.C, LIB = getLib();
-  const elegir = (k: string) => {
-    if (pj.clase !== k) Object.assign(pj, { clase: k, subclase: '', estilo: '', habClase: [], pericia: [], maestrias: [], pactoCadena: false, inicial: false });
-    savePj(); render();
-  };
+  const elegir = (k: string) => elegirClase(k);
   const lista: [string, any][] = [...Object.entries(CLASES), ...sinRepetidas(LIB.clases, CLASES, pj.clase).filter(([, x]) => x.dado)];
   const items = lista.map(([k, x]) => {
     const sub = `d${x.dado}, ${x.lanz ? 'conjuros con ' + abInfo(x.lanz)[2] : 'sin conjuros'}${x.lib ? ', de la biblioteca' : ''}`;
@@ -65,7 +117,6 @@ export function PasoClase({ pj, c }: { pj: any; c: any }) {
   });
   const tarjetas = <Seccion titulo={C ? 'Cambiar de clase' : 'Elige tu clase'} descripcion={C ? 'Cambiar de clase borra las habilidades, pericias y maestrías que elegiste.' : undefined}><TarjetasBuscables que="clase" items={items} /></Seccion>;
   if (!C) return tarjetas;
-  const subs = getSubs(pj, pj.clase).filter(s => s.key !== 'cadena');
   return (
     <>
       <PanelMedia k={'c:' + pj.clase} n={C.n} d={descClase(pj.clase)} />
@@ -73,28 +124,13 @@ export function PasoClase({ pj, c }: { pj: any; c: any }) {
         <Campo etiqueta="Nivel">
           <Selector path="nivel" value={+pj.nivel} num>{Array.from({ length: 20 }, (_, i) => <option key={i} value={i + 1}>{i + 1}</option>)}</Selector>
         </Campo>
-        {c.lvl >= c.subNivel ? (
-          <Campo etiqueta="Subclase">
-            <Selector path="subclase" value={pj.subclase}>
-              <option value="">Elige…</option>
-              {subs.map(s => <option key={s.key} value={s.key}>{s.n}{s.lib ? ' (biblioteca)' : ''}</option>)}
-              <option value="otra">Otra (escribe su nombre)</option>
-            </Selector>
-          </Campo>
-        ) : subs.length > 0 && <Nota className="self-end">La subclase se elige a nivel {c.subNivel}.</Nota>}
-        {pj.subclase === 'otra' && c.lvl >= c.subNivel && (
-          <Campo etiqueta="Nombre de la subclase" ayuda="Sus rasgos van en Rasgos propios."><CampoTexto path="subclaseNombre" value={pj.subclaseNombre} /></Campo>
-        )}
-        {C.estilo && c.lvl >= C.estilo && (
-          <Campo etiqueta="Estilo de combate">
-            <Selector path="estilo" value={pj.estilo}>
-              <option value="">Elige…</option>
-              {C.estilos.map((k: string) => <option key={k} value={k}>{ESTILOS[k][0]}</option>)}
-            </Selector>
-          </Campo>
-        )}
+        {C.estilo && c.lvl >= C.estilo && <ElegirEstilo pj={pj} c={c} />}
       </div>
+      <ElegirElecciones pj={pj} elecciones={(c.elecciones || []).filter((e: any) => e.grupo === 'clase')} />
       {pj.clase === 'brujo' && <Casilla path="pactoCadena" checked={pj.pactoCadena}>Tiene la invocación Pacto de la Cadena</Casilla>}
+      <Seccion titulo="Subclase" descripcion={c.lvl < c.subNivel ? `La eliges al llegar a nivel ${c.subNivel}. Por ahora puedes tocar una para ver qué da, sin elegirla.` : 'Toca una para ver qué da en cada nivel.'}>
+        <ElegirSubclase pj={pj} c={c} />
+      </Seccion>
       <Seccion titulo={`Rasgos hasta nivel ${c.lvl}`}>
         {c.entries.filter((e: any) => e.grupo === 'clase' || e.grupo === 'sub').map((e: any, i: number) => <Entrada key={i} e={e} />)}
       </Seccion>
@@ -104,13 +140,32 @@ export function PasoClase({ pj, c }: { pj: any; c: any }) {
 }
 
 /* ---------- Trasfondo ---------- */
+/** Kit del trasfondo (A) o su oro (B). Se toma una vez; también aparece en el paso Equipo. */
+export function EquipoTrasfondo({ pj }: { pj: any }) {
+  const T = getT(pj, pj.trasfondo?.key), kit = kitTrasfondo(pj.trasfondo?.key, T);
+  if (!T || !kit) return <Nota>Este trasfondo no trae equipo. Anota el tuyo en el paso Equipo.</Nota>;
+  const armas = (kit.armas || []).map(([k, q]) => `${ARMAS[k]?.n || k}${q > 1 ? ` (${q})` : ''}`);
+  const tomado = pj.trasfondo.equipo;
+  return (
+    <div className="rounded-2xl bg-soft p-4 ring-1 ring-rule/60">
+      <p className="m-0"><b>Opción A:</b> {[...armas, ...kit.objetos].join(', ')} y {kit.oro} po.</p>
+      {kit.alternativa != null && <p className="mb-0 mt-1"><b>Opción B:</b> {kit.alternativa} po para comprar tu equipo.</p>}
+      <p className="mb-0 mt-1 text-xs text-muted">{kit.sugerido ? 'Kit sugerido: este trasfondo no tiene versión oficial con equipo.' : `Fuente: ${kit.fuente}.`}</p>
+      {tomado
+        ? <p className="mb-0 mt-3 font-bold text-pas">✓ Ya tomaste la opción {tomado}{tomado === 'A' ? ': las armas están en Equipo y lo demás en tu inventario.' : '.'}</p>
+        : (
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Boton variante="primario" onClick={() => tomarEquipoTrasfondo('A')}>Tomar el kit (A)</Boton>
+            {kit.alternativa != null && <Boton onClick={() => tomarEquipoTrasfondo('B')}>Tomar {kit.alternativa} po (B)</Boton>}
+          </div>
+        )}
+    </div>
+  );
+}
+
 export function PasoTrasfondo({ pj, c }: { pj: any; c: any }) {
   const T = c.T, tb = pj.trasfondo, LIB = getLib();
-  const elegir = (k: string) => {
-    const t = getT(pj, k);
-    pj.trasfondo = { key: k, modo: '21', a: '', b: '', nombre: '', abs: ['', '', ''], habs: ['', ''], dote: t.dote || '', herr: t.herr || '' };
-    savePj(); render();
-  };
+  const elegir = (k: string) => elegirTrasfondo(k);
   const lista: [string, any][] = [...Object.entries(TRASFONDOS).filter(([, t]) => !t.custom), ...sinRepetidas(LIB.trasfondos, TRASFONDOS, tb.key), ['custom', TRASFONDOS.custom]];
   const items = lista.map(([k, t]) => {
     const sub = t.custom ? 'Arma el tuyo' : t.habs.join(' y ') + (t.lib ? ', biblioteca' : '');
@@ -156,6 +211,9 @@ export function PasoTrasfondo({ pj, c }: { pj: any; c: any }) {
             </>
           ) : <Nota className="self-end sm:col-span-2">+1 a {abs.filter(Boolean).map(k => abInfo(k)[3]).join(', ') || 'las tres que elijas'}.</Nota>}
         </div>
+      </Seccion>
+      <Seccion titulo="Equipo inicial" descripcion="El trasfondo te da su kit o el oro para comprar lo tuyo.">
+        <EquipoTrasfondo pj={pj} />
       </Seccion>
       <Seccion titulo="Dotes de origen">
         <div className="grid gap-3 sm:grid-cols-2">

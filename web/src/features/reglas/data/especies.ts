@@ -1,5 +1,5 @@
-// @ts-nocheck -- datos portados tal cual de index.html
 /* eslint-disable */
+// @ts-nocheck -- datos portados tal cual de index.html
 import { fmtMod } from '@/shared/utils/texto';
 
 export const ESPECIES: Record<string, any> = {

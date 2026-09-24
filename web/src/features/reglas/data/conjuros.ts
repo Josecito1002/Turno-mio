@@ -1,5 +1,5 @@
-// @ts-nocheck -- datos portados tal cual de index.html
 /* eslint-disable */
+// @ts-nocheck -- datos portados tal cual de index.html
 
 
 const _B='bardo', _C='clerigo', _D='druida', _P='paladin', _E='explorador', _H='hechicero', _W='brujo', _M='mago', _A='artifice';

@@ -5,10 +5,13 @@ import { almacen, guardarLib } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
 import { norm, setPath } from '@/shared/utils/texto';
 import { TIPOS } from '@/features/reglas/data/caracteristicas';
-import { getC, getLib } from '@/features/biblioteca/domain/biblioteca';
+import { getC, getLib, getSubs, getT, subNivel } from '@/features/biblioteca/domain/biblioteca';
+import { kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
+import { kitClase } from '@/features/reglas/data/equipo-clases';
 import type { OpcionesTirada, Resultado } from '@/features/dados/domain/dados';
 import { nuevoPj, reparar, resumen, asegurarTiradas } from './domain/modelo';
 import { compute, puedeLanzar } from './domain/calculo';
+import { pendientesAlSubir } from './domain/pendientes';
 import { snapshot } from './domain/importar-personaje';
 
 export type Tirar = (expr: string, label: string, o?: OpcionesTirada) => Promise<Resultado>;
@@ -35,7 +38,11 @@ export function nuevo() { S.pj = nuevoPj(); savePj(); S.view = 'editor'; S.step 
 export function setVal(path: string, v: any) {
   const pj = S.pj;
   setPath(pj, path, v);
-  if (path === 'nivel') pj.nivel = +v;
+  if (path === 'nivel') {
+    pj.nivel = +v;
+    // Por debajo del nivel de subclase no se puede tener una: se quita para elegirla al llegar
+    if (pj.subclase && pj.nivel < subNivel(pj, pj.clase)) pj.subclase = '';
+  }
   if (/^mejoras\.\d+\.modo$/.test(path)) { const L = path.split('.')[1]; pj.mejoras[L] = { modo: v }; }
   if (path === 'trasfondo.a' && pj.trasfondo.b === v) pj.trasfondo.b = '';
   if (/^pgTiradas\.\d+$/.test(path)) {
@@ -86,13 +93,16 @@ export function moverRasgo(k: string, t: string) {
 export function abrirSubida() { if (S.pj.nivel < 20) { S.subida = { id: S.pj.id, fase: 'elegir' }; render(); } }
 export function confirmarSubida() {
   const pj = S.pj, antes = compute(pj), L = pj.nivel + 1;
+  const copia = structuredClone(pj); // para que Deshacer también quite lo que se elija en el diálogo
   pj.nivel = L; if (pj.pgModo === 'tiradas') pj.pgTiradas[L - 2] = null;
   const desp = compute(pj), vistos = new Set(antes.entries.map((e: any) => e.nombre + '|' + e.texto));
+  const elegir = pendientesAlSubir(desp, getSubs(pj, pj.clase).some((s: any) => s.key !== 'cadena'));
   S.subida = {
-    id: pj.id, fase: 'hecho', nivel: L, hpAntes: antes.hpMax, pbAntes: antes.pb,
+    id: pj.id, fase: 'hecho', nivel: L, hpAntes: antes.hpMax, pbAntes: antes.pb, elegir, copia,
     nuevos: desp.entries.filter((e: any) => e.grupo !== 'reglas' && !vistos.has(e.nombre + '|' + e.texto)).map((e: any) => ({ nombre: e.nombre, grupo: e.grupo, src: e.src, texto: e.texto, t: e.t })),
   };
-  savePj(); S.view = 'ficha'; S.tab = 'turno'; render(); irArriba();
+  // Se queda donde estabas (la pestaña de la hoja que tenías abierta); el diálogo muestra lo nuevo encima
+  savePj(); render();
 }
 export function pgPromedio() {
   const pj = S.pj, i = pj.nivel - 2;
@@ -101,8 +111,14 @@ export function pgPromedio() {
   savePj(); render();
 }
 export function deshacerSubida() {
-  const pj = S.pj;
-  if (pj.nivel > 1) { pj.nivel--; S.subida = null; savePj(); render(); avisar(`Volvió a nivel ${pj.nivel}.`, 'info'); }
+  const pj = S.pj, copia = S.subida?.copia;
+  if (copia) {
+    // Vuelve exactamente a como estaba: nivel, subclase, elecciones, mejoras, conjuros...
+    Object.keys(pj).forEach(k => delete pj[k]);
+    Object.assign(pj, structuredClone(copia));
+  } else if (pj.nivel > 1) pj.nivel--;
+  else return;
+  S.subida = null; savePj(); render(); avisar(`Volvió a nivel ${pj.nivel}.`, 'info');
 }
 export function cerrarSubida() { S.subida = null; render(); }
 export function bajarNivel() {
@@ -116,6 +132,44 @@ export function tirarPg(tirar: Tirar, i: number) {
   asegurarTiradas(pj);
   tirar(`1d${S.c.die}`, `PG del nivel ${i + 2}`, { neutral: true, noRepeat: true }).then(r => { pj.pgTiradas[i] = r.total; savePj(); render(); });
 }
+/* ---- Equipo de la clase: uno de sus kits (A, o B en el Guerrero) o su oro, una sola vez por clase ---- */
+export function tomarEquipoClase(op: number | 'oro') {
+  const pj = S.pj, C = getC(pj, pj.clase), kit = kitClase(pj.clase);
+  if (!kit || pj.inicial) return;
+  const letra = op === 'oro' ? String.fromCharCode(65 + kit.variantes.length) : String.fromCharCode(65 + op);
+  if (op === 'oro') {
+    const a = kit.alternativa;
+    const oro = typeof a === 'number' ? a : Array.from({ length: a.n }, () => 1 + Math.floor(Math.random() * a.caras)).reduce((s, x) => s + x, 0) * a.por;
+    pj.oro = (+pj.oro || 0) + oro;
+    avisar(`${oro} po agregadas${typeof a === 'number' ? '' : ` (tiraste ${a.dados})`}.`);
+  } else {
+    const v = kit.variantes[op];
+    (v.armas || []).forEach(([k, q]) => { const ex = pj.armas.find((x: any) => x[0] === k); if (ex) ex[1] += q; else pj.armas.push([k, q]); });
+    if (v.armadura) pj.armadura = v.armadura;
+    if (v.escudo) pj.escudo = true;
+    pj.inventario = [pj.inventario, `De la clase (${C?.n || 'clase'}):\n${v.objetos.map(o => `- ${o}`).join('\n')}`].filter(Boolean).join('\n\n');
+    pj.oro = (+pj.oro || 0) + v.oro;
+    avisar(`Kit ${letra} de ${C?.n || 'tu clase'} agregado.`);
+  }
+  pj.inicial = letra;
+  savePj(); render();
+}
+
+/* ---- Equipo del trasfondo: kit (A) o 50 po (B), una sola vez por trasfondo ---- */
+export function tomarEquipoTrasfondo(op: 'A' | 'B') {
+  const pj = S.pj, T = getT(pj, pj.trasfondo?.key), kit = kitTrasfondo(pj.trasfondo?.key, T);
+  if (!kit || pj.trasfondo.equipo) return;
+  if (op === 'A') {
+    (kit.armas || []).forEach(([k, q]) => { const ex = pj.armas.find((a: any) => a[0] === k); if (ex) ex[1] += q; else pj.armas.push([k, q]); });
+    const lineas = kit.objetos.map(o => `- ${o}`).join('\n');
+    pj.inventario = [pj.inventario, `Del trasfondo (${T?.n || 'trasfondo'}):\n${lineas}`].filter(Boolean).join('\n\n');
+    pj.oro = (+pj.oro || 0) + kit.oro;
+  } else pj.oro = (+pj.oro || 0) + (kit.alternativa || 0);
+  pj.trasfondo.equipo = op;
+  savePj(); render();
+  avisar(op === 'A' ? `Kit de ${T?.n || 'trasfondo'} agregado: armas, inventario y ${kit.oro} po.` : `${kit.alternativa} po agregadas.`);
+}
+
 export function irAPaso(paso: string) { S.subida = null; S.view = 'editor'; S.step = paso; render(); irArriba(); }
 
 /* ---- Conjuros y rasgos ---- */

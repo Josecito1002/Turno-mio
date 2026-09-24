@@ -6,7 +6,8 @@ import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
 import { DOTES } from '@/features/reglas/data/dotes';
 import { SUBCLASES } from '@/features/reglas/data/subclases';
 import { CATALOGO } from '@/features/reglas/data/conjuros';
-import { DESC_ESPECIES, DESC_CLASES } from '@/features/reglas/data/descripciones';
+import { DESC_ESPECIES, DESC_CLASES, DESC_SUBCLASES } from '@/features/reglas/data/descripciones';
+import { claseBase } from '@/features/reglas/domain/restricciones';
 
 /** Contenido extra compartido por todos (clases, especies, etc. que no vienen en las reglas base). */
 export type Biblioteca = {
@@ -38,14 +39,23 @@ export const getC = (pj: any, k: string) => CLASES[k] || (LIB.clases[k]?.dado ? 
 export const getT = (pj: any, k: string) => TRASFONDOS[k] || LIB.trasfondos[k] || pj?.contenido?.trasfondos?.[k] || null;
 export const getD = (pj: any, k: string) => DOTES[k] || LIB.dotes[k] || pj?.contenido?.dotes?.[k] || null;
 
+/* Subclases de biblioteca de una clase. Para una clase base incluye también las de las clases de
+   biblioteca que derivan de ella: el Artífice importado como "Arcanista (Artífice)" guarda ahí las suyas. */
+export function subclasesLib(clase: string): Record<string, any> {
+  const derivadas = CLASES[clase]
+    ? Object.entries(LIB.clases).filter(([k, v]) => k !== clase && !CLASES[k] && v?.n && claseBase(k, v) === clase)
+    : [];
+  return Object.assign({}, ...derivadas.map(([, v]) => v.subclases || {}), LIB.clases[clase]?.subclases || {});
+}
+
 export function getSubs(pj: any, clase: string): any[] {
   const out = SUBCLASES.filter((s: any) => s.clase === clase);
-  const libS = {
-    ...(pj?.contenido?.subclases
-      ? Object.fromEntries(Object.entries(pj.contenido.subclases).filter(([, s]: any) => s.clase === clase).map(([k, s]) => [k.replace(/^lib:/, ''), s]))
-      : {}),
-    ...(LIB.clases[clase]?.subclases || {}),
-  };
+  // Primero las de la biblioteca, en su orden; después las que solo trae el personaje (copiadas al compartirlo).
+  // Así la subclase elegida no salta al primer lugar de la lista.
+  const lib = subclasesLib(clase);
+  const delPj = Object.fromEntries(Object.entries(pj?.contenido?.subclases || {})
+    .filter(([k, s]: any) => s.clase === clase && !lib[k.replace(/^lib:/, '')]).map(([k, s]) => [k.replace(/^lib:/, ''), s]));
+  const libS = { ...lib, ...delPj };
   Object.entries(libS).forEach(([k, s]: [string, any]) => out.push({ key: 'lib:' + k, clase, n: s.n, hasta: 20, lib: true, rasgos: s.rasgos || [] }));
   return out;
 }
@@ -65,6 +75,7 @@ export const getSubAltos = (pj: any, k: string, sk: string) => LIB.clases[k]?.su
 
 export const descEspecie = (k: string) => LIB.desc?.[k] ?? DESC_ESPECIES[String(k).replace(/^lib:/, '')] ?? '';
 export const descClase = (k: string) => LIB.desc?.['c:' + k] ?? DESC_CLASES[String(k).replace(/^lib:/, '')] ?? '';
+export const descSubclase = (k: string) => LIB.desc?.['s:' + k] ?? DESC_SUBCLASES[String(k).replace(/^lib:/, '')] ?? '';
 
 export function limpiarBestias() {
   const fuera: string[] = [];

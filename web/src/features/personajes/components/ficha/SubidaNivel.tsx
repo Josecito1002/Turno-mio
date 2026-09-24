@@ -1,15 +1,50 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import { S } from '@/app-shell/estado';
-import { norm, sign } from '@/shared/utils/texto';
+import { sign } from '@/shared/utils/texto';
 import { Boton, Dialogo, Segmentado, Tarjeta } from '@/shared/ui/kit';
 import { EtiquetaTipo } from '@/features/reglas/components/TipoAccion';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { compute } from '../../domain/calculo';
+import { periciaN } from '@/features/reglas/data/clases';
+import { pendientes } from '../../domain/pendientes';
 import { CampoNumero } from '../editor/campos';
-import { cerrarSubida, confirmarSubida, deshacerSubida, irAPaso, pgPromedio, tirarPg } from '../../acciones';
+import { ElegirEstilo, ElegirSubclase } from '../editor/PasosOrigen';
+import { ElegirMaestrias, ElegirPericia, MejoraNivel } from '../editor/PasosAtributos';
+import { ContadoresConjuros, ListaConjuros } from '../editor/PasosMagia';
+import { ElegirElecciones } from '../editor/InfoSubclase';
+import { cerrarSubida, confirmarSubida, deshacerSubida, pgPromedio, tirarPg } from '../../acciones';
 
-const PEND = /subclase|estilo|mejora|pericia|conjuro|truco|maestr/;
+/* Si la subclase se elige en el diálogo, su panel ya trae sus elecciones (patrón, fórmulas...): aparte solo van las demás */
+const eleccionesSueltas = (c: any, conSubclase: boolean) => (c.elecciones || []).filter((e: any) => !(conSubclase && e.grupo === 'sub'));
+
+/** Una elección de la subida de nivel, hecha aquí mismo con las mismas piezas del editor. */
+function Eleccion({ clave, pj, c, lista, conSubclase }: { clave: string; pj: any; c: any; lista: boolean; conSubclase: boolean }) {
+  const L = clave.startsWith('mejora-') ? +clave.slice(7) : 0;
+  const titulo = ({
+    subclase: 'Tu subclase', estilo: 'Estilo de combate', pericia: `Pericia (${periciaN(pj.clase, c.lvl)})`,
+    conjuros: 'Trucos y conjuros', maestria: `Maestría con armas (${pj.maestrias.length} de ${c.C?.maestrias || 0})`, elecciones: 'Elige también',
+  } as Record<string, string>)[clave] || (L ? `Mejora de nivel ${L}` : clave);
+  return (
+    <Tarjeta as="section" aria-label={titulo} className="bg-soft/60">
+      <h3 className="m-0 flex items-center gap-2 font-serif text-lg font-bold text-adi">
+        {titulo}{lista && <span className="font-sans text-sm font-bold text-pas">✓ Listo</span>}
+      </h3>
+      {clave === 'subclase' && <ElegirSubclase pj={pj} c={c} />}
+      {clave === 'estilo' && <ElegirEstilo pj={pj} c={c} />}
+      {L > 0 && <MejoraNivel pj={pj} c={c} L={L} sinTitulo />}
+      {clave === 'pericia' && <ElegirPericia pj={pj} c={c} />}
+      {clave === 'maestria' && <ElegirMaestrias pj={pj} c={c} />}
+      {clave === 'elecciones' && <ElegirElecciones pj={pj} elecciones={eleccionesSueltas(c, conSubclase)} />}
+      {clave === 'conjuros' && (
+        <>
+          <ContadoresConjuros c={c} />
+          <div className="mt-3"><ListaConjuros pj={pj} c={c} /></div>
+        </>
+      )}
+    </Tarjeta>
+  );
+}
 
 function Hecho({ c, s }: { c: any; s: any }) {
   const tirar = useDados();
@@ -22,7 +57,14 @@ function Hecho({ c, s }: { c: any; s: any }) {
   const extra = delta - Math.max(1, base + con);
   const desglose = `${modo === 'max' ? 'Máximo del dado' : modo === 'tirada' ? 'Tirada' : 'Promedio'} ${base} ${con >= 0 ? '+' : '−'} ${Math.abs(con)} de CON${extra > 0 ? ` + ${extra} de rasgos` : ''}`;
   const grupos: [string, string][] = [['clase', `De ${c.C?.n || 'tu clase'}`], ['sub', c.SD ? `De ${c.SD.n}` : 'De tu subclase'], ['especie', 'De tu especie'], ['dote', 'De tus dotes'], ['extra', 'Rasgos propios']];
-  const pend = c.avisos.filter((a: any) => PEND.test(norm(a.t)));
+  // Rasgos nuevos en vivo: si eliges la subclase o una dote aquí mismo, aparecen sin cerrar el diálogo
+  const antes = compute({ ...structuredClone(pj), nivel: c.lvl - 1 });
+  const vistos = new Set(antes.entries.map((e: any) => e.nombre + '|' + e.texto));
+  const nuevos = c.entries.filter((e: any) => e.grupo !== 'reglas' && !vistos.has(e.nombre + '|' + e.texto));
+  // Lo que había que elegir al subir, más lo que haya surgido después (por ejemplo, el patrón de la subclase recién elegida)
+  const ahora = pendientes(c);
+  const conSubclase = !!s.elegir?.includes('subclase');
+  const secciones = [...new Set([...(s.elegir || []), ...ahora])].filter(k => k !== 'elecciones' || eleccionesSueltas(c, conSubclase).length > 0);
   return (
     <div className="flex flex-col gap-3">
       <Tarjeta className="bg-soft/60">
@@ -40,8 +82,8 @@ function Hecho({ c, s }: { c: any; s: any }) {
       </Tarjeta>
       <Tarjeta className="bg-soft/60">
         <h3 className="m-0 font-serif text-lg font-bold text-adi">Rasgos nuevos</h3>
-        {s.nuevos.length ? grupos.map(([g, t]) => {
-          const xs = s.nuevos.filter((n: any) => n.grupo === g);
+        {nuevos.length ? grupos.map(([g, t]) => {
+          const xs = nuevos.filter((n: any) => n.grupo === g);
           return xs.length ? (
             <div key={g} className="mt-2"><p className="m-0 text-sm text-muted">{t}</p>
               <ul className="m-0 mt-1 list-disc pl-5">{xs.map((n: any, k: number) => (
@@ -52,15 +94,10 @@ function Hecho({ c, s }: { c: any; s: any }) {
           ) : null;
         }) : <p className="m-0 mt-1 text-sm text-muted">Este nivel no trae rasgos nuevos cargados.</p>}
       </Tarjeta>
-      {pend.length > 0 && (
-        <Tarjeta className="bg-soft/60">
-          <h3 className="m-0 font-serif text-lg font-bold text-adi">Te toca elegir</h3>
-          <div className="mt-2 flex flex-wrap gap-2">{pend.map((a: any, k: number) => <Boton key={k} tamano="sm" onClick={() => irAPaso(a.paso || 'clase')}>{a.t}</Boton>)}</div>
-        </Tarjeta>
-      )}
+      {secciones.map(k => <Eleccion key={k} clave={k} pj={pj} c={c} lista={!ahora.includes(k)} conSubclase={conSubclase} />)}
       <div className="flex flex-wrap justify-end gap-2">
         <Boton onClick={deshacerSubida}>Deshacer</Boton>
-        <Boton variante="primario" onClick={cerrarSubida}>Ver la hoja</Boton>
+        <Boton variante="primario" onClick={cerrarSubida}>Listo</Boton>
       </div>
     </div>
   );

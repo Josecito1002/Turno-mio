@@ -1,5 +1,5 @@
-// @ts-nocheck -- lógica portada de index.html
 /* eslint-disable */
+// @ts-nocheck -- lógica portada de index.html
 import { norm, slug } from '@/shared/utils/texto';
 import { AB, SKILLS, ALINEAMIENTOS, abKey } from '@/features/reglas/data/caracteristicas';
 import { ARMAS, ARMADURAS, findByAlias } from '@/features/reglas/data/equipo';
@@ -10,7 +10,7 @@ import { SUBCLASES } from '@/features/reglas/data/subclases';
 import { CATALOGO } from '@/features/reglas/data/conjuros';
 import { doteKey } from '@/features/reglas/data/dotes';
 import { rasgoDe } from '@/features/reglas/domain/clasificar';
-import { getLib, getC, getT, getAltos, getSubAltos } from '@/features/biblioteca/domain/biblioteca';
+import { getLib, getC, getT, getAltos, getSubAltos, subclasesLib } from '@/features/biblioteca/domain/biblioteca';
 import { aprenderBuilder, CLASS_KEY, libKey, especieBuiltin, trasfondoBuiltin, spellDeBuilder } from '@/features/biblioteca/domain/aprender-builder';
 import { nuevoPj } from './modelo';
 import { compute } from './calculo';
@@ -102,7 +102,7 @@ export function snapshot(pj){
   const prev = pj.contenido || {}, ct = {especies:{}, clases:{}, trasfondos:{}, dotes:{}, subclases:{}};
   const k1 = pj.especie?.key; if (k1?.startsWith('lib:')) { const v = LIB.especies[k1] || prev.especies?.[k1]; if (v) ct.especies[k1] = v; }
   const k2 = pj.clase; if (k2?.startsWith('lib:')) { const v = LIB.clases[k2]?.dado ? LIB.clases[k2] : prev.clases?.[k2]; if (v) ct.clases[k2] = {...v, subclases:{}}; }
-  if (pj.subclase?.startsWith('lib:')) { const sk = pj.subclase.slice(4); const v = LIB.clases[k2]?.subclases?.[sk] || prev.subclases?.[pj.subclase]; if (v) ct.subclases[pj.subclase] = {...v, clase:k2}; }
+  if (pj.subclase?.startsWith('lib:')) { const sk = pj.subclase.slice(4); const v = subclasesLib(k2)[sk] || prev.subclases?.[pj.subclase]; if (v) ct.subclases[pj.subclase] = {...v, clase:k2}; }
   if (CLASES[k2]) { const ra = getAltos(pj, k2), sa = pj.subclase && getSubAltos(pj, k2, pj.subclase); if (ra || sa) ct.altos = {[k2]: {rasgos: ra || null, subs: sa ? {[pj.subclase]: sa} : {}}}; }
   const k3 = pj.trasfondo?.key; if (k3?.startsWith('lib:')) { const v = LIB.trasfondos[k3] || prev.trasfondos?.[k3]; if (v) ct.trasfondos[k3] = v; }
   [pj.trasfondo?.dote, pj.doteHumano, ...(pj.dotesExtra || []).map(d => d.key)].forEach(k => { if (k?.startsWith('lib:')) { const v = LIB.dotes[k] || prev.dotes?.[k]; if (v) ct.dotes[k] = v; } });

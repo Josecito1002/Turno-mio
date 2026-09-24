@@ -1,4 +1,5 @@
 /* eslint-disable */
+// @ts-nocheck -- datos portados tal cual de index.html
 import { norm } from '@/shared/utils/texto';
 
 export const MAESTRIAS: Record<string, any> = {

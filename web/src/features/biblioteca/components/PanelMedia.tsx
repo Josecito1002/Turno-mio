@@ -43,6 +43,22 @@ async function guardarCrop() {
   S.crop = null; guardarLib(true); render(); avisar('Imagen guardada.');
 }
 
+/* Cambios al recorte y a la biblioteca: fuera de los componentes, que solo los llaman */
+/** Mantiene el recorte dentro de la imagen para un cuadro de lado B a escala s. */
+function acotarCrop(B: number, s: number) {
+  const c = S.crop, hx = B / (2 * s * c.w), hy = B / (2 * s * c.h);
+  c.cx = Math.min(1 - hx, Math.max(hx, c.cx)); c.cy = Math.min(1 - hy, Math.max(hy, c.cy));
+}
+function moverCrop(dx: number, dy: number) { S.crop.cx += dx; S.crop.cy += dy; }
+function zoomCrop(z: number) { S.crop.zoom = Math.min(4, Math.max(1, z)); }
+function cancelarCrop() { S.crop = null; render(); }
+function guardarDescripcion(k: string, texto: string) { const LIB = getLib(); LIB.desc = LIB.desc || {}; LIB.desc[k] = texto; guardarLib(true); render(); avisar('Descripción guardada.'); }
+function quitarImagen(k: string) {
+  const LIB = getLib();
+  if (LIB.img) delete LIB.img[k]; if (LIB.imgOrig) delete LIB.imgOrig[k]; if (LIB.imgCrop) delete LIB.imgCrop[k];
+  guardarLib(true); render();
+}
+
 /** Recorte cuadrado: se arrastra la imagen (o se mueve con las flechas) y se ajusta el zoom. */
 function Recorte({ nombre }: { nombre: string }) {
   const box = useRef<HTMLDivElement>(null);
@@ -58,16 +74,13 @@ function Recorte({ nombre }: { nombre: string }) {
   }, []);
   const c = S.crop;
   const s = B ? B / Math.min(c.w, c.h) * c.zoom : 0;
-  if (s) {
-    const hx = B / (2 * s * c.w), hy = B / (2 * s * c.h);
-    c.cx = Math.min(1 - hx, Math.max(hx, c.cx)); c.cy = Math.min(1 - hy, Math.max(hy, c.cy));
-  }
+  if (s) acotarCrop(B, s);
   const estilo = s ? { width: c.w * s, height: c.h * s, left: B / 2 - c.cx * c.w * s, top: B / 2 - c.cy * c.h * s } : {};
   const teclas = (e: React.KeyboardEvent) => {
     const paso = 0.03, m: Record<string, [number, number]> = { ArrowLeft: [-paso, 0], ArrowRight: [paso, 0], ArrowUp: [0, -paso], ArrowDown: [0, paso] };
-    if (m[e.key]) { e.preventDefault(); c.cx += m[e.key][0]; c.cy += m[e.key][1]; forzar(n => n + 1); }
-    if (e.key === '+' || e.key === '=') { c.zoom = Math.min(4, c.zoom + 0.1); forzar(n => n + 1); }
-    if (e.key === '-') { c.zoom = Math.max(1, c.zoom - 0.1); forzar(n => n + 1); }
+    if (m[e.key]) { e.preventDefault(); moverCrop(m[e.key][0], m[e.key][1]); forzar(n => n + 1); }
+    if (e.key === '+' || e.key === '=') { zoomCrop(c.zoom + 0.1); forzar(n => n + 1); }
+    if (e.key === '-') { zoomCrop(c.zoom - 0.1); forzar(n => n + 1); }
   };
   return (
     <div className="flex flex-col gap-2">
@@ -76,7 +89,7 @@ function Recorte({ nombre }: { nombre: string }) {
         onPointerDown={e => { e.preventDefault(); e.currentTarget.setPointerCapture?.(e.pointerId); drag.current = { x: e.clientX, y: e.clientY }; }}
         onPointerMove={e => {
           if (!drag.current || !s) return;
-          c.cx -= (e.clientX - drag.current.x) / (c.w * s); c.cy -= (e.clientY - drag.current.y) / (c.h * s);
+          moverCrop(-(e.clientX - drag.current.x) / (c.w * s), -(e.clientY - drag.current.y) / (c.h * s));
           drag.current = { x: e.clientX, y: e.clientY }; forzar(n => n + 1);
         }}
         onPointerUp={() => { drag.current = null; }}
@@ -86,11 +99,11 @@ function Recorte({ nombre }: { nombre: string }) {
       </div>
       <label htmlFor={idZoom} className="flex items-center gap-2 text-sm">Zoom
         <input id={idZoom} type="range" min={1} max={4} step={0.01} value={c.zoom} className="flex-1 accent-ink"
-          onChange={e => { c.zoom = +e.target.value; forzar(n => n + 1); }} />
+          onChange={e => { zoomCrop(+e.target.value); forzar(n => n + 1); }} />
       </label>
       <div className="flex flex-wrap gap-2">
         <Boton variante="primario" tamano="sm" onClick={guardarCrop}>Guardar imagen</Boton>
-        <Boton tamano="sm" onClick={() => { S.crop = null; render(); }}>Cancelar</Boton>
+        <Boton tamano="sm" onClick={cancelarCrop}>Cancelar</Boton>
       </div>
     </div>
   );
@@ -112,7 +125,7 @@ export function PanelMedia({ k, n, d }: { k: string; n: string; d: string }) {
             <label className="flex flex-col gap-1.5 font-bold">Descripción corta
               <textarea key={d} rows={3} defaultValue={d} className={cx(claseCampo, 'py-2 font-normal')} onBlur={e => {
                 if (e.target.value.trim() === d) return;
-                LIB.desc = LIB.desc || {}; LIB.desc[k] = e.target.value.trim(); guardarLib(true); render(); avisar('Descripción guardada.');
+                guardarDescripcion(k, e.target.value.trim());
               }} />
             </label>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -121,7 +134,7 @@ export function PanelMedia({ k, n, d }: { k: string; n: string; d: string }) {
                 <input id={idArchivo} type="file" accept="image/*" className="sr-only" onChange={e => { const f = e.target.files?.[0]; if (f) empezarCrop(k, f).catch(() => avisar('No se pudo leer esa imagen.', 'error')); e.target.value = ''; }} />
               </label>
               {LIB.imgOrig?.[k] && <Boton tamano="sm" onClick={() => empezarCrop(k).catch(() => avisar('No se pudo abrir la imagen.', 'error'))}>Ajustar recorte</Boton>}
-              {img && <Boton tamano="sm" variante="peligro" onClick={() => { delete LIB.img![k]; if (LIB.imgOrig) delete LIB.imgOrig[k]; if (LIB.imgCrop) delete LIB.imgCrop[k]; guardarLib(true); render(); }}>Quitar imagen</Boton>}
+              {img && <Boton tamano="sm" variante="peligro" onClick={() => quitarImagen(k)}>Quitar imagen</Boton>}
             </div>
             <p className="mb-0 mt-2 text-sm text-muted">Se guardan en la biblioteca, compartida con todos.</p>
           </Plegable>

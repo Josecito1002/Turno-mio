@@ -1,5 +1,5 @@
-// @ts-nocheck -- datos portados tal cual de index.html
 /* eslint-disable */
+// @ts-nocheck -- datos portados tal cual de index.html
 import { sign, fmtMod, modStr } from '@/shared/utils/texto';
 
 export const INVOCACIONES: any[] = [1,3,3,3,5,5,6,6,7,7,7,8,8,8,9,9,9,10,10,10];
@@ -9,12 +9,10 @@ export const MAESTRIA = n => ({n:1,t:'pasiva',nombre:'Maestría con Armas',texto
 
 export const CLASES: Record<string, any> = {
   artifice:{n:'Artífice', al:['artificer'], dado:8, sv:['con','int'], habN:2, habs:['Arcanos','Historia','Investigación','Medicina','Naturaleza','Percepción','Juego de Manos'], arm:'Ligeras, medias y escudos', armas:'Sencillas', w:{simple:1}, lanz:'int', caster:'half', hasta:1,
-    equipo:{armadura:'tachonado',armas:[['daga',2],['ballesta_ligera',1]],txt:'cuero tachonado, 2 dagas y ballesta ligera'},
     rasgos:[
       {n:1,t:'accion',nombre:'Retoques Mágicos',texto:()=>'Con herramientas de ladrón o de artesano en la mano, das a un objeto diminuto una propiedad menor: luz, un mensaje grabado, un sonido o un olor.'},
     ]},
   barbaro:{n:'Bárbaro', al:['barbarian'], dado:12, sv:['fue','con'], habN:2, habs:['Trato con Animales','Atletismo','Intimidación','Naturaleza','Percepción','Supervivencia'], arm:'Ligeras, medias y escudos', armas:'Sencillas y marciales', w:{simple:1,martial:1}, lanz:null, maestrias:2, hasta:5,
-    equipo:{armas:[['gran_hacha',1],['hacha_mano',4]],txt:'gran hacha y 4 hachas de mano'},
     ca: c => !c.armor ? 10 + c.m.des + c.m.con : null,
     velocidad: c => c.lvl >= 5 && c.armor?.cat !== 'pesada' ? 10 : 0,
     recursos: c => [{id:'furia',nombre:'Furia',max:c.lvl>=17?6:c.lvl>=12?5:c.lvl>=6?4:c.lvl>=3?3:2,reset:'corto1',nota:'Recuperas 1 con descanso corto'}],
@@ -29,7 +27,6 @@ export const CLASES: Record<string, any> = {
       {n:5,t:'pasiva',nombre:'Movimiento Rápido',texto:()=>'+10 pies de velocidad sin armadura pesada (ya sumado).'},
     ]},
   bardo:{n:'Bardo', al:['bard'], dado:8, sv:['des','car'], habN:3, habs:'todas', arm:'Ligeras', armas:'Sencillas', w:{simple:1}, lanz:'car', caster:'full', hasta:5,
-    equipo:{armadura:'cuero',armas:[['daga',2]],txt:'armadura de cuero y 2 dagas'},
     recursos: c => [{id:'insp',nombre:`Inspiración Bárdica (d${c.lvl>=15?12:c.lvl>=10?10:c.lvl>=5?8:6})`,max:Math.max(1,c.m.car),reset:c.lvl>=5?'corto':'largo'}],
     rasgos:[
       {n:1,t:'adicional',nombre:'Inspiración Bárdica',coste:'1 uso',texto:c=>`Das a una criatura a 60 pies un d${c.lvl>=15?12:c.lvl>=10?10:c.lvl>=5?8:6}. Durante 1 hora, si falla una prueba d20, lo tira y lo suma.`},
@@ -38,7 +35,6 @@ export const CLASES: Record<string, any> = {
       {n:5,t:'pasiva',nombre:'Fuente de Inspiración',texto:()=>'Recuperas Inspiración Bárdica con descanso corto, y puedes gastar un espacio de conjuro para recuperar un uso.'},
     ]},
   brujo:{n:'Brujo', al:['warlock','bruja'], dado:8, sv:['sab','car'], habN:2, habs:['Arcanos','Engaño','Historia','Intimidación','Investigación','Naturaleza','Religión'], arm:'Ligeras', armas:'Sencillas', w:{simple:1}, lanz:'car', caster:'pacto', hasta:6,
-    equipo:{armadura:'cuero',armas:[['hoz',1],['daga',2]],txt:'armadura de cuero, hoz y 2 dagas'},
     recursos: c => { const p = pacto(c.lvl); return [{id:'pacto',nombre:`Espacios de pacto (nivel ${p.nivel})`,max:p.n,reset:'corto'}, c.lvl>=2 && {id:'astucia',nombre:'Astucia Mágica',max:1,reset:'largo'}]; },
     rasgos:[
       {n:1,t:'pasiva',nombre:'Magia de Pacto',texto:c=>{const p=pacto(c.lvl);return `Tienes ${p.n} espacio${p.n>1?'s':''} de nivel ${p.nivel}; tus conjuros de brujo se lanzan a ese nivel. Se recuperan con descanso corto o largo.`;}},
@@ -46,7 +42,6 @@ export const CLASES: Record<string, any> = {
       {n:2,t:'fuera',nombre:'Astucia Mágica',coste:'1 por descanso largo',texto:c=>`Rito de 1 minuto: recuperas hasta ${Math.ceil(pacto(c.lvl).n/2)} espacios de pacto.`},
     ]},
   clerigo:{n:'Clérigo', al:['cleric'], dado:8, sv:['sab','car'], habN:2, habs:['Historia','Perspicacia','Medicina','Persuasión','Religión'], arm:'Ligeras, medias y escudos', armas:'Sencillas', w:{simple:1}, lanz:'sab', caster:'full', hasta:5,
-    equipo:{armadura:'camisote',escudo:true,armas:[['maza',1]],txt:'camisote de mallas, escudo y maza'},
     recursos: c => [c.lvl>=2 && {id:'canal',nombre:'Canalizar Divinidad',max:c.lvl>=18?4:c.lvl>=6?3:2,reset:'corto1',nota:'Recuperas 1 con descanso corto'}],
     rasgos:[
       {n:1,t:'pasiva',nombre:'Orden Divina',texto:()=>'Protector (armaduras pesadas y armas marciales) o Taumaturgo (un truco más y +SAB a Arcanos o Religión).'},
@@ -55,7 +50,6 @@ export const CLASES: Record<string, any> = {
       {n:5,t:'pasiva',nombre:'Abrasar Muertos Vivientes',texto:c=>`Al expulsar muertos vivientes, los que fallan reciben ${Math.max(1,c.m.sab)}d8 radiante.`},
     ]},
   druida:{n:'Druida', al:['druid'], dado:8, sv:['int','sab'], habN:2, habs:['Arcanos','Trato con Animales','Perspicacia','Medicina','Naturaleza','Percepción','Religión','Supervivencia'], arm:'Ligeras y escudos', armas:'Sencillas', w:{simple:1}, lanz:'sab', caster:'full', hasta:5,
-    equipo:{armadura:'cuero',escudo:true,armas:[['hoz',1],['baston',1]],txt:'armadura de cuero, escudo, hoz y bastón'},
     recursos: c => [c.lvl>=2 && {id:'forma',nombre:'Forma Salvaje',max:c.lvl>=17?4:c.lvl>=6?3:2,reset:'corto1',nota:'Recuperas 1 con descanso corto'}],
     rasgos:[
       {n:1,t:'pasiva',nombre:'Orden Primordial',texto:()=>'Mago (un truco más y +SAB a Arcanos o Naturaleza) o Guardián (armaduras medias y armas marciales).'},
@@ -65,7 +59,6 @@ export const CLASES: Record<string, any> = {
       {n:5,t:'gratis',nombre:'Resurgir Salvaje',texto:()=>'Una vez por turno, sin usos de Forma Salvaje, gastas un espacio para recuperar uno. Una vez por descanso largo, gastas un uso de Forma Salvaje para recuperar un espacio de nivel 1.'},
     ]},
   explorador:{n:'Explorador', al:['ranger'], dado:10, sv:['fue','des'], habN:3, habs:['Trato con Animales','Atletismo','Perspicacia','Investigación','Naturaleza','Percepción','Sigilo','Supervivencia'], arm:'Ligeras, medias y escudos', armas:'Sencillas y marciales', w:{simple:1,martial:1}, lanz:'sab', caster:'half', maestrias:2, estilo:2, estilos:['arqueria','defensa','duelo','dosarmas','druidico'], hasta:5,
-    equipo:{armadura:'tachonado',armas:[['cimitarra',1],['espada_corta',1],['arco_largo',1]],txt:'cuero tachonado, cimitarra, espada corta y arco largo'},
     recursos: c => [{id:'enemigo',nombre:'Marca del cazador sin espacio',max:c.lvl>=17?6:c.lvl>=13?5:c.lvl>=9?4:c.lvl>=5?3:2,reset:'largo'}],
     rasgos:[
       {n:1,t:'adicional',nombre:'Marca del Cazador',coste:'1 espacio o 1 uso gratis',texto:()=>'Siempre preparada (concentración, 1 hora): +1d6 de fuerza al golpear a la criatura marcada, y ventaja en Percepción o Supervivencia para encontrarla.'},
@@ -74,7 +67,6 @@ export const CLASES: Record<string, any> = {
       ATAQUE_EXTRA,
     ]},
   guerrero:{n:'Guerrero', al:['fighter'], dado:10, sv:['fue','con'], habN:2, habs:['Acrobacias','Trato con Animales','Atletismo','Historia','Perspicacia','Intimidación','Persuasión','Percepción','Supervivencia'], arm:'Todas y escudos', armas:'Sencillas y marciales', w:{simple:1,martial:1}, lanz:null, maestrias:3, estilo:1, estilos:['arqueria','defensa','duelo','dosmanos','dosarmas','proteccion','sinarmas'], hasta:5,
-    equipo:{armadura:'mallas',armas:[['espadon',1],['mangual',1],['jabalina',8]],txt:'cota de mallas, espadón, mangual y 8 jabalinas'},
     recursos: c => [{id:'aliento',nombre:'Segundo Aliento',max:c.lvl>=10?4:c.lvl>=4?3:2,reset:'corto1',nota:'Recuperas 1 con descanso corto'}, c.lvl>=2 && {id:'oleada',nombre:'Oleada de Acción',max:c.lvl>=17?2:1,reset:'corto'}],
     rasgos:[
       {n:1,t:'adicional',nombre:'Segundo Aliento',coste:'1 uso',texto:c=>`Recuperas 1d10 + ${c.lvl} PG.${c.lvl>=5?' Y te mueves hasta la mitad de tu velocidad sin provocar ataques de oportunidad.':''}`},
@@ -84,7 +76,6 @@ export const CLASES: Record<string, any> = {
       ATAQUE_EXTRA,
     ]},
   hechicero:{n:'Hechicero', al:['sorcerer','hechicera'], dado:6, sv:['con','car'], habN:2, habs:['Arcanos','Engaño','Perspicacia','Intimidación','Persuasión','Religión'], arm:'Ninguna', armas:'Sencillas', w:{simple:1}, lanz:'car', caster:'full', hasta:6,
-    equipo:{armas:[['lanza',1],['daga',2]],txt:'lanza y 2 dagas'},
     recursos: c => [{id:'innata',nombre:'Hechicería Innata',max:2,reset:'largo'}, c.lvl>=2 && {id:'ph',nombre:'Puntos de hechicería',max:c.lvl,reset:'largo',tipo:'pool'}, c.lvl>=5 && {id:'restau',nombre:'Restauración Hechicera',max:1,reset:'largo'}],
     rasgos:[
       {n:1,t:'adicional',nombre:'Hechicería Innata',coste:'1 uso',texto:c=>`Durante 1 minuto tu CD de conjuros sube a ${c.dcSpell+1} y tienes ventaja en tus ataques de conjuro de hechicero.`},
@@ -93,7 +84,6 @@ export const CLASES: Record<string, any> = {
       {n:5,t:'fuera',nombre:'Restauración Hechicera',coste:'1 por descanso largo',texto:c=>`Al terminar un descanso corto recuperas hasta ${Math.floor(c.lvl/2)} puntos de hechicería.`},
     ]},
   mago:{n:'Mago', al:['wizard','maga'], dado:6, sv:['int','sab'], habN:2, habs:['Arcanos','Historia','Perspicacia','Investigación','Medicina','Naturaleza','Religión'], arm:'Ninguna', armas:'Sencillas', w:{simple:1}, lanz:'int', caster:'full', hasta:5,
-    equipo:{armas:[['daga',2],['baston',1]],txt:'2 dagas y bastón'},
     recursos: c => [{id:'recup',nombre:'Recuperación Arcana',max:1,reset:'largo'}],
     rasgos:[
       {n:1,t:'fuera',nombre:'Recuperación Arcana',coste:'1 por descanso largo',texto:c=>`Tras un descanso corto recuperas espacios cuyos niveles sumen hasta ${Math.ceil(c.lvl/2)}.`},
@@ -102,7 +92,6 @@ export const CLASES: Record<string, any> = {
       {n:5,t:'fuera',nombre:'Memorizar Conjuro',texto:()=>'Tras un descanso corto cambias un conjuro preparado por otro de tu libro.'},
     ]},
   monje:{n:'Monje', al:['monk','monja'], dado:8, sv:['fue','des'], habN:2, habs:['Acrobacias','Atletismo','Historia','Perspicacia','Religión','Sigilo'], arm:'Ninguna', armas:'Sencillas y marciales con la propiedad Ligera', w:{simple:1,martial:1,light:1}, lanz:null, hasta:6,
-    equipo:{armas:[['lanza',1],['daga',5]],txt:'lanza y 5 dagas'},
     ca: c => (!c.armor && !c.shield) ? 10 + c.m.des + c.m.sab : null,
     velocidad: c => (!c.armor && !c.shield) ? (c.lvl>=18?30:c.lvl>=14?25:c.lvl>=10?20:c.lvl>=6?15:c.lvl>=2?10:0) : 0,
     recursos: c => [c.lvl>=2 && {id:'focus',nombre:'Puntos de Focus',max:c.lvl,reset:'corto'}, c.lvl>=2 && {id:'metab',nombre:'Metabolismo Asombroso',max:1,reset:'largo'}],
@@ -122,7 +111,6 @@ export const CLASES: Record<string, any> = {
       {n:6,t:'pasiva',nombre:'Golpes Potenciados',texto:()=>'Tus golpes sin armas pueden hacer daño de fuerza.'},
     ]},
   paladin:{n:'Paladín', al:['paladin','paladina'], dado:10, sv:['sab','car'], habN:2, habs:['Atletismo','Perspicacia','Intimidación','Medicina','Persuasión','Religión'], arm:'Todas y escudos', armas:'Sencillas y marciales', w:{simple:1,martial:1}, lanz:'car', caster:'half', maestrias:2, estilo:2, estilos:['defensa','duelo','dosmanos','proteccion','bendito'], hasta:6,
-    equipo:{armadura:'mallas',escudo:true,armas:[['espada_larga',1],['jabalina',6]],txt:'cota de mallas, escudo, espada larga y 6 jabalinas'},
     recursos: c => [{id:'manos',nombre:'Imposición de Manos',max:5*c.lvl,reset:'largo',tipo:'pool'}, c.lvl>=2 && {id:'castigo',nombre:'Castigo Divino sin espacio',max:1,reset:'largo'}, c.lvl>=3 && {id:'canal',nombre:'Canalizar Divinidad',max:c.lvl>=11?3:2,reset:'corto1',nota:'Recuperas 1 con descanso corto'}, c.lvl>=5 && {id:'corcel',nombre:'Montura Fiel sin espacio',max:1,reset:'largo'}],
     rasgos:[
       {n:1,t:'adicional',nombre:'Imposición de Manos',coste:'de tu reserva',texto:c=>`Tocas a una criatura y le devuelves PG de tu reserva (${5*c.lvl} por descanso largo), o gastas 5 para quitarle Envenenado.`},
@@ -136,7 +124,6 @@ export const CLASES: Record<string, any> = {
       {n:6,t:'pasiva',nombre:'Aura de Protección',texto:c=>`Tú y aliados a 10 pies sumáis ${sign(Math.max(1,c.m.car))} a las salvaciones mientras no estés Incapacitado.`},
     ]},
   picaro:{n:'Pícaro', al:['rogue','picara'], dado:8, sv:['des','int'], habN:4, habs:['Acrobacias','Atletismo','Engaño','Perspicacia','Intimidación','Investigación','Percepción','Interpretación','Persuasión','Juego de Manos','Sigilo'], arm:'Ligeras', armas:'Sencillas y marciales con Sutil o Ligera', w:{simple:1,martial:1,finesseLight:1}, lanz:null, maestrias:2, hasta:5,
-    equipo:{armadura:'cuero',armas:[['daga',2],['espada_corta',1],['arco_corto',1]],txt:'armadura de cuero, 2 dagas, espada corta y arco corto'},
     rasgos:[
       {n:1,t:'gratis',nombre:'Ataque Furtivo',texto:c=>`Una vez por turno, al golpear con arma Sutil o a distancia teniendo ventaja (o con un aliado a 5 pies del objetivo): +${Math.ceil(c.lvl/2)}d6 de daño.`},
       {n:1,t:'pasiva',nombre:'Pericia',texto:()=>'Doble competencia en 2 habilidades (elígelas en Habilidades).'},

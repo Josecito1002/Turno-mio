@@ -1,5 +1,5 @@
-// @ts-nocheck -- lógica portada de index.html
 /* eslint-disable */
+// @ts-nocheck -- lógica portada de index.html
 import { AB } from '@/features/reglas/data/caracteristicas';
 import { getC, getE } from '@/features/biblioteca/domain/biblioteca';
 

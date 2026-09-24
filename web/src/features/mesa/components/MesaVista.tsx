@@ -167,7 +167,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
       </>
     );
   }
-  cb.orden = cb.orden.filter((o: any) => combatiente(o.k, cp));
+  quitarDelOrdenLosQueNoEstan(cb, cp);
   const actual = cb.orden[cb.turno];
   const siguiente = () => conCamp(c => { const b = c.combate; if (!b.orden.length) return false; b.turno++; if (b.turno >= b.orden.length) { b.turno = 0; b.ronda++; } });
   const terminar = () => {
@@ -213,16 +213,33 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
   );
 }
 
+/* Cambios de campaña y de la vista: fuera de los componentes, que solo los llaman */
+/** El combate solo lista a quienes siguen en la campaña. */
+function quitarDelOrdenLosQueNoEstan(cb: any, cp: any) { cb.orden = cb.orden.filter((o: any) => combatiente(o.k, cp)); }
+/** La campaña abierta, con sus valores por defecto; null si no hay (o ya no existe). */
+function campanaAbierta() {
+  const cp = S.camp ? campActual() : null;
+  if (!cp) { S.camp = null; return null; }
+  cp.combate = cp.combate || { activo: false, ronda: 1, turno: 0, orden: [] }; cp.monstruos = cp.monstruos || [];
+  return cp;
+}
+function crearCampana(n: string) {
+  if (!n) { avisar('Ponle nombre a la campaña.', 'aviso'); return; }
+  const nueva = { id: 'c-' + Date.now().toString(36), nombre: n, pjs: [], monstruos: [], estado: {}, combate: { activo: false, ronda: 1, turno: 0, orden: [] } };
+  guardarCamp(nueva); S.camp = nueva.id; S.mtab = 'grupo'; render();
+}
+function abrirCampana(id: string | null) { S.camp = id; if (id) S.mtab = 'grupo'; render(); irArriba(); }
+function borrarCampana(cp: any) {
+  if (!confirm(`¿Borrar la campaña ${cp.nombre}? Los personajes no se borran.`)) return;
+  almacen.borrarCampana(cp.id); S.camp = null; render(); avisar('Campaña borrada.');
+}
+
 export function MesaVista({ importarHojas }: { importarHojas: () => void }) {
   const idNueva = useId();
   const l = camps();
-  if (!S.camp || !campActual()) {
-    S.camp = null;
-    const crear = () => {
-      const n = val(idNueva).trim(); if (!n) { avisar('Ponle nombre a la campaña.', 'aviso'); return; }
-      const nueva = { id: 'c-' + Date.now().toString(36), nombre: n, pjs: [], monstruos: [], estado: {}, combate: { activo: false, ronda: 1, turno: 0, orden: [] } };
-      guardarCamp(nueva); S.camp = nueva.id; S.mtab = 'grupo'; render();
-    };
+  const cp = campanaAbierta();
+  if (!cp) {
+    const crear = () => crearCampana(val(idNueva).trim());
     return (
       <>
         <EncabezadoPagina id="titulo-vista" titulo="Mesa del DM" subtitulo="Junta las hojas de tu grupo en una campaña para ver PG, CA y pasivas de un vistazo, y llevar el combate: iniciativa, daño y condiciones." />
@@ -230,7 +247,7 @@ export function MesaVista({ importarHojas }: { importarHojas: () => void }) {
           <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3 p-0">
             {l.map(cp => (
               <li key={cp.id} className="flex">
-                <button type="button" onClick={() => { S.camp = cp.id; S.mtab = 'grupo'; render(); irArriba(); }}
+                <button type="button" onClick={() => abrirCampana(cp.id)}
                   className={cx('flex min-h-24 w-full cursor-pointer flex-col justify-center rounded-2xl bg-surface p-4 text-left shadow-sm ring-1 ring-rule/60 hover:shadow-md', foco)}>
                   <b className="font-serif text-xl">{cp.nombre}</b>
                   <span className="text-sm text-muted">{cp.pjs.length} personaje{cp.pjs.length === 1 ? '' : 's'}{cp.combate?.activo ? ', en combate' : ''}</span>
@@ -248,8 +265,6 @@ export function MesaVista({ importarHojas }: { importarHojas: () => void }) {
       </>
     );
   }
-  const cp = campActual();
-  cp.combate = cp.combate || { activo: false, ronda: 1, turno: 0, orden: [] }; cp.monstruos = cp.monstruos || [];
   const grupo = cp.pjs.map((id: string) => combatiente('pj:' + id, cp)).filter(Boolean);
   const fuera = S.list.filter(p => !cp.pjs.includes(p.id));
   const mtab = S.mtab || 'grupo';
@@ -258,14 +273,11 @@ export function MesaVista({ importarHojas }: { importarHojas: () => void }) {
     if (!ids.length) { avisar('Marca al menos un personaje.', 'aviso'); return; }
     conCamp(c => { c.pjs.push(...ids.filter(i => !c.pjs.includes(i))); });
   };
-  const borrar = () => {
-    if (!confirm(`¿Borrar la campaña ${cp.nombre}? Los personajes no se borran.`)) return;
-    almacen.borrarCampana(cp.id); S.camp = null; render(); avisar('Campaña borrada.');
-  };
+  const borrar = () => borrarCampana(cp);
   return (
     <>
       <EncabezadoPagina id="titulo-vista" titulo={cp.nombre} subtitulo={`${grupo.length} personaje${grupo.length === 1 ? '' : 's'}. Los cambios de PG y condiciones quedan en tus copias de las hojas.`}>
-        <Boton variante="fantasma" onClick={() => { S.camp = null; render(); irArriba(); }}>← Todas las campañas</Boton>
+        <Boton variante="fantasma" onClick={() => abrirCampana(null)}>← Todas las campañas</Boton>
       </EncabezadoPagina>
       <Pestanas idBase="mesa" etiqueta="Secciones de la campaña" activa={mtab} onCambiar={k => { S.mtab = k; render(); }}
         items={[{ id: 'grupo', texto: 'Grupo' }, { id: 'combate', texto: cp.combate.activo ? `Combate · ronda ${cp.combate.ronda}` : 'Combate' }]} />

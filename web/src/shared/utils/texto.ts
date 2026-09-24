@@ -21,17 +21,19 @@ export function stripTags(s: unknown) {
   return String(s || '').replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '');
 }
 
+type Obj = Record<string, unknown>;
+
 /** Asigna un valor siguiendo una ruta con puntos ("mejoras.4.modo"), creando objetos intermedios. */
-export function setPath(o: any, path: string, v: unknown) {
+export function setPath(o: object, path: string, v: unknown) {
   const ks = path.split('.');
-  let x = o;
+  let x = o as Obj;
   for (let i = 0; i < ks.length - 1; i++) {
     if (x[ks[i]] == null || typeof x[ks[i]] !== 'object') x[ks[i]] = {};
-    x = x[ks[i]];
+    x = x[ks[i]] as Obj;
   }
   x[ks[ks.length - 1]] = v;
 }
 
-export function getPath(o: any, path: string) {
-  return path.split('.').reduce((x, k) => (x == null ? undefined : x[k]), o);
+export function getPath(o: unknown, path: string): unknown {
+  return path.split('.').reduce<unknown>((x, k) => (x == null ? undefined : (x as Obj)[k]), o);
 }

@@ -40,15 +40,28 @@ function itemsNav(): ItemNav[] {
 }
 const ir = (v: Vista) => { S.view = v; if (v === 'mesa') S.camp = null; render(); irArriba(); };
 
-function Vista({ elegirArchivos, importarHojas }: { elegirArchivos: () => void; importarHojas: () => void }) {
-  // Las vistas por rol también se protegen aquí (el servidor ya las rechaza).
+const editar = () => { S.view = 'editor'; S.step = S.step || 'especie'; render(); irArriba(); };
+const verHoja = () => { S.view = 'ficha'; S.tab = 'turno'; render(); irArriba(); };
+const marcarImportarEnCampana = () => { S.importCamp = S.camp; };
+
+/** La vista que se puede mostrar. Las vistas por rol también se protegen aquí (el servidor ya las rechaza);
+    sin personaje abierto se vuelve al inicio. Se ajusta fuera del componente, que solo la lee. */
+function vistaPermitida(): Vista {
   if ((S.view === 'mesa' && !esDM()) || (S.view === 'cuentas' && !esAdmin())) S.view = 'home';
-  if (S.view === 'mesa') return <MesaVista importarHojas={importarHojas} />;
-  if (S.view === 'lib') return <BibliotecaVista elegirArchivos={elegirArchivos} />;
-  if (S.view === 'cuentas') return <CuentasVista />;
-  if (!S.pj || S.view === 'home') { S.view = 'home'; return <Inicio />; }
-  const c = (S.c = compute(S.pj));
-  return S.view === 'editor' ? <Editor c={c} /> : <Ficha c={c} />;
+  if (!['mesa', 'lib', 'cuentas'].includes(S.view) && (!S.pj || S.view === 'home')) S.view = 'home';
+  return S.view;
+}
+/** Calcula el personaje abierto y lo deja en S.c para las acciones que lo necesitan. */
+function calcularAbierto() { return (S.c = compute(S.pj)); }
+
+function Vista({ elegirArchivos, importarHojas }: { elegirArchivos: () => void; importarHojas: () => void }) {
+  const vista = vistaPermitida();
+  if (vista === 'mesa') return <MesaVista importarHojas={importarHojas} />;
+  if (vista === 'lib') return <BibliotecaVista elegirArchivos={elegirArchivos} />;
+  if (vista === 'cuentas') return <CuentasVista />;
+  if (vista === 'home') return <Inicio />;
+  const c = calcularAbierto();
+  return vista === 'editor' ? <Editor c={c} /> : <Ficha c={c} />;
 }
 
 const TITULOS: Record<string, string> = { home: 'Personajes', lib: 'Biblioteca', mesa: 'Mesa del DM', cuentas: 'Cuentas' };
@@ -108,7 +121,7 @@ export function MiTurnoApp() {
   }, [clave]);
 
   const elegirArchivos = () => fileIn.current?.click();
-  const importarHojas = () => { S.importCamp = S.camp; fileIn.current?.click(); };
+  const importarHojas = () => { marcarImportarEnCampana(); fileIn.current?.click(); };
   const nav = S.usuario && !S.cargando ? itemsNav() : [];
   const rol = S.usuario?.rol === 'admin' ? 'Admin' : S.usuario?.rol === 'dm' ? 'DM' : 'Jugador';
 
@@ -136,8 +149,8 @@ export function MiTurnoApp() {
           <div className="ml-auto flex items-center gap-2">
             {(S.view === 'ficha' || S.view === 'editor') && S.pj && (
               S.view === 'ficha'
-                ? <Boton tamano="sm" onClick={() => { S.view = 'editor'; S.step = S.step || 'especie'; render(); irArriba(); }}>Editar</Boton>
-                : <Boton tamano="sm" variante="primario" onClick={() => { S.view = 'ficha'; S.tab = 'turno'; render(); irArriba(); }}>Ver la hoja</Boton>
+                ? <Boton tamano="sm" onClick={editar}>Editar</Boton>
+                : <Boton tamano="sm" variante="primario" onClick={verHoja}>Ver la hoja</Boton>
             )}
             {S.usuario && (
               <form action={cerrarSesion} className="flex items-center gap-2">

@@ -4,9 +4,10 @@ import { cx, foco } from '@/shared/ui/kit';
 
 type Estilo = 'chip' | 'grande' | 'bloque';
 const ESTILO: Record<Estilo, string> = {
-  chip: 'min-h-11 rounded-lg bg-soft px-2.5 font-bold hover:bg-rule/70 sm:min-h-9',
+  // El color del texto va en cada estilo: si la base llevara text-inherit, le ganaría a text-bg del estilo grande
+  chip: 'min-h-11 rounded-lg bg-soft px-2.5 font-bold text-inherit hover:bg-rule/70 sm:min-h-9',
   grande: 'min-h-12 rounded-xl bg-ink px-3 font-serif text-2xl font-extrabold text-bg hover:bg-ink/90',
-  bloque: 'w-full rounded-xl hover:bg-soft',
+  bloque: 'w-full rounded-xl text-inherit hover:bg-soft',
 };
 
 type Props = {
@@ -19,7 +20,7 @@ export function BotonTirada({ expr, label, children, estilo = 'chip', className,
   return (
     <button type="button" data-roll={expr} data-label={label} aria-label={ariaLabel ?? `Tirar ${label}: ${expr.replace('1d20', 'd20 ')}`}
       data-dmg={dmg || undefined} data-dmglabel={dmg ? dmgLabel : undefined} data-min3={min3 ? '1' : undefined}
-      className={cx('cursor-pointer text-inherit transition-colors', ESTILO[estilo], foco, className)}>
+      className={cx('cursor-pointer transition-colors', ESTILO[estilo], foco, className)}>
       {children}
     </button>
   );

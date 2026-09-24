@@ -6,7 +6,6 @@
 import { norm } from '@/shared/utils/texto';
 import { SKILLS } from '../data/caracteristicas';
 import { CLASES } from '../data/clases';
-import { ARMAS, ARMADURAS } from '../data/equipo';
 import { DOTES } from '../data/dotes';
 
 /* ---------- Habilidades ---------- */
@@ -29,34 +28,21 @@ export function competenciaArmadura(C: any): CompArmadura {
   const todas = /\btodas\b/.test(t);
   return { ligera: todas || /ligera/.test(t), media: todas || /media/.test(t), pesada: todas || /pesada/.test(t), escudo: /escudo/.test(t) };
 }
-export function armadurasPermitidas(C: any): string[] {
-  const p = competenciaArmadura(C);
-  return Object.keys(ARMADURAS).filter(k => (p as any)[ARMADURAS[k].cat]);
-}
-
-/* ---------- Armas ---------- */
-/** Misma regla de competencia que usa el cálculo de ataques. */
-export function competenteConArma(C: any, k: string) {
-  const w = ARMAS[k]; if (!w) return false;
-  const P = C?.w || { simple: 1, martial: 1 };
-  if (w.cat === 'sencilla') return !!P.simple;
-  return !!P.martial && (!P.light || w.p.includes('ligera')) && (!P.finesseLight || w.p.includes('ligera') || w.p.includes('sutil'));
-}
-export const armasPermitidas = (C: any) => Object.keys(ARMAS).filter(k => competenteConArma(C, k));
-/** Maestría: solo armas con las que es competente; el bárbaro, solo cuerpo a cuerpo. */
-export function maestriaPermitida(C: any, claseKey: string, k: string) {
-  if (!competenteConArma(C, k)) return false;
-  if (claseKey === 'barbaro' && ARMAS[k].dist) return false;
-  return true;
-}
+/* Armas: la competencia real del personaje (clase + rasgos) está en competencias.ts */
 
 /* ---------- Conjuros ---------- */
-/** Lista de conjuros que usa la clase: la suya, o la de la clase base de la que deriva ("Arcanista (Artífice)" -> artifice). */
+/** Clase base de la que deriva una clase de biblioteca por su nombre ("Arcanista (Artífice)" -> artifice), o null. */
+export function claseBase(claseKey: string, C: any): string | null {
+  if (CLASES[claseKey]) return claseKey;
+  const n = norm(C?.n);
+  if (!n) return null;
+  return Object.keys(CLASES).find(k => n.includes(norm(CLASES[k].n)) || (CLASES[k].al || []).some((a: string) => n.includes(norm(a)))) || null;
+}
+
+/** Lista de conjuros que usa la clase: la suya, o la de la clase base de la que deriva. */
 export function listaDeConjuros(claseKey: string, C: any): string | null {
   if (!C?.lanz) return null;
-  if (CLASES[claseKey]) return claseKey;
-  const n = norm(C.n);
-  return Object.keys(CLASES).find(k => n.includes(norm(CLASES[k].n)) || (CLASES[k].al || []).some((a: string) => n.includes(norm(a)))) || claseKey;
+  return claseBase(claseKey, C) || claseKey;
 }
 export const conjuroDeLaLista = (s: any, lista: string | null) => !!lista && (s.clases || []).includes(lista);
 

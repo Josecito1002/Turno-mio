@@ -6,6 +6,7 @@ import { modStr, norm, richT, sign, slug } from '@/shared/utils/texto';
 import { Aviso, Boton, EncabezadoPagina, Insignia, Lista, PanelPestana, Pestanas, Plegable, Seccion, Tarjeta, cx } from '@/shared/ui/kit';
 import { AB, SKILLS, TIPOS, ORDEN_TIPOS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { COMUNES } from '@/features/reglas/data/comunes';
+import { textoArmaduras, textoArmas } from '@/features/reglas/domain/competencias';
 import { FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { BotonTirada } from '@/features/dados/components/BotonTirada';
 import { Ataque, ConjuroFila, Entrada, Recursos } from '../piezas';
@@ -66,7 +67,8 @@ function Hoja({ c }: { c: any }) {
   const pj = S.pj, tb = pj.trasfondo, T = c.T;
   const exportar = () => bajarArchivo(slug(pj.nombre || 'personaje') + '.json', JSON.stringify(pj, null, 1));
   const datos: [string, ReactNode][] = [
-    ['Armaduras', c.C?.arm || '—'], ['Armas', c.C?.armas || '—'], ['Herramientas', (T ? (T.custom ? tb.herr : T.herr) : '') || '—'],
+    ['Armaduras', textoArmaduras(c)], ['Armas', textoArmas(c)], ['Herramientas', c.herramientas.map((h: any) => h.que).join(', ') || '—'],
+    ...(c.compFuentes.length ? [['Competencias de rasgos', c.compFuentes.map((f: any) => `${f.que} (${f.src})`).join(', ')] as [string, ReactNode]] : []),
     ['Trasfondo', T ? (T.custom ? tb.nombre || 'Personalizado' : T.n) : '—'], ['Visión en la oscuridad', c.vision ? c.vision + ' pies' : 'No'],
     ['Alineamiento', pj.alineamiento || '—'], ['Dotes', c.dotes.map((d: any) => d.nombre).join(', ') || 'Ninguna'],
   ];

@@ -10,7 +10,10 @@
     "db:generar": "drizzle-kit generate",
     "db:migrar": "tsx --env-file-if-exists=.env.local scripts/migrar.ts",
     "db:sembrar": "tsx --env-file-if-exists=.env.local scripts/sembrar.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test \"src/**/*.test.ts\"",
+    "auditar-reglas": "tsx scripts/auditar-reglas.ts",
+    "db:actualizar-clase": "tsx --env-file-if-exists=.env.local scripts/actualizar-clase.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.8",

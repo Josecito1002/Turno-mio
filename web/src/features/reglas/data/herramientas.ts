@@ -1,0 +1,30 @@
+/* Herramientas del Manual del Jugador 2024: [clave, nombre, tipo] */
+export type TipoHerramienta = 'artesano' | 'otra' | 'instrumento' | 'juego';
+
+export const HERRAMIENTAS: [string, string, TipoHerramienta][] = [
+  ['alquimista', 'Suministros de alquimista', 'artesano'],
+  ['cervecero', 'Suministros de cervecero', 'artesano'],
+  ['caligrafo', 'Suministros de calígrafo', 'artesano'],
+  ['carpintero', 'Herramientas de carpintero', 'artesano'],
+  ['cartografo', 'Herramientas de cartógrafo', 'artesano'],
+  ['zapatero', 'Herramientas de zapatero', 'artesano'],
+  ['cocina', 'Utensilios de cocina', 'artesano'],
+  ['soplador', 'Herramientas de soplador de vidrio', 'artesano'],
+  ['joyero', 'Herramientas de joyero', 'artesano'],
+  ['peletero', 'Herramientas de peletero', 'artesano'],
+  ['albanil', 'Herramientas de albañil', 'artesano'],
+  ['pintor', 'Suministros de pintor', 'artesano'],
+  ['alfarero', 'Herramientas de alfarero', 'artesano'],
+  ['herrero', 'Herramientas de herrero', 'artesano'],
+  ['hojalatero', 'Herramientas de hojalatero', 'artesano'],
+  ['tejedor', 'Herramientas de tejedor', 'artesano'],
+  ['tallista', 'Herramientas de tallista', 'artesano'],
+  ['disfraz', 'Kit de disfraz', 'otra'],
+  ['falsificacion', 'Kit de falsificación', 'otra'],
+  ['herboristeria', 'Kit de herboristería', 'otra'],
+  ['navegante', 'Herramientas de navegante', 'otra'],
+  ['envenenador', 'Kit de envenenador', 'otra'],
+  ['ladron', 'Herramientas de ladrón', 'otra'],
+  ['instrumento', 'Instrumento musical (uno)', 'instrumento'],
+  ['juego', 'Juego (uno: dados, cartas, ajedrez de dragón o tres dragones)', 'juego'],
+];

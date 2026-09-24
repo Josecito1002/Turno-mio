@@ -59,6 +59,38 @@ export async function reemplazarBiblioteca(db: Db, lib: Biblioteca) {
   });
 }
 
+/** Reemplaza una sola clase (sus datos, subclases y rasgos) sin tocar el resto de la biblioteca. */
+export async function reemplazarClase(db: Db, id: string, clase: any) {
+  const f = libAFilas({ clases: { [id]: clase } } as unknown as Biblioteca);
+  const fila: any = f.clases[0];
+  await db.transaction(async txx => {
+    const tx = txx as unknown as Db;
+    await tx.delete(t.rasgos).where(sql`${t.rasgos.claseId} = ${id}`);
+    await tx.delete(t.subclases).where(sql`${t.subclases.claseId} = ${id}`);
+    const { id: _id, ...resto } = fila; void _id;
+    await tx.insert(t.clases).values(fila).onConflictDoUpdate({ target: t.clases.id, set: resto });
+    await insertar(tx, t.subclases, f.subclases);
+    await insertar(tx, t.rasgos, f.rasgos);
+  });
+  return { subclases: f.subclases.length, rasgos: f.rasgos.length };
+}
+
+/** Reemplaza una sola especie (sus datos, subespecies y rasgos) sin tocar el resto de la biblioteca. */
+export async function reemplazarEspecie(db: Db, id: string, especie: any) {
+  const f = libAFilas({ especies: { [id]: especie } } as unknown as Biblioteca);
+  const fila: any = f.especies[0];
+  await db.transaction(async txx => {
+    const tx = txx as unknown as Db;
+    await tx.delete(t.rasgos).where(sql`${t.rasgos.especieId} = ${id}`);
+    await tx.delete(t.subespecies).where(sql`${t.subespecies.especieId} = ${id}`);
+    const { id: _id, ...resto } = fila; void _id;
+    await tx.insert(t.especies).values(fila).onConflictDoUpdate({ target: t.especies.id, set: resto });
+    await insertar(tx, t.subespecies, f.subespecies);
+    await insertar(tx, t.rasgos, f.rasgos);
+  });
+  return { subespecies: f.subespecies.length, rasgos: f.rasgos.length };
+}
+
 async function cargar(db: Db, f: FilasBiblioteca) {
   await insertar(db, t.clases, f.clases);
   await insertar(db, t.especies, f.especies);

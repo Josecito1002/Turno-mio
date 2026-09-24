@@ -79,23 +79,55 @@ function ConjuroPropio({ pj }: { pj: any }) {
   );
 }
 
-export function PasoConjuros({ pj, c }: { pj: any; c: any }) {
+/** Trucos, preparados y nivel máximo, con el límite si la clase lo tiene. */
+export function ContadoresConjuros({ c }: { c: any }) {
+  return (
+    <div className="mt-2 grid grid-cols-3 gap-px overflow-hidden rounded-2xl bg-rule ring-1 ring-rule">
+      {[[`${c.trucosUsados}${c.trucosMax != null ? ' / ' + c.trucosMax : ''}`, 'Trucos'], [`${c.prepUsados}${c.prepMax != null ? ' / ' + c.prepMax : ''}`, 'Preparados'], [c.nivelMax || '—', 'Nivel máximo']].map(([v, n]) => (
+        <div key={n as string} className="bg-surface px-1 py-3 text-center"><b className="block font-serif text-2xl">{v}</b><span className="text-xs text-muted">{n}</span></div>
+      ))}
+    </div>
+  );
+}
+
+/** Buscador de los conjuros de la lista de tu clase, hasta el nivel que puedes lanzar, agrupados por nivel. */
+export function ListaConjuros({ pj, c }: { pj: any; c: any }) {
   const [q, setQ] = useState('');
   const idQ = useId();
-  const C = c.C, nq = norm(q);
-  const lista = listaDeConjuros(pj.clase, C);
-  // Solo los conjuros de la lista de su clase, hasta el nivel que puede lanzar.
-  const visibles = lista ? todosConjuros().filter(s => conjuroDeLaLista(s, lista) && (!+s.nivel || +s.nivel <= c.nivelMax)) : [];
+  const nq = norm(q);
+  // La lista de la clase, más las que abra una regla (Secretos Mágicos del bardo: clérigo, druida y mago)
+  const listas = [listaDeConjuros(pj.clase, c.C), ...(c.listasExtra || [])].filter(Boolean) as string[];
+  const visibles = listas.length ? todosConjuros().filter(s => listas.some(l => conjuroDeLaLista(s, l)) && (!+s.nivel || +s.nivel <= c.nivelMax)) : [];
   const niveles = [...new Set<number>(visibles.map(s => +s.nivel || 0))].sort((x, y) => x - y);
+  return (
+    <>
+      <label htmlFor={idQ} className="sr-only">Buscar conjuro por nombre</label>
+      <input id={idQ} type="search" placeholder="Buscar por nombre…" value={q} onChange={e => setQ(e.target.value)} className={cx(claseCampo, 'mb-2')} />
+      {niveles.map(n => {
+        const todos = visibles.filter(s => (+s.nivel || 0) === n).sort((x, y) => x.nombre.localeCompare(y.nombre));
+        const filtrada = nq ? todos.filter(s => norm(s.nombre).includes(nq)) : todos;
+        if (nq && !filtrada.length) return null;
+        const mios = todos.filter(s => pj.conjuros.some((x: any) => norm(x.nombre) === norm(s.nombre))).length;
+        return (
+          <Plegable key={n} titulo={n === 0 ? 'Trucos' : `Nivel ${n}`} nota={`${todos.length} conjuros${mios ? `, ${mios} elegido${mios > 1 ? 's' : ''}` : ''}`}
+            abierto={nq ? true : !!S.spOpen[n]} onToggle={o => { if (!nq) S.spOpen[n] = o; }}>
+            <ul className="m-0 list-none divide-y divide-soft p-0">{filtrada.map(s => <TarjetaConjuro key={s.nombre} s={s} c={c} pj={pj} />)}</ul>
+          </Plegable>
+        );
+      })}
+      {!visibles.length && <Nota>No hay conjuros de tu lista en la biblioteca todavía.</Nota>}
+    </>
+  );
+}
+
+export function PasoConjuros({ pj, c }: { pj: any; c: any }) {
+  const C = c.C;
+  const lista = listaDeConjuros(pj.clase, C);
   return (
     <>
       {C?.lanz ? (
         <>
-          <div className="mt-2 grid grid-cols-3 gap-px overflow-hidden rounded-2xl bg-rule ring-1 ring-rule">
-            {[[`${c.trucosUsados}${c.trucosMax != null ? ' / ' + c.trucosMax : ''}`, 'Trucos'], [`${c.prepUsados}${c.prepMax != null ? ' / ' + c.prepMax : ''}`, 'Preparados'], [c.nivelMax || '—', 'Nivel máximo']].map(([v, n]) => (
-              <div key={n as string} className="bg-surface px-1 py-3 text-center"><b className="block font-serif text-2xl">{v}</b><span className="text-xs text-muted">{n}</span></div>
-            ))}
-          </div>
+          <ContadoresConjuros c={c} />
           <Nota>Los <b>trucos</b> se lanzan cuando quieras. Los <b>conjuros preparados</b> gastan un espacio de conjuro{pj.clase === 'brujo' ? ' de pacto' : ''} y los cambias al terminar un descanso largo. Tu CD es {c.dcSpell} y tu ataque de conjuro {sign(c.atkSpell)}, con {abInfo(c.casterAb)[3]}.</Nota>
           {c.siempre.size > 0 && <Nota>Los de tu subclase ya vienen preparados y no cuentan en el límite.</Nota>}
         </>
@@ -103,21 +135,7 @@ export function PasoConjuros({ pj, c }: { pj: any; c: any }) {
 
       {lista && (
         <Seccion titulo={`Conjuros de ${C.n.toLowerCase()}`} descripcion={`Solo los de tu lista${c.nivelMax ? `, hasta nivel ${c.nivelMax}` : ''}.`}>
-          <label htmlFor={idQ} className="sr-only">Buscar conjuro por nombre</label>
-          <input id={idQ} type="search" placeholder="Buscar por nombre…" value={q} onChange={e => setQ(e.target.value)} className={cx(claseCampo, 'mb-2')} />
-          {niveles.map(n => {
-            const todos = visibles.filter(s => (+s.nivel || 0) === n).sort((x, y) => x.nombre.localeCompare(y.nombre));
-            const filtrada = nq ? todos.filter(s => norm(s.nombre).includes(nq)) : todos;
-            if (nq && !filtrada.length) return null;
-            const mios = todos.filter(s => pj.conjuros.some((x: any) => norm(x.nombre) === norm(s.nombre))).length;
-            return (
-              <Plegable key={n} titulo={n === 0 ? 'Trucos' : `Nivel ${n}`} nota={`${todos.length} conjuros${mios ? `, ${mios} elegido${mios > 1 ? 's' : ''}` : ''}`}
-                abierto={nq ? true : !!S.spOpen[n]} onToggle={o => { if (!nq) S.spOpen[n] = o; }}>
-                <ul className="m-0 list-none divide-y divide-soft p-0">{filtrada.map(s => <TarjetaConjuro key={s.nombre} s={s} c={c} pj={pj} />)}</ul>
-              </Plegable>
-            );
-          })}
-          {!visibles.length && <Nota>No hay conjuros de tu lista en la biblioteca todavía.</Nota>}
+          <ListaConjuros pj={pj} c={c} />
         </Seccion>
       )}
 
