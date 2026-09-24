@@ -1,5 +1,4 @@
 /* eslint-disable */
-// @ts-nocheck -- datos portados tal cual de index.html
 import { norm } from '@/shared/utils/texto';
 
 export const MAESTRIAS: Record<string, any> = {
@@ -63,9 +62,9 @@ export const ARMADURAS: Record<string, any> = {
   bandas:{n:'Bandas',al:['bandas','armadura de bandas'],base:17,max:0,cat:'pesada',fue:15,sigilo:true},
   placas:{n:'Placas',al:['placas','armadura de placas'],base:18,max:0,cat:'pesada',fue:15,sigilo:true},
 };
-export function findByAlias(table, name){
+export function findByAlias(table: Record<string, { al: string[] }>, name: unknown){
   const n = ' ' + norm(name).replace(/[^a-z0-9 ]/g, ' ') + ' ';
-  let best = null, bestLen = 0;
+  let best: string | null = null, bestLen = 0;
   for (const [k, w] of Object.entries(table)) for (const a of w.al) {
     if (n.includes(' ' + a + ' ') && a.length > bestLen) { best = k; bestLen = a.length; }
   }
