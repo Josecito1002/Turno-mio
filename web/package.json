@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "db:generar": "drizzle-kit generate",
-    "db:migrar": "tsx scripts/migrar.ts",
-    "db:sembrar": "tsx scripts/sembrar.ts",
+    "db:migrar": "tsx --env-file-if-exists=.env.local scripts/migrar.ts",
+    "db:sembrar": "tsx --env-file-if-exists=.env.local scripts/sembrar.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

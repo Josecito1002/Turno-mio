@@ -15,10 +15,15 @@ export async function iniciarSesion(_: EstadoForm, fd: FormData): Promise<Estado
   try {
     await signIn('credentials', { email: fd.get('email'), password: fd.get('password'), redirectTo: '/' });
   } catch (e) {
-    if (e instanceof AuthError) return { error: 'Correo o contraseña incorrectos.', email: String(fd.get('email') || ''), nombre: String(fd.get('nombre') || '') };
+    const campos = { email: String(fd.get('email') || ''), nombre: String(fd.get('nombre') || '') };
+    if (e instanceof AuthError && e.type === 'CredentialsSignin') return { error: 'Correo o contraseña incorrectos.', ...campos };
+    // Otros errores de Auth.js (p. ej. la base no responde dentro de authorize)
+    if (e instanceof AuthError) { console.error(e); return { error: SIN_BASE, ...campos }; }
     throw e; // la redirección de Next viaja como excepción
   }
 }
+
+const SIN_BASE = 'No se pudo conectar con la base de datos. Revisa DATABASE_URL en el servidor.';
 
 export async function registrarse(_: EstadoForm, fd: FormData): Promise<EstadoForm> {
   const nombre = String(fd.get('nombre') || '').trim();
