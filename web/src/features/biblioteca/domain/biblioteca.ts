@@ -1,0 +1,107 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { norm } from '@/shared/utils/texto';
+import { CLASES } from '@/features/reglas/data/clases';
+import { ESPECIES, BESTIAS_COLADAS } from '@/features/reglas/data/especies';
+import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
+import { DOTES } from '@/features/reglas/data/dotes';
+import { SUBCLASES } from '@/features/reglas/data/subclases';
+import { CATALOGO } from '@/features/reglas/data/conjuros';
+import { DESC_ESPECIES, DESC_CLASES } from '@/features/reglas/data/descripciones';
+
+/** Contenido extra compartido por todos (clases, especies, etc. que no vienen en las reglas base). */
+export type Biblioteca = {
+  clases: Record<string, any>;
+  especies: Record<string, any>;
+  trasfondos: Record<string, any>;
+  dotes: Record<string, any>;
+  conjuros: Record<string, any>;
+  desc?: Record<string, string>;
+  img?: Record<string, string>;
+  imgOrig?: Record<string, string>;
+  imgCrop?: Record<string, { zoom: number; cx: number; cy: number }>;
+  tipos?: Record<string, string>;
+};
+
+export const bibliotecaVacia = (): Biblioteca => ({ clases: {}, especies: {}, trasfondos: {}, dotes: {}, conjuros: {}, desc: {}, img: {} });
+
+/* La biblioteca vive en memoria en el cliente, como en la versión original: el cálculo de la hoja la consulta directamente. */
+let LIB: Biblioteca = bibliotecaVacia();
+export const getLib = () => LIB;
+export function setLib(lib: Partial<Biblioteca>) { LIB = { ...bibliotecaVacia(), ...lib } as Biblioteca; }
+
+export const todosConjuros = (): any[] => {
+  const vistos = new Set(CATALOGO.map((s: any) => norm(s.nombre)));
+  return [...CATALOGO, ...Object.values(LIB.conjuros || {}).filter((s: any) => !vistos.has(norm(s.nombre)))];
+};
+export const getE = (pj: any, k: string) => ESPECIES[k] || LIB.especies[k] || pj?.contenido?.especies?.[k] || null;
+export const getC = (pj: any, k: string) => CLASES[k] || (LIB.clases[k]?.dado ? LIB.clases[k] : null) || pj?.contenido?.clases?.[k] || null;
+export const getT = (pj: any, k: string) => TRASFONDOS[k] || LIB.trasfondos[k] || pj?.contenido?.trasfondos?.[k] || null;
+export const getD = (pj: any, k: string) => DOTES[k] || LIB.dotes[k] || pj?.contenido?.dotes?.[k] || null;
+
+export function getSubs(pj: any, clase: string): any[] {
+  const out = SUBCLASES.filter((s: any) => s.clase === clase);
+  const libS = {
+    ...(pj?.contenido?.subclases
+      ? Object.fromEntries(Object.entries(pj.contenido.subclases).filter(([, s]: any) => s.clase === clase).map(([k, s]) => [k.replace(/^lib:/, ''), s]))
+      : {}),
+    ...(LIB.clases[clase]?.subclases || {}),
+  };
+  Object.entries(libS).forEach(([k, s]: [string, any]) => out.push({ key: 'lib:' + k, clase, n: s.n, hasta: 20, lib: true, rasgos: s.rasgos || [] }));
+  return out;
+}
+export function allDotes(): Record<string, any> { return { ...DOTES, ...LIB.dotes }; }
+
+/* Nivel en que la clase elige subclase: 3 en las de 2024; en las de biblioteca, el nivel más común en que empiezan sus subclases */
+export function subNivel(pj: any, clase: string) {
+  if (CLASES[clase]) return 3;
+  const inicios = getSubs(pj, clase).filter(s => s.key !== 'cadena' && s.rasgos?.length).map(s => Math.min(...s.rasgos.map((r: any) => +r.n || 3)));
+  if (!inicios.length) return 3;
+  const cuenta: Record<number, number> = {};
+  inicios.forEach(n => (cuenta[n] = (cuenta[n] || 0) + 1));
+  return Math.max(1, +Object.entries(cuenta).sort((x, y) => y[1] - x[1] || +x[0] - +y[0])[0][0]);
+}
+export const getAltos = (pj: any, k: string) => LIB.clases[k]?.rasgosAltos || pj?.contenido?.altos?.[k]?.rasgos || null;
+export const getSubAltos = (pj: any, k: string, sk: string) => LIB.clases[k]?.subAltos?.[sk] || pj?.contenido?.altos?.[k]?.subs?.[sk] || null;
+
+export const descEspecie = (k: string) => LIB.desc?.[k] ?? DESC_ESPECIES[String(k).replace(/^lib:/, '')] ?? '';
+export const descClase = (k: string) => LIB.desc?.['c:' + k] ?? DESC_CLASES[String(k).replace(/^lib:/, '')] ?? '';
+
+export function limpiarBestias() {
+  const fuera: string[] = [];
+  BESTIAS_COLADAS.forEach((k: string) => { if (LIB.especies[k]) { fuera.push(LIB.especies[k].n); delete LIB.especies[k]; } });
+  return fuera;
+}
+
+/* Mete en la biblioteca el contenido de un personaje o de un paquete */
+export function mezclarContenido(ct: any): string[] {
+  const nuevo: string[] = [];
+  if (!ct) return nuevo;
+  Object.entries(ct.especies || {}).forEach(([k, v]: any) => { if (!LIB.especies[k]) { LIB.especies[k] = v; nuevo.push(`especie ${v.n}`); } });
+  Object.entries(ct.trasfondos || {}).forEach(([k, v]: any) => { if (!LIB.trasfondos[k]) { LIB.trasfondos[k] = v; nuevo.push(`trasfondo ${v.n}`); } });
+  Object.entries(ct.dotes || {}).forEach(([k, v]: any) => { if (!LIB.dotes[k]) { LIB.dotes[k] = v; nuevo.push(`dote ${v.n}`); } });
+  LIB.desc = LIB.desc || {}; LIB.img = LIB.img || {};
+  Object.entries(ct.imgCrop || {}).forEach(([k, v]: any) => { LIB.imgCrop = LIB.imgCrop || {}; if (!LIB.imgCrop[k]) LIB.imgCrop[k] = v; });
+  Object.entries(ct.desc || {}).forEach(([k, v]: any) => { if (LIB.desc![k] == null) LIB.desc![k] = v; });
+  Object.entries(ct.img || {}).forEach(([k, v]: any) => { if (!LIB.img![k]) { LIB.img![k] = v; nuevo.push('imagen ' + k); } });
+  Object.entries(ct.tipos || {}).forEach(([k, v]: any) => { LIB.tipos = LIB.tipos || {}; if (!LIB.tipos[k]) LIB.tipos[k] = v; });
+  LIB.conjuros = LIB.conjuros || {};
+  Object.entries(ct.conjuros || {}).forEach(([k, v]: any) => { if (!LIB.conjuros[k]) { LIB.conjuros[k] = v; nuevo.push(`conjuro ${v.nombre}`); } });
+  Object.entries(ct.clases || {}).forEach(([k, v]: any) => {
+    const cur = (LIB.clases[k] = LIB.clases[k] || { subclases: {} });
+    if (v.dado && !cur.dado) { Object.assign(cur, { ...v, subclases: cur.subclases }); nuevo.push(`clase ${v.n}`); }
+    Object.entries(v.subclases || {}).forEach(([sk, s]: any) => { if (!cur.subclases[sk]) { cur.subclases[sk] = s; nuevo.push(`subclase ${s.n}`); } });
+    if (v.rasgosAltos && !cur.rasgosAltos) cur.rasgosAltos = v.rasgosAltos;
+    Object.entries(v.subAltos || {}).forEach(([sk, r]) => { cur.subAltos = cur.subAltos || {}; if (!cur.subAltos[sk]) cur.subAltos[sk] = r; });
+  });
+  Object.entries(ct.altos || {}).forEach(([k, a]: any) => {
+    const cur = (LIB.clases[k] = LIB.clases[k] || { subclases: {} });
+    if (a.rasgos && !cur.rasgosAltos) cur.rasgosAltos = a.rasgos;
+    Object.entries(a.subs || {}).forEach(([sk, r]) => { cur.subAltos = cur.subAltos || {}; if (!cur.subAltos[sk]) cur.subAltos[sk] = r; });
+  });
+  Object.entries(ct.subclases || {}).forEach(([k, s]: any) => {
+    const cur = (LIB.clases[s.clase] = LIB.clases[s.clase] || { subclases: {} });
+    const sk = k.replace(/^lib:/, '');
+    if (!cur.subclases[sk]) { cur.subclases[sk] = { n: s.n, rasgos: s.rasgos }; nuevo.push(`subclase ${s.n}`); }
+  });
+  return nuevo;
+}
