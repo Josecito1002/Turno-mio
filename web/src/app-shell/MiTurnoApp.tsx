@@ -1,8 +1,9 @@
 'use client';
-import { useEffect, useRef } from 'react';
-import { S, render, useRender, irArriba } from './estado';
+import { useEffect, useLayoutEffect, useRef, type ReactNode } from 'react';
+import { S, render, useRender, irArriba, esAdmin, esDM, type Vista } from './estado';
 import { cargarTodo, vaciarPendientes, almacen } from './almacen';
 import { leerArchivos } from './importar';
+import { Aviso, Boton, cx, foco } from '@/shared/ui/kit';
 import { BandejaDados } from '@/features/dados/components/Bandeja';
 import { compute } from '@/features/personajes/domain/calculo';
 import { reparar } from '@/features/personajes/domain/modelo';
@@ -12,29 +13,62 @@ import { Editor } from '@/features/personajes/components/editor/Editor';
 import { Inicio } from '@/features/personajes/components/Inicio';
 import { BibliotecaVista } from '@/features/biblioteca/components/BibliotecaVista';
 import { MesaVista } from '@/features/mesa/components/MesaVista';
+import { CuentasVista } from '@/features/cuentas/components/CuentasVista';
 import { cerrarSesion } from '@/features/cuentas/server/acciones';
 
+/* ---------- Íconos (decorativos) ---------- */
+const Icono = ({ d }: { d: string }) => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" className="size-6 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"><path d={d} /></svg>
+);
+const ICONOS: Record<string, string> = {
+  home: 'M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 15.6 7.1 18.2 8 12.7 4 8.8 9.5 8z',
+  lib: 'M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zm0 0v16M8 7h7',
+  mesa: 'M12 2l8 5v10l-8 5-8-5V7zm0 0v20M4 7l8 5 8-5',
+  cuentas: 'M16 11a4 4 0 10-8 0 4 4 0 008 0zM4 21a8 8 0 0116 0',
+};
+
+type ItemNav = { vista: Vista; texto: string; activa: boolean };
+function itemsNav(): ItemNav[] {
+  const v = S.view;
+  const items: ItemNav[] = [
+    { vista: 'home', texto: 'Personajes', activa: v === 'home' || v === 'ficha' || v === 'editor' },
+    { vista: 'lib', texto: 'Biblioteca', activa: v === 'lib' },
+  ];
+  if (esDM()) items.push({ vista: 'mesa', texto: 'Mesa del DM', activa: v === 'mesa' });
+  if (esAdmin()) items.push({ vista: 'cuentas', texto: 'Cuentas', activa: v === 'cuentas' });
+  return items;
+}
+const ir = (v: Vista) => { S.view = v; if (v === 'mesa') S.camp = null; render(); irArriba(); };
+
 function Vista({ elegirArchivos, importarHojas }: { elegirArchivos: () => void; importarHojas: () => void }) {
+  // Las vistas por rol también se protegen aquí (el servidor ya las rechaza).
+  if ((S.view === 'mesa' && !esDM()) || (S.view === 'cuentas' && !esAdmin())) S.view = 'home';
   if (S.view === 'mesa') return <MesaVista importarHojas={importarHojas} />;
   if (S.view === 'lib') return <BibliotecaVista elegirArchivos={elegirArchivos} />;
-  if (!S.pj || S.view === 'home') { S.view = 'home'; return <Inicio elegirArchivos={elegirArchivos} />; }
+  if (S.view === 'cuentas') return <CuentasVista />;
+  if (!S.pj || S.view === 'home') { S.view = 'home'; return <Inicio />; }
   const c = (S.c = compute(S.pj));
   return S.view === 'editor' ? <Editor c={c} /> : <Ficha c={c} />;
 }
 
-function BarraDerecha() {
-  const ir = (v: 'home' | 'ficha' | 'editor') => { S.view = v; if (v === 'ficha') S.tab = 'turno'; if (v === 'editor') S.step = S.step || 'especie'; render(); irArriba(); };
-  if (S.view === 'mesa') return <button className="btn ghost" onClick={() => ir('home')}>Inicio</button>;
-  if (S.view === 'lib') return <button className="btn ghost" onClick={() => ir('home')}>Volver</button>;
-  if (!S.pj || S.view === 'home') return null;
-  return S.view === 'ficha'
-    ? <button className="btn ghost" onClick={() => ir('editor')}>Editar</button>
-    : <button className="btn" onClick={() => ir('ficha')}>Ver la hoja</button>;
+const TITULOS: Record<string, string> = { home: 'Personajes', lib: 'Biblioteca', mesa: 'Mesa del DM', cuentas: 'Cuentas' };
+
+/** Cabecera fija; publica su altura en --alto-cabecera para que las pestañas se peguen debajo. */
+function Cabecera({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current; if (!el) return;
+    const ro = new ResizeObserver(() => document.documentElement.style.setProperty('--alto-cabecera', `${el.offsetHeight}px`));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return <header ref={ref} className="sticky top-0 z-20 border-b border-rule/70 bg-bg pt-[env(safe-area-inset-top)] backdrop-blur print:hidden">{children}</header>;
 }
 
 export function MiTurnoApp() {
   useRender();
   const fileIn = useRef<HTMLInputElement>(null);
+  const vistaPrevia = useRef('');
 
   useEffect(() => {
     let vivo = true;
@@ -63,30 +97,84 @@ export function MiTurnoApp() {
     };
   }, []);
 
+  // Al cambiar de pantalla: título de la pestaña del navegador y foco en el encabezado (teclado y lectores de pantalla).
+  const clave = S.cargando ? 'cargando' : `${S.view}|${S.pj?.id || ''}|${S.camp || ''}`;
+  useEffect(() => {
+    if (S.cargando) return;
+    const nombre = S.view === 'ficha' || S.view === 'editor' ? S.pj?.nombre || 'Personaje' : TITULOS[S.view] || 'Mi turno';
+    document.title = `${nombre} · Mi turno`;
+    if (vistaPrevia.current && vistaPrevia.current !== clave) document.getElementById('titulo-vista')?.focus({ preventScroll: true });
+    vistaPrevia.current = clave;
+  }, [clave]);
+
   const elegirArchivos = () => fileIn.current?.click();
   const importarHojas = () => { S.importCamp = S.camp; fileIn.current?.click(); };
+  const nav = S.usuario && !S.cargando ? itemsNav() : [];
+  const rol = S.usuario?.rol === 'admin' ? 'Admin' : S.usuario?.rol === 'dm' ? 'DM' : 'Jugador';
 
   return (
     <BandejaDados>
-      <div className="wrap">
-        <div className="bar">
-          <button className="brand" disabled={S.cargando} onClick={() => { S.view = 'home'; render(); irArriba(); }}>Mi turno</button>
-          <span id="barR"><BarraDerecha /></span>
-          {S.usuario && (
-            <form action={cerrarSesion} className="no-print flex items-center gap-2">
-              <span className="note" title={S.usuario.email}>{S.usuario.nombre}{S.usuario.rol === 'admin' ? ' (admin)' : ''}</span>
-              <button className="btn ghost small" type="submit">Salir</button>
-            </form>
+      <a href="#contenido" className={cx('sr-only rounded-xl bg-ink px-4 py-3 font-bold text-bg focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50', foco)}>Saltar al contenido</a>
+      <Cabecera>
+        <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-2">
+          <button type="button" disabled={S.cargando} onClick={() => ir('home')}
+            className={cx('min-h-11 cursor-pointer rounded-lg px-1 font-serif text-xl font-extrabold text-ink', foco)}>Mi turno</button>
+          {nav.length > 0 && (
+            <nav aria-label="Principal" className="hidden flex-1 md:block">
+              <ul className="m-0 flex list-none gap-1 p-0">
+                {nav.map(it => (
+                  <li key={it.vista}>
+                    <button type="button" aria-current={it.activa ? 'page' : undefined} onClick={() => ir(it.vista)}
+                      className={cx('min-h-11 cursor-pointer rounded-full px-4 font-bold transition-colors', foco, it.activa ? 'bg-ink text-bg' : 'text-muted hover:bg-soft hover:text-ink')}>
+                      {it.texto}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           )}
+          <div className="ml-auto flex items-center gap-2">
+            {(S.view === 'ficha' || S.view === 'editor') && S.pj && (
+              S.view === 'ficha'
+                ? <Boton tamano="sm" onClick={() => { S.view = 'editor'; S.step = S.step || 'especie'; render(); irArriba(); }}>Editar</Boton>
+                : <Boton tamano="sm" variante="primario" onClick={() => { S.view = 'ficha'; S.tab = 'turno'; render(); irArriba(); }}>Ver la hoja</Boton>
+            )}
+            {S.usuario && (
+              <form action={cerrarSesion} className="flex items-center gap-2">
+                <span className="hidden items-center gap-1.5 text-sm text-muted sm:flex" title={S.usuario.email}>
+                  {S.usuario.nombre}<span className="rounded-full bg-soft px-2 py-0.5 text-xs font-bold text-ink">{rol}</span>
+                </span>
+                <Boton tamano="sm" variante="fantasma" type="submit" aria-label={`Cerrar sesión (${S.usuario.nombre})`}>Salir</Boton>
+              </form>
+            )}
+          </div>
         </div>
-        <input ref={fileIn} type="file" className="sr" aria-label="Archivos JSON" multiple accept="application/json,.json"
-          onChange={e => { leerArchivos(e.target.files); e.target.value = ''; }} />
-        <main id="app">
-          {S.cargando ? <p className="note" style={{ marginTop: 28 }}>Cargando tu mesa…</p>
-            : S.error ? <div className="warn" style={{ marginTop: 28 }}><b>No se pudo cargar</b>{S.error}</div>
-            : <Vista elegirArchivos={elegirArchivos} importarHojas={importarHojas} />}
-        </main>
-      </div>
+      </Cabecera>
+
+      <input ref={fileIn} type="file" className="sr-only" tabIndex={-1} aria-hidden="true" multiple accept="application/json,.json"
+        onChange={e => { leerArchivos(e.target.files); e.target.value = ''; }} />
+
+      <main id="contenido" tabIndex={-1} className="mx-auto max-w-5xl px-4 pb-28 pt-2 outline-none md:pb-14 print:p-0">
+        {S.cargando ? <p className="mt-10 text-center text-muted" role="status">Cargando tu mesa…</p>
+          : S.error ? <Aviso tipo="error" titulo="No se pudo cargar" accion={<Boton onClick={() => location.reload()}>Reintentar</Boton>}>{S.error}</Aviso>
+          : <Vista elegirArchivos={elegirArchivos} importarHojas={importarHojas} />}
+      </main>
+
+      {nav.length > 0 && (
+        <nav aria-label="Principal (móvil)" className="fixed inset-x-0 bottom-0 z-20 border-t border-rule bg-bg pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden print:hidden">
+          <ul className="m-0 grid list-none p-0" style={{ gridTemplateColumns: `repeat(${nav.length}, 1fr)` }}>
+            {nav.map(it => (
+              <li key={it.vista}>
+                <button type="button" aria-current={it.activa ? 'page' : undefined} onClick={() => ir(it.vista)}
+                  className={cx('flex min-h-16 w-full cursor-pointer flex-col items-center justify-center gap-0.5 text-xs font-bold', foco, it.activa ? 'text-ink' : 'text-muted')}>
+                  <span className={cx('grid h-8 w-14 place-items-center rounded-full', it.activa && 'bg-soft')}><Icono d={ICONOS[it.vista]} /></span>
+                  {it.texto}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
       <SubidaNivel />
     </BandejaDados>
   );

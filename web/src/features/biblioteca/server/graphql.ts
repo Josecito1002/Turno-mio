@@ -1,7 +1,5 @@
-import { eq } from 'drizzle-orm';
-import { GraphQLError } from 'graphql';
 import { requiereUsuario, type Contexto, type ModuloGraphQL } from '@/shared/graphql/servidor';
-import { usuarios } from '@/features/cuentas/server/tablas';
+import { exigir } from '@/features/cuentas/server/permisos';
 import { aportarBiblioteca, leerBiblioteca, reemplazarBiblioteca } from './repositorio';
 import type { Biblioteca } from '../domain/biblioteca';
 
@@ -107,9 +105,7 @@ export const bibliotecaGraphQL: ModuloGraphQL = {
     },
     Mutation: {
       guardarBiblioteca: async (_: unknown, { lib }: { lib: Biblioteca }, ctx: Contexto) => {
-        const u = requiereUsuario(ctx);
-        const [fila] = await ctx.db.select({ rol: usuarios.rol }).from(usuarios).where(eq(usuarios.id, u.id)).limit(1);
-        if (fila?.rol !== 'admin') throw new GraphQLError('Solo el administrador puede editar la biblioteca.', { extensions: { code: 'FORBIDDEN' } });
+        await exigir(ctx, 'editarBiblioteca', 'Solo el administrador puede editar la biblioteca.');
         await reemplazarBiblioteca(ctx.db, lib);
         return true;
       },

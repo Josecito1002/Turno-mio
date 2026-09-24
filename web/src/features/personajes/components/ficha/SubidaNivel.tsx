@@ -1,28 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import { S } from '@/app-shell/estado';
-import { sign } from '@/shared/utils/texto';
-import { TIPOS } from '@/features/reglas/data/caracteristicas';
+import { norm, sign } from '@/shared/utils/texto';
+import { Boton, Dialogo, Segmentado, Tarjeta } from '@/shared/ui/kit';
+import { EtiquetaTipo } from '@/features/reglas/components/TipoAccion';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { compute } from '../../domain/calculo';
-import { Shape } from '../piezas';
 import { CampoNumero } from '../editor/campos';
 import { cerrarSubida, confirmarSubida, deshacerSubida, irAPaso, pgPromedio, tirarPg } from '../../acciones';
 
 const PEND = /subclase|estilo|mejora|pericia|conjuro|truco|maestr/;
-const normT = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
-
-function Elegir({ c }: { c: any }) {
-  const subN = c.SD ? c.SD.n : '';
-  return (
-    <>
-      <header className="modal-h"><span className="lvl-badge">{c.lvl}</span><div><h2>Subir de nivel</h2><p className="note">{S.pj.nombre || 'Tu personaje'}, nivel {c.lvl} de 20</p></div></header>
-      <p>Elige qué clase gana el nivel:</p>
-      <button className="opcion" onClick={confirmarSubida}><b>{c.C?.n || 'Clase'}{subN ? `, ${subN}` : ''}</b><span>Nivel {c.lvl} → {c.lvl + 1}</span></button>
-      <div className="modal-f"><button className="btn ghost" onClick={cerrarSubida}>Cancelar</button></div>
-    </>
-  );
-}
 
 function Hecho({ c, s }: { c: any; s: any }) {
   const tirar = useDados();
@@ -34,56 +21,72 @@ function Hecho({ c, s }: { c: any; s: any }) {
   else { base = die / 2 + 1; modo = 'prom'; }
   const extra = delta - Math.max(1, base + con);
   const desglose = `${modo === 'max' ? 'Máximo del dado' : modo === 'tirada' ? 'Tirada' : 'Promedio'} ${base} ${con >= 0 ? '+' : '−'} ${Math.abs(con)} de CON${extra > 0 ? ` + ${extra} de rasgos` : ''}`;
-  const grupos: [string, string][] = [['clase', `Rasgos de ${c.C?.n || 'clase'}`], ['sub', c.SD ? `Rasgos de ${c.SD.n}` : 'Rasgos de subclase'], ['especie', 'De tu especie'], ['dote', 'De tus dotes'], ['extra', 'Rasgos propios']];
-  const lista = grupos.map(([g, t]) => {
-    const xs = s.nuevos.filter((n: any) => n.grupo === g);
-    return xs.length ? (
-      <div className="gan-g" key={g}><span className="note">{t}</span>
-        <ul>{xs.map((n: any, k: number) => (
-          <li key={k}><b>{n.nombre}</b>
-            {n.t && <> <span className={`tchip t-${n.t}`}><Shape t={n.t} />{TIPOS[n.t][0]}</span></>}
-            {n.texto && <span>{String(n.texto).split(/(?<=[.;])\s+/)[0]}</span>}
-          </li>
-        ))}</ul>
-      </div>
-    ) : null;
-  }).filter(Boolean);
-  const pend = c.avisos.filter((a: any) => PEND.test(normT(a.t)));
+  const grupos: [string, string][] = [['clase', `De ${c.C?.n || 'tu clase'}`], ['sub', c.SD ? `De ${c.SD.n}` : 'De tu subclase'], ['especie', 'De tu especie'], ['dote', 'De tus dotes'], ['extra', 'Rasgos propios']];
+  const pend = c.avisos.filter((a: any) => PEND.test(norm(a.t)));
   return (
-    <>
-      <header className="modal-h"><span className="lvl-badge up">{c.lvl}</span>
-        <div><h2>¡Subiste a nivel {c.lvl}!</h2><p className="note">{c.C?.n || ''}: nivel {c.lvl - 1} → {c.lvl}{c.pb > s.pbAntes ? `. Tu competencia sube a ${sign(c.pb)}` : ''}</p></div>
-      </header>
-      <section className="gan"><h3>Puntos de golpe</h3>
-        <p className="gan-big">+{delta} <span className="note">ahora tienes {c.hpMax} máximos</span></p><p className="note">{desglose}</p>
-        <div className="pg-opc">
-          <button className={`segb${modo === 'prom' ? ' on' : ''}`} onClick={pgPromedio}>Promedio ({die / 2 + 1})</button>
-          <button className={`segb${modo === 'tirada' ? ' on' : ''}`} onClick={() => tirarPg(tirar, i)}>{modo === 'tirada' ? 'Volver a tirar' : `Tirar d${die}`}</button>
-          <label className="pg-mano">A mano<CampoNumero path={`pgTiradas.${i}`} value={modo === 'tirada' ? v : ''} min={1} max={die} placeholder="—" aria-label="Resultado de tu dado" /></label>
+    <div className="flex flex-col gap-3">
+      <Tarjeta className="bg-soft/60">
+        <h3 className="m-0 font-serif text-lg font-bold text-adi">Puntos de golpe</h3>
+        <p className="m-0 font-serif text-3xl font-extrabold">+{delta} <span className="font-sans text-base font-normal text-muted">ahora tienes {c.hpMax} máximos</span></p>
+        <p className="m-0 text-sm text-muted">{desglose}</p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Segmentado etiqueta="Cómo calcular los PG de este nivel" valor={modo === 'tirada' ? 'tirada' : 'prom'}
+            opciones={[['prom', `Promedio (${die / 2 + 1})`], ['tirada', modo === 'tirada' ? 'Volver a tirar' : `Tirar d${die}`]]}
+            onCambiar={k => (k === 'prom' ? pgPromedio() : tirarPg(tirar, i))} />
+          <label className="flex items-center gap-2 text-sm font-bold">A mano
+            <CampoNumero path={`pgTiradas.${i}`} value={modo === 'tirada' ? v : ''} min={1} max={die} placeholder="—" className="w-20!" aria-label={`Resultado de tu d${die}`} />
+          </label>
         </div>
-      </section>
-      <section className="gan"><h3>Rasgos nuevos</h3>{lista.length ? lista : <p className="note">Este nivel no trae rasgos nuevos cargados.</p>}</section>
+      </Tarjeta>
+      <Tarjeta className="bg-soft/60">
+        <h3 className="m-0 font-serif text-lg font-bold text-adi">Rasgos nuevos</h3>
+        {s.nuevos.length ? grupos.map(([g, t]) => {
+          const xs = s.nuevos.filter((n: any) => n.grupo === g);
+          return xs.length ? (
+            <div key={g} className="mt-2"><p className="m-0 text-sm text-muted">{t}</p>
+              <ul className="m-0 mt-1 list-disc pl-5">{xs.map((n: any, k: number) => (
+                <li key={k} className="my-1"><b>{n.nombre}</b> {n.t && <EtiquetaTipo t={n.t} />}
+                  {n.texto && <span className="block text-sm text-muted">{String(n.texto).split(/(?<=[.;])\s+/)[0]}</span>}</li>
+              ))}</ul>
+            </div>
+          ) : null;
+        }) : <p className="m-0 mt-1 text-sm text-muted">Este nivel no trae rasgos nuevos cargados.</p>}
+      </Tarjeta>
       {pend.length > 0 && (
-        <section className="gan"><h3>Te toca elegir</h3>
-          <div className="row">{pend.map((a: any, k: number) => <button key={k} className="btn small" onClick={() => irAPaso(a.paso || 'clase')}>{a.t}</button>)}</div>
-        </section>
+        <Tarjeta className="bg-soft/60">
+          <h3 className="m-0 font-serif text-lg font-bold text-adi">Te toca elegir</h3>
+          <div className="mt-2 flex flex-wrap gap-2">{pend.map((a: any, k: number) => <Boton key={k} tamano="sm" onClick={() => irAPaso(a.paso || 'clase')}>{a.t}</Boton>)}</div>
+        </Tarjeta>
       )}
-      <div className="modal-f"><button className="btn ghost" onClick={deshacerSubida}>Deshacer</button><button className="btn" onClick={cerrarSubida}>Ver la hoja</button></div>
-    </>
+      <div className="flex flex-wrap justify-end gap-2">
+        <Boton onClick={deshacerSubida}>Deshacer</Boton>
+        <Boton variante="primario" onClick={cerrarSubida}>Ver la hoja</Boton>
+      </div>
+    </div>
   );
 }
 
-/** Modal de subida de nivel (fase 'elegir' y fase 'hecho'). */
+/** Subida de nivel: primero se confirma la clase, luego se muestra lo que se ganó. */
 export function SubidaNivel() {
   const s = S.subida;
-  if (!s || !S.pj || s.id !== S.pj.id || (S.view !== 'ficha' && S.view !== 'editor')) return null;
-  const c = compute(S.pj);
+  const abierto = !!(s && S.pj && s.id === S.pj.id && (S.view === 'ficha' || S.view === 'editor'));
+  const c = abierto ? compute(S.pj) : null;
+  const elegir = s?.fase === 'elegir';
   return (
-    <>
-      <div className="modal-back" />
-      <section className="modal" role="dialog" aria-modal="true" aria-label="Subida de nivel">
-        {s.fase === 'elegir' ? <Elegir c={c} /> : <Hecho c={c} s={s} />}
-      </section>
-    </>
+    <Dialogo abierto={abierto} onCerrar={cerrarSubida} ancho="lg"
+      titulo={c ? (elegir ? 'Subir de nivel' : `¡Subiste a nivel ${c.lvl}!`) : ''}
+      descripcion={c ? (elegir ? `${S.pj.nombre || 'Tu personaje'}, nivel ${c.lvl} de 20` : `${c.C?.n || ''}: nivel ${c.lvl - 1} → ${c.lvl}${c.pb > s.pbAntes ? `. Tu competencia sube a ${sign(c.pb)}` : ''}`) : undefined}>
+      {c && (elegir ? (
+        <>
+          <p className="mt-0">Elige qué clase gana el nivel:</p>
+          <button type="button" onClick={confirmarSubida}
+            className="flex w-full cursor-pointer flex-col gap-0.5 rounded-2xl bg-soft p-4 text-left ring-1 ring-rule hover:ring-adi focus-visible:outline-3 focus-visible:outline-rea">
+            <b className="font-serif text-lg">{c.C?.n || 'Clase'}{c.SD ? `, ${c.SD.n}` : ''}</b>
+            <span className="text-sm text-muted">Nivel {c.lvl} → {c.lvl + 1}</span>
+          </button>
+          <div className="mt-4 flex justify-end"><Boton onClick={cerrarSubida}>Cancelar</Boton></div>
+        </>
+      ) : <Hecho c={c} s={s} />)}
+    </Dialogo>
   );
 }

@@ -1,49 +1,61 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
+import type { ReactNode } from 'react';
 import { S, render, esAdmin, nuevoDraft } from '@/app-shell/estado';
 import { guardarLib } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
 import { setPath, slug } from '@/shared/utils/texto';
+import { Aviso, Boton, Campo, EncabezadoPagina, Fila, Lista, Nota, Plegable, Seccion, Tarjeta, claseCampo } from '@/shared/ui/kit';
 import { CLASES } from '@/features/reglas/data/clases';
-import { Shape } from '@/features/personajes/components/piezas';
+import { esDote } from '@/features/reglas/domain/restricciones';
+import { FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { RasgoForm } from '@/features/personajes/components/editor/PasosMagia';
 import { bajarArchivo, leerRasgo } from '@/features/personajes/acciones';
 import { getC, getLib } from '../domain/biblioteca';
 
-function quitar(ref: string) {
+function quitar(ref: string, nombre: string) {
   const LIB: any = getLib(), [t, k, sk] = ref.split('|');
-  if (!confirm('¿Quitar de la biblioteca? Los personajes que ya lo usan lo conservan.')) return;
+  if (!confirm(`¿Quitar «${nombre}» de la biblioteca? Los personajes que ya lo usan lo conservan.`)) return;
   if (t === 'sub') delete LIB.clases[k].subclases[sk];
   else if (t === 'clase') {
     const subs = LIB.clases[k].subclases; delete LIB.clases[k];
     if (subs && Object.keys(subs).length && !k.startsWith('lib:')) LIB.clases[k] = { subclases: subs };
   } else delete LIB[t][k];
-  guardarLib(true); render();
+  guardarLib(true); render(); avisar(`${nombre} quitado.`);
 }
 
-/** Campo del borrador de especie/subclase: se guarda en S.draft sin redibujar, como antes. */
-function Borrador({ path, value, type = 'text' }: { path: string; value: any; type?: string }) {
-  return <input type={type} defaultValue={value} onChange={e => setPath(S.draft, path, type === 'number' ? +e.target.value : e.target.value)} />;
+/** Campo del borrador de especie/subclase: se guarda en S.draft sin redibujar. */
+function Borrador({ path, value, type = 'text', ...rest }: { path: string; value: any; type?: string; id?: string }) {
+  return <input {...rest} type={type} defaultValue={value} className={claseCampo} onChange={e => setPath(S.draft, path, type === 'number' ? +e.target.value : e.target.value)} />;
 }
 
 export function BibliotecaVista({ elegirArchivos }: { elegirArchivos: () => void }) {
   const LIB: any = getLib(), d = S.draft, admin = esAdmin();
   const clases = Object.entries<any>(LIB.clases);
   const item = (label: string, sub: string, del: string) => (
-    <div className="li" key={del}><span>{label}{sub && <> <span className="note">{sub}</span></>}</span>{admin && <button className="btn ghost small" onClick={() => quitar(del)}>Quitar</button>}</div>
+    <Fila key={del}>
+      <span>{label}{sub && <span className="ml-2 text-sm text-muted">{sub}</span>}</span>
+      {admin && <Boton tamano="sm" variante="peligro" onClick={() => quitar(del, label)} aria-label={`Quitar ${label}`}>Quitar</Boton>}
+    </Fila>
   );
-  const sec = (t: string, rows: React.ReactNode[]) => (
-    <><h2 className="plain">{t}</h2><div className="list">{rows.length ? rows : <div className="li"><span className="note">Nada todavía.</span></div>}</div></>
+  const categoria = (t: string, filas: ReactNode[]) => (
+    <Plegable titulo={t} nota={`${filas.length}`}>
+      {filas.length ? <Lista className="bg-bg">{filas}</Lista> : <Nota>Nada todavía.</Nota>}
+    </Plegable>
   );
   const lista = (rs: any[], tipo: 'esp' | 'sub') => rs.length ? (
-    <div className="list">{rs.map((r, i) => (
-      <div className="li" key={i}><span><Shape t={r.t} /> {r.nombre} <span className="note">nivel {r.n}</span></span>
-        <button className="btn ghost small" onClick={() => { S.draft[tipo].rasgos.splice(i, 1); S.draft.abierto = tipo; render(); }}>Quitar</button></div>
-    ))}</div>
-  ) : <p className="note">Sin rasgos todavía.</p>;
+    <Lista className="bg-bg">{rs.map((r, i) => (
+      <Fila key={i}>
+        <span className="flex items-center gap-2"><FormaTipo t={r.t} /> {r.nombre} <span className="text-sm text-muted">nivel {r.n}</span></span>
+        <Boton tamano="sm" onClick={() => { S.draft[tipo].rasgos.splice(i, 1); S.draft.abierto = tipo; render(); }} aria-label={`Quitar ${r.nombre}`}>Quitar</Boton>
+      </Fila>
+    ))}</Lista>
+  ) : <Nota>Sin rasgos todavía.</Nota>;
   const exportar = () => bajarArchivo('biblioteca-mi-turno.json', JSON.stringify({ tipo: 'miturno-biblioteca', v: 1, ...LIB, imgOrig: undefined }));
   const nConj = Object.keys(LIB.conjuros || {}).length;
   const clasesTodas: [string, any][] = [...Object.entries(CLASES), ...clases.filter(([, v]) => v.dado)];
+  const dotes = Object.entries<any>(LIB.dotes).filter(([, v]) => esDote(v));
+  const objetos = Object.entries<any>(LIB.dotes).filter(([, v]) => !esDote(v));
 
   const agregarRasgo = (tipo: 'esp' | 'sub') => { const r = leerRasgo(tipo === 'esp' ? 'de' : 'ds'); if (!r) return; S.draft[tipo].rasgos.push(r); S.draft.abierto = tipo; render(); };
   const guardarEsp = () => {
@@ -60,58 +72,60 @@ export function BibliotecaVista({ elegirArchivos }: { elegirArchivos: () => void
 
   return (
     <>
-      <section className="hero"><h1>Biblioteca</h1>
-        <p className="who">Contenido extra para crear personajes, compartido con todo el grupo. Importa personajes de D&amp;D Builder o archivos de datos (clases, especies, trasfondos, dotes, conjuros), varios a la vez; lo nuevo se agrega a la biblioteca de todos.{admin ? ' Como administrador también puedes crear, editar y quitar contenido.' : ''}</p>
-      </section>
-      <div className="row">
-        <button className="btn" onClick={elegirArchivos}>Importar JSON</button>
-        <button className="btn ghost" onClick={exportar}>Guardar biblioteca para compartir</button>
-      </div>
-      <h2 className="plain">Administrador</h2>
-      <div className="list" style={{ padding: '10px 12px' }}>
-        <p style={{ margin: 0 }}>{admin
-          ? 'Tu cuenta administra la biblioteca: puedes editar imágenes, descripciones, crear y quitar contenido, y mover rasgos para todos los personajes.'
-          : 'Solo las cuentas de administrador editan la biblioteca. Tú puedes usarla y agregarle lo que importes.'}</p>
-      </div>
-      {sec('Clases', clases.filter(([, v]) => v.dado).map(([k, v]) => item(v.n, `${Object.keys(v.subclases || {}).length} subclases`, 'clase|' + k)))}
-      {sec('Subclases', clases.flatMap(([k, v]) => Object.entries<any>(v.subclases || {}).map(([sk, s]) => item(s.n, getC(null, k)?.n || '', `sub|${k}|${sk}`))))}
-      {sec('Especies', Object.entries<any>(LIB.especies).map(([k, v]) => item(v.n, v.subs ? `${Object.keys(v.subs).length} subespecies` : '', 'especies|' + k)))}
-      {sec('Trasfondos', Object.entries<any>(LIB.trasfondos).map(([k, v]) => item(v.n, '', 'trasfondos|' + k)))}
-      {sec('Dotes', Object.entries<any>(LIB.dotes).map(([k, v]) => item(v.n, '', 'dotes|' + k)))}
-      <h2 className="plain">Conjuros</h2>
-      <div className="list"><div className="li">
-        <span>{nConj ? `${nConj} conjuros importados` : <span className="note">Nada todavía.</span>}</span>
-        {nConj > 0 && admin && <button className="btn ghost small" onClick={() => { if (confirm('¿Quitar todos los conjuros importados? Los personajes conservan los que ya tienen.')) { LIB.conjuros = {}; guardarLib(true); render(); } }}>Quitar todos</button>}
-      </div></div>
+      <EncabezadoPagina id="titulo-vista" titulo="Biblioteca"
+        subtitulo="Contenido extra para crear personajes, compartido con todo el grupo. Lo que importes (personajes de D&D Builder o archivos de clases, especies, trasfondos, dotes y conjuros) se agrega para todos.">
+        <Boton variante="primario" onClick={elegirArchivos}>Importar archivos JSON</Boton>
+        <Boton onClick={exportar}>Descargar biblioteca</Boton>
+      </EncabezadoPagina>
+      {!admin && <Aviso tipo="info" titulo="Solo lectura">Solo las cuentas de administrador editan o quitan contenido. Tú puedes usarlo y agregar lo que importes.</Aviso>}
+      <Seccion titulo="Contenido">
+        {categoria('Clases', clases.filter(([, v]) => v.dado).map(([k, v]) => item(v.n, `${Object.keys(v.subclases || {}).length} subclases`, 'clase|' + k)))}
+        {categoria('Subclases', clases.flatMap(([k, v]) => Object.entries<any>(v.subclases || {}).map(([sk, s]) => item(s.n, getC(null, k)?.n || '', `sub|${k}|${sk}`))))}
+        {categoria('Especies', Object.entries<any>(LIB.especies).map(([k, v]) => item(v.n, v.subs ? `${Object.keys(v.subs).length} subespecies` : '', 'especies|' + k)))}
+        {categoria('Trasfondos', Object.entries<any>(LIB.trasfondos).map(([k, v]) => item(v.n, '', 'trasfondos|' + k)))}
+        {categoria('Dotes', dotes.map(([k, v]) => item(v.n, v.cat || '', 'dotes|' + k)))}
+        {objetos.length > 0 && categoria('Objetos y equipo importados', objetos.map(([k, v]) => item(v.n, v.cat || '', 'dotes|' + k)))}
+        <Tarjeta className="mt-2 flex flex-wrap items-center justify-between gap-2">
+          <span>{nConj ? <><b>{nConj}</b> conjuros importados</> : <span className="text-muted">Sin conjuros importados.</span>}</span>
+          {nConj > 0 && admin && <Boton tamano="sm" variante="peligro" onClick={() => { if (confirm('¿Quitar todos los conjuros importados? Los personajes conservan los que ya tienen.')) { LIB.conjuros = {}; guardarLib(true); render(); } }}>Quitar todos</Boton>}
+        </Tarjeta>
+      </Seccion>
       {admin && (
-        <>
-          <h2 className="plain">Crear</h2>
-          <details className="more" open={d.abierto === 'esp'}><summary>Nueva especie</summary>
-            <div className="form" key={`${d.id}-${d.esp.rasgos.length}`}>
-              <label>Nombre<Borrador path="esp.n" value={d.esp.n} /></label>
-              <div className="row">
-                <label>Velocidad en pies<Borrador path="esp.vel" value={d.esp.vel} type="number" /></label>
-                <label>Visión en la oscuridad<Borrador path="esp.vision" value={d.esp.vision} type="number" /></label>
+        <Seccion titulo="Crear contenido">
+          <Plegable titulo="Nueva especie" abierto={d.abierto === 'esp'}>
+            <div className="grid gap-3" key={`${d.id}-${d.esp.rasgos.length}`}>
+              <Campo etiqueta="Nombre"><Borrador path="esp.n" value={d.esp.n} /></Campo>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Campo etiqueta="Velocidad (pies)"><Borrador path="esp.vel" value={d.esp.vel} type="number" /></Campo>
+                <Campo etiqueta="Visión en la oscuridad (pies)"><Borrador path="esp.vision" value={d.esp.vision} type="number" /></Campo>
               </div>
-              <b>Rasgos</b>{lista(d.esp.rasgos, 'esp')}<RasgoForm p="de" />
-              <button className="btn ghost" onClick={() => agregarRasgo('esp')}>Agregar este rasgo a la especie</button>
-              <button className="btn" onClick={guardarEsp}>Guardar especie en la biblioteca</button>
+              <h3 className="m-0 font-serif text-lg font-bold">Rasgos</h3>
+              {lista(d.esp.rasgos, 'esp')}
+              <RasgoForm p="de" />
+              <div className="flex flex-wrap gap-2">
+                <Boton onClick={() => agregarRasgo('esp')}>Agregar este rasgo</Boton>
+                <Boton variante="primario" onClick={guardarEsp}>Guardar especie</Boton>
+              </div>
             </div>
-          </details>
-          <details className="more" open={d.abierto === 'sub'}><summary>Nueva subclase</summary>
-            <div className="form" key={`${d.id}-${d.sub.rasgos.length}`}>
-              <label>Clase
-                <select defaultValue={d.sub.clase} onChange={e => setPath(S.draft, 'sub.clase', e.target.value)}>
+          </Plegable>
+          <Plegable titulo="Nueva subclase" abierto={d.abierto === 'sub'}>
+            <div className="grid gap-3" key={`${d.id}-${d.sub.rasgos.length}`}>
+              <Campo etiqueta="Clase">
+                <select defaultValue={d.sub.clase} className={claseCampo} onChange={e => setPath(S.draft, 'sub.clase', e.target.value)}>
                   <option value="">Elige…</option>{clasesTodas.map(([k, x]) => <option key={k} value={k}>{x.n}</option>)}
                 </select>
-              </label>
-              <label>Nombre<Borrador path="sub.n" value={d.sub.n} /></label>
-              <b>Rasgos</b>{lista(d.sub.rasgos, 'sub')}<RasgoForm p="ds" />
-              <button className="btn ghost" onClick={() => agregarRasgo('sub')}>Agregar este rasgo a la subclase</button>
-              <button className="btn" onClick={guardarSub}>Guardar subclase en la biblioteca</button>
+              </Campo>
+              <Campo etiqueta="Nombre"><Borrador path="sub.n" value={d.sub.n} /></Campo>
+              <h3 className="m-0 font-serif text-lg font-bold">Rasgos</h3>
+              {lista(d.sub.rasgos, 'sub')}
+              <RasgoForm p="ds" />
+              <div className="flex flex-wrap gap-2">
+                <Boton onClick={() => agregarRasgo('sub')}>Agregar este rasgo</Boton>
+                <Boton variante="primario" onClick={guardarSub}>Guardar subclase</Boton>
+              </div>
             </div>
-          </details>
-        </>
+          </Plegable>
+        </Seccion>
       )}
     </>
   );

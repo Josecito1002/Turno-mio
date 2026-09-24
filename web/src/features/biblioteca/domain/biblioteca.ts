@@ -105,3 +105,9 @@ export function mezclarContenido(ct: any): string[] {
   });
   return nuevo;
 }
+
+/** Entradas de la biblioteca sin las que repiten el nombre de una de las reglas base (salvo la que ya está elegida). */
+export function sinRepetidas(lib: Record<string, any>, base: Record<string, any>, elegida?: string): [string, any][] {
+  const nombres = new Set(Object.values(base).map((x: any) => norm(x.n)));
+  return Object.entries(lib).filter(([k, v]) => k === elegida || !nombres.has(norm(v?.n)));
+}

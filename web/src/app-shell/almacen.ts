@@ -7,7 +7,7 @@ import { filasALib } from '@/features/biblioteca/domain/mapeo';
 import { QUERY_BIBLIOTECA, aportarBiblioteca, guardarBiblioteca, type RespuestaBiblioteca } from '@/features/biblioteca/api';
 import { QUERY_PERSONAJES, borrarPersonaje, guardarPersonaje, marcarUltimo, type PersonajeServidor } from '@/features/personajes/api';
 import { QUERY_CAMPANAS, borrarCampana, guardarCampana, type CampanaServidor } from '@/features/mesa/api';
-import type { Usuario } from './estado';
+import { puedeUsarMesa, type Usuario } from './estado';
 
 /*
  * Reemplaza a localStorage. Todo se carga una vez al entrar y queda en memoria, así la app
@@ -38,12 +38,15 @@ export function vaciarPendientes() { [...pendientes.keys()].forEach(k => ejecuta
 export type Carga = { usuario: Usuario | null; lista: { id: string; name: string; sub: string }[] };
 
 export async function cargarTodo(): Promise<Carga> {
-  const d = await gql<RespuestaBiblioteca & { yo: Usuario | null; personajes: PersonajeServidor[]; campanas: CampanaServidor[] }>(
-    `{ yo { id email nombre rol ultimoPj } ${QUERY_BIBLIOTECA} ${QUERY_PERSONAJES} ${QUERY_CAMPANAS} }`);
+  const d = await gql<RespuestaBiblioteca & { yo: Usuario | null; personajes: PersonajeServidor[] }>(
+    `{ yo { id email nombre rol ultimoPj } ${QUERY_BIBLIOTECA} ${QUERY_PERSONAJES} }`);
   setLib(filasALib(d.biblioteca));
   if (limpiarBestias().length && d.yo?.rol === 'admin') guardarLib(true);
   mem.pjs = new Map(d.personajes.map(p => [p.id, p.datos]));
-  mem.campanas = d.campanas.map(c => c.datos);
+  // Las campañas solo existen para DM y administradores (el servidor rechaza a los demás).
+  mem.campanas = d.yo && puedeUsarMesa(d.yo.rol)
+    ? (await gql<{ campanas: CampanaServidor[] }>(`{ ${QUERY_CAMPANAS} }`)).campanas.map(c => c.datos)
+    : [];
   return { usuario: d.yo, lista: d.personajes.map(p => ({ id: p.id, name: p.nombre, sub: p.resumen || '' })) };
 }
 

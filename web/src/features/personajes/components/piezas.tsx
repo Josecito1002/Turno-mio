@@ -2,85 +2,97 @@
 'use client';
 import { S } from '@/app-shell/estado';
 import { esc, modStr, norm, richT, sign } from '@/shared/utils/texto';
+import { Boton, Contador, Puntos, cx, foco } from '@/shared/ui/kit';
 import { TIPOS } from '@/features/reglas/data/caracteristicas';
+import { COLOR_TIPO, FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { BotonTirada, TextoConDados } from '@/features/dados/components/BotonTirada';
 import { descansar, fijarPool, moverPool, moverRasgo, tocarPip } from '../acciones';
 
-export const Shape = ({ t, className = '' }: { t: string; className?: string }) => <span className={`shape s-${t} ${className}`} aria-hidden="true" />;
+/** Compatibilidad: forma del tipo de acción. */
+export const Shape = ({ t }: { t: string; className?: string }) => <FormaTipo t={t} />;
 
 function Mover({ e }: { e: any }) {
   const k = norm(e.nombre);
   return (
-    <details className="mover"><summary>Mover</summary>
-      <div className="mover-o"><span className="note">¿Dónde se usa?</span>
+    <details className="group/m text-sm print:hidden">
+      <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-2 text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>
+        Cambiar dónde aparece
+      </summary>
+      <div role="group" aria-label={`¿Dónde se usa ${e.nombre}?`} className="mt-2 flex flex-wrap gap-1.5">
         {Object.entries(TIPOS).map(([t, [n]]) => (
-          <button key={t} className={`cond${e.t === t ? ' on' : ''}`} onClick={() => moverRasgo(k, t)}><Shape t={t} /> {n}</button>
+          <button key={t} type="button" aria-pressed={e.t === t} onClick={() => moverRasgo(k, t)}
+            className={cx('inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full px-3 text-sm font-bold sm:min-h-9', foco,
+              e.t === t ? 'bg-ink text-bg' : 'bg-soft hover:bg-rule/70')}>
+            <FormaTipo t={t} className="size-2.5" />{n}
+          </button>
         ))}
-        {e.t !== e.tAuto && <button className="cond" onClick={() => moverRasgo(k, '')}>Volver a como venía</button>}
+        {e.t !== e.tAuto && <Boton tamano="sm" variante="fantasma" onClick={() => moverRasgo(k, '')}>Volver a como venía</Boton>}
       </div>
     </details>
-  );
-}
-
-function Pips({ r, left, sm }: { r: any; left: number; sm?: boolean }) {
-  return (
-    <div className="pips">
-      {Array.from({ length: r.max }, (_, i) => (
-        <button key={i} className={`pip${sm ? ' sm' : ''}${i >= left ? ' used' : ''}`} onClick={() => tocarPip(r.id, i, r.max)} aria-label={`${r.nombre} ${i + 1}`} />
-      ))}
-    </div>
   );
 }
 
 function RecursoInline({ id }: { id: string }) {
   const r = S.c?.recursos.find((x: any) => x.id === id); if (!r || !S.pj) return null;
   const used = Math.min(S.pj.used?.[r.id] || 0, r.max), left = r.max - used;
-  if (r.tipo === 'pool') return (
-    <div className="res-in"><span className="note">Quedan</span>
-      <button className="btn ghost small" onClick={() => moverPool(r.id, -1)} aria-label="Gastar 1">−</button><b>{left}</b><span className="note">/ {r.max}</span>
-      <button className="btn ghost small" onClick={() => moverPool(r.id, 1)} aria-label="Recuperar 1">+</button>
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-soft pt-2">
+      {r.tipo === 'pool'
+        ? <Contador nombre={r.nombre} valor={left} max={r.max} onCambiar={d => moverPool(r.id, d)} />
+        : <><span className="text-sm text-muted">Quedan {left} de {r.max}</span><Puntos nombre={r.nombre} max={r.max} usados={used} onTocar={i => tocarPip(r.id, i, r.max)} pequeno /></>}
     </div>
   );
-  return <div className="res-in"><span className="note">{left} de {r.max}</span><Pips r={r} left={left} sm /></div>;
 }
 
 /** Un rasgo, acción o dote en la hoja. */
 export function Entrada({ e }: { e: any }) {
   const body = e.raw ? richT(e.texto) : esc(e.texto);
+  const color = COLOR_TIPO[e.t] || COLOR_TIPO.pasiva;
   return (
-    <article className={`ent t-${e.t}`}>
-      <header><h3>{e.nombre}</h3>{e.coste && <span className="cost">{e.coste}</span>}</header>
-      <TextoConDados html={body} label={e.nombre} />
-      {e.roll && <p><BotonTirada expr={e.roll[0]} label={`${e.nombre}: ataque`} dmg={e.roll[1]} dmgLabel={`${e.nombre}: daño`}>Tirar ataque</BotonTirada></p>}
+    <article className={cx('my-2 rounded-2xl border-l-4 bg-surface px-4 py-3 shadow-sm ring-1 ring-rule/50 break-inside-avoid', color.borde)}>
+      <header className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+        <h3 className="m-0 font-serif text-lg font-bold leading-snug">{e.nombre}</h3>
+        {e.coste && <span className={cx('text-sm font-bold', color.texto)}>{e.coste}</span>}
+      </header>
+      <TextoConDados html={body} label={e.nombre} className="mb-0 mt-1" />
+      {e.roll && (
+        <p className="mb-0 mt-2">
+          <BotonTirada expr={e.roll[0]} label={`${e.nombre}: ataque`} dmg={e.roll[1]} dmgLabel={`${e.nombre}: daño`}>Tirar ataque</BotonTirada>
+        </p>
+      )}
       {e.recurso && S.view === 'ficha' && <RecursoInline id={e.recurso} />}
-      <div className="ent-pie">
-        <p className="src">{e.src || ''}{e.revisada && <> <span className="rev">Regla revisada</span></>}</p>
+      <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+        <p className="m-0 text-xs text-muted">{e.src || ''}{e.revisada && <span className="ml-2 font-bold text-pas">Regla revisada</span>}</p>
         {S.view === 'ficha' && e.grupo && e.grupo !== 'reglas' && <Mover e={e} />}
       </div>
     </article>
   );
 }
 
+/** Fila de ataque: botón grande de ataque y daño. */
 export function Ataque({ a }: { a: any }) {
   const n = a.w ? a.w.n : a.nombre;
   return (
-    <div className="atk">
-      <div className="atk-n">{a.nombre}</div>
-      <div className="atk-h">
-        <BotonTirada expr={`1d20${modStr(a.atk)}`} label={`${n}: ataque`} className="big" dmg={a.expr} dmgLabel={`${n}: daño`} min3={a.min3}>{sign(a.atk)}</BotonTirada>
-        <small>al ataque</small>
+    <li className="grid grid-cols-[1fr_auto] gap-x-3 py-3">
+      <div>
+        <p className="m-0 font-serif text-lg font-bold leading-snug">{a.nombre}</p>
+        <div className="mt-1 flex flex-wrap items-center gap-2">
+          <BotonTirada expr={a.expr} label={`${n}: daño`} min3={a.min3} ariaLabel={`Tirar daño de ${n}: ${a.dmg}`}>{a.dmg}</BotonTirada>
+          {a.v && <><span className="text-sm text-muted">o</span><BotonTirada expr={a.v.expr} label={`${n}: daño a dos manos`} min3={a.min3}>{a.v.dmg} a dos manos</BotonTirada></>}
+        </div>
       </div>
-      <div className="atk-d">
-        <BotonTirada expr={a.expr} label={`${n}: daño`} min3={a.min3}>{a.dmg}</BotonTirada>
-        {a.v && <> <span className="note">o</span> <BotonTirada expr={a.v.expr} label={`${n}: daño a dos manos`} min3={a.min3}>{a.v.dmg} a dos manos</BotonTirada></>}
+      <div className="row-span-2 flex flex-col items-center justify-center">
+        <BotonTirada expr={`1d20${modStr(a.atk)}`} label={`${n}: ataque`} estilo="grande" dmg={a.expr} dmgLabel={`${n}: daño`} min3={a.min3}
+          ariaLabel={`Tirar ataque con ${n}, ${sign(a.atk)}`}>{sign(a.atk)}</BotonTirada>
+        <small className="mt-0.5 text-xs text-muted" aria-hidden="true">al ataque</small>
       </div>
       {(a.notas.length > 0 || a.maestria) && (
-        <div className="atk-x">
+        <p className="col-span-1 m-0 mt-1 text-sm text-muted">
           {a.notas.join('. ')}{a.notas.length ? '.' : ''}
-          {a.maestria && <>{a.notas.length ? <br /> : null}Maestría {a.maestria}</>}
-        </div>
+          {a.maestria && <>{a.notas.length ? <br /> : null}<b className="text-ink">Maestría</b> {a.maestria}</>}
+        </p>
       )}
-    </div>
+    </li>
   );
 }
 
@@ -93,47 +105,51 @@ export function ConjuroFila({ s, c }: { s: any; c: any }) {
   const meta = [s.alcance && `Alcance: ${s.alcance}`, s.dur].filter(Boolean).join('. ');
   const hayBotones = (s.ataque && c.atkSpell != null) || s.salv || dexpr;
   return (
-    <div className="sp">
-      <details><summary><span className="sp-n">{s.nombre}</span><span className="sp-k">{bits.join(', ')}</span></summary>
-        <div className="sp-body">{meta && <p className="note">{meta}</p>}<TextoConDados html={richT(s.desc || '')} label={s.nombre} /></div>
+    <li className="py-1">
+      <details className="group">
+        <summary className={cx('flex min-h-12 cursor-pointer list-none items-baseline justify-between gap-3 rounded-lg py-2 [&::-webkit-details-marker]:hidden', foco)}>
+          <span className="font-serif text-[1.05rem] font-bold"><span aria-hidden="true" className="mr-1 inline-block text-muted transition-transform group-open:rotate-90">▸</span>{s.nombre}</span>
+          <span className="text-right text-sm text-muted">{bits.join(', ')}</span>
+        </summary>
+        <div className="pb-2 pl-4 text-[0.96rem]">
+          {meta && <p className="m-0 text-sm text-muted">{meta}</p>}
+          <TextoConDados html={richT(s.desc || '')} label={s.nombre} className="mb-0 mt-1" />
+        </div>
       </details>
       {hayBotones && (
-        <div className="sp-btns">
+        <div className="flex flex-wrap items-center gap-2 pb-2">
           {s.ataque && c.atkSpell != null && <BotonTirada expr={`1d20${modStr(c.atkSpell)}`} label={`${s.nombre}: ataque`} dmg={dexpr} dmgLabel={s.nombre}>{sign(c.atkSpell)} al ataque</BotonTirada>}
-          {s.salv && <span className="tag">Salvación de {s.salv} CD {c.dcSpell ?? '?'}</span>}
+          {s.salv && <span className="rounded-lg px-2 py-1 text-sm font-bold ring-1 ring-inset ring-rule">Salvación de {s.salv} CD {c.dcSpell ?? '?'}</span>}
           {dexpr && <BotonTirada expr={dexpr} label={s.nombre}>{dexpr.replace(/([+-])/g, ' $1 ')}{s.tipo ? ' ' + s.tipo : ''}</BotonTirada>}
         </div>
       )}
-    </div>
+    </li>
   );
 }
 
+/** Todos los recursos del personaje, con descansos. */
 export function Recursos({ c }: { c: any }) {
   const u = S.pj.used || {};
   return (
-    <section className="res" id="res"><h2>Recursos</h2>
-      {c.recursos.map((r: any) => {
-        const used = Math.min(u[r.id] || 0, r.max), left = r.max - used;
-        const nota = r.nota || (r.reset === 'corto' ? 'Se recupera con descanso corto' : 'Se recupera con descanso largo');
-        return (
-          <div className="res-row" key={r.id}>
-            <div className="res-n">{r.nombre}<small>{nota}</small></div>
-            {r.tipo === 'pool' ? (
-              <div className="pool">
-                <button className="btn ghost small" onClick={() => moverPool(r.id, -1)} aria-label="Restar 1">−</button>
-                <input key={left} type="number" inputMode="numeric" min={0} max={r.max} defaultValue={left} aria-label={r.nombre}
-                  onBlur={ev => { if (+ev.target.value !== left) fijarPool(r.id, r.max, ev.target.value); }}
-                  onKeyDown={ev => { if (ev.key === 'Enter') (ev.target as HTMLInputElement).blur(); }} />
-                <span className="of">/ {r.max}</span>
-                <button className="btn ghost small" onClick={() => moverPool(r.id, 1)} aria-label="Sumar 1">+</button>
-              </div>
-            ) : <Pips r={r} left={left} />}
-          </div>
-        );
-      })}
-      <div className="rests">
-        <button className="btn ghost" onClick={() => descansar('corto')}>Descanso corto</button>
-        <button className="btn ghost" onClick={() => descansar('largo')}>Descanso largo</button>
+    <section aria-labelledby="titulo-recursos" className="rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-rule/60 print:hidden">
+      <h2 id="titulo-recursos" className="m-0 font-serif text-xl font-bold">Recursos</h2>
+      <ul className="m-0 mt-1 list-none divide-y divide-soft p-0">
+        {c.recursos.map((r: any) => {
+          const used = Math.min(u[r.id] || 0, r.max), left = r.max - used;
+          const nota = r.nota || (r.reset === 'corto' ? 'Vuelve con descanso corto' : 'Vuelve con descanso largo');
+          return (
+            <li key={r.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2">
+              <div className="min-w-44 flex-1">{r.nombre}<small className="block text-xs text-muted">{nota}</small></div>
+              {r.tipo === 'pool'
+                ? <Contador nombre={r.nombre} valor={left} max={r.max} onCambiar={d => moverPool(r.id, d)} onFijar={v => fijarPool(r.id, r.max, v)} />
+                : <Puntos nombre={r.nombre} max={r.max} usados={used} onTocar={i => tocarPip(r.id, i, r.max)} />}
+            </li>
+          );
+        })}
+      </ul>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Boton onClick={() => descansar('corto')}>Descanso corto</Boton>
+        <Boton onClick={() => descansar('largo')}>Descanso largo</Boton>
       </div>
     </section>
   );

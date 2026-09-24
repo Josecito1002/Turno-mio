@@ -1,5 +1,6 @@
 'use client';
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { Boton, Dialogo, cx } from '@/shared/ui/kit';
 import { resolver, rnd, type OpcionesTirada, type Resultado } from '../domain/dados';
 
 type Tirar = (expr: string, label: string, o?: OpcionesTirada) => Promise<Resultado>;
@@ -19,14 +20,13 @@ function Dado({ sides, cls, valor }: { sides: number; cls: string; valor: number
       {sides === 20 && <polygon points="50,24 76,68 24,68" className="ln" />}
       {sides === 8 && <polyline points="3,50 97,50" className="ln" />}
       <text x="50" y={y} textAnchor="middle" dominantBaseline="middle">{valor}</text>
-      <title>{`d${sides}`}</title>
     </svg>
   );
 }
 
 type Estado = { r: Resultado; rolling: boolean; caras: number[]; seq: number };
 
-/** Bandeja de dados. Cualquier botón con data-roll en la página tira al hacer clic, como en la versión original. */
+/** Bandeja de dados. Cualquier botón con data-roll en la página tira al tocarlo. */
 export function BandejaDados({ children }: { children: ReactNode }) {
   const [st, setSt] = useState<Estado | null>(null);
   const [abierta, setAbierta] = useState(false);
@@ -41,21 +41,21 @@ export function BandejaDados({ children }: { children: ReactNode }) {
     if (timer.current) clearInterval(timer.current);
     setAbierta(true);
     const reduce = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const plano = r.groups.flatMap(g => g.vals);
     return new Promise<Resultado>(res => {
       const finish = () => {
         if (timer.current) clearInterval(timer.current);
-        setSt({ r, rolling: false, caras: plano, seq: mySeq });
+        setSt({ r, rolling: false, caras: r.groups.flatMap(g => g.vals), seq: mySeq });
         setHist(h => [r, ...h].slice(0, 12));
         res(r);
       };
       if (reduce || !r.groups.length) { finish(); return; }
-      setSt({ r, rolling: true, caras: r.groups.flatMap(g => g.vals.map(() => rnd(g.d))), seq: mySeq });
+      const girar = () => r.groups.flatMap(g => g.vals.map(() => rnd(g.d)));
+      setSt({ r, rolling: true, caras: girar(), seq: mySeq });
       let t = 0;
       timer.current = setInterval(() => {
         t += 70;
         if (t >= 770) { finish(); return; }
-        setSt(s => (s && s.seq === mySeq ? { ...s, caras: r.groups.flatMap(g => g.vals.map(() => rnd(g.d))) } : s));
+        setSt(s => (s && s.seq === mySeq ? { ...s, caras: girar() } : s));
       }, 70);
     });
   }, []);
@@ -65,73 +65,76 @@ export function BandejaDados({ children }: { children: ReactNode }) {
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       const b = (e.target as HTMLElement).closest?.('[data-roll]') as HTMLElement | null;
-      if (!b || b.closest('#dice') || b.dataset.rollManual != null) return;
+      if (!b) return;
       const ds = b.dataset;
       tirar(ds.roll!, ds.label || 'Tirada', ds.dmg ? { dmg: ds.dmg, dmgLabel: ds.dmglabel, dmgMin3: !!ds.min3 } : { min3: !!ds.min3 });
     };
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') cerrar(); };
     document.addEventListener('click', onClick);
-    document.addEventListener('keydown', onKey);
-    return () => { document.removeEventListener('click', onClick); document.removeEventListener('keydown', onKey); };
-  }, [tirar, cerrar]);
+    return () => document.removeEventListener('click', onClick);
+  }, [tirar]);
 
   const r = st?.r, o = r?.o || {};
   const kind = r ? (r.groups.some(g => g.d === 20) ? 'd20' : o.neutral ? 'neu' : 'dmg') : '';
   const nDice = r ? r.groups.reduce((s, g) => s + g.vals.length, 0) : 0;
-  let total: ReactNode = <b>…</b>;
+  const listo = r && !st!.rolling;
   const botones: [string, string][] = [];
-  if (r && !st!.rolling) {
+  let desc = '';
+  if (listo) {
     const partes = r.groups.map(g => (g.s < 0 ? '− ' : '') + g.vals.filter((_, i) => g.kept[i]).map(v => (o.min3 && v < 3 ? `${v}→3` : v)).join(' + '));
     if (r.consts) partes.push((r.consts < 0 ? '− ' : '') + Math.abs(r.consts));
-    const desc = partes.join(' + ').replace(/\+ −/g, '−');
-    total = (
-      <>
-        <b className={`pop${r.nat === 20 ? ' nat20' : r.nat === 1 ? ' nat1' : ''}`}>{r.total}</b>
-        <span>{desc}{partes.length > 1 || r.consts ? ` = ${r.total}` : ''}</span>
-        {r.nat === 20 ? <em className="nat20">¡20 natural!</em> : r.nat === 1 ? <em className="nat1">1 natural</em> : null}
-      </>
-    );
+    desc = partes.join(' + ').replace(/\+ −/g, '−') + (partes.length > 1 || r.consts ? ` = ${r.total}` : '');
     const single20 = r.groups.length === 1 && r.groups[0].d === 20 && !o.keep;
-    if (single20) botones.push(['adv', 'Ventaja'], ['dis', 'Desventaja']);
+    if (single20) botones.push(['adv', 'Con ventaja'], ['dis', 'Con desventaja']);
     if (o.dmg) { botones.push(['dmg', 'Tirar daño']); if (r.nat === 20) botones.push(['crit', 'Daño crítico']); }
     if (!single20 && !o.noRepeat) botones.push(['again', 'Otra vez']);
-    botones.push(['close', 'Cerrar']);
   }
   const accion = (a: string) => {
     if (!r) return;
-    if (a === 'close') cerrar();
     if (a === 'adv' || a === 'dis') tirar(r.expr, r.label!, { ...o, adv: a === 'adv' ? 1 : -1 });
     if (a === 'again') tirar(r.expr, r.label!, o);
     if (a === 'dmg' || a === 'crit') tirar(o.dmg!, o.dmgLabel || 'Daño', { min3: o.dmgMin3, crit: a === 'crit' });
   };
+  const titulo = r ? r.label + (o.adv! > 0 ? ' (con ventaja)' : o.adv! < 0 ? ' (con desventaja)' : '') + (o.crit ? ' (crítico)' : '') : 'Tirada';
 
   let j = 0;
   return (
     <DadosCtx.Provider value={tirar}>
       {children}
-      <div className="dice-back" hidden={!abierta} onClick={cerrar} />
-      <section className="dice" id="dice" hidden={!abierta} role="dialog" aria-label="Tirada de dados" aria-live="polite">
-        <div className="dice-top">
-          <p className="dice-l">{r ? r.label + (o.adv! > 0 ? ' (con ventaja)' : o.adv! < 0 ? ' (con desventaja)' : '') + (o.crit ? ' (crítico)' : '') : ''}</p>
-          <button className="x" onClick={cerrar} aria-label="Cerrar">×</button>
-        </div>
-        <div className="dice-row">
+      <Dialogo abierto={abierta} onCerrar={cerrar} titulo={titulo} descripcion={r ? `Dados: ${r.expr}` : undefined} abajo>
+        <div className="flex min-h-24 flex-wrap items-center justify-center gap-2.5">
           {r && (r.groups.length
             ? r.groups.flatMap(g => g.vals.map((v, i) => {
                 const idx = j++;
-                const cls = `${kind}${nDice > 5 ? ' sm' : ''}${st!.rolling ? ' rolling' : ''}${!st!.rolling && !g.kept[i] ? ' dropped' : ''}${!st!.rolling && o.min3 && v < 3 && g.kept[i] ? ' min3' : ''}`;
+                const cls = cx(kind, nDice > 5 && 'sm', st!.rolling && 'rolling', listo && !g.kept[i] && 'dropped', listo && o.min3 && v < 3 && g.kept[i] && 'min3');
                 return <Dado key={`${st!.seq}-${idx}`} sides={g.d} cls={cls} valor={st!.caras[idx]} />;
               }))
-            : <span className="note">Valor fijo, sin dados</span>)}
+            : <span className="text-sm text-muted">Valor fijo, sin dados</span>)}
         </div>
-        <div className="dice-total">{total}</div>
-        <div className="dice-btns">
-          {botones.map(([k, n]) => <button key={k} className={`btn${k === 'dmg' || k === 'crit' ? '' : ' ghost'}`} onClick={() => accion(k)}>{n}</button>)}
+        <div className="text-center" aria-live="polite" aria-atomic="true">
+          {listo ? (
+            <>
+              <b className={cx('dado-pop block font-serif text-6xl font-extrabold leading-none', r.nat === 20 && 'text-adi', r.nat === 1 && 'text-acc')}>
+                <span className="sr-only">Resultado: </span>{r.total}
+              </b>
+              <span className="mt-1 block text-muted">{desc}</span>
+              {r.nat === 20 && <em className="mt-1 block font-extrabold not-italic text-adi">¡20 natural!</em>}
+              {r.nat === 1 && <em className="mt-1 block font-extrabold not-italic text-acc">1 natural</em>}
+            </>
+          ) : <b className="block font-serif text-6xl leading-none" aria-hidden="true">…</b>}
         </div>
-        <details className="dice-h"><summary>Tiradas anteriores</summary>
-          <ol>{hist.map((h, i) => <li key={i}>{h.label}: <b>{h.total}</b></li>)}</ol>
-        </details>
-      </section>
+        {listo && (
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
+            {botones.map(([k, n]) => <Boton key={k} variante={k === 'dmg' || k === 'crit' ? 'primario' : 'secundario'} onClick={() => accion(k)}>{n}</Boton>)}
+            <Boton variante="fantasma" onClick={cerrar}>Cerrar</Boton>
+          </div>
+        )}
+        {hist.length > 1 && (
+          <details className="mt-3 text-sm">
+            <summary className="min-h-11 cursor-pointer py-2 text-muted">Tiradas anteriores</summary>
+            <ol className="m-0 list-decimal pl-5">{hist.slice(1).map((h, i) => <li key={i}>{h.label}: <b>{h.total}</b></li>)}</ol>
+          </details>
+        )}
+      </Dialogo>
     </DadosCtx.Provider>
   );
 }
