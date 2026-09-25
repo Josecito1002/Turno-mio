@@ -15,6 +15,7 @@ import { CLERIGO_2024 } from '../../../../scripts/datos/clerigo-2024';
 import { BRUJO_2024 } from '../../../../scripts/datos/brujo-2024';
 import { DRUIDA_2024 } from '../../../../scripts/datos/druida-2024';
 import { EXPLORADOR_2024 } from '../../../../scripts/datos/explorador-2024';
+import { GUERRERO_2024 } from '../../../../scripts/datos/guerrero-2024';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
 import { ARMAS } from '@/features/reglas/data/equipo';
 import { EQUIPO_TRASFONDOS, kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
@@ -635,6 +636,64 @@ describe('Explorador 2024 (Lote 10)', () => {
     assert.match(entrada(exp(11, 'lib:caminante-invierno'), 'Explorador Gélido').texto, /1d6 de daño de frío/);
     assert.match(entrada(exp(3, 'lib:caminante-invierno'), 'Escarcha del Cazador').texto, /1d10 \+ 3 PG temporales/);
     assert.match(entrada(exp(11, 'lib:hadas'), 'Golpes Pavorosos').texto, /1d6 de daño psíquico/);
+  });
+});
+
+describe('Guerrero 2024 (Lote 11)', () => {
+  const gue = (nivel: number, sub = '', stats: Record<string, number> = {}, extra: Record<string, any> = {}) => { setLib({ clases: { guerrero: GUERRERO_2024 } }); return pj('guerrero', nivel, sub, stats, extra); };
+  const usos = (c: any, nombre: string) => c.recursos.find((x: any) => x.nombre === nombre)?.max;
+  test('Indomable: 1 uso, 2 desde nivel 13 y 3 desde 17, sumando el nivel', () => {
+    assert.equal(usos(gue(9), 'Indomable'), 1);
+    assert.equal(usos(gue(13), 'Indomable'), 2);
+    assert.equal(usos(gue(17), 'Indomable'), 3);
+    assert.match(entrada(gue(17), 'Indomable').texto, /\+17/);
+  });
+  test('Maestro de Batalla: dados 4/5/6, d8 a d12, y las maniobras elegidas salen con su tipo', () => {
+    const c = gue(7, 'lib:maestro-batalla', { fue: 16 }, { elecciones: { maniobra: ['parada', 'finta'] } });
+    assert.equal(usos(c, 'Superioridad en Combate'), 5);
+    assert.equal(usos(gue(15, 'lib:maestro-batalla'), 'Superioridad en Combate'), 6);
+    assert.match(entrada(c, 'Superioridad en Combate').texto, /d8.*maniobras es 14/);
+    assert.match(entrada(gue(18, 'lib:maestro-batalla'), 'Superioridad en Combate').texto, /d12/);
+    assert.equal(entrada(c, 'Parada').t, 'reaccion');
+    assert.equal(entrada(c, 'Ataque de Finta').t, 'adicional');
+    assert.equal(c.entries.some((e: any) => e.nombre === 'Emboscada'), false);
+  });
+  test('Guerrero Psiónico: dados según nivel y daño con INT', () => {
+    const c = gue(11, 'lib:guerrero-psionico', { int: 14 });
+    assert.equal(usos(c, 'Poder Psiónico'), 8);
+    assert.match(entrada(c, 'Golpe Psiónico').texto, /1d10 \+ 2 de daño de fuerza/);
+    assert.equal(usos(gue(3, 'lib:guerrero-psionico'), 'Poder Psiónico'), 4);
+  });
+  test('Abanderado y Arquero Arcano: curación de grupo y dado de Disparo Arcano', () => {
+    assert.match(entrada(gue(5, 'lib:caballero-dragon-purpura', { car: 14 }), 'Recuperación Grupal').texto, /2 aliado\(s\) a 30 pies recuperan 1d4 \+ 5/);
+    assert.match(entrada(gue(15, 'lib:arquero-arcano'), 'Disparo Arcano').texto, /1d10/);
+  });
+  test('Arquero Arcano: disparos conocidos 2 a 6 y solo salen los elegidos, con su CD', () => {
+    const c = gue(7, 'lib:arquero-arcano', { int: 16 }, { elecciones: { 'disparo-arcano': ['sombra', 'explosivo'] } });
+    assert.equal(c.elecciones.find((e: any) => e.id === 'disparo-arcano').max, 3);
+    assert.equal(gue(18, 'lib:arquero-arcano').elecciones.find((e: any) => e.id === 'disparo-arcano').max, 6);
+    assert.match(entrada(c, 'Disparo de Sombra').texto, /1d6 .*CD 14/);
+    assert.equal(c.entries.some((e: any) => e.nombre === 'Disparo Buscador'), false);
+  });
+  test('Campeón: el estilo adicional del nivel 7 suma su efecto', () => {
+    const sin = gue(7, 'lib:campeon', { des: 10 }, { estilo: 'duelo', armadura: 'cuero' });
+    const con = gue(7, 'lib:campeon', { des: 10 }, { estilo: 'duelo', armadura: 'cuero', elecciones: { 'estilo-campeon': 'defensa' } });
+    assert.equal(con.ac, sin.ac + 1);
+    assert.equal(con.elecciones.find((e: any) => e.id === 'estilo-campeon').opciones.some((o: any) => o.key === 'duelo'), false);
+    assert.equal(gue(6, 'lib:campeon', { des: 10 }, { estilo: 'duelo', armadura: 'cuero', elecciones: { 'estilo-campeon': 'defensa' } }).ac, sin.ac);
+  });
+  test('Samurái y Caballero Rúnico: usos, PG temporales, runas por nivel y dado de gigante', () => {
+    assert.equal(usos(gue(3, 'lib:samurai'), 'Espíritu de Lucha'), 3);
+    assert.match(entrada(gue(10, 'lib:samurai'), 'Espíritu de Lucha').texto, /10 PG temporales/);
+    const r = gue(3, 'lib:caballero-runico', { con: 14 }, { elecciones: { runas: ['fuego'] } });
+    assert.equal(usos(r, 'Poder de Gigante'), 2);
+    assert.match(entrada(r, 'Poder de Gigante').texto, /1d6/);
+    assert.match(entrada(r, 'Runa de Fuego').texto, /CD 12/);
+    assert.equal(usos(r, 'Runa de Fuego'), 1);
+    assert.equal(r.elecciones.find((e: any) => e.id === 'runas').opciones.some((o: any) => o.key === 'tormenta'), false);
+    const r15 = gue(15, 'lib:caballero-runico', {}, { elecciones: { runas: ['nube'] } });
+    assert.equal(usos(r15, 'Runa de Nube'), 2);
+    assert.equal(r15.elecciones.find((e: any) => e.id === 'runas').max, 5);
   });
 });
 

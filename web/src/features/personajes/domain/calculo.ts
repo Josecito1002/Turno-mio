@@ -60,6 +60,9 @@ export function compute(pj): any {
   (pj.dotesExtra || []).forEach(d => d.key ? addD(d.key, 'Dote') : c.dotes.push({...d, src:'Dote'}));
   const has = k => c.dotes.some(d => d.key === k); c.has = has;
   c.estilo = C?.estilo && lvl >= C.estilo ? pj.estilo : '';
+  // El Campeón gana un segundo estilo en el nivel 7 (se elige en el paso Clase)
+  c.estilos = [c.estilo, norm(c.SD?.n || '') === 'campeon' && lvl >= 7 ? pj.elecciones?.['estilo-campeon'] : ''].filter(Boolean);
+  const estilo = k => c.estilos.includes(k); c.tieneEstilo = estilo;
 
   c.isMonk = pj.clase === 'monje';
   c.md = c.isMonk ? (lvl >= 17 ? 12 : lvl >= 11 ? 10 : lvl >= 5 ? 8 : 6) : 0;
@@ -73,7 +76,7 @@ export function compute(pj): any {
   c.armor = ARMADURAS[c.armorKey] || null; c.shield = !!pj.escudo;
   const opc = [c.armor ? c.armor.base + (c.armor.max === 0 ? 0 : c.armor.max ? Math.min(m.des, c.armor.max) : m.des) : 10 + m.des];
   [C?.ca, c.SD?.ca].forEach(f => { if (f) { const v = f(c); if (v != null) opc.push(v); } });
-  c.ac = Math.max(...opc) + (c.shield ? 2 : 0) + (c.estilo === 'defensa' && c.armor ? 1 : 0);
+  c.ac = Math.max(...opc) + (c.shield ? 2 : 0) + (estilo('defensa') && c.armor ? 1 : 0);
 
   // Velocidad y visión
   const baseVel = !E ? 30 : pj.especie.key === 'custom' ? (+pj.especie.vel || 30) : (E.velSub?.[c.esub] || E.vel);
@@ -116,7 +119,7 @@ export function compute(pj): any {
   const uMod = c.isMonk ? Math.max(m.fue, m.des) : m.fue;
   let uDice = '';
   if (c.isMonk) uDice = `1d${c.md}`;
-  else if (c.estilo === 'sinarmas') uDice = '1d6';
+  else if (estilo('sinarmas')) uDice = '1d6';
   else if (has('taberna')) uDice = '1d4';
   c.unarmed = uDice
     ? {atk: pb + uMod, expr: `${uDice}${modStr(uMod)}`, dmg: `${uDice}${fmtMod(uMod)} contundente`}
@@ -250,11 +253,11 @@ export function weaponRow(a, c){
   const conCar = !!c.usaCar?.(w);
   if (conCar && m.car > m[ab]) ab = 'car';
   const prof = competenteArma(c, a.k) || (c.pactoFilo && !w.dist);
-  const atk = m[ab] + (prof ? c.pb : 0) + (c.estilo === 'arqueria' && w.dist ? 2 : 0);
+  const atk = m[ab] + (prof ? c.pb : 0) + (c.tieneEstilo('arqueria') && w.dist ? 2 : 0);
   let dado = w.d;
   if (monkW) { const [nn, dd] = w.d.split('d').map(Number); if (nn === 1 && c.md > dd) dado = `1d${c.md}`; }
-  const dmgMod = m[ab] + (c.estilo === 'duelo' && !w.dist && !w.p.includes('dos manos') ? 2 : 0);
-  const min3 = c.estilo === 'dosmanos' && !w.dist && (w.p.includes('dos manos') || w.p.includes('versátil'));
+  const dmgMod = m[ab] + (c.tieneEstilo('duelo') && !w.dist && !w.p.includes('dos manos') ? 2 : 0);
+  const min3 = c.tieneEstilo('dosmanos') && !w.dist && (w.p.includes('dos manos') || w.p.includes('versátil'));
   const notas = [];
   if (w.r) notas.push(`${w.p.includes('arrojadiza') ? 'Arrojadiza' : 'Alcance'} ${w.r} pies`);
   if (w.p.includes('alcance')) notas.push('Alcance de 10 pies');
@@ -296,7 +299,7 @@ export function buildEntries(c){
     if (r.n && r.n > c.tl) { c.futuros.push({nombre:r.nombre, nivel:r.n}); return; }
     pushR(r, c.E.subs?.[c.esub]?.n || c.E.n, 'especie', 'e');
   });
-  if (c.estilo && ESTILOS[c.estilo]) { const [n, t, txt] = ESTILOS[c.estilo]; E.push({t, nombre:`Estilo: ${n}`, texto:txt, src:'Estilo de combate', grupo:'clase'}); }
+  c.estilos.filter(k => ESTILOS[k]).forEach(k => { const [n, t, txt] = ESTILOS[k]; E.push({t, nombre:`Estilo: ${n}`, texto:txt, src:'Estilo de combate', grupo:'clase'}); });
   c.dotes.forEach(d => {
     if (d.key) { const D = getD(pj, d.key); pushR({...D, nombre:D.n, t:D.t || 'pasiva'}, d.src, 'dote', 'd'); }
     else E.push({t:d.t || 'pasiva', nombre:d.nombre, texto:d.texto, raw:true, src:d.src, grupo:'dote'});
@@ -307,7 +310,7 @@ export function buildEntries(c){
     pushR(r, 'Rasgo propio', 'extra', 'x' + i);
   });
   if (c.lightCount >= 2) E.push({t:'adicional', nombre:'Ataque con la otra arma ligera', src:'Reglas', grupo:'reglas',
-    texto:`Si atacaste con un arma Ligera, atacas con otra distinta.${c.estilo === 'dosarmas' ? ' Sumas tu modificador al daño.' : ' No sumas tu modificador al daño salvo que sea negativo.'}`});
+    texto:`Si atacaste con un arma Ligera, atacas con otra distinta.${c.tieneEstilo('dosarmas') ? ' Sumas tu modificador al daño.' : ' No sumas tu modificador al daño salvo que sea negativo.'}`});
   return E;
 }
 

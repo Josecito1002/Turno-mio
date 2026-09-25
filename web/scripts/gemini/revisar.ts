@@ -200,7 +200,7 @@ export const descripciones: Record<string, string> = ${JSON.stringify(D, null, 2
 /* eslint-disable @typescript-eslint/no-explicit-any */
 ${clases.map(k => `import * as ${k} from './${k}';`).join('\n')}
 
-const todas = [${clases.join(', ')}];
+const todas: any[] = [${clases.join(', ')}];
 export const REGLAS_GENERADAS: any[] = todas.flatMap(x => x.reglas);
 export const FUENTES_GENERADAS: Record<string, string> = Object.assign({}, ...todas.map(x => x.fuentes));
 export const DESCRIPCIONES_GENERADAS: Record<string, string> = Object.assign({}, ...todas.map(x => x.descripciones));
