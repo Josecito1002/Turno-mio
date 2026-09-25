@@ -3,7 +3,7 @@
 Rasgos de la biblioteca sin regla revisada en `web/src/features/reglas/data/reglas-revisadas.ts` cuyo tipo es dudoso:
 el clasificador los deja como pasiva aunque su texto sugiere que se activan, o su texto no menciona ningún tipo de acción.
 
-Generado con `npx tsx scripts/auditar-reglas.ts` (desde `web/`). Pendientes al generar: 211.
+Generado con `npx tsx scripts/auditar-reglas.ts` (desde `web/`). Pendientes al generar: 197.
 Al marcar una casilla, agrega al final una nota corta con la fuente si hubo que investigar.
 
 ## Selectores
@@ -54,8 +54,8 @@ Las que se deciden al usar el rasgo (a quién, qué efecto) no llevan selector: 
 
 ### Lote 10: Explorador
 
-- [ ] **Cazador: Presa del Cazador y Tácticas Defensivas**: Asesino de Colosos o Rompehordas (nivel 3) y su defensa (nivel 7); se cambian en un descanso. <!-- selector|presa-cazador -->
-- [ ] **Maestro de Bestias: bestia primigenia**: de tierra, de mar o del cielo; cambia sus estadísticas y su ataque. <!-- selector|bestia-primigenia -->
+- [x] **Cazador: Presa del Cazador y Tácticas Defensivas**: Asesino de Colosos o Rompehordas (nivel 3) y su defensa (nivel 7); se cambian en un descanso; en el paso Clase. <!-- selector|presa-cazador -->
+- [ ] **Maestro de Bestias: bestia primigenia**: de tierra, de mar o del cielo; cambia sus estadísticas y su ataque. Lote 10: ya se elige en el paso Clase; faltan sus estadísticas y su ataque en la hoja. <!-- selector|bestia-primigenia -->
 
 ### Lote 11: Guerrero
 
@@ -784,83 +784,105 @@ Dudosos: 0. Con tipo claro: 0. Ya revisados: 82.
 
 ## Lote 9: Druida (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 11. Con tipo claro: 3. Ya revisados: 4.
+Dudosos: 0. Con tipo claro: 0. Ya revisados: 44.
 
-### Druida
-
-- [x] **Archidruida** (nivel 20): `gratis`. Manual del Jugador (2024). <!-- druida|archidruida -->
-
-### Círculo de la Tierra
-
-- [x] **Recuperación Natural** (nivel 6): `fuera`. Manual del Jugador (2024). <!-- circulo de la tierra|recuperacion natural -->
-- [x] **Conjuros de Círculo** (nivel 3): pasa a llamarse Conjuros del Círculo de la Tierra, con los cuatro tipos de tierra 2024 y su selector; Manual del Jugador (2024). <!-- circulo de la tierra|conjuros de circulo -->
-- [x] **Zancada de la Tierra** (nivel 6): quitado: en 2024 el nivel 6 es Recuperación Natural; Manual del Jugador (2024). <!-- circulo de la tierra|zancada de la tierra -->
-- [x] **Protección de la Naturaleza** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- circulo de la tierra|proteccion de la naturaleza -->
-
-### Círculo de la Luna
-
-- [x] **Golpes Primigenios** (nivel 6): sustituido por Formas del Círculo Mejoradas (daño radiante y SAB a las salvaciones de CON); Manual del Jugador (2024). <!-- circulo de la luna|golpes primigenios -->
-- [x] **Mil Formas** (nivel 14): sustituido por Forma Lunar (2d10 radiante y Paso de Luz Lunar compartido); Manual del Jugador (2024). <!-- circulo de la luna|mil formas -->
-
-### Círculo del Mar
-
-- [x] **Ira de la Marea** (nivel 3): pasa a llamarse Ira del Mar: acción adicional, 1 Forma Salvaje, SAB d6 de frío; Manual del Jugador (2024). <!-- circulo del mar|ira de la marea -->
-- [x] **Marea Creciente** (nivel 10): sustituido por Hijo de la Tormenta (vuelo y resistencias); Manual del Jugador (2024). <!-- circulo del mar|marea creciente -->
-- [x] **Unión con el Océano** (nivel 14): sustituido por Don Oceánico (emanación en un aliado); Manual del Jugador (2024). <!-- circulo del mar|union con el oceano -->
-
-### Círculo de las Estrellas
-
-- [x] **Luminosidad Completa** (nivel 14): pasa a llamarse Lleno de Estrellas (pasiva, resistencia física en forma estelar); Manual del Jugador (2024). <!-- circulo de las estrellas|luminosidad completa -->
 
 ### Revisados
 
 - [x] **Furia Elemental** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- druida|furia elemental -->
+- [x] **Furia Elemental Mejorada** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- druida|furia elemental mejorada -->
+- [x] **Conjuros de Bestia** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- druida|conjuros de bestia -->
+- [x] **Archidruida** (nivel 20): `gratis`. Manual del Jugador (2024). <!-- druida|archidruida -->
+- [x] **Conjuros del Círculo de la Tierra** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- circulo de la tierra|conjuros del circulo de la tierra -->
+- [x] **Ayuda de la Tierra** (nivel 3): `accion`. Manual del Jugador (2024). <!-- circulo de la tierra|ayuda de la tierra -->
+- [x] **Recuperación Natural** (nivel 6): `fuera`. Manual del Jugador (2024). <!-- circulo de la tierra|recuperacion natural -->
+- [x] **Protección de la Naturaleza** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- circulo de la tierra|proteccion de la naturaleza -->
+- [x] **Santuario de la Naturaleza** (nivel 14): `accion`. Manual del Jugador (2024). <!-- circulo de la tierra|santuario de la naturaleza -->
+- [x] **Conjuros del Círculo de la Luna** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- circulo de la luna|conjuros del circulo de la luna -->
+- [x] **Formas del Círculo** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- circulo de la luna|formas del circulo -->
+- [x] **Formas del Círculo Mejoradas** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- circulo de la luna|formas del circulo mejoradas -->
 - [x] **Paso de Luz Lunar** (nivel 10): `adicional`. Manual del Jugador (2024). <!-- circulo de la luna|paso de luz lunar -->
+- [x] **Forma Lunar** (nivel 14): `pasiva`. Manual del Jugador (2024). <!-- circulo de la luna|forma lunar -->
+- [x] **Conjuros del Círculo del Mar** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- circulo del mar|conjuros del circulo del mar -->
+- [x] **Ira del Mar** (nivel 3): `adicional`. Manual del Jugador (2024). <!-- circulo del mar|ira del mar -->
+- [x] **Afinidad Acuática** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- circulo del mar|afinidad acuatica -->
+- [x] **Hijo de la Tormenta** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- circulo del mar|hijo de la tormenta -->
+- [x] **Don Oceánico** (nivel 14): `pasiva`. Manual del Jugador (2024). <!-- circulo del mar|don oceanico -->
 - [x] **Mapa Estelar** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- circulo de las estrellas|mapa estelar -->
+- [x] **Forma Estelar** (nivel 3): `adicional`. Manual del Jugador (2024). <!-- circulo de las estrellas|forma estelar -->
 - [x] **Augurio Cósmico** (nivel 6): `reaccion`. Manual del Jugador (2024). <!-- circulo de las estrellas|augurio cosmico -->
+- [x] **Constelaciones Titilantes** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- circulo de las estrellas|constelaciones titilantes -->
+- [x] **Lleno de Estrellas** (nivel 14): `pasiva`. Manual del Jugador (2024). <!-- circulo de las estrellas|lleno de estrellas -->
+- [x] **Bálsamo de la Corte Estival** (nivel 3): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo de los suenos|balsamo de la corte estival -->
+- [x] **Hogar de Luz Lunar y Sombra** (nivel 6): `fuera`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo de los suenos|hogar de luz lunar y sombra -->
+- [x] **Senderos Ocultos** (nivel 10): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo de los suenos|senderos ocultos -->
+- [x] **Caminante de los Sueños** (nivel 14): `fuera`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo de los suenos|caminante de los suenos -->
+- [x] **Habla del Bosque** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo del pastor|habla del bosque -->
+- [x] **Tótem Espiritual** (nivel 3): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo del pastor|totem espiritual -->
+- [x] **Invocador Poderoso** (nivel 6): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo del pastor|invocador poderoso -->
+- [x] **Espíritu Guardián** (nivel 10): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo del pastor|espiritu guardian -->
+- [x] **Invocación Fiel** (nivel 14): `gratis`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo del pastor|invocacion fiel -->
+- [x] **Conjuros del Círculo de las Esporas** (nivel 3): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|conjuros del circulo de las esporas -->
+- [x] **Halo de Esporas** (nivel 3): `reaccion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|halo de esporas -->
+- [x] **Entidad Simbiótica** (nivel 3): `accion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|entidad simbiotica -->
+- [x] **Infestación Fúngica** (nivel 6): `reaccion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|infestacion fungica -->
+- [x] **Esporas Esparcidas** (nivel 10): `adicional`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|esporas esparcidas -->
+- [x] **Cuerpo Fúngico** (nivel 14): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|cuerpo fungico -->
+- [x] **Conjuros del Círculo del Fuego Salvaje** (nivel 3): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo del fuego salvaje|conjuros del circulo del fuego salvaje -->
+- [x] **Invocar Espíritu de Fuego Salvaje** (nivel 3): `accion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo del fuego salvaje|invocar espiritu de fuego salvaje -->
+- [x] **Vínculo Potenciado** (nivel 6): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo del fuego salvaje|vinculo potenciado -->
+- [x] **Llamas Cauterizantes** (nivel 10): `reaccion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo del fuego salvaje|llamas cauterizantes -->
+- [x] **Resurgir Llameante** (nivel 14): `gratis`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo del fuego salvaje|resurgir llameante -->
 
 ## Lote 10: Explorador (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 21. Con tipo claro: 5. Ya revisados: 0.
+Dudosos: 18. Con tipo claro: 1. Ya revisados: 7.
 
 ### Explorador
 
-- [ ] **Errante** (nivel 6): hoy `pasiva`, no menciona tipo de acción <!-- explorador|errante -->
-- [ ] **Ocultarse a Plena Vista** (nivel 10): hoy `pasiva`, no menciona tipo de acción <!-- explorador|ocultarse a plena vista -->
-- [ ] **Cazador de Enemigos** (nivel 20): hoy `pasiva`, no menciona tipo de acción <!-- explorador|cazador de enemigos -->
+- [x] **Errante** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- explorador|errante -->
+- [x] **Ocultarse a Plena Vista** (nivel 10): quitado: no existe en 2024 (el nivel 10 es Incansable); Manual del Jugador (2024). <!-- explorador|ocultarse a plena vista -->
+- [x] **Cazador de Enemigos** (nivel 20): `pasiva`. Manual del Jugador (2024). <!-- explorador|cazador de enemigos -->
 
 ### Cazador
 
-- [ ] **Tácticas Defensivas** (nivel 7): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- cazador|tacticas defensivas -->
-- [ ] **Multiataque del Cazador** (nivel 11): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- cazador|multiataque del cazador -->
-- [ ] **Defensa Superior** (nivel 15): hoy `pasiva`, no menciona tipo de acción <!-- cazador|defensa superior -->
+- [x] **Multiataque del Cazador** (nivel 11): sustituido por Presa del Cazador Superior (el daño de Marca del cazador salta a otra criatura a 30 pies); Manual del Jugador (2024). <!-- cazador|multiataque del cazador -->
+- [x] **Defensa Superior** (nivel 15): pasa a llamarse Defensa Superior del Cazador: reacción, resistencia al tipo de daño recibido; Manual del Jugador (2024). <!-- cazador|defensa superior -->
 
 ### Maestro de Bestias
 
-- [ ] **Compañero del Explorador** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- maestro de bestias|companero del explorador -->
-- [ ] **Entrenamiento Excepcional** (nivel 7): hoy `pasiva`, queda pasiva pero parece activarse <!-- maestro de bestias|entrenamiento excepcional -->
-- [ ] **Furia de Bestia** (nivel 11): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- maestro de bestias|furia de bestia -->
-- [ ] **Compartir Conjuros** (nivel 15): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- maestro de bestias|compartir conjuros -->
+- [x] **Compañero del Explorador** (nivel 3): pasa a llamarse Compañero Primigenio (acción adicional para darle órdenes) con selector de bestia; Manual del Jugador (2024). <!-- maestro de bestias|companero del explorador -->
+- [x] **Entrenamiento Excepcional** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- maestro de bestias|entrenamiento excepcional -->
+- [x] **Furia de Bestia** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- maestro de bestias|furia de bestia -->
+- [x] **Compartir Conjuros** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- maestro de bestias|compartir conjuros -->
 
 ### Caminante de las Hadas
 
-- [ ] **Ataque Pavoroso** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- caminante de las hadas|ataque pavoroso -->
-- [ ] **Magia Feérica** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- caminante de las hadas|magia feerica -->
-- [ ] **Giro Etéreo** (nivel 7): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- caminante de las hadas|giro etereo -->
-- [ ] **Paso Nebuloso** (nivel 15): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- caminante de las hadas|paso nebuloso -->
+- [x] **Ataque Pavoroso** (nivel 3): pasa a llamarse Golpes Pavorosos: 1d4 psíquico, 1d6 desde nivel 11, en el cálculo; Manual del Jugador (2024). <!-- caminante de las hadas|ataque pavoroso -->
+- [x] **Magia Feérica** (nivel 3): sustituido por Conjuros del Caminante de las Hadas y Glamour de Otro Mundo (con selector de habilidad); Manual del Jugador (2024). <!-- caminante de las hadas|magia feerica -->
+- [x] **Giro Etéreo** (nivel 7): pasa a llamarse Giro Engañoso (reacción); Manual del Jugador (2024). <!-- caminante de las hadas|giro etereo -->
+- [x] **Paso Nebuloso** (nivel 15): pasa a llamarse Caminante Nebuloso (SAB usos por descanso largo); Manual del Jugador (2024). <!-- caminante de las hadas|paso nebuloso -->
 
 ### Acechador de las Sombras
 
-- [ ] **Emboscador Temible** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- acechador de las sombras|emboscador temible -->
-- [ ] **Vista Umbría** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- acechador de las sombras|vista umbria -->
-- [ ] **Mente de Hierro** (nivel 7): hoy `pasiva`, no menciona tipo de acción <!-- acechador de las sombras|mente de hierro -->
-- [ ] **Ráfaga del Acechador** (nivel 11): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- acechador de las sombras|rafaga del acechador -->
+- [x] **Vista Umbría** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- acechador de las sombras|vista umbria -->
+- [x] **Mente de Hierro** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- acechador de las sombras|mente de hierro -->
+- [x] **Ráfaga del Acechador** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- acechador de las sombras|rafaga del acechador -->
 
 ### Caminante del Invierno
 
-- [ ] **Escarcha del Cazador** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse <!-- caminante del invierno|escarcha del cazador -->
-- [ ] **Conjuros del Caminante del Invierno** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- caminante del invierno|conjuros del caminante del invierno -->
-- [ ] **Alma Congelada** (nivel 11): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- caminante del invierno|alma congelada -->
+- [x] **Escarcha del Cazador** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|escarcha del cazador -->
+- [x] **Alma Congelada** (nivel 11): quitado: el nivel 11 es Retribución Helada y la forma helada pasa al 15 (Aparición Congelada); Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|alma congelada -->
+
+### Revisados
+
+- [x] **Incansable** (nivel 10): `accion`. Manual del Jugador (2024). <!-- explorador|incansable -->
+- [x] **Velo de la Naturaleza** (nivel 14): `adicional`. Manual del Jugador (2024). <!-- explorador|velo de la naturaleza -->
+- [x] **Presa del Cazador** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- cazador|presa del cazador -->
+- [x] **Tácticas Defensivas** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- cazador|tacticas defensivas -->
+- [x] **Emboscador Temible** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- acechador de las sombras|emboscador temible -->
+- [x] **Conjuros del Caminante del Invierno** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|conjuros del caminante del invierno -->
+- [x] **Alma Fortalecedora** (nivel 7): `accion`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|alma fortalecedora -->
 
 ## Lote 11: Guerrero (subclases y rasgos de nivel alto de la biblioteca)
 
@@ -1214,40 +1236,35 @@ Dudosos: 12. Con tipo claro: 1. Ya revisados: 0.
 
 ## Revisados en pasadas anteriores
 
-- [x] **Furia Elemental Mejorada** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- druida|furia elemental mejorada -->
-- [x] **Conjuros de Bestia** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- druida|conjuros de bestia -->
-- [x] **Conjuros del Círculo de la Tierra** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- circulo de la tierra|conjuros del circulo de la tierra -->
-- [x] **Ayuda de la Tierra** (nivel 3): `accion`. Manual del Jugador (2024). <!-- circulo de la tierra|ayuda de la tierra -->
-- [x] **Santuario de la Naturaleza** (nivel 14): `accion`. Manual del Jugador (2024). <!-- circulo de la tierra|santuario de la naturaleza -->
-- [x] **Conjuros del Círculo de la Luna** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- circulo de la luna|conjuros del circulo de la luna -->
-- [x] **Formas del Círculo** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- circulo de la luna|formas del circulo -->
-- [x] **Formas del Círculo Mejoradas** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- circulo de la luna|formas del circulo mejoradas -->
-- [x] **Forma Lunar** (nivel 14): `pasiva`. Manual del Jugador (2024). <!-- circulo de la luna|forma lunar -->
-- [x] **Conjuros del Círculo del Mar** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- circulo del mar|conjuros del circulo del mar -->
-- [x] **Ira del Mar** (nivel 3): `adicional`. Manual del Jugador (2024). <!-- circulo del mar|ira del mar -->
-- [x] **Afinidad Acuática** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- circulo del mar|afinidad acuatica -->
-- [x] **Hijo de la Tormenta** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- circulo del mar|hijo de la tormenta -->
-- [x] **Don Oceánico** (nivel 14): `pasiva`. Manual del Jugador (2024). <!-- circulo del mar|don oceanico -->
-- [x] **Forma Estelar** (nivel 3): `adicional`. Manual del Jugador (2024). <!-- circulo de las estrellas|forma estelar -->
-- [x] **Constelaciones Titilantes** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- circulo de las estrellas|constelaciones titilantes -->
-- [x] **Lleno de Estrellas** (nivel 14): `pasiva`. Manual del Jugador (2024). <!-- circulo de las estrellas|lleno de estrellas -->
-- [x] **Bálsamo de la Corte Estival** (nivel 3): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo de los suenos|balsamo de la corte estival -->
-- [x] **Hogar de Luz Lunar y Sombra** (nivel 6): `fuera`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo de los suenos|hogar de luz lunar y sombra -->
-- [x] **Senderos Ocultos** (nivel 10): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo de los suenos|senderos ocultos -->
-- [x] **Caminante de los Sueños** (nivel 14): `fuera`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo de los suenos|caminante de los suenos -->
-- [x] **Habla del Bosque** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo del pastor|habla del bosque -->
-- [x] **Tótem Espiritual** (nivel 3): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo del pastor|totem espiritual -->
-- [x] **Invocador Poderoso** (nivel 6): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo del pastor|invocador poderoso -->
-- [x] **Espíritu Guardián** (nivel 10): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo del pastor|espiritu guardian -->
-- [x] **Invocación Fiel** (nivel 14): `gratis`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo del pastor|invocacion fiel -->
-- [x] **Conjuros del Círculo de las Esporas** (nivel 3): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|conjuros del circulo de las esporas -->
-- [x] **Halo de Esporas** (nivel 3): `reaccion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|halo de esporas -->
-- [x] **Entidad Simbiótica** (nivel 3): `accion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|entidad simbiotica -->
-- [x] **Infestación Fúngica** (nivel 6): `reaccion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|infestacion fungica -->
-- [x] **Esporas Esparcidas** (nivel 10): `adicional`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|esporas esparcidas -->
-- [x] **Cuerpo Fúngico** (nivel 14): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|cuerpo fungico -->
-- [x] **Conjuros del Círculo del Fuego Salvaje** (nivel 3): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo del fuego salvaje|conjuros del circulo del fuego salvaje -->
-- [x] **Invocar Espíritu de Fuego Salvaje** (nivel 3): `accion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo del fuego salvaje|invocar espiritu de fuego salvaje -->
-- [x] **Vínculo Potenciado** (nivel 6): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo del fuego salvaje|vinculo potenciado -->
-- [x] **Llamas Cauterizantes** (nivel 10): `reaccion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo del fuego salvaje|llamas cauterizantes -->
-- [x] **Resurgir Llameante** (nivel 14): `gratis`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo del fuego salvaje|resurgir llameante -->
+- [x] **Pericia** (nivel 9): `pasiva`. Manual del Jugador (2024). <!-- explorador|pericia -->
+- [x] **Cazador Implacable** (nivel 13): `pasiva`. Manual del Jugador (2024). <!-- explorador|cazador implacable -->
+- [x] **Cazador Preciso** (nivel 17): `pasiva`. Manual del Jugador (2024). <!-- explorador|cazador preciso -->
+- [x] **Sentidos Salvajes** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- explorador|sentidos salvajes -->
+- [x] **Compañero Primigenio** (nivel 3): `adicional`. Manual del Jugador (2024). <!-- maestro de bestias|companero primigenio -->
+- [x] **Conjuros del Caminante de las Hadas** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- caminante de las hadas|conjuros del caminante de las hadas -->
+- [x] **Golpes Pavorosos** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- caminante de las hadas|golpes pavorosos -->
+- [x] **Glamour de Otro Mundo** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- caminante de las hadas|glamour de otro mundo -->
+- [x] **Giro Engañoso** (nivel 7): `reaccion`. Manual del Jugador (2024). <!-- caminante de las hadas|giro enganoso -->
+- [x] **Refuerzos Feéricos** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- caminante de las hadas|refuerzos feericos -->
+- [x] **Caminante Nebuloso** (nivel 15): `adicional`. Manual del Jugador (2024). <!-- caminante de las hadas|caminante nebuloso -->
+- [x] **Conjuros del Acechador de las Sombras** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- acechador de las sombras|conjuros del acechador de las sombras -->
+- [x] **Evasión Sombría** (nivel 15): `reaccion`. Manual del Jugador (2024). <!-- acechador de las sombras|evasion sombria -->
+- [x] **Conjuros del Guardián Hueco** (nivel 3): `pasiva`. subclase nueva; Ravenloft: The Horrors Within (2026). <!-- guardian hueco|conjuros del guardian hueco -->
+- [x] **Ira de lo Salvaje** (nivel 3): `adicional`. subclase nueva; Ravenloft: The Horrors Within (2026). <!-- guardian hueco|ira de lo salvaje -->
+- [x] **Poder Hambriento** (nivel 7): `pasiva`. subclase nueva; Ravenloft: The Horrors Within (2026). <!-- guardian hueco|poder hambriento -->
+- [x] **Putrefacción y Violencia** (nivel 11): `pasiva`. subclase nueva; Ravenloft: The Horrors Within (2026). <!-- guardian hueco|putrefaccion y violencia -->
+- [x] **Poder Antiguo** (nivel 15): `pasiva`. subclase nueva; Ravenloft: The Horrors Within (2026). <!-- guardian hueco|poder antiguo -->
+- [x] **Saber del Cazador** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- cazador|saber del cazador -->
+- [x] **Presa del Cazador Superior** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- cazador|presa del cazador superior -->
+- [x] **Defensa Superior del Cazador** (nivel 15): `reaccion`. Manual del Jugador (2024). <!-- cazador|defensa superior del cazador -->
+- [x] **Explorador Gélido** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|explorador gelido -->
+- [x] **Retribución Helada** (nivel 11): `reaccion`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|retribucion helada -->
+- [x] **Aparición Congelada** (nivel 15): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|aparicion congelada -->
+- [x] **Conjuros de Círculo** (nivel 3): pasa a llamarse Conjuros del Círculo de la Tierra, con los cuatro tipos de tierra 2024 y su selector; Manual del Jugador (2024). <!-- circulo de la tierra|conjuros de circulo -->
+- [x] **Zancada de la Tierra** (nivel 6): quitado: en 2024 el nivel 6 es Recuperación Natural; Manual del Jugador (2024). <!-- circulo de la tierra|zancada de la tierra -->
+- [x] **Golpes Primigenios** (nivel 6): sustituido por Formas del Círculo Mejoradas (daño radiante y SAB a las salvaciones de CON); Manual del Jugador (2024). <!-- circulo de la luna|golpes primigenios -->
+- [x] **Mil Formas** (nivel 14): sustituido por Forma Lunar (2d10 radiante y Paso de Luz Lunar compartido); Manual del Jugador (2024). <!-- circulo de la luna|mil formas -->
+- [x] **Ira de la Marea** (nivel 3): pasa a llamarse Ira del Mar: acción adicional, 1 Forma Salvaje, SAB d6 de frío; Manual del Jugador (2024). <!-- circulo del mar|ira de la marea -->
+- [x] **Marea Creciente** (nivel 10): sustituido por Hijo de la Tormenta (vuelo y resistencias); Manual del Jugador (2024). <!-- circulo del mar|marea creciente -->
+- [x] **Unión con el Océano** (nivel 14): sustituido por Don Oceánico (emanación en un aliado); Manual del Jugador (2024). <!-- circulo del mar|union con el oceano -->
+- [x] **Luminosidad Completa** (nivel 14): pasa a llamarse Lleno de Estrellas (pasiva, resistencia física en forma estelar); Manual del Jugador (2024). <!-- circulo de las estrellas|luminosidad completa -->

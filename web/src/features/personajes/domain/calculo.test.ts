@@ -14,6 +14,7 @@ import { BARDO_2024 } from '../../../../scripts/datos/bardo-2024';
 import { CLERIGO_2024 } from '../../../../scripts/datos/clerigo-2024';
 import { BRUJO_2024 } from '../../../../scripts/datos/brujo-2024';
 import { DRUIDA_2024 } from '../../../../scripts/datos/druida-2024';
+import { EXPLORADOR_2024 } from '../../../../scripts/datos/explorador-2024';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
 import { ARMAS } from '@/features/reglas/data/equipo';
 import { EQUIPO_TRASFONDOS, kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
@@ -600,5 +601,32 @@ describe('Conjuros de rasgos: lanzarlos con espacios', () => {
     assert.doesNotMatch(nota(pj('guerrero', 1, '', {}, { dotesExtra: [{ key: 'lib:marca-escritura' }] }), 'Comprender idiomas'), /espacios/);
     setLib({ clases: { brujo: BRUJO_2024 }, conjuros: { x: { nombre: 'Círculo de muerte', nivel: 6, clases: ['brujo'], desc: '' } } });
     assert.doesNotMatch(nota(pj('brujo', 11, '', {}, { elecciones: { 'arcano-6': 'circulo de muerte' } }), 'Círculo de muerte'), /con tus espacios/);
+  });
+});
+
+describe('Explorador 2024 (Lote 10)', () => {
+  const exp = (nivel: number, sub = '', stats: Record<string, number> = {}) => { setLib({ clases: { explorador: EXPLORADOR_2024 } }); return pj('explorador', nivel, sub, stats); };
+  test('Incansable y Velo de la Naturaleza tienen SAB usos por descanso largo', () => {
+    const c = exp(14, '', { sab: 16 });
+    assert.equal(c.recursos.find((x: any) => x.nombre === 'Incansable').max, 3);
+    assert.equal(c.recursos.find((x: any) => x.nombre === 'Velo de la Naturaleza').max, 3);
+    assert.match(entrada(c, 'Incansable').texto, /1d8 \+ 3 PG temporales/);
+  });
+  test('Cazador de Enemigos: la Marca del cazador pasa de 1d6 a 1d10 en nivel 20', () => {
+    assert.match(entrada(exp(19), 'Marca del Cazador').texto, /\+1d6 de fuerza/);
+    assert.match(entrada(exp(20), 'Marca del Cazador').texto, /\+1d10 de fuerza/);
+  });
+  test('Acechador de las Sombras: Golpe Temible 2d6 (2d8 desde 11), usos de SAB y 60 pies de visión en la oscuridad', () => {
+    const c = exp(3, 'lib:sombras', { sab: 14 });
+    assert.match(entrada(c, 'Emboscador Temible').texto, /2d6 de daño psíquico/);
+    assert.equal(c.recursos.find((x: any) => x.nombre === 'Emboscador Temible').max, 2);
+    assert.equal(c.vision, 60);
+    assert.match(entrada(exp(11, 'lib:sombras'), 'Emboscador Temible').texto, /2d8/);
+  });
+  test('Caminante del Invierno y de las Hadas: daño extra 1d4, 1d6 desde nivel 11', () => {
+    assert.match(entrada(exp(3, 'lib:caminante-invierno'), 'Explorador Gélido').texto, /1d4 de daño de frío/);
+    assert.match(entrada(exp(11, 'lib:caminante-invierno'), 'Explorador Gélido').texto, /1d6 de daño de frío/);
+    assert.match(entrada(exp(3, 'lib:caminante-invierno'), 'Escarcha del Cazador').texto, /1d10 \+ 3 PG temporales/);
+    assert.match(entrada(exp(11, 'lib:hadas'), 'Golpes Pavorosos').texto, /1d6 de daño psíquico/);
   });
 });
