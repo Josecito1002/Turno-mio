@@ -56,7 +56,7 @@ export const SUBCLASES: any[] = [
   ]},
   {key:'draconico', clase:'hechicero', n:'Hechicería Dracónica', match:/draco|dragon/, hasta:6, hp:c=>c.lvl, ca:c=>!c.armor?10+c.m.des+c.m.car:null, rasgos:[
     {n:3,t:'pasiva',nombre:'Resiliencia Dracónica',texto:c=>`+${c.lvl} PG máximos y, sin armadura, CA 10 + DES + CAR = ${10+c.m.des+c.m.car} (ya sumado).`},
-    {n:3,t:'pasiva',nombre:'Conjuros dracónicos',texto:c=>`Siempre preparados: Alterar el propio aspecto, Orbe cromático, Orden imperiosa, Aliento de dragón${c.lvl>=5?', Miedo, Volar':''}.`},
+    {n:3,t:'pasiva',nombre:'Conjuros dracónicos',texto:c=>`Siempre preparados: Alterar el propio aspecto, Orbe cromático, Orden imperiosa, Aliento de Dragón${c.lvl>=5?', Miedo, Volar':''}${c.lvl>=7?', Ojo arcano, Hechizar monstruo':''}${c.lvl>=9?', Conocer las leyendas, Invocar dragón':''}.`},
     {n:6,t:'pasiva',nombre:'Afinidad Elemental',texto:c=>`Eliges ácido, frío, fuego, relámpago o veneno: resistencia a ese daño y +${Math.max(0,c.m.car)} al daño de ese tipo en tus conjuros.`},
   ]},
   {key:'salvaje', clase:'hechicero', n:'Magia Salvaje', match:/salvaje|wild/, hasta:6, recursos:c=>[c.lvl>=3&&{id:'mareas',nombre:'Mareas del Caos',max:1,reset:'largo'}], rasgos:[

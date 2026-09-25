@@ -1,6 +1,7 @@
-=== A ===
+/* Hechicero de la biblioteca puesto al día con su versión oficial más reciente (texto oficial de 5etools, redactado por
+   Gemini y revisado con scripts/gemini/revisar.ts). Libros: Manual del Jugador (2024); Xanathar's Guide to Everything (2017); Dragonlance: Shadow of the Dragon Queen (2022); Ravenloft: The Horrors Within (2026); Forgotten Realms: Heroes of Faerûn (2025).
+   Lo aplica scripts/actualizar-clase.ts (opción "hechicero"). */
 
-```ts
 const r = (n: number, nombre: string, t: string, texto: string, extra: Record<string, unknown> = {}) => ({ nombre, t, texto, n, manual: true, usos: 0, reset: 'largo', ...extra });
 
 export const HECHICERO_2024 = {
@@ -99,83 +100,3 @@ export const HECHICERO_2024 = {
     }
   }
 };
-
-```
-
-=== B ===
-
-```json
-[
-  { "donde": "clase", "rasgo": "Metamagia", "tipo": "eleccion", "id": "metamagia-opciones", "cuantas": "2; 4 desde nivel 10; 6 desde nivel 17",
-    "opciones": [
-      { "key": "met-cuidadoso", "nombre": "Conjuro Cuidadoso", "desc": "Gasta 1 PH para que aliados (hasta mod CAR) pasen automáticamente la salvación y reciban 0 daño.", "nivel": 2, "requiere": null },
-      { "key": "met-distante", "nombre": "Conjuro Distante", "desc": "Gasta 1 PH para duplicar el alcance, o volver de 30 pies un conjuro de toque.", "nivel": 2, "requiere": null },
-      { "key": "met-potenciado", "nombre": "Conjuro Potenciado", "desc": "Gasta 1 PH para repetir dados de daño (hasta mod CAR). Puede combinarse.", "nivel": 2, "requiere": null },
-      { "key": "met-extendido", "nombre": "Conjuro Extendido", "desc": "Gasta 1 PH para duplicar la duración (máximo 24h) y darte ventaja en mantener concentración.", "nivel": 2, "requiere": null },
-      { "key": "met-intensificado", "nombre": "Conjuro Intensificado", "desc": "Gasta 2 PH para dar Desventaja en la salvación a un objetivo.", "nivel": 2, "requiere": null },
-      { "key": "met-acelerado", "nombre": "Conjuro Acelerado", "desc": "Gasta 2 PH para que un conjuro de 1 Acción cueste 1 Acción Adicional.", "nivel": 2, "requiere": null },
-      { "key": "met-buscador", "nombre": "Conjuro Buscador", "desc": "Gasta 1 PH para repetir una tirada de ataque fallada. Puede combinarse.", "nivel": 2, "requiere": null },
-      { "key": "met-sutil", "nombre": "Conjuro Sutil", "desc": "Gasta 1 PH para lanzar sin componentes verbales/somáticos ni materiales sin coste.", "nivel": 2, "requiere": null },
-      { "key": "met-transmutado", "nombre": "Conjuro Transmutado", "desc": "Gasta 1 PH para cambiar un tipo de daño elemental al lanzarlo.", "nivel": 2, "requiere": null },
-      { "key": "met-duplicado", "nombre": "Conjuro Duplicado", "desc": "Gasta 1 PH para que un conjuro capaz de escalarse afecte a un objetivo extra como si usaras un espacio de +1 nivel.", "nivel": 2, "requiere": null }
-    ]
-  },
-  { "donde": "aberrante", "rasgo": "Conjuros Psiónicos", "tipo": "conjuros", "por_nivel": { "3": ["Brazos de Hadar", "Calmar emociones", "Detectar pensamientos", "Susurros discordantes", "Fragmento Mental"], "5": ["Hambre de Hadar", "Recado"], "7": ["Tentáculos negros de Evard", "Invocar aberración"], "9": ["Enlace telepático de Rary", "Telequinesis"] } },
-  { "donde": "aberrante", "rasgo": "Implosión Deformadora", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "reloj", "rasgo": "Conjuros del Reloj", "tipo": "conjuros", "por_nivel": { "3": ["Auxilio", "Alarma", "Restablecimiento menor", "Protección contra el bien y el mal"], "5": ["Disipar magia", "Protección contra energía"], "7": ["Libertad de movimiento", "Invocar autómata"], "9": ["Restablecimiento mayor", "Muro de fuerza"] } },
-  { "donde": "reloj", "rasgo": "Restaurar el Equilibrio", "tipo": "usos", "usos": "max(1, CAR)", "reset": "largo" },
-  { "donde": "alma-divina", "rasgo": "Recuperación Sobrenatural", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "lunar", "rasgo": "Conjuros Lunares", "tipo": "conjuros", "por_nivel": { "3": ["Llama sagrada", "Escudo", "Rayo nauseabundo", "Rociada de color", "Restablecimiento menor", "Sordera/Ceguera", "Alterar el propio aspecto"], "5": ["Disipar magia", "Toque vampírico", "Corcel fantasma"], "7": ["Guarda contra la Muerte", "Confusión", "Terreno alucinatorio"], "9": ["Enlace telepático de Rary", "Inmovilizar monstruo", "Engañar"] } },
-  { "donde": "lunar", "rasgo": "Encarnación Lunar", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "alma-divina", "rasgo": "Favorecido por los Dioses", "tipo": "usos", "usos": "1", "reset": "corto" },
-  { "donde": "lunar", "rasgo": "Favores Lunares", "tipo": "usos", "usos": "pb", "reset": "largo" },
-  { "donde": "hechiceria-sombras", "rasgo": "Conjuros de las Sombras", "tipo": "conjuros", "por_nivel": { "3": ["Perdición", "Oscuridad", "Infligir heridas", "Pasar sin rastro"], "5": ["Hambre de Hadar", "Indetectable"], "7": ["Invisibilidad mejorada", "Asesino fantasmal"], "9": ["Contagio", "Creación"] } },
-  { "donde": "fuego-conjuro", "rasgo": "Conjuros de Fuego de Conjuro", "tipo": "conjuros", "por_nivel": { "3": ["Curar heridas", "Rayo guía", "Restablecimiento menor", "Rayo abrasador"], "5": ["Aura de vitalidad", "Disipar magia"], "7": ["Escudo de fuego", "Muro de fuego"], "6": ["Contrahechizo"], "9": ["Restablecimiento mayor", "Golpe Flamígero"] } },
-  { "donde": "fuego-conjuro", "rasgo": "Corona de Fuego de Conjuro", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "tormenta", "rasgo": "Alma del Viento", "tipo": "usos", "usos": "1", "reset": "corto" }
-]
-
-```
-
-=== C ===
-
-```json
-{
-  "aberrante": "Manual del Jugador (2024)",
-  "reloj": "Manual del Jugador (2024)",
-  "alma-divina": "Xanathar's Guide to Everything (2017)",
-  "draconico": "Manual del Jugador (2024)",
-  "lunar": "Dragonlance: Shadow of the Dragon Queen (2022)",
-  "hechiceria-sombras": "Ravenloft: The Horrors Within (2026)",
-  "fuego-conjuro": "Forgotten Realms: Heroes of Faerûn (2025)",
-  "tormenta": "Xanathar's Guide to Everything (2017)",
-  "salvaje": "Manual del Jugador (2024)"
-}
-```
-
-=== D ===
-
-```json
-{
-  "aberrante": "Mágicos que despertaron poderes telepáticos y psiónicos a través de entidades alienígenas o del Lejano Reino, controlando mentes y alterando cuerpos.",
-  "reloj": "Conductos de la energía cósmica de Mechanus, protegen a sus aliados mediante escudos matemáticos y aseguran el equilibrio anulando la suerte del caos.",
-  "alma-divina": "Vasijas mortales de poder divino. Poseen magia curativa e invocar alas celestiales.",
-  "draconico": "Herederos del poder latente de los dragones, resisten daños elementales y escupen magia de destrucción y terror.",
-  "lunar": "Hechiceros versátiles cuyas aptitudes mutan de acuerdo a las fases lunares: Luz y purificación con Llena, Sombras y veneno con Nueva.",
-  "hechiceria-sombras": "Sobrevivientes imbuidos con la energía nigromántica del Páramo Sombrío, controlando oscuridad, bestias de sombra y evitando la muerte.",
-  "fuego-conjuro": "Canalizadores del fuego primordial, curan o queman a quienes los rodean y absorben magia ajena contrarrestándola.",
-  "tormenta": "Conectados a la esencia del clima, usan magia elemental ruidosa para golpear a varios y volar desatando la tormenta.",
-  "salvaje": "Conductos inestables de magia cruda, propensos a invocar efectos mágicos azarosos, absurdos o devastadores que desafían toda regla."
-}
-
-```
-
-=== E ===
-
-* **Hechicería Innata (Clase base 2024):** Este rasgo reemplazó a muchas reglas pasivas y mecánicas extra de ediciones anteriores. Como su duración es sólo de 1 minuto, ahora influye en Nivel 7 y Nivel 20 (donde antes esos niveles daban mejoras directas a Puntos de Hechicería). Los efectos de la app a Nivel 7 y 20 se han rescrito a la versión oficial.
-* **Metamagia (Nivel 2):** Se han extraído todas las Metamagias como opciones "eleccion" en Mecánicas (el formato que usa la app) y se corrigió el Nivel de obtención de la tercer metamagia para la app: a Nivel 10 da otras dos, y en 17 las últimas dos. (El texto oficial dicta reemplazar el rasgo de nivel 10). Se cambiaron nombres a las metamagias y los costes y efectos a la versión 2024.
-* **Dracónico (Integrada):** Los conjuros siempre preparados dracónicos que tenía la app eran diferentes a los del Manual 2024. Los corregí en las Mecánicas de Conjuros. A nivel 14, las *Alas de Dragón* ya no son permanentes; son una acción adicional que dura 1 hora y se recarga con puntos. El Nivel 18 *Compañero Dragón* es un rasgo totalmente nuevo, reemplazando *Presencia Dracónica*.
-* **Magia Salvaje (Integrada):** "Doblegar la Suerte" (nivel 6) fue cambiado en 2024: ahora se hace la alteración de tiradas con el uso de un solo punto de hechicería en lugar de dos. A Nivel 18 ahora el rasgo otorga "Oleada Domada" (Tamed Surge) en lugar de "Spell Bombardment".
-* **Hechicería Aberrante & del Reloj:** Se reemplazó el texto del libro "Tasha's" por el "Manual del Jugador 2024", ya que estas dos subclases se integraron en el manual base con ligeras alteraciones para adaptarse a "Hechicería Innata".
-* **Nombres de conjuros:** Traducidos cuidadosamente a la terminología de "Conjuros de la app". Para el Aberrante (Sending) y las Sombras (Nondetection / Summon Beast) marqué explícitamente "NO ESTÁ EN LA APP" porque la app carecía de sus correspondencias exactas en su base de datos.
-* **Subclase Fuego de Conjuro:** El rasgo de Nivel 18 hace referencia explícita a la "Hechicería Innata" de la clase de 2024, indicando que es material de la revisión. El daño a los PG Temporales cambia su estructura y lo asimilé a las variables de la app.

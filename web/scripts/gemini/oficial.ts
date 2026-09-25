@@ -63,6 +63,12 @@ export async function oficial(clase: string): Promise<Oficial> {
   if (!en) throw new Error('Clase sin datos oficiales: ' + clase);
   const d = await json(`class/class-${en}.json`);
   const cf = d.classFeature || [], sf = d.subclassFeature || [];
+  // Los rasgos de subclases viejas adaptadas a la clase 2024 son copias (`_copy`) sin texto: toman el del original
+  for (const f of sf) if (f._copy && !f.entries) {
+    const o = f._copy, orig = sf.find((x: any) => x !== f && x.name === o.name && x.source === o.source && x.subclassShortName === o.subclassShortName
+      && (x.classSource || 'PHB') === (o.classSource || 'PHB') && x.level === o.level && x.entries);
+    if (orig) f.entries = orig.entries;
+  }
 
   // Texto plano, resolviendo las referencias a otros rasgos
   const plano = (e: any): string => {
@@ -81,7 +87,9 @@ export async function oficial(clase: string): Promise<Oficial> {
   const buscarSub = (ref: string) => {
     const [name, , csrc, corto, ssrc, lvl, src] = ref.split('|');
     return sf.find((f: any) => f.name === name && (f.classSource || 'PHB') === (csrc || 'PHB') && f.subclassShortName === corto
-      && (f.subclassSource || 'PHB') === (ssrc || 'PHB') && f.level === +lvl && f.source === (src || ssrc || 'PHB'));
+      && (f.subclassSource || 'PHB') === (ssrc || 'PHB') && f.level === +lvl && f.source === (src || ssrc || 'PHB'))
+      // Las subclases viejas adaptadas a la clase 2024 apuntan a rasgos que solo existen con la clase y el nivel originales
+      || sf.find((f: any) => f.name === name && f.subclassShortName === corto && (f.subclassSource || 'PHB') === (ssrc || 'PHB') && f.source === (src || ssrc || 'PHB'));
   };
 
   // Rasgos de la clase 2024
