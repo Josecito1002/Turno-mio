@@ -98,7 +98,7 @@ export function ListaConjuros({ pj, c }: { pj: any; c: any }) {
   const idQ = useId();
   const nq = norm(q);
   // La lista de la clase, más las que abra una regla (Secretos Mágicos del bardo: clérigo, druida y mago)
-  const listas = [listaDeConjuros(pj.clase, c.C), ...(c.listasExtra || [])].filter(Boolean) as string[];
+  const listas = [listaDeConjuros(pj.clase, c.C) || c.listaSub, ...(c.listasExtra || [])].filter(Boolean) as string[];
   const visibles = listas.length ? todosConjuros().filter(s => listas.some(l => conjuroDeLaLista(s, l)) && (!+s.nivel || +s.nivel <= c.nivelMax)) : [];
   const niveles = [...new Set<number>(visibles.map(s => +s.nivel || 0))].sort((x, y) => x - y);
   return (
@@ -124,10 +124,12 @@ export function ListaConjuros({ pj, c }: { pj: any; c: any }) {
 
 export function PasoConjuros({ pj, c }: { pj: any; c: any }) {
   const C = c.C;
-  const lista = listaDeConjuros(pj.clase, C);
+  // Una subclase que lanza conjuros (Caballero Arcano, Embaucador Arcano, Artes Místicas) usa la lista de otra clase
+  const lista = listaDeConjuros(pj.clase, C) || c.listaSub;
+  const nombreLista = listaDeConjuros(pj.clase, C) ? C.n.toLowerCase() : c.listaSub;
   return (
     <>
-      {C?.lanz ? (
+      {lista ? (
         <>
           <ContadoresConjuros c={c} />
           <Nota>Los <b>trucos</b> se lanzan cuando quieras. Los <b>conjuros preparados</b> gastan un espacio de conjuro{pj.clase === 'brujo' ? ' de pacto' : ''} y los cambias al terminar un descanso largo. Tu CD es {c.dcSpell} y tu ataque de conjuro {sign(c.atkSpell)}, con {abInfo(c.casterAb)[3]}.</Nota>
@@ -136,7 +138,7 @@ export function PasoConjuros({ pj, c }: { pj: any; c: any }) {
       ) : <Aviso tipo="info" titulo="Tu clase no lanza conjuros">Los conjuros que te dan tu especie, tus dotes o tu subclase ya salen en tu hoja. Si uno te lo da otra cosa (un objeto, tu DM), escríbelo abajo; no cuenta en ningún límite.</Aviso>}
 
       {lista && (
-        <Seccion titulo={`Conjuros de ${C.n.toLowerCase()}`} descripcion={`Solo los de tu lista${c.nivelMax ? `, hasta nivel ${c.nivelMax}` : ''}.`}>
+        <Seccion titulo={`Conjuros de ${nombreLista}`} descripcion={`Solo los de tu lista${c.nivelMax ? `, hasta nivel ${c.nivelMax}` : ''}.`}>
           <ListaConjuros pj={pj} c={c} />
         </Seccion>
       )}

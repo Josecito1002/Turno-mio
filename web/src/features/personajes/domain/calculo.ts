@@ -44,6 +44,8 @@ export function compute(pj): any {
     if (k) { (md.max > 20 ? epico : bono)[k] += 1; subeDote[norm(D.n)] = k; } });
   for (const k in sc) sc[k] = Math.min(30, Math.min(20, sc[k] + bono[k]) + epico[k]);
   for (const k in bono) bono[k] += epico[k];
+  // Cuerpo y Mente (monje 20, Manual del Jugador 2024): +4 a DES y SAB, hasta 25
+  if (pj.clase === 'monje' && lvl >= 20) for (const k of ['des', 'sab']) { const antes = sc[k]; sc[k] = Math.max(antes, Math.min(25, antes + 4)); bono[k] += sc[k] - antes; }
   aplicarFijas(pj, sc); // objetos mágicos como los Guanteletes de Fuerza de Ogro
   for (const [k, v] of Object.entries(pj.fix || {})) if (v !== '' && v != null && !isNaN(v)) sc[k] = +v;
   const m = {}; for (const k in sc) m[k] = modOf(sc[k]);

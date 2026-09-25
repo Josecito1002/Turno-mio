@@ -1116,37 +1116,74 @@ Respuesta de Gemini revisada el 2026-09-25. Versiones: Manual del Jugador 2024 (
 
 ## Lote 14: Monje (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 15. Con tipo claro: 2. Ya revisados: 0.
+Dudosos: 0. Con tipo claro: 0. Ya revisados: 56.
 
-### Monje
+Respuesta de Gemini revisada el 2026-09-25. Versiones: Manual del Jugador 2024 (clase, Misericordia, Sombra, Elementos y Mano Abierta), Arcana Unleashed 2026 (Artes Místicas, nueva). Los Elementos de 2024 reemplazan al Camino de los Cuatro Elementos; Dragón Ascendente (Fizban 2021), Yo Astral (Tasha 2020), Maestro Borracho, Kensei y Alma Solar (Xanathar 2017) y Larga Muerte (Sword Coast 2015) no tienen versión 2024: se agregaron con su texto original (5etools) escrito a mano, con el ki pasado a Puntos de Enfoque; todos sus rasgos ya empezaban en el nivel 3. El Guerrero de la Embriaguez (nueva versión del Maestro Borracho) es solo Unearthed Arcana de noviembre de 2025, no un libro.
 
-- [ ] **Disciplina Perfecta** (nivel 15): hoy `pasiva`, no menciona tipo de acción <!-- monje|disciplina perfecta -->
-- [ ] **Defensa Superior** (nivel 18): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- monje|defensa superior -->
-- [ ] **Desafiar a la Muerte** (nivel 20): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- monje|desafiar a la muerte -->
-- [ ] **Alma Diamantina** (nivel 14): hoy `pasiva`, no menciona tipo de acción <!-- monje|alma diamantina -->
+- [x] **Corregido de la respuesta**: los libros de C con clave; Elementalismo sí está en la app; Sintonía Elemental (la salvación de FUE es solo si cambias el tipo de daño), Conjuros y Enfoque Místico de las Artes Místicas (preparados, foco, tabla de coste para recuperar espacios) y la duración de Manto de Sombras. Se quitaron Paso de Sombra e Integridad del Cuerpo de nivel 6 porque ya los trae la subclase integrada.
+- [x] **La biblioteca difería**: rasgos altos de 2014 (Disciplina Perfecta, Alma Diamantina, Desafiar a la Muerte, Tranquilidad, Oportunista) y Misericordia y Elementos resumidos en una línea; ahora siguen 2024.
+- [x] **Cuerpo y Mente**: +4 a DES y SAB (máximo 25) en el nivel 20, calculado.
+- [x] **Sintonía Elemental**: el golpe sin armas elemental sale en Ataques (tipo a elegir al acertar, CD de FUE para moverlo y +1 dado de Artes Marciales del Epítome desde el nivel 17).
+- [x] **Artes Místicas**: lanza conjuros de hechicero con SAB, con los espacios de un tercio de lanzador (los mismos que Caballero Arcano y Embaucador Arcano, que ahora también los tienen), trucos 2/3 y preparados de la tabla.
 
-### Camino de los Elementos
+### Revisados
 
-- [ ] **Sintonía Elemental** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- camino de los elementos|sintonia elemental -->
-- [ ] **Explosión Ambiental** (nivel 6): hoy `pasiva`, no menciona tipo de acción <!-- camino de los elementos|explosion ambiental -->
-- [ ] **Zancada Ágil** (nivel 10): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- camino de los elementos|zancada agil -->
-- [ ] **Avatar de los Elementos** (nivel 14): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- camino de los elementos|avatar de los elementos -->
-
-### Camino de la Misericordia
-
-- [ ] **Mano de la Curación** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- camino de la misericordia|mano de la curacion -->
-- [ ] **Mano del Daño** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- camino de la misericordia|mano del dano -->
-- [ ] **Toque del Médico** (nivel 6): hoy `pasiva`, no menciona tipo de acción <!-- camino de la misericordia|toque del medico -->
-- [ ] **Mano de la Misericordia Suprema** (nivel 17): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- camino de la misericordia|mano de la misericordia suprema -->
-
-### Guerrero de la Mano Abierta
-
-- [ ] **Tranquilidad** (nivel 11): hoy `pasiva`, no menciona tipo de acción <!-- guerrero de la mano abierta|tranquilidad -->
-- [ ] **Palma Quiebra-almas** (nivel 17): hoy `pasiva`, no menciona tipo de acción <!-- guerrero de la mano abierta|palma quiebra-almas -->
-
-### Guerrero de la Sombra
-
-- [ ] **Manto de Sombras** (nivel 11): hoy `pasiva`, no menciona tipo de acción <!-- guerrero de la sombra|manto de sombras -->
+- [x] **Evasión** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- monje|evasion -->
+- [x] **Movimiento Acrobático** (nivel 9): `pasiva`. Manual del Jugador (2024). <!-- monje|movimiento acrobatico -->
+- [x] **Enfoque Elevado** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- monje|enfoque elevado -->
+- [x] **Autorestauración** (nivel 10): `gratis`. Manual del Jugador (2024). <!-- monje|autorestauracion -->
+- [x] **Desviar Energía** (nivel 13): `pasiva`. Manual del Jugador (2024). <!-- monje|desviar energia -->
+- [x] **Superviviente Disciplinado** (nivel 14): `pasiva`. Manual del Jugador (2024). <!-- monje|superviviente disciplinado -->
+- [x] **Enfoque Perfecto** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- monje|enfoque perfecto -->
+- [x] **Defensa Superior** (nivel 18): `gratis`. Manual del Jugador (2024). <!-- monje|defensa superior -->
+- [x] **Cuerpo y Mente** (nivel 20): `pasiva`. Manual del Jugador (2024). <!-- monje|cuerpo y mente -->
+- [x] **Implementos de Misericordia** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la misericordia|implementos de misericordia -->
+- [x] **Mano de Daño** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la misericordia|mano de dano -->
+- [x] **Mano de Curación** (nivel 3): `accion`. Manual del Jugador (2024). <!-- guerrero de la misericordia|mano de curacion -->
+- [x] **Toque del Médico** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la misericordia|toque del medico -->
+- [x] **Ráfaga de Curación y Daño** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la misericordia|rafaga de curacion y dano -->
+- [x] **Mano de Misericordia Suprema** (nivel 17): `accion`. Manual del Jugador (2024). <!-- guerrero de la misericordia|mano de misericordia suprema -->
+- [x] **Sintonía Elemental** (nivel 3): `gratis`. Manual del Jugador (2024). <!-- guerrero de los elementos|sintonia elemental -->
+- [x] **Explosión Elemental** (nivel 6): `accion`. Manual del Jugador (2024). <!-- guerrero de los elementos|explosion elemental -->
+- [x] **Zancada de los Elementos** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- guerrero de los elementos|zancada de los elementos -->
+- [x] **Epítome Elemental** (nivel 17): `pasiva`. Manual del Jugador (2024). <!-- guerrero de los elementos|epitome elemental -->
+- [x] **Conjuros de las Artes Místicas** (nivel 3): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- guerrero de las artes misticas|conjuros de las artes misticas -->
+- [x] **Estilo de Lucha Místico** (nivel 6): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- guerrero de las artes misticas|estilo de lucha mistico -->
+- [x] **Enfoque Místico** (nivel 6): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- guerrero de las artes misticas|enfoque mistico -->
+- [x] **Golpe Concentrado** (nivel 11): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- guerrero de las artes misticas|golpe concentrado -->
+- [x] **Estilo de Lucha Místico Mejorado** (nivel 17): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- guerrero de las artes misticas|estilo de lucha mistico mejorado -->
+- [x] **Discípulo Dracónico** (nivel 3): `pasiva`. subclase nueva; Fizban's Treasury of Dragons (2021). <!-- camino del dragon ascendente|discipulo draconico -->
+- [x] **Aliento del Dragón** (nivel 3): `gratis`. subclase nueva; Fizban's Treasury of Dragons (2021). <!-- camino del dragon ascendente|aliento del dragon -->
+- [x] **Alas Desplegadas** (nivel 6): `pasiva`. subclase nueva; Fizban's Treasury of Dragons (2021). <!-- camino del dragon ascendente|alas desplegadas -->
+- [x] **Aspecto del Wyrm** (nivel 11): `adicional`. subclase nueva; Fizban's Treasury of Dragons (2021). <!-- camino del dragon ascendente|aspecto del wyrm -->
+- [x] **Aspecto Ascendente** (nivel 17): `pasiva`. subclase nueva; Fizban's Treasury of Dragons (2021). <!-- camino del dragon ascendente|aspecto ascendente -->
+- [x] **Brazos del Yo Astral** (nivel 3): `adicional`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- camino del yo astral|brazos del yo astral -->
+- [x] **Rostro del Yo Astral** (nivel 6): `adicional`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- camino del yo astral|rostro del yo astral -->
+- [x] **Cuerpo del Yo Astral** (nivel 11): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- camino del yo astral|cuerpo del yo astral -->
+- [x] **Yo Astral Despierto** (nivel 17): `adicional`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- camino del yo astral|yo astral despierto -->
+- [x] **Competencias Adicionales** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del maestro borracho|competencias adicionales -->
+- [x] **Técnica del Borracho** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del maestro borracho|tecnica del borracho -->
+- [x] **Vaivén Ebrio** (nivel 6): `reaccion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del maestro borracho|vaiven ebrio -->
+- [x] **Suerte del Borracho** (nivel 11): `gratis`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del maestro borracho|suerte del borracho -->
+- [x] **Frenesí Ebrio** (nivel 17): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del maestro borracho|frenesi ebrio -->
+- [x] **Senda del Kensei** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del kensei|senda del kensei -->
+- [x] **Parada Ágil** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del kensei|parada agil -->
+- [x] **Disparo del Kensei** (nivel 3): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del kensei|disparo del kensei -->
+- [x] **Uno con la Hoja** (nivel 6): `gratis`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del kensei|uno con la hoja -->
+- [x] **Afilar la Hoja** (nivel 11): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del kensei|afilar la hoja -->
+- [x] **Precisión Infalible** (nivel 17): `gratis`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del kensei|precision infalible -->
+- [x] **Toque de la Muerte** (nivel 3): `pasiva`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- camino de la larga muerte|toque de la muerte -->
+- [x] **Hora de la Cosecha** (nivel 6): `accion`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- camino de la larga muerte|hora de la cosecha -->
+- [x] **Dominio de la Muerte** (nivel 11): `gratis`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- camino de la larga muerte|dominio de la muerte -->
+- [x] **Toque de la Larga Muerte** (nivel 17): `accion`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- camino de la larga muerte|toque de la larga muerte -->
+- [x] **Rayo Solar Radiante** (nivel 3): `accion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del alma solar|rayo solar radiante -->
+- [x] **Golpe de Arco Abrasador** (nivel 6): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del alma solar|golpe de arco abrasador -->
+- [x] **Estallido Solar Abrasador** (nivel 11): `accion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del alma solar|estallido solar abrasador -->
+- [x] **Escudo Solar** (nivel 17): `reaccion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del alma solar|escudo solar -->
+- [x] **Paso de Sombra Mejorado** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la sombra|paso de sombra mejorado -->
+- [x] **Manto de Sombras** (nivel 17): `accion`. Manual del Jugador (2024). <!-- guerrero de la sombra|manto de sombras -->
+- [x] **Paso Veloz** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la mano abierta|paso veloz -->
+- [x] **Palma Quiebra-almas** (nivel 17): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la mano abierta|palma quiebra-almas -->
 
 ## Lote 15: Paladín (subclases y rasgos de nivel alto de la biblioteca)
 

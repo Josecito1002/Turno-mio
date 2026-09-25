@@ -1,6 +1,7 @@
-=== A ===
+/* Monje de la biblioteca puesto al día con su versión oficial más reciente (texto oficial de 5etools, redactado por
+   Gemini y revisado con scripts/gemini/revisar.ts). Libros: Manual del Jugador (2024); Arcana Unleashed (2026); Fizban's Treasury of Dragons (2021); Tasha's Cauldron of Everything (2020); Xanathar's Guide to Everything (2017); Sword Coast Adventurer's Guide (2015).
+   Lo aplica scripts/actualizar-clase.ts (opción "monje"). */
 
-```ts
 const r = (n: number, nombre: string, t: string, texto: string, extra: Record<string, unknown> = {}) => ({ nombre, t, texto, n, manual: true, usos: 0, reset: 'largo', ...extra });
 
 export const MONJE_2024 = {
@@ -116,67 +117,3 @@ export const MONJE_2024 = {
     }
   }
 };
-
-```
-
-=== B ===
-
-```json
-[
-  { "donde": "clase", "rasgo": "Cuerpo y Mente", "tipo": "otro", "detalle": "Destreza y Sabiduría aumentan en 4, hasta un máximo de 25" },
-  { "donde": "misericordia", "rasgo": "Ráfaga de Curación y Daño", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo" },
-  { "donde": "misericordia", "rasgo": "Mano de Misericordia Suprema", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "artes-misticas", "rasgo": "Conjuros de las Artes Místicas", "tipo": "conjuros", "por_nivel": { "3": [], "7": [], "13": [], "19": [] } },
-  { "donde": "elementos", "rasgo": "Sintonía Elemental", "tipo": "daño", "daño": "Ácido, Frío, Fuego, Rayo o Trueno" }
-]
-
-```
-
-=== C ===
-
-```json
-{
-  "misericordia": "Manual del Jugador (2024)",
-  "sombra": "Manual del Jugador (2024)",
-  "elementos": "Manual del Jugador (2024)",
-  "artes-misticas": "Arcana Unleashed (2026)",
-  "manoabierta": "Manual del Jugador (2024)",
-  "dragon-ascendente": "Fizban's Treasury of Dragons (2021)",
-  "yo-astral": "Tasha's Cauldron of Everything (2020)",
-  "maestro-borracho": "Xanathar's Guide to Everything (2017)",
-  "kensei": "Xanathar's Guide to Everything (2017)",
-  "larga-muerte": "Sword Coast Adventurer's Guide (2015)",
-  "alma-solar": "Xanathar's Guide to Everything (2017)"
-}
-
-```
-
-=== D ===
-
-```json
-{
-  "manoabierta": "Maestros del combate sin armas, derriban, empujan y neutralizan a sus enemigos mientras curan su propio cuerpo con ki.",
-  "sombra": "Espías y asesinos de la noche que moldean las sombras para teletransportarse y golpear desde la invisibilidad.",
-  "misericordia": "Médicos errantes enmascarados capaces de curar con un toque benévolo o provocar un dolor letal mediante golpes necróticos.",
-  "elementos": "Canalizadores del Caos Elemental que alargan sus golpes y desatan destructivas explosiones de fuego, hielo y relámpago.",
-  "artes-misticas": "Expertos que entrelazan artes marciales y hechicería, disparando trucos y canalizando espacios de conjuros a través de sus golpes.",
-  "dragon-ascendente": "Monjes que imitan a los dragones: sueltan su aliento, despliegan alas espectrales y rodean a sus aliados de poder dracónico.",
-  "yo-astral": "Monjes que invocan su verdadero ser astral: brazos, rostro y cuerpo espectrales que golpean con fuerza y SAB.",
-  "maestro-borracho": "Luchadores de pasos tambaleantes e impredecibles que esquivan, desvían golpes hacia otros y reparten ráfagas entre muchos enemigos.",
-  "kensei": "Maestros de unas pocas armas elegidas que tratan como una extensión de su cuerpo, con paradas, disparos certeros y hojas afiladas con Enfoque.",
-  "larga-muerte": "Estudiosos de la muerte que se alimentan de la vida de quien cae, siembran el terror y descargan su energía necrótica con un toque.",
-  "alma-solar": "Monjes que canalizan su energía vital en rayos de luz radiante, estallidos solares y un aura que quema a quien los golpea."
-}
-
-```
-
-=== E ===
-
-* **Puntos de Ki:** El recurso central de la clase ha sido renombrado a **Puntos de Enfoque (Focus Points)** en las reglas de 2024.
-* **Artes Marciales (Nivel 1):** El dado de daño base ha sido mejorado; ahora inicia en 1d6 (antes 1d4). El rasgo ahora dictamina explícitamente que la CD de las opciones Agarrar (Grapple) y Empujar (Shove) usa el modificador de Destreza.
-* **Metabolismo Asombroso (Nivel 2):** Rasgo nuevo que permite recuperar todos los Puntos de Enfoque y una pequeña cura (nivel + dado) al tirar Iniciativa una vez al día.
-* **Desviar Ataques (Nivel 3):** Este rasgo reemplaza a *Desviar Proyectiles*. Es uno de los mayores bufos del Monje: ahora reduce el daño de *cualquier* ataque que contenga daño Contundente, Cortante o Perforante (incluso si es un golpe de espada cuerpo a cuerpo), y te permite redirigir la fuerza a enemigos adyacentes o lejanos.
-* **Golpe Aturdidor (Nivel 5):** Ya no aturde totalmente sin un efecto secundario en un éxito de la salvación; ahora, si la criatura supera la salvación de CON, su velocidad se reduce a la mitad y el próximo ataque contra ella tiene Ventaja.
-* **Guerrero de la Mano Abierta:** Su rasgo nivel 6 (Integridad del Cuerpo) es ahora una Acción Adicional que puedes usar múltiples veces al día (según tu Sabiduría), en lugar de una sola acción masiva de cura al día. Su rasgo nivel 11 (antes Santuario permanente) cambió a **Paso Veloz**.
-* **Guerrero de la Sombra:** El nivel 11 ahora te permite teletransportarte desde luz brillante usando Enfoque. El nivel 17 otorga una invisibilidad e incorporeidad duraderas en lugar de dar solo un ataque de oportunidad extra ("Oportunista" fue eliminado).
-* **Subclases Mencionadas sin Texto:** Se omitieron *Ascendant Dragon*, *Astral Self*, *Drunken Master*, *Four Elements* (reescrita como Guerrero de los Elementos), *Kensei*, *Long Death* y *Sun Soul* porque el documento entregado no incluyó sus textos de reglas descriptivos (siguiendo la directriz de crear solo las subclases del texto provisto).

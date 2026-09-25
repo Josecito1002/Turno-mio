@@ -5,8 +5,9 @@ import * as explorador from './explorador';
 import * as guerrero from './guerrero';
 import * as hechicero from './hechicero';
 import * as mago from './mago';
+import * as monje from './monje';
 
-const todas: any[] = [druida, explorador, guerrero, hechicero, mago];
+const todas: any[] = [druida, explorador, guerrero, hechicero, mago, monje];
 export const REGLAS_GENERADAS: any[] = todas.flatMap(x => x.reglas);
 export const FUENTES_GENERADAS: Record<string, string> = Object.assign({}, ...todas.map(x => x.fuentes));
 export const DESCRIPCIONES_GENERADAS: Record<string, string> = Object.assign({}, ...todas.map(x => x.descripciones));
