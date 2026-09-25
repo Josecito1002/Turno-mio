@@ -76,6 +76,8 @@ export function Desplegable({ children, value, defaultValue, onChange, disabled,
   const busqueda = useRef({ t: '', hasta: 0 });
   // Solo se mueve la lista hacia la opción activa al abrir o con el teclado; nunca mientras el dedo la desliza
   const seguir = useRef(false);
+  // Tocar la etiqueta con la lista abierta solo la cierra: el clic que la etiqueta pasa al botón no debe reabrirla
+  const ignorarClic = useRef(false);
   const auto = useId(), idLista = `${auto}-lista`, idOpcion = (i: number) => `${auto}-op-${i}`;
 
   const habilitadas = opciones.map((o, i) => (o.disabled ? -1 : i)).filter(i => i >= 0);
@@ -113,7 +115,13 @@ export function Desplegable({ children, value, defaultValue, onChange, disabled,
     if (!abierto) return;
     const fuera = (e: PointerEvent) => {
       const t = e.target as Node;
-      if (!boton.current?.contains(t) && !lista.current?.contains(t)) cerrar();
+      if (boton.current?.contains(t) || lista.current?.contains(t)) return;
+      const etiqueta = (t as Element).closest?.('label');
+      if (etiqueta && boton.current?.labels && Array.from(boton.current.labels).includes(etiqueta as HTMLLabelElement)) {
+        ignorarClic.current = true;
+        setTimeout(() => { ignorarClic.current = false; }, 600);
+      }
+      cerrar();
     };
     document.addEventListener('pointerdown', fuera, true);
     // Desplazar la propia lista no mueve el botón: no hace falta recolocarla (y hacerlo trababa el deslizamiento)
@@ -229,7 +237,7 @@ export function Desplegable({ children, value, defaultValue, onChange, disabled,
       <button ref={boton} type="button" id={id} value={actual} disabled={disabled}
         role="combobox" aria-haspopup="listbox" aria-expanded={abierto} aria-controls={abierto ? idLista : undefined}
         aria-activedescendant={abierto && activa >= 0 ? idOpcion(activa) : undefined} {...aria}
-        onClick={() => (abierto ? cerrar() : abrir())} onKeyDown={teclas} onBlur={e => { if (!lista.current?.contains(e.relatedTarget as Node)) cerrar(); }}
+        onClick={() => { if (ignorarClic.current) { ignorarClic.current = false; return; } if (abierto) cerrar(); else abrir(); }} onKeyDown={teclas} onBlur={e => { if (!lista.current?.contains(e.relatedTarget as Node)) cerrar(); }}
         className={cx(claseCampo, 'flex cursor-pointer items-center gap-2 text-left transition-colors hover:border-muted',
           'disabled:cursor-not-allowed disabled:hover:border-rule', abierto && 'border-rea', className)}>
         <span className="min-w-0 flex-1 truncate">{opciones[iSel]?.texto || ' '}</span>
