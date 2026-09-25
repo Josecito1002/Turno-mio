@@ -1,4 +1,25 @@
 {
   "correo": "1@1.com",
-  "personajes": []
+  "personajes": [
+    {
+      "clase": "guerrero",
+      "subclase": "arquero-arcano",
+      "nivel": 7
+    },
+    {
+      "clase": "guerrero",
+      "subclase": "caballero-runico",
+      "nivel": 15
+    },
+    {
+      "clase": "guerrero",
+      "subclase": "campeon",
+      "nivel": 7
+    },
+    {
+      "clase": "guerrero",
+      "subclase": "samurai",
+      "nivel": 10
+    }
+  ]
 }
