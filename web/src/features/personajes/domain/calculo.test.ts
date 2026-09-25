@@ -6,6 +6,8 @@ import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { setLib, getSubs, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
 import { compute } from './calculo';
+import { dadosAlLanzar, espaciosPara, extrasAtaque } from './lanzar';
+import { sinDuplicado } from '@/features/biblioteca/domain/mapeo';
 import { nuevoPj } from './modelo';
 import { pendientes, pendientesAlSubir } from './pendientes';
 import { ARMADURAS } from '@/features/reglas/data/equipo';
@@ -862,5 +864,25 @@ describe('Mago 2024 (Lote 13)', () => {
   test('Usos: Canto de la Hoja = INT y Cambio Crónico 2 por descanso largo', () => {
     assert.equal(recurso(mag(3, 'lib:cantor-hoja'), 'Canto de la Hoja')?.max, 3);
     assert.equal(recurso(mag(3, 'lib:magia-cronurgia'), 'Cambio Crónico')?.max, 2);
+  });
+});
+
+describe('Lanzar conjuros y seguir un ataque', () => {
+  test('Subir de nivel un conjuro suma sus dados por nivel', () => {
+    assert.equal(dadosAlLanzar('8d6', 3, 5, 'Mitad de daño si pasan. +1d6 por nivel de espacio extra.'), '10d6');
+    assert.equal(dadosAlLanzar('2d8+3', 1, 3, 'El daño aumenta en 1d8 por cada nivel por encima de 1 que tenga el espacio.'), '4d8+3');
+    assert.equal(dadosAlLanzar('1d10', 1, 2, 'El daño de frío aumenta en 1d6 por cada nivel por encima de 1.'), '1d10+1d6');
+    assert.equal(dadosAlLanzar('3d6', 2, 2, '', 3), '3d6+3');
+  });
+  test('Descripción duplicada en pies y metros: queda la primera', () => {
+    const a = 'Una onda surge de tu cuerpo a 5 pies.';
+    assert.equal(sinDuplicado(`${a},Una onda surge de tu cuerpo a 1,5 m.`), a);
+    assert.equal(sinDuplicado('Uno., dos'), 'Uno., dos');
+  });
+  test('Espacios para lanzar y extras del ataque', () => {
+    const c = pj('mago', 5);
+    assert.deepEqual(espaciosPara(c, 2).map((e: any) => e.nivel), [2, 3]);
+    const p = pj('picaro', 5);
+    assert.ok(extrasAtaque(p).some((x: any) => /Ataque Furtivo/.test(x.nombre)));
   });
 });

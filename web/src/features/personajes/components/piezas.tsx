@@ -2,11 +2,15 @@
 'use client';
 import { S } from '@/app-shell/estado';
 import { esc, modStr, norm, richT, sign } from '@/shared/utils/texto';
-import { Boton, Contador, Puntos, cx, foco } from '@/shared/ui/kit';
+import { Boton, Contador, Dialogo, Puntos, cx, foco } from '@/shared/ui/kit';
 import { TIPOS } from '@/features/reglas/data/caracteristicas';
 import { COLOR_TIPO, FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { BotonTirada, TextoConDados } from '@/features/dados/components/BotonTirada';
-import { descansar, fijarPool, moverPool, moverRasgo, tocarPip } from '../acciones';
+import { useState } from 'react';
+import { useDados } from '@/features/dados/components/Bandeja';
+import { avisar } from '@/shared/ui/avisos';
+import { descansar, fijarPool, gastarEspacio, moverPool, moverRasgo, tocarPip } from '../acciones';
+import { dadosAlLanzar, espaciosPara, extrasAtaque } from '../domain/lanzar';
 
 /** Compatibilidad: forma del tipo de acción. */
 export const Shape = ({ t }: { t: string; className?: string }) => <FormaTipo t={t} />;
@@ -84,7 +88,7 @@ export function Ataque({ a }: { a: any }) {
         </div>
       </div>
       <div className="row-span-2 flex flex-col items-center justify-center">
-        <BotonTirada expr={`1d20${modStr(a.atk)}`} label={`${n}: ataque`} estilo="grande" dmg={a.expr} dmgLabel={`${n}: daño`} min3={a.min3}
+        <BotonTirada expr={`1d20${modStr(a.atk)}`} label={`${n}: ataque`} estilo="grande" dmg={a.expr} dmgLabel={`${n}: daño`} min3={a.min3} extras={S.c ? extrasAtaque(S.c) : undefined}
           ariaLabel={`Tirar ataque con ${n}, ${sign(a.atk)}`}>{sign(a.atk)}</BotonTirada>
         <small className="mt-0.5 text-xs text-muted" aria-hidden="true">al ataque</small>
       </div>
@@ -123,6 +127,72 @@ function BotonesConjuro({ s, d }: { s: any; d: ReturnType<typeof datosConjuro> }
   );
 }
 
+/** Primer párrafo de la descripción; lo demás (mejoras por nivel, detalles) queda en "Más detalles". */
+function DescripcionCorta({ desc, nombre }: { desc?: string; nombre: string }) {
+  const txt = (desc || '').trim(), i = txt.indexOf('\n\n');
+  const corta = i > 0 ? txt.slice(0, i) : txt, resto = i > 0 ? txt.slice(i + 2).trim() : '';
+  return (
+    <>
+      <TextoConDados html={richT(corta)} label={nombre} className="mb-0 mt-1" />
+      {resto && (
+        <details className="mt-1 text-[0.96rem]">
+          <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg text-sm font-bold text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>Más detalles</summary>
+          <TextoConDados html={richT(resto)} label={nombre} as="div" className="mt-1" />
+        </details>
+      )}
+    </>
+  );
+}
+
+/** Lanzar un conjuro de nivel 1 o más: eliges el espacio, se gasta, y se tiran el ataque o el daño ya subidos de nivel,
+    con los bonos de rasgos que marques (c.bonosConjuro). */
+function LanzarConjuro({ s, c, d }: { s: any; c: any; d: ReturnType<typeof datosConjuro> }) {
+  const tirar = useDados();
+  const [abierto, setAbierto] = useState(false);
+  const nv = +s.nivel || 0, bonos: any[] = c.bonosConjuro || [];
+  const [marcados, setMarcados] = useState<Record<string, boolean>>({});
+  if (!nv || !S.pj) return null;
+  const esp = espaciosPara(c, nv);
+  if (!esp.length) return null;
+  const lanzar = (nivel: number) => {
+    if (!gastarEspacio(nivel)) { avisar(`No te quedan espacios de nivel ${nivel}.`, 'aviso'); return; }
+    setAbierto(false);
+    const bono = bonos.filter(b => marcados[b.nombre] ?? !b.nota).reduce((t, b) => t + (+b.valor || 0), 0);
+    const expr = dadosAlLanzar(d.dexpr, nv, nivel, s.desc, d.dexpr ? bono : 0);
+    const label = `${s.nombre} (espacio de nivel ${nivel})`;
+    if (s.ataque && d.atk != null) tirar(`1d20${modStr(d.atk)}`, `${label}: ataque`, expr ? { dmg: expr, dmgLabel: label } : {});
+    else if (expr) tirar(expr, label);
+    else avisar(`Lanzaste ${s.nombre} con un espacio de nivel ${nivel}.`);
+  };
+  return (
+    <div className="mt-2 print:hidden">
+      <Boton tamano="sm" variante="primario" onClick={() => setAbierto(true)}>Lanzar</Boton>
+      <Dialogo abierto={abierto} onCerrar={() => setAbierto(false)} titulo={`Lanzar ${s.nombre}`} descripcion="¿Con qué espacio de conjuro? Se gasta al elegirlo." abajo>
+        {bonos.length > 0 && d.dexpr && (
+          <fieldset className="m-0 mb-3 border-0 p-0">
+            <legend className="text-sm font-bold">Sumar al daño</legend>
+            {bonos.map(b => (
+              <label key={b.nombre} className="flex min-h-11 items-center gap-2 text-sm">
+                <input type="checkbox" className="size-5" checked={marcados[b.nombre] ?? !b.nota} onChange={e => setMarcados(m => ({ ...m, [b.nombre]: e.target.checked }))} />
+                {b.nombre} ({sign(+b.valor || 0)}){b.nota ? `, ${b.nota}` : ''}
+              </label>
+            ))}
+          </fieldset>
+        )}
+        <ul className="m-0 grid list-none gap-2 p-0">
+          {esp.map((e: any) => (
+            <li key={e.nivel}>
+              <Boton className="w-full justify-between" disabled={!e.quedan} onClick={() => lanzar(e.nivel)}>
+                <span>{e.nombre}</span><span className="text-sm">{e.quedan ? `quedan ${e.quedan}` : 'sin espacios'}{d.dexpr ? `, ${dadosAlLanzar(d.dexpr, nv, e.nivel, s.desc)}` : ''}</span>
+              </Boton>
+            </li>
+          ))}
+        </ul>
+      </Dialogo>
+    </div>
+  );
+}
+
 /** Conjuro en la pestaña Conjuros: fila plegable. */
 export function ConjuroFila({ s, c }: { s: any; c: any }) {
   const d = datosConjuro(s, c);
@@ -140,7 +210,7 @@ export function ConjuroFila({ s, c }: { s: any; c: any }) {
           {s.rasgo && <p className="m-0 text-xs text-muted">De {s.rasgo}</p>}
         </div>
       </details>
-      <div className="pb-2"><BotonesConjuro s={s} d={d} /></div>
+      <div className="pb-2"><BotonesConjuro s={s} d={d} /><LanzarConjuro s={s} c={c} d={d} /></div>
     </li>
   );
 }
@@ -155,9 +225,10 @@ export function ConjuroTarjeta({ s, c, t }: { s: any; c: any; t: string }) {
         {s.coste && <span className={cx('text-sm font-bold', color.texto)}>{s.coste}</span>}
       </header>
       <p className="m-0 text-sm text-muted">{[d.bits.join(', '), d.meta].filter(Boolean).join('. ')}</p>
-      <TextoConDados html={richT(s.desc || '')} label={s.nombre} className="mb-0 mt-1" />
+      <DescripcionCorta desc={s.desc} nombre={s.nombre} />
       {d.origen && <p className="mb-0 mt-1">{d.origen}.</p>}
       <BotonesConjuro s={s} d={d} />
+      <LanzarConjuro s={s} c={c} d={d} />
       {s.recurso && S.view === 'ficha' && <RecursoInline id={s.recurso} />}
       <p className="m-0 mt-1 text-xs text-muted">{s.rasgo ? `Conjuro de ${s.rasgo}` : 'Conjuro'}</p>
     </article>

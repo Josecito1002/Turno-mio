@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /*
  * De dónde sale cada clase, subclase, especie y trasfondo, para una etiqueta pequeña en las tarjetas:
- *   Reglas básicas: Manual del Jugador 2024.
+ *   5.5e 2024: Manual del Jugador 2024 (reglas básicas).
  *   D&D Beyond: otros libros oficiales (y el Cazador de Sangre, que publica D&D Beyond).
  *   Homebrew: contenido no oficial.
+ *   Playtest: material de prueba oficial (todavía no hay ninguno marcado).
  * Los trasfondos de la biblioteca se contrastaron con la lista oficial de 5etools (24/09/2026).
  */
 import { norm } from '@/shared/utils/texto';
@@ -12,9 +13,9 @@ import { ESPECIES } from './especies';
 import { TRASFONDOS } from './trasfondos';
 import { FUENTES_GENERADAS } from './generadas';
 
-export type TipoFuente = 'basicas' | 'dndbeyond' | 'homebrew';
+export type TipoFuente = 'basicas' | 'dndbeyond' | 'homebrew' | 'playtest';
 export type Fuente = { tipo: TipoFuente; libro?: string };
-export const ETIQUETA_FUENTE: Record<TipoFuente, string> = { basicas: 'Reglas básicas', dndbeyond: 'D&D Beyond', homebrew: 'Homebrew' };
+export const ETIQUETA_FUENTE: Record<TipoFuente, string> = { basicas: '5.5e 2024', dndbeyond: 'D&D Beyond', homebrew: 'Homebrew', playtest: 'Playtest' };
 
 const PHB: Fuente = { tipo: 'basicas', libro: 'Manual del Jugador 2024' };
 const dndb = (libro: string): Fuente => ({ tipo: 'dndbeyond', libro });

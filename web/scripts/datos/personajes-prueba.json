@@ -60,6 +60,21 @@
       "clase": "mago",
       "subclase": "necromancia",
       "nivel": 14
+    },
+    {
+      "clase": "mago",
+      "subclase": "evocacion",
+      "nivel": 10
+    },
+    {
+      "clase": "picaro",
+      "subclase": "",
+      "nivel": 5
+    },
+    {
+      "clase": "paladin",
+      "subclase": "",
+      "nivel": 5
     }
   ]
 }

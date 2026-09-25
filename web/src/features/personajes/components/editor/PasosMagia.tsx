@@ -30,7 +30,7 @@ function TarjetaConjuro({ s, c, pj }: { s: any; c: any; pj: any }) {
         <summary className={cx('flex min-h-12 cursor-pointer list-none flex-col justify-center rounded-lg py-1 [&::-webkit-details-marker]:hidden', foco)}>
           <span className="font-serif text-[1.05rem] font-bold">
             <span aria-hidden="true" className="mr-1 inline-block text-muted transition-transform group-open:rotate-90">▸</span>
-            {s.nombre}{(tiene >= 0 || c.siempre.has(norm(s.nombre))) && <span className="ml-1 text-pas" aria-label="(ya lo tienes)">✓</span>}
+            {s.nombre}{(tiene >= 0 || c.siempre.has(norm(s.nombre))) && <span className="ml-1 text-pas" aria-label={tiene >= 0 ? '(ya lo tienes)' : '(siempre preparado por un rasgo)'}>✓</span>}
           </span>
           <span className="text-sm text-muted">{bits.join(', ')}</span>
         </summary>
@@ -41,6 +41,7 @@ function TarjetaConjuro({ s, c, pj }: { s: any; c: any; pj: any }) {
       </details>
       <div className="pt-1.5">
         {tiene >= 0 ? <Boton tamano="sm" onClick={() => quitarConjuro(tiene)} aria-label={`Quitar ${s.nombre}`}>Quitar</Boton>
+          : c.siempre.has(norm(s.nombre)) ? <span className="inline-flex min-h-9 items-center px-1 text-sm text-muted">Ya preparado</span>
           : lleno ? <Boton tamano="sm" disabled aria-label={`${s.nombre}: sin cupo`}>Sin cupo</Boton>
           : <Boton tamano="sm" variante="primario" onClick={agregar} aria-label={`Agregar ${s.nombre}`}>Agregar</Boton>}
       </div>

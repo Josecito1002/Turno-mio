@@ -24,6 +24,8 @@ function Dado({ sides, cls, valor }: { sides: number; cls: string; valor: number
   );
 }
 
+const EXTRA_T: Record<string, string> = { adicional: 'acción adicional', gratis: 'sin acción', reaccion: 'reacción' };
+
 type Estado = { r: Resultado; rolling: boolean; caras: number[]; seq: number };
 
 /** Bandeja de dados. Cualquier botón con data-roll en la página tira al tocarlo. */
@@ -67,7 +69,9 @@ export function BandejaDados({ children }: { children: ReactNode }) {
       const b = (e.target as HTMLElement).closest?.('[data-roll]') as HTMLElement | null;
       if (!b) return;
       const ds = b.dataset;
-      tirar(ds.roll!, ds.label || 'Tirada', ds.dmg ? { dmg: ds.dmg, dmgLabel: ds.dmglabel, dmgMin3: !!ds.min3 } : { min3: !!ds.min3 });
+      let extras;
+      try { extras = ds.extras ? JSON.parse(ds.extras) : undefined; } catch { extras = undefined; }
+      tirar(ds.roll!, ds.label || 'Tirada', ds.dmg ? { dmg: ds.dmg, dmgLabel: ds.dmglabel, dmgMin3: !!ds.min3, extras } : { min3: !!ds.min3, crit: ds.crit === '1' });
     };
     document.addEventListener('click', onClick);
     return () => document.removeEventListener('click', onClick);
@@ -77,6 +81,7 @@ export function BandejaDados({ children }: { children: ReactNode }) {
   const kind = r ? (r.groups.some(g => g.d === 20) ? 'd20' : o.neutral ? 'neu' : 'dmg') : '';
   const nDice = r ? r.groups.reduce((s, g) => s + g.vals.length, 0) : 0;
   const listo = r && !st!.rolling;
+  const critico = !!r && (r.nat === 20 || !!o.crit);
   const botones: [string, string][] = [];
   let desc = '';
   if (listo) {
@@ -85,14 +90,15 @@ export function BandejaDados({ children }: { children: ReactNode }) {
     desc = partes.join(' + ').replace(/\+ −/g, '−') + (partes.length > 1 || r.consts ? ` = ${r.total}` : '');
     const single20 = r.groups.length === 1 && r.groups[0].d === 20 && !o.keep;
     if (single20) botones.push(['adv', 'Con ventaja'], ['dis', 'Con desventaja']);
-    if (o.dmg) { botones.push(['dmg', 'Tirar daño']); if (r.nat === 20) botones.push(['crit', 'Daño crítico']); }
+    // Con un 20 natural el ataque es crítico: el daño tira el doble de dados (el modificador no se duplica)
+    if (o.dmg) botones.push(r.nat === 20 ? ['crit', 'Tirar daño crítico'] : ['dmg', 'Tirar daño']);
     if (!single20 && !o.noRepeat) botones.push(['again', 'Otra vez']);
   }
   const accion = (a: string) => {
     if (!r) return;
     if (a === 'adv' || a === 'dis') tirar(r.expr, r.label!, { ...o, adv: a === 'adv' ? 1 : -1 });
     if (a === 'again') tirar(r.expr, r.label!, o);
-    if (a === 'dmg' || a === 'crit') tirar(o.dmg!, o.dmgLabel || 'Daño', { min3: o.dmgMin3, crit: a === 'crit' });
+    if (a === 'dmg' || a === 'crit') tirar(o.dmg!, o.dmgLabel || 'Daño', { min3: o.dmgMin3, crit: a === 'crit', extras: o.extras });
   };
   const titulo = r ? r.label + (o.adv! > 0 ? ' (con ventaja)' : o.adv! < 0 ? ' (con desventaja)' : '') + (o.crit ? ' (crítico)' : '') : 'Tirada';
 
@@ -126,6 +132,17 @@ export function BandejaDados({ children }: { children: ReactNode }) {
           <div className="mt-4 flex flex-wrap justify-center gap-2">
             {botones.map(([k, n]) => <Boton key={k} variante={k === 'dmg' || k === 'crit' ? 'primario' : 'secundario'} onClick={() => accion(k)}>{n}</Boton>)}
             <Boton variante="fantasma" onClick={cerrar}>Cerrar</Boton>
+          </div>
+        )}
+        {listo && !!o.extras?.length && (
+          <div className="mt-4 border-t border-soft pt-3 text-center">
+            <p className="m-0 text-sm text-muted">{critico ? 'Es crítico: si usas alguno, sus dados también se duplican.' : 'Si aciertas, puedes seguir con:'}</p>
+            <div className="mt-2 flex flex-wrap justify-center gap-2">
+              {o.extras.map(x => x.expr
+                ? <button key={x.nombre} type="button" data-roll={x.expr} data-label={x.nombre + (critico ? ' (crítico)' : '')} data-crit={critico ? '1' : undefined}
+                    className="min-h-11 cursor-pointer rounded-lg bg-soft px-2.5 text-sm font-bold hover:bg-rule/70">{x.nombre}: {x.expr}{EXTRA_T[x.t] ? ` (${EXTRA_T[x.t]})` : ''}</button>
+                : <span key={x.nombre} className="inline-flex min-h-11 items-center rounded-lg px-2.5 text-sm font-bold ring-1 ring-inset ring-rule">{x.nombre}{EXTRA_T[x.t] ? ` (${EXTRA_T[x.t]})` : ''}</span>)}
+            </div>
           </div>
         )}
         {hist.length > 1 && (

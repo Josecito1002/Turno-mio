@@ -12503,7 +12503,7 @@
    "salv": "",
    "ataque": true,
    "dados": "1d8",
-   "desc": "En tu mano aparece una llama titilante, que permanece hasta que termine el conjuro. En tu mano, la llama no genera calor, no puede quemar nada y emite una luz brillante en un radio de 20 pies y luz tenue 20 pies más allá. El conjuro termina si lo vuelves a lanzar.\n\nHasta que el conjuro termine, puedes usar una acción de magia para arrojar la llama a una criatura u objeto a 60 pies o menos de ti. Haz un ataque de conjuro a distancia. Si acierta, el objetivo recibe 1d8 de daño de fuego.\n\nMejora de truco. El daño aumenta en 1d8 cuando alcanzas los niveles 5 (2d8), 11 (3d8) y 17 (4d8).,En tu mano aparece una llama titilante, que permanece hasta que termine el conjuro. En tu mano, la llama no genera calor, no puede quemar nada y emite una luz brillante en un radio de 6 m y luz tenue 6 m más allá. El conjuro termina si lo vuelves a lanzar.\n\nHasta que el conjuro termine, puedes usar una acción de magia para arrojar la llama a una criatura u objeto a 18 m o menos de ti. Haz un ataque de conjuro a distancia. Si acierta, el objetivo recibe 1d8 de daño de fuego.\n\nMejora de truco. El daño aumenta en 1d8 cuando alcanzas los niveles 5 (2d8), 11 (3d8) y 17 (4d8).",
+   "desc": "En tu mano aparece una llama titilante, que permanece hasta que termine el conjuro. En tu mano, la llama no genera calor, no puede quemar nada y emite una luz brillante en un radio de 20 pies y luz tenue 20 pies más allá. El conjuro termina si lo vuelves a lanzar.\n\nHasta que el conjuro termine, puedes usar una acción de magia para arrojar la llama a una criatura u objeto a 60 pies o menos de ti. Haz un ataque de conjuro a distancia. Si acierta, el objetivo recibe 1d8 de daño de fuego.\n\nMejora de truco. El daño aumenta en 1d8 cuando alcanzas los niveles 5 (2d8), 11 (3d8) y 17 (4d8).",
    "clases": [
     "druida"
    ]
@@ -12552,7 +12552,7 @@
    "salv": "",
    "ataque": false,
    "dados": "",
-   "desc": "Controlas los elementos y creas uno de los siguientes efectos dentro del alcance:\n\nEsculpir los elementos. Haces que la tierra, arena, fuego, humo, niebla o agua que quepan en un cubo de 12 pulgadas de lado adopten una forma tosca (como la de una criatura) durante 1 hora.\n\nInvocar el agua. Creas un rocío de fría niebla que humedece ligeramente a las criaturas y objetos en un cubo de 5 pies de lado. Como alternativa, creas una taza de agua limpia, ya sea en un recipiente abierto o sobre una superficie, y el agua se evapora al cabo de 1 minuto.\n\nInvocar el aire. Creas una brisa lo bastante fuerte como para ondear telas, remover polvo, agitar hojas y cerrar puertas y contraventanas abiertas en un cubo de 5 pies de lado. Las puertas y contraventanas que algo o alguien mantenga abiertas no se ven afectadas.\n\nInvocar el fuego. Creas una fina nube de ascuas inofensivas y un humo de color perfumado en un cubo de 5 pies de lado. Tú eliges el color y el olor, y las ascuas pueden encender velas, antorchas o lámparas dentro de la zona. El aroma del humo permanece durante 1 minuto.\n\nInvocar la tierra. Creas una fina capa de polvo o arena que cubre superficies en una zona de 5 pies de lado o haces que aparezca una sola palabra escrita con tu letra en una superficie de tierra o arena.,Controlas los elementos y creas uno de los siguientes efectos dentro del alcance:\n\nEsculpir los elementos. Haces que la tierra, arena, fuego, humo, niebla o agua que quepan en un cubo de 30 cm de lado adopten una forma tosca (como la de una criatura) durante 1 hora.\n\nInvocar el agua. Creas un rocío de fría niebla que humedece ligeramente a las criaturas y objetos en un cubo de 1,5 m de lado. Como alternativa, creas una taza de agua limpia, ya sea en un recipiente abierto o sobre una superficie, y el agua se evapora al cabo de 1 minuto.\n\nInvocar el aire. Creas una brisa lo bastante fuerte como para ondear telas, remover polvo, agitar hojas y cerrar puertas y contraventanas abiertas en un cubo de 1,5 m de lado. Las puertas y contraventanas que algo o alguien mantenga abiertas no se ven afectadas.\n\nInvocar el fuego. Creas una fina nube de ascuas inofensivas y un humo de color perfumado en un cubo de 1,5 m de lado. Tú eliges el color y el olor, y las ascuas pueden encender velas, antorchas o lámparas dentro de la zona. El aroma del humo permanece durante 1 minuto.\n\nInvocar la tierra. Creas una fina capa de polvo o arena que cubre superficies en una zona de 1,5 m de lado o haces que aparezca una sola palabra escrita con tu letra en una superficie de tierra o arena.",
+   "desc": "Controlas los elementos y creas uno de los siguientes efectos dentro del alcance:\n\nEsculpir los elementos. Haces que la tierra, arena, fuego, humo, niebla o agua que quepan en un cubo de 12 pulgadas de lado adopten una forma tosca (como la de una criatura) durante 1 hora.\n\nInvocar el agua. Creas un rocío de fría niebla que humedece ligeramente a las criaturas y objetos en un cubo de 5 pies de lado. Como alternativa, creas una taza de agua limpia, ya sea en un recipiente abierto o sobre una superficie, y el agua se evapora al cabo de 1 minuto.\n\nInvocar el aire. Creas una brisa lo bastante fuerte como para ondear telas, remover polvo, agitar hojas y cerrar puertas y contraventanas abiertas en un cubo de 5 pies de lado. Las puertas y contraventanas que algo o alguien mantenga abiertas no se ven afectadas.\n\nInvocar el fuego. Creas una fina nube de ascuas inofensivas y un humo de color perfumado en un cubo de 5 pies de lado. Tú eliges el color y el olor, y las ascuas pueden encender velas, antorchas o lámparas dentro de la zona. El aroma del humo permanece durante 1 minuto.\n\nInvocar la tierra. Creas una fina capa de polvo o arena que cubre superficies en una zona de 5 pies de lado o haces que aparezca una sola palabra escrita con tu letra en una superficie de tierra o arena.",
    "clases": [
     "druida",
     "hechicero",
@@ -12642,7 +12642,7 @@
    "salv": "",
    "ataque": true,
    "dados": "1d6",
-   "desc": "Invocas un látigo con forma de enredadera y cubierto de espinas. Este arma ataca cuerpo a cuerpo contra una criatura dentro del alcance. Si el ataque acierta se causan 1d6 de daño perforante contra el objetivo, pudiendo arrastrarlo hacia ti hasta 10 pies si el objetivo es de un tamaño máximo Grande.,Invocas un látigo con forma de enredadera y cubierto de espinas. Este arma ataca cuerpo a cuerpo contra una criatura dentro del alcance. Si el ataque acierta se causan 1d6 de daño perforante contra el objetivo, pudiendo arrastrarlo hacia ti hasta 3 m si el objetivo es de un tamaño máximo Grande.",
+   "desc": "Invocas un látigo con forma de enredadera y cubierto de espinas. Este arma ataca cuerpo a cuerpo contra una criatura dentro del alcance. Si el ataque acierta se causan 1d6 de daño perforante contra el objetivo, pudiendo arrastrarlo hacia ti hasta 10 pies si el objetivo es de un tamaño máximo Grande.",
    "clases": [
     "druida"
    ]
@@ -12658,7 +12658,7 @@
    "salv": "CON",
    "ataque": false,
    "dados": "1d6",
-   "desc": "Emanas un fulgor ardiente de tu cuerpo en un radio de 5 pies. Elige a todas las criaturas objetivo que desees y puedas ver para que el fulgor les afecte. Las criaturas deberán superar una tirada de salvación de Constitución o sufrirán 1d6 de daño radiante.\n\nMejora de truco. El daño aumenta en 1d6 cuando alcanzas los niveles 5 (2d6), 11 (3d6) y 17 (4d6).,Emanas un fulgor ardiente de tu cuerpo en un radio de 1,5 m. Elige a todas las criaturas objetivo que desees y puedas ver para que el fulgor les afecte. Las criaturas deberán superar una tirada de salvación de Constitución o sufrirán 1d6 de daño radiante.\n\nMejora de truco. El daño aumenta en 1d6 cuando alcanzas los niveles 5 (2d6), 11 (3d6) y 17 (4d6).",
+   "desc": "Emanas un fulgor ardiente de tu cuerpo en un radio de 5 pies. Elige a todas las criaturas objetivo que desees y puedas ver para que el fulgor les afecte. Las criaturas deberán superar una tirada de salvación de Constitución o sufrirán 1d6 de daño radiante.\n\nMejora de truco. El daño aumenta en 1d6 cuando alcanzas los niveles 5 (2d6), 11 (3d6) y 17 (4d6).",
    "clases": [
     "clerigo"
    ]
@@ -12674,7 +12674,7 @@
    "salv": "",
    "ataque": false,
    "dados": "",
-   "desc": "Elige a una criatura dentro del alcance que tenga 0 puntos de golpe y no esté muerta. La criatura pasa a estar estable.\n\nMejora de truco. El alcance se duplica cuando alcanzas los niveles 5 (30 pies), 11 (60 pies) y 17 (120 pies).,Elige a una criatura dentro del alcance que tenga 0 puntos de golpe y no esté muerta. La criatura pasa a estar estable.\n\nMejora de truco. El alcance se duplica cuando alcanzas los niveles 5 (9 m), 11 (18 m) y 17 (36 m).",
+   "desc": "Elige a una criatura dentro del alcance que tenga 0 puntos de golpe y no esté muerta. La criatura pasa a estar estable.\n\nMejora de truco. El alcance se duplica cuando alcanzas los niveles 5 (30 pies), 11 (60 pies) y 17 (120 pies).",
    "clases": [
     "clerigo",
     "druida"
@@ -12691,7 +12691,7 @@
    "salv": "",
    "ataque": false,
    "dados": "",
-   "desc": "Este conjuro repara una sola grieta o desgarrón en un objeto que toques, como un eslabón roto en una cadena, las dos mitades de una llave partida, una capa rasgada o una fuga en una bota de vino. Mientras la grieta o el desgarrón no tenga más de 12 pulgadas de tamaño en ninguna de sus dimensiones, lo arreglarás sin dejar rastro del daño.\n\nEste conjuro puede reparar el componente físico de un objeto mágico, pero no puede restaurar su magia.,Este conjuro repara una sola grieta o desgarrón en un objeto que toques, como un eslabón roto en una cadena, las dos mitades de una llave partida, una capa rasgada o una fuga en una bota de vino. Mientras la grieta o el desgarrón no tenga más de 30 cm de tamaño en ninguna de sus dimensiones, lo arreglarás sin dejar rastro del daño.\n\nEste conjuro puede reparar el componente físico de un objeto mágico, pero no puede restaurar su magia.",
+   "desc": "Este conjuro repara una sola grieta o desgarrón en un objeto que toques, como un eslabón roto en una cadena, las dos mitades de una llave partida, una capa rasgada o una fuga en una bota de vino. Mientras la grieta o el desgarrón no tenga más de 12 pulgadas de tamaño en ninguna de sus dimensiones, lo arreglarás sin dejar rastro del daño.\n\nEste conjuro puede reparar el componente físico de un objeto mágico, pero no puede restaurar su magia.",
    "clases": [
     "bardo",
     "clerigo",
@@ -12711,7 +12711,7 @@
    "salv": "",
    "ataque": false,
    "dados": "",
-   "desc": "Susurras a los espíritus de la naturaleza y produces uno de los siguientes efectos dentro del alcance.\n\nSensor climático. Creas un efecto sensorial Diminuto e inofensivo que predice el clima que habrá en tu ubicación durante las siguientes 24 horas. El efecto se manifiesta como un orbe dorado para los cielos despejados, una nube para la lluvia, copos de nieve para la nieve, etc. Este efecto persiste durante 1 asalto.\n\nFlorecer. Haces que, al instante, una flower florezca, una vaina de semillas se abra o el brote de una hoja germine.\n\nEfecto sensorial. Creas un efecto sensorial inofensivo, como hojas cayendo, hadas espectrales bailando, una suave brisa, el sonido de un animal o un leve olor a mofeta. El efecto debe caber en un cubo de 5 pies de lado.\n\nJugar con fuego. Enciendes o apagas una vela, una antorcha o una hoguera.,Susurras a los espíritus de la naturaleza y produces uno de los siguientes efectos dentro del alcance.\n\nSensor climático. Creas un efecto sensorial Diminuto e inofensivo que predice el clima que habrá en tu ubicación durante las siguientes 24 horas. El efecto se manifiesta como un orbe dorado para los cielos despejados, una nube para la lluvia, copos de nieve para la nieve, etc. Este efecto persiste durante 1 asalto.\n\nFlorecer. Haces que, al instante, una flower florezca, una vaina de semillas se abra o el brote de una hoja germine.\n\nEfecto sensorial. Creas un efecto sensorial inofensivo, como hojas cayendo, hadas espectrales bailando, una suave brisa, el sonido de un animal o un leve olor a mofeta. El efecto debe caber en un cubo de 1,5 m de lado.\n\nJugar con fuego. Enciendes o apagas una vela, una antorcha o una hoguera.",
+   "desc": "Susurras a los espíritus de la naturaleza y produces uno de los siguientes efectos dentro del alcance.\n\nSensor climático. Creas un efecto sensorial Diminuto e inofensivo que predice el clima que habrá en tu ubicación durante las siguientes 24 horas. El efecto se manifiesta como un orbe dorado para los cielos despejados, una nube para la lluvia, copos de nieve para la nieve, etc. Este efecto persiste durante 1 asalto.\n\nFlorecer. Haces que, al instante, una flower florezca, una vaina de semillas se abra o el brote de una hoja germine.\n\nEfecto sensorial. Creas un efecto sensorial inofensivo, como hojas cayendo, hadas espectrales bailando, una suave brisa, el sonido de un animal o un leve olor a mofeta. El efecto debe caber en un cubo de 5 pies de lado.\n\nJugar con fuego. Enciendes o apagas una vela, una antorcha o una hoguera.",
    "clases": [
     "druida"
    ]
@@ -12727,7 +12727,7 @@
    "salv": "SAB",
    "ataque": false,
    "dados": "1d8",
-   "desc": "Haces objetivo a una criatura que puedas ver señalándola con el dedo. El conjuro produce que suene una campana funesta a 10 pies o menos del objetivo. El objetivo se ve obligado a realizar una tirada de salvación de Sabiduría, sufriendo 1d8 de daño necrótico si la falla. En caso de que el objetivo no tenda todos los puntos de golpe, el daño aumenta a 1d12.\n\nMejora de truco. El daño aumenta en un dado cuando alcanzas los niveles 5 (2d8 o 2d12), 11 (3d8 o 3d12) y 17 (4d8 o 4d12).,Haces objetivo a una criatura que puedas ver señalándola con el dedo. El conjuro produce que suene una campana funesta a 3 m o menos del objetivo. El objetivo se ve obligado a realizar una tirada de salvación de Sabiduría, sufriendo 1d8 de daño necrótico si la falla. En caso de que el objetivo no tenda todos los puntos de golpe, el daño aumenta a 1d12.\n\nMejora de truco. El daño aumenta en un dado cuando alcanzas los niveles 5 (2d8 o 2d12), 11 (3d8 o 3d12) y 17 (4d8 o 4d12).",
+   "desc": "Haces objetivo a una criatura que puedas ver señalándola con el dedo. El conjuro produce que suene una campana funesta a 10 pies o menos del objetivo. El objetivo se ve obligado a realizar una tirada de salvación de Sabiduría, sufriendo 1d8 de daño necrótico si la falla. En caso de que el objetivo no tenda todos los puntos de golpe, el daño aumenta a 1d12.\n\nMejora de truco. El daño aumenta en un dado cuando alcanzas los niveles 5 (2d8 o 2d12), 11 (3d8 o 3d12) y 17 (4d8 o 4d12).",
    "clases": [
     "brujo",
     "clerigo",
@@ -12745,7 +12745,7 @@
    "salv": "CON",
    "ataque": false,
    "dados": "1d6",
-   "desc": "Una onda eléctrica surge de tu cuerpo, afectando a toda criatura que se encuentre en un área de 5 pies de tí. Las criaturas afectadas han de realizar una tirada de salvación de Constitución recibiendo 1d6 de daño de trueno si fallan. Esta explosión eléctrica produce el sonido de un trueno audible en una distancia de hasta 100 pies.\n\nMejora de truco. El daño aumenta en 1d6 cuando alcanzas los niveles 5 (2d6), 11 (3d6) y 17 (4d6).,Una onda eléctrica surge de tu cuerpo, afectando a toda criatura que se encuentre en un área de 1,5 m de tí. Las criaturas afectadas han de realizar una tirada de salvación de Constitución recibiendo 1d6 de daño de trueno si fallan. Esta explosión eléctrica produce el sonido de un trueno audible en una distancia de hasta 30 m.\n\nMejora de truco. El daño aumenta en 1d6 cuando alcanzas los niveles 5 (2d6), 11 (3d6) y 17 (4d6).",
+   "desc": "Una onda eléctrica surge de tu cuerpo, afectando a toda criatura que se encuentre en un área de 5 pies de tí. Las criaturas afectadas han de realizar una tirada de salvación de Constitución recibiendo 1d6 de daño de trueno si fallan. Esta explosión eléctrica produce el sonido de un trueno audible en una distancia de hasta 100 pies.\n\nMejora de truco. El daño aumenta en 1d6 cuando alcanzas los niveles 5 (2d6), 11 (3d6) y 17 (4d6).",
    "clases": [
     "bardo",
     "brujo",
@@ -12765,7 +12765,7 @@
    "salv": "",
    "ataque": true,
    "dados": "1d8",
-   "desc": "Lanzas una mota de luz contra una criatura u objeto dentro del alcance. Haz un ataque de conjuro a distancia contra el objetivo. Si acierta, el objetivo recibirá 1d8 de daño radiante y, hasta el final de tu siguiente turno, emitirá luz tenue en un radio de 10 pies y no podrá beneficiarse del estado de invisible.\n\nMejora de truco. El daño aumenta en 1d8 cuando alcanzas los niveles 5 (2d8), 11 (3d8) y 17 (4d8).,Lanzas una mota de luz contra una criatura u objeto dentro del alcance. Haz un ataque de conjuro a distancia contra el objetivo. Si acierta, el objetivo recibirá 1d8 de daño radiante y, hasta el final de tu siguiente turno, emitirá luz tenue en un radio de 3 m y no podrá beneficiarse del estado de invisible.\n\nMejora de truco. El daño aumenta en 1d8 cuando alcanzas los niveles 5 (2d8), 11 (3d8) y 17 (4d8).",
+   "desc": "Lanzas una mota de luz contra una criatura u objeto dentro del alcance. Haz un ataque de conjuro a distancia contra el objetivo. Si acierta, el objetivo recibirá 1d8 de daño radiante y, hasta el final de tu siguiente turno, emitirá luz tenue en un radio de 10 pies y no podrá beneficiarse del estado de invisible.\n\nMejora de truco. El daño aumenta en 1d8 cuando alcanzas los niveles 5 (2d8), 11 (3d8) y 17 (4d8).",
    "clases": [
     "bardo",
     "druida"

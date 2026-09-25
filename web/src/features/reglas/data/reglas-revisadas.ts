@@ -1370,7 +1370,8 @@ export const REGLAS: any[] = [
     texto: c => { const h = ['Engaño', 'Intimidación', 'Persuasión'].find(x => norm(x) === elegido(c, 'encantamiento-habilidades'));
       return h ? `Competencia en ${h}, y sumas tu INT (${sign(Math.max(1, c.m.int))}) a sus pruebas (ya sumado).` : 'Competencia en Engaño, Intimidación o Persuasión, a tu elección (elígela en la subclase), y sumas tu INT (mínimo +1) a las pruebas de esa habilidad.'; }},
   {de:/^evocador$/, n:/^evocacion potenciada$/, t:'pasiva',
-    texto: c => `Al lanzar un conjuro de mago de Evocación, sumas tu INT (${sign(c.m.int)}) a una de sus tiradas de daño.`},
+    efecto: c => { (c.bonosConjuro = c.bonosConjuro || []).push({nombre:'Evocación Potenciada', valor: c.m.int, nota:'si es de Evocación'}); },
+    texto: c => `Al lanzar un conjuro de mago de Evocación, sumas tu INT (${sign(c.m.int)}) a una de sus tiradas de daño (al lanzarlo desde la hoja puedes marcarlo).`},
   {de:/^nigromante$/, n:/^siervos muertos vivientes$/, t:'pasiva', usos:1, reset:'largo',
     conjuros: [{nombre:'Animar a los muertos', nota:'Siempre preparado; una vez por descanso largo sin gastar espacio'}],
     texto: c => `Siempre tienes preparado Animar a los muertos y puedes lanzarlo una vez sin gastar espacio (se recupera con un descanso largo). Siempre que lo lanzas, puedes contarlo como de un nivel más. Con tu libro de conjuros en la mano, los muertos vivientes que creas o invocas con conjuros de Necromancia ganan ${c.m.int + Math.floor(c.lvl / 2)} PG máximos y actuales (INT + la mitad de tu nivel), y cuando uno a 60 pies acierta un ataque hace ${Math.max(1, c.m.int)} de daño necrótico extra.`},
