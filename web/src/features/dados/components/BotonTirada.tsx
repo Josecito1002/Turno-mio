@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { OpcionesTirada } from '../domain/dados';
 import { esc } from '@/shared/utils/texto';
 import { cx, foco } from '@/shared/ui/kit';
 
@@ -13,7 +14,7 @@ const ESTILO: Record<Estilo, string> = {
 type Props = {
   expr: string; label: string; children: ReactNode; estilo?: Estilo; className?: string;
   dmg?: string; dmgLabel?: string; min3?: boolean; ariaLabel?: string;
-  extras?: { nombre: string; t: string; expr: string }[];
+  extras?: OpcionesTirada['extras'];
 };
 
 /** Botón que tira dados al tocarlo (lo atiende la bandeja de dados por delegación de eventos). */

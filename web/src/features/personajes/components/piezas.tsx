@@ -9,8 +9,8 @@ import { BotonTirada, TextoConDados } from '@/features/dados/components/BotonTir
 import { useState } from 'react';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { avisar } from '@/shared/ui/avisos';
-import { descansar, fijarPool, gastarEspacio, moverPool, moverRasgo, tocarPip } from '../acciones';
-import { dadosAlLanzar, espaciosPara, extrasAtaque } from '../domain/lanzar';
+import { descansar, fijarPool, gastarEspacio, gastarRecurso, moverPool, moverRasgo, tocarPip } from '../acciones';
+import { bonosPara, dadosAlLanzar, espaciosPara, extrasAtaque } from '../domain/lanzar';
 
 /** Compatibilidad: forma del tipo de acción. */
 export const Shape = ({ t }: { t: string; className?: string }) => <FormaTipo t={t} />;
@@ -88,7 +88,7 @@ export function Ataque({ a }: { a: any }) {
         </div>
       </div>
       <div className="row-span-2 flex flex-col items-center justify-center">
-        <BotonTirada expr={`1d20${modStr(a.atk)}`} label={`${n}: ataque`} estilo="grande" dmg={a.expr} dmgLabel={`${n}: daño`} min3={a.min3} extras={S.c ? extrasAtaque(S.c) : undefined}
+        <BotonTirada expr={`1d20${modStr(a.atk)}`} label={`${n}: ataque`} estilo="grande" dmg={a.expr} dmgLabel={`${n}: daño`} min3={a.min3} extras={S.c ? extrasAtaque(S.c, a) : undefined}
           ariaLabel={`Tirar ataque con ${n}, ${sign(a.atk)}`}>{sign(a.atk)}</BotonTirada>
         <small className="mt-0.5 text-xs text-muted" aria-hidden="true">al ataque</small>
       </div>
@@ -116,79 +116,75 @@ function datosConjuro(s: any, c: any) {
   return { bits, dexpr, meta, origen, atk: s.atk ?? c.atkSpell, cd: s.cd ?? c.dcSpell };
 }
 
-function BotonesConjuro({ s, d }: { s: any; d: ReturnType<typeof datosConjuro> }) {
-  if (!((s.ataque && d.atk != null) || s.salv || d.dexpr)) return null;
-  return (
-    <div className="mt-2 flex flex-wrap items-center gap-2">
-      {s.ataque && d.atk != null && <BotonTirada expr={`1d20${modStr(d.atk)}`} label={`${s.nombre}: ataque`} dmg={d.dexpr} dmgLabel={s.nombre}>{sign(d.atk)} al ataque</BotonTirada>}
-      {s.salv && <span className="rounded-lg px-2 py-1 text-sm font-bold ring-1 ring-inset ring-rule">Salvación de {s.salv} CD {d.cd ?? '?'}</span>}
-      {d.dexpr && <BotonTirada expr={d.dexpr} label={s.nombre}>{d.dexpr.replace(/([+-])/g, ' $1 ')}{s.tipo ? ' ' + s.tipo : ''}</BotonTirada>}
-    </div>
-  );
-}
+/* Párrafos que ya resuelve el botón Lanzar (subir el conjuro de nivel, la mejora de los trucos): no se muestran */
+const YA_EN_LANZAR = /^(con un espacio de (conjuro de )?nivel superior|usar un espacio de nivel superior|mejora de truco)/i;
 
-/** Primer párrafo de la descripción; lo demás (mejoras por nivel, detalles) queda en "Más detalles". */
-function DescripcionCorta({ desc, nombre }: { desc?: string; nombre: string }) {
-  const txt = (desc || '').trim(), i = txt.indexOf('\n\n');
-  const corta = i > 0 ? txt.slice(0, i) : txt, resto = i > 0 ? txt.slice(i + 2).trim() : '';
+/** Primer párrafo de la descripción; lo demás queda en "Más detalles". Los dados del texto no se tiran: para eso está Lanzar. */
+function DescripcionCorta({ desc }: { desc?: string }) {
+  const partes = (desc || '').trim().split(/\n\s*\n/).map(p => p.trim()).filter(p => p && !YA_EN_LANZAR.test(p));
+  const [corta, ...resto] = partes;
+  if (!corta) return null;
   return (
     <>
-      <TextoConDados html={richT(corta)} label={nombre} className="mb-0 mt-1" />
-      {resto && (
+      <p className="mb-0 mt-1" dangerouslySetInnerHTML={{ __html: richT(corta) }} />
+      {resto.length > 0 && (
         <details className="mt-1 text-[0.96rem]">
           <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg text-sm font-bold text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>Más detalles</summary>
-          <TextoConDados html={richT(resto)} label={nombre} as="div" className="mt-1" />
+          <div className="mt-1" dangerouslySetInnerHTML={{ __html: richT(resto.join('\n\n')) }} />
         </details>
       )}
     </>
   );
 }
 
-/** Lanzar un conjuro de nivel 1 o más: eliges el espacio, se gasta, y se tiran el ataque o el daño ya subidos de nivel,
-    con los bonos de rasgos que marques (c.bonosConjuro). */
+/** Lanzar un conjuro. El botón dice lo que tiras (+5 al ataque, CD 13 de DES o sus dados). Un truco se tira al momento;
+    uno de nivel 1 o más pregunta con qué espacio (o con el uso del rasgo que lo da), lo gasta y tira ya subido de nivel.
+    Los bonos de rasgos que aplican (Evocación Potenciada) se suman solos. */
 function LanzarConjuro({ s, c, d }: { s: any; c: any; d: ReturnType<typeof datosConjuro> }) {
   const tirar = useDados();
   const [abierto, setAbierto] = useState(false);
-  const nv = +s.nivel || 0, bonos: any[] = c.bonosConjuro || [];
-  const [marcados, setMarcados] = useState<Record<string, boolean>>({});
-  if (!nv || !S.pj) return null;
-  const esp = espaciosPara(c, nv);
-  if (!esp.length) return null;
-  const lanzar = (nivel: number) => {
-    if (!gastarEspacio(nivel)) { avisar(`No te quedan espacios de nivel ${nivel}.`, 'aviso'); return; }
-    setAbierto(false);
-    const bono = bonos.filter(b => marcados[b.nombre] ?? !b.nota).reduce((t, b) => t + (+b.valor || 0), 0);
-    const expr = dadosAlLanzar(d.dexpr, nv, nivel, s.desc, d.dexpr ? bono : 0);
-    const label = `${s.nombre} (espacio de nivel ${nivel})`;
-    if (s.ataque && d.atk != null) tirar(`1d20${modStr(d.atk)}`, `${label}: ataque`, expr ? { dmg: expr, dmgLabel: label } : {});
+  const nv = +s.nivel || 0, bonos = bonosPara(c, s), bono = d.dexpr ? bonos.reduce((t: number, b: any) => t + (+b.valor || 0), 0) : 0;
+  const ataque = s.ataque && d.atk != null;
+  const esp = nv && S.pj ? espaciosPara(c, nv) : [];
+  const rasgo = s.recurso ? c.recursos?.find((r: any) => r.id === s.recurso) : null;
+  if (!ataque && !s.salv && !d.dexpr && !nv) return null;
+  const tirarCon = (nivel: number) => {
+    const expr = dadosAlLanzar(d.dexpr, nv, nivel, s.desc, bono);
+    const label = nv && nivel > nv ? `${s.nombre} (nivel ${nivel})` : s.nombre;
+    if (ataque) tirar(`1d20${modStr(d.atk)}`, `${label}: ataque`, expr ? { dmg: expr, dmgLabel: label } : {});
     else if (expr) tirar(expr, label);
-    else avisar(`Lanzaste ${s.nombre} con un espacio de nivel ${nivel}.`);
+    else avisar(`Lanzaste ${label}.`);
   };
+  const conEspacio = (nivel: number) => { if (gastarEspacio(nivel)) { setAbierto(false); tirarCon(nivel); } };
+  const conRasgo = () => { if (rasgo && gastarRecurso(rasgo.id)) { setAbierto(false); tirarCon(nv); } };
+  const lanzar = () => (nv && S.pj ? setAbierto(true) : tirarCon(nv));
+  const etiqueta = ataque ? `${sign(d.atk)} al ataque` : s.salv ? `CD ${d.cd ?? '?'} de ${s.salv}` : d.dexpr ? dadosAlLanzar(d.dexpr, nv, nv, '', bono) + (s.tipo ? ' ' + s.tipo : '') : '';
   return (
-    <div className="mt-2 print:hidden">
-      <Boton tamano="sm" variante="primario" onClick={() => setAbierto(true)}>Lanzar</Boton>
-      <Dialogo abierto={abierto} onCerrar={() => setAbierto(false)} titulo={`Lanzar ${s.nombre}`} descripcion="¿Con qué espacio de conjuro? Se gasta al elegirlo." abajo>
-        {bonos.length > 0 && d.dexpr && (
-          <fieldset className="m-0 mb-3 border-0 p-0">
-            <legend className="text-sm font-bold">Sumar al daño</legend>
-            {bonos.map(b => (
-              <label key={b.nombre} className="flex min-h-11 items-center gap-2 text-sm">
-                <input type="checkbox" className="size-5" checked={marcados[b.nombre] ?? !b.nota} onChange={e => setMarcados(m => ({ ...m, [b.nombre]: e.target.checked }))} />
-                {b.nombre} ({sign(+b.valor || 0)}){b.nota ? `, ${b.nota}` : ''}
-              </label>
+    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 print:hidden">
+      <Boton variante="primario" onClick={lanzar} aria-label={`Lanzar ${s.nombre}${etiqueta ? ', ' + etiqueta : ''}`}>
+        Lanzar{etiqueta && <span className="font-serif text-lg font-extrabold">{etiqueta}</span>}
+      </Boton>
+      {(ataque || s.salv) && d.dexpr && <span className="text-sm text-muted">Daño {dadosAlLanzar(d.dexpr, nv, nv, '', bono)}{s.tipo ? ' ' + s.tipo : ''}</span>}
+      {bonos.length > 0 && d.dexpr && <span className="w-full text-xs text-muted">Incluye {bonos.map((b: any) => `${b.nombre} (${sign(+b.valor || 0)})`).join(', ')}</span>}
+      {nv > 0 && (
+        <Dialogo abierto={abierto} onCerrar={() => setAbierto(false)} titulo={`Lanzar ${s.nombre}`} descripcion="¿Con qué lo lanzas? Se gasta al elegirlo." abajo>
+          <ul className="m-0 grid list-none gap-2 p-0">
+            {rasgo && (
+              <li><Boton className="w-full justify-between" disabled={(S.pj.used?.[rasgo.id] || 0) >= rasgo.max} onClick={conRasgo}>
+                <span>Con {rasgo.nombre}</span><span className="text-sm">quedan {rasgo.max - Math.min(S.pj.used?.[rasgo.id] || 0, rasgo.max)}</span>
+              </Boton></li>
+            )}
+            {esp.map((e: any) => (
+              <li key={e.nivel}>
+                <Boton className="w-full justify-between" disabled={!e.quedan} onClick={() => conEspacio(e.nivel)}>
+                  <span>{e.nombre}</span><span className="text-sm">{e.quedan ? `quedan ${e.quedan}` : 'sin espacios'}{d.dexpr ? `, ${dadosAlLanzar(d.dexpr, nv, e.nivel, s.desc, bono)}` : ''}</span>
+                </Boton>
+              </li>
             ))}
-          </fieldset>
-        )}
-        <ul className="m-0 grid list-none gap-2 p-0">
-          {esp.map((e: any) => (
-            <li key={e.nivel}>
-              <Boton className="w-full justify-between" disabled={!e.quedan} onClick={() => lanzar(e.nivel)}>
-                <span>{e.nombre}</span><span className="text-sm">{e.quedan ? `quedan ${e.quedan}` : 'sin espacios'}{d.dexpr ? `, ${dadosAlLanzar(d.dexpr, nv, e.nivel, s.desc)}` : ''}</span>
-              </Boton>
-            </li>
-          ))}
-        </ul>
-      </Dialogo>
+            {!esp.length && !rasgo && <li className="text-sm text-muted">No tienes espacios de este nivel o más.</li>}
+          </ul>
+        </Dialogo>
+      )}
     </div>
   );
 }
@@ -205,17 +201,17 @@ export function ConjuroFila({ s, c }: { s: any; c: any }) {
         </summary>
         <div className="pb-2 pl-4 text-[0.96rem]">
           {d.meta && <p className="m-0 text-sm text-muted">{d.meta}</p>}
-          <TextoConDados html={richT(s.desc || '')} label={s.nombre} className="mb-0 mt-1" />
+          <DescripcionCorta desc={s.desc} />
           {d.origen && <p className="mb-0 mt-1 text-sm">{d.origen}.</p>}
           {s.rasgo && <p className="m-0 text-xs text-muted">De {s.rasgo}</p>}
         </div>
       </details>
-      <div className="pb-2"><BotonesConjuro s={s} d={d} /><LanzarConjuro s={s} c={c} d={d} /></div>
+      <div className="pb-2"><LanzarConjuro s={s} c={c} d={d} /></div>
     </li>
   );
 }
 
-/** Conjuro en tu turno: la misma tarjeta que los rasgos, con su tipo de acción, sus usos y sus tiradas. */
+/** Conjuro en tu turno: la misma tarjeta que los rasgos, con su tipo de acción, sus usos y el botón Lanzar. */
 export function ConjuroTarjeta({ s, c, t }: { s: any; c: any; t: string }) {
   const d = datosConjuro(s, c), color = COLOR_TIPO[t] || COLOR_TIPO.pasiva;
   return (
@@ -225,9 +221,8 @@ export function ConjuroTarjeta({ s, c, t }: { s: any; c: any; t: string }) {
         {s.coste && <span className={cx('text-sm font-bold', color.texto)}>{s.coste}</span>}
       </header>
       <p className="m-0 text-sm text-muted">{[d.bits.join(', '), d.meta].filter(Boolean).join('. ')}</p>
-      <DescripcionCorta desc={s.desc} nombre={s.nombre} />
+      <DescripcionCorta desc={s.desc} />
       {d.origen && <p className="mb-0 mt-1">{d.origen}.</p>}
-      <BotonesConjuro s={s} d={d} />
       <LanzarConjuro s={s} c={c} d={d} />
       {s.recurso && S.view === 'ficha' && <RecursoInline id={s.recurso} />}
       <p className="m-0 mt-1 text-xs text-muted">{s.rasgo ? `Conjuro de ${s.rasgo}` : 'Conjuro'}</p>

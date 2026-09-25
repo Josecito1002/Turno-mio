@@ -65,8 +65,12 @@ export function tocarPip(id: string, i: number, max: number) {
   savePj(); render();
 }
 /** Gasta un espacio de conjuro del nivel dado; devuelve false si no quedaba ninguno. */
-export function gastarEspacio(nivel: number) {
-  const pj = S.pj, r = S.c.recursos.find((x: any) => x.id === 'slot' + nivel); if (!r) return false;
+export function gastarEspacio(nivel: number) { return gastarRecurso('slot' + nivel); }
+/** Gasta un uso de un recurso del personaje abierto (con aviso si ya no queda); devuelve si se pudo. */
+export function gastarRecurso(id: string) {
+  const pj = S.pj, r = S.c?.recursos.find((x: any) => x.id === id);
+  if (!pj || !r) return false;
+  if (Math.min(pj.used[r.id] || 0, r.max) >= r.max) { avisar(`No te quedan ${r.nombre.toLowerCase()}.`, 'aviso'); return false; }
   const used = Math.min(pj.used[r.id] || 0, r.max); if (used >= r.max) return false;
   pj.used[r.id] = used + 1; savePj(); render(); return true;
 }
