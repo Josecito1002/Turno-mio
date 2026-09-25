@@ -14,6 +14,7 @@ import { nuevoPj, reparar, resumen, asegurarTiradas } from './domain/modelo';
 import { compute, puedeLanzar } from './domain/calculo';
 import { pendientesAlSubir } from './domain/pendientes';
 import { snapshot } from './domain/importar-personaje';
+import { manosDe, aDosManos, puedeIrEnLaOtra } from './domain/manos';
 
 export type Tirar = (expr: string, label: string, o?: OpcionesTirada) => Promise<Resultado>;
 
@@ -246,3 +247,18 @@ export async function borrarPj(id: string = S.pj?.id) {
 }
 
 export const claveRasgo = (nombre: string) => norm(nombre);
+
+/** Qué empuña en cada mano: `a` la principal, `b` la otra ('escudo' para el escudo, '' libre).
+    Un arma a dos manos en la principal suelta lo que hubiera en la otra. */
+export function setMano(lado: 'a' | 'b', v: string) {
+  const pj = S.pj, m = manosDe(pj);
+  if (lado === 'a') {
+    m.a = v;
+    if (v && aDosManos(v)) { m.b = ''; pj.escudo = false; }
+    else if (m.b && !puedeIrEnLaOtra(pj, m.b, v)) m.b = '';
+  } else {
+    pj.escudo = v === 'escudo';
+    m.b = v === 'escudo' ? '' : v;
+  }
+  pj.manos = m; savePj(); render();
+}

@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { S, render, irArriba } from '@/app-shell/estado';
 import { modStr, norm, richT, sign, slug } from '@/shared/utils/texto';
-import { Aviso, Boton, EncabezadoPagina, Insignia, Lista, PanelPestana, Pestanas, Plegable, Seccion, Tarjeta, cx } from '@/shared/ui/kit';
+import { Aviso, Boton, Campo, EncabezadoPagina, Insignia, Lista, PanelPestana, Pestanas, Plegable, Seccion, Tarjeta, cx } from '@/shared/ui/kit';
 import { AB, SKILLS, TIPOS, ORDEN_TIPOS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { COMUNES } from '@/features/reglas/data/comunes';
 import { textoArmaduras, textoArmas } from '@/features/reglas/domain/competencias';
@@ -12,6 +12,9 @@ import { BotonTirada } from '@/features/dados/components/BotonTirada';
 import { Ataque, ConjuroFila, ConjuroTarjeta, Entrada, Recursos } from '../piezas';
 import { abrirSubida, bajarArchivo, bajarNivel, borrarPj, irAPaso } from '../../acciones';
 import { faltaParaSubir } from '../../domain/pendientes';
+import { avisar } from '@/shared/ui/avisos';
+import { ElegirManos } from '../Manos';
+import { CampoArea, CampoNumero } from '../editor/campos';
 
 export const PASO_N: Record<string, string> = { especie: 'Especie', clase: 'Clase', trasfondo: 'Trasfondo', stats: 'Características', habs: 'Habilidades', equipo: 'Equipo', conjuros: 'Conjuros', rasgos: 'Rasgos propios', detalles: 'Detalles' };
 
@@ -44,10 +47,17 @@ function Turno({ c }: { c: any }) {
               <Tarjeta className="border-l-4 border-acc px-4 py-1">
                 <p className="m-0 pt-2 text-sm text-muted">Con la acción Atacar{c.extraAttack ? ' haces dos ataques' : ''}</p>
                 <ul className="m-0 list-none divide-y divide-soft p-0">
-                  {c.armas.map((a: any) => <Ataque key={'w' + a.i} a={a} />)}
+                  {c.armas.filter((a: any) => a.mano).map((a: any) => <Ataque key={'w' + a.i} a={a} />)}
                   {(c.naturales || []).map((a: any, i: number) => <Ataque key={'n' + i} a={a} />)}
                   <Ataque a={un} />
                 </ul>
+                {c.armas.some((a: any) => !a.mano) && (
+                  <Plegable titulo="Armas guardadas" nota="Sacar una es interactuar con un objeto. Cambia lo que empuñas en Equipo.">
+                    <ul className="m-0 list-none divide-y divide-soft px-4 pb-2">
+                      {c.armas.filter((a: any) => !a.mano).map((a: any) => <Ataque key={'g' + a.i} a={a} />)}
+                    </ul>
+                  </Plegable>
+                )}
               </Tarjeta>
             )}
             {ents.map((e: any, i: number) => <Entrada key={i} e={e} />)}
@@ -131,6 +141,37 @@ function Hoja({ c }: { c: any }) {
   );
 }
 
+/** Equipo: qué empuña en cada mano, armadura, armas que lleva, oro e inventario. */
+function EquipoTab({ c }: { c: any }) {
+  const pj = S.pj;
+  return (
+    <div className="flex flex-col gap-4">
+      <Seccion titulo="En las manos" descripcion="Solo las armas empuñadas salen en Atacar.">
+        <ElegirManos pj={pj} c={c} />
+      </Seccion>
+      <Seccion titulo="Armadura">
+        <p className="m-0">{c.armor ? c.armor.n : 'Sin armadura'}{c.shield ? ' y escudo' : ''}. CA <b className="font-serif text-xl">{c.ac}</b>{c.armor?.sigilo ? '. Desventaja en Sigilo.' : '.'}</p>
+      </Seccion>
+      <Seccion titulo="Armas que llevas">
+        <Lista etiqueta="Armas">
+          {c.armas.length ? c.armas.map((a: any) => (
+            <li key={a.i} className="flex items-baseline justify-between gap-3 py-2">
+              <span>{a.nombre} <span className="text-sm text-muted">{a.w.p.join(', ')}</span></span>
+              <span className="text-sm font-bold text-muted">{a.mano === 'principal' ? 'Mano principal' : a.mano === 'otra' ? 'Otra mano' : 'Guardada'}</span>
+            </li>
+          )) : <li className="py-2 text-sm text-muted">Todavía no hay armas. Agrégalas en Editar, paso Equipo.</li>}
+        </Lista>
+      </Seccion>
+      <Seccion titulo="Oro e inventario">
+        <div className="grid gap-3">
+          <Campo etiqueta="Oro (po)" className="max-w-40"><CampoNumero path="oro" value={pj.oro || 0} min={0} /></Campo>
+          <Campo etiqueta="Inventario"><CampoArea path="inventario" value={pj.inventario} rows={5} /></Campo>
+        </div>
+      </Seccion>
+    </div>
+  );
+}
+
 function ConjurosTab({ c }: { c: any }) {
   const sp = c.conjuros || [];
   const cab = c.casterAb && (
@@ -178,14 +219,20 @@ export function Ficha({ c }: { c: any }) {
   const who = `${esp || 'Sin especie'}. ${c.C ? `${c.C.n} de nivel ${c.lvl}` : 'Sin clase'}${subN ? `, ${subN}` : ''}${c.chain ? ', Pacto de la Cadena' : ''}.`;
   const nAv = c.avisos.filter((a: any) => a.nivel === 'aviso').length;
   const falta = faltaParaSubir(c);
+  // Con algo pendiente, el botón explica qué falta y lleva a Revisar
+  const subir = () => {
+    if (!falta.length) return abrirSubida();
+    avisar(`No puedes subir de nivel: tienes elecciones pendientes (${falta.map((a: any) => a.t.toLowerCase()).join(', ')}). Míralas en Revisar.`, 'aviso');
+    S.tab = 'revisar'; render();
+  };
   const tabs = [
-    { id: 'turno', texto: 'En tu turno' }, { id: 'hoja', texto: 'Hoja' }, { id: 'conjuros', texto: 'Conjuros' },
+    { id: 'turno', texto: 'En tu turno' }, { id: 'hoja', texto: 'Hoja' }, { id: 'equipo', texto: 'Equipo' }, { id: 'conjuros', texto: 'Conjuros' },
     { id: 'revisar', texto: 'Revisar', insignia: nAv > 0 ? <Insignia etiqueta={`${nAv} cosas por elegir`}>{nAv}</Insignia> : undefined },
   ];
   return (
     <>
       <EncabezadoPagina id="titulo-vista" titulo={pj.nombre || 'Sin nombre'} subtitulo={who}>
-        {c.C && c.lvl < 20 && <Boton variante="primario" onClick={abrirSubida} disabled={falta.length > 0}>Subir a nivel {c.lvl + 1}</Boton>}
+        {c.C && c.lvl < 20 && <Boton variante="primario" onClick={subir} aria-disabled={falta.length > 0} className={falta.length ? 'opacity-60' : undefined}>Subir a nivel {c.lvl + 1}</Boton>}
         {c.C && c.lvl > 1 && <Boton onClick={bajarNivel}>Bajar a nivel {c.lvl - 1}</Boton>}
       </EncabezadoPagina>
       {c.C && c.lvl < 20 && falta.length > 0 && (
@@ -208,6 +255,7 @@ export function Ficha({ c }: { c: any }) {
       <PanelPestana idBase="ficha" activa={S.tab}>
         {S.tab === 'turno' && <Turno c={c} />}
         {S.tab === 'hoja' && <Hoja c={c} />}
+        {S.tab === 'equipo' && <EquipoTab c={c} />}
         {S.tab === 'conjuros' && <ConjurosTab c={c} />}
         {S.tab === 'revisar' && <Avisos c={c} />}
       </PanelPestana>

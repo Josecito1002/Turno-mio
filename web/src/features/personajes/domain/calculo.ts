@@ -17,6 +17,7 @@ import { getLib, getE, getC, getT, getD, getSubs, subNivel, getAltos, getSubAlto
 import { competenciasBase, leerCompetencias, competenteArma } from '@/features/reglas/domain/competencias';
 import { mejoraDeDote } from '@/features/reglas/domain/mejora-dote';
 import { baseScores } from './modelo';
+import { manosDe, aDosManos, portadorDual } from './manos';
 
 export function compute(pj): any {
   const E = getE(pj, pj.especie?.key), C = getC(pj, pj.clase), T = getT(pj, pj.trasfondo?.key);
@@ -73,7 +74,10 @@ export function compute(pj): any {
 
   // Armadura y CA
   c.armorKey = pj.armadura && pj.armadura !== 'ninguna' ? pj.armadura : null;
-  c.armor = ARMADURAS[c.armorKey] || null; c.shield = !!pj.escudo;
+  c.armor = ARMADURAS[c.armorKey] || null;
+  // Manos: un arma a dos manos o un arma en la otra mano no dejan usar el escudo
+  c.manos = manosDe(pj);
+  c.shield = !!pj.escudo && !c.manos.b && !(c.manos.a && aDosManos(c.manos.a));
   const opc = [c.armor ? c.armor.base + (c.armor.max === 0 ? 0 : c.armor.max ? Math.min(m.des, c.armor.max) : m.des) : 10 + m.des];
   [C?.ca, c.SD?.ca].forEach(f => { if (f) { const v = f(c); if (v != null) opc.push(v); } });
   c.ac = Math.max(...opc) + (c.shield ? 2 : 0) + (estilo('defensa') && c.armor ? 1 : 0);
@@ -124,8 +128,9 @@ export function compute(pj): any {
   c.unarmed = uDice
     ? {atk: pb + uMod, expr: `${uDice}${modStr(uMod)}`, dmg: `${uDice}${fmtMod(uMod)} contundente`}
     : {atk: pb + uMod, expr: `${Math.max(1, 1 + uMod)}`, dmg: `${Math.max(1, 1 + uMod)} contundente`};
-  c.armas = (pj.armas || []).map(([k, q], i) => ARMAS[k] ? weaponRow({k, q, i}, c) : null).filter(Boolean);
-  c.lightCount = c.armas.filter(w => w.w.p.includes('ligera') && !w.w.dist).reduce((s, w) => s + w.q, 0);
+  c.armas = filasArmas(c);
+  // Ataque con la otra mano: las dos armas empuñadas ligeras (o cualquiera con Portador Dual)
+  c.dosArmas = !!(c.manos.a && c.manos.b && (ARMAS[c.manos.a].p.includes('ligera') || portadorDual(pj)));
 
   // Espacios
   c.slots = [];
@@ -140,7 +145,7 @@ export function compute(pj): any {
   conjurosDeRasgos(c);
   c.passive = 10 + c.skill['percepcion']; // una regla pudo dar competencia en Percepción
   // Competencias que dan los rasgos (especie, subclase, dotes); si cambian las de armas, las filas de ataque se recalculan
-  if (leerCompetencias(c) || c.rehacerArmas) c.armas = (pj.armas || []).map(([k, q], i) => ARMAS[k] ? weaponRow({k, q, i}, c) : null).filter(Boolean);
+  if (leerCompetencias(c) || c.rehacerArmas) c.armas = filasArmas(c);
   c.sinCompArmadura = !!c.armor && !c.compArm[c.armor.cat];
   c.sinCompEscudo = c.shield && !c.compArm.escudo;
   c.recursos = buildRecursos(c);
@@ -244,6 +249,17 @@ export function vincularRecursos(c){
     if (best) e.recurso = best.id;
   });
 }
+/* Filas de ataque de las armas, marcando cuál va en cada mano. La versátil solo hace su daño a dos manos con la otra mano libre */
+function filasArmas(c){
+  const {a, b} = c.manos, libre = !b && !c.shield;
+  return (c.pj.armas || []).map(([k, q], i) => {
+    if (!ARMAS[k]) return null;
+    const r = weaponRow({k, q, i}, c);
+    r.mano = k === a ? 'principal' : k === b ? 'otra' : null;
+    if (r.mano === 'otra' || (r.mano === 'principal' && !libre)) r.v = null;
+    return r;
+  }).filter(Boolean);
+}
 export function weaponRow(a, c){
   const w = ARMAS[a.k], m = c.m, pj = c.pj;
   const monkW = c.isMonk && !w.dist && (w.cat === 'sencilla' || w.p.includes('ligera'));
@@ -309,7 +325,7 @@ export function buildEntries(c){
     if ((+r.n || 1) > c.tl) { c.futuros.push({nombre:r.nombre, nivel:+r.n}); return; }
     pushR(r, 'Rasgo propio', 'extra', 'x' + i);
   });
-  if (c.lightCount >= 2) E.push({t:'adicional', nombre:'Ataque con la otra arma ligera', src:'Reglas', grupo:'reglas',
+  if (c.dosArmas) E.push({t:'adicional', nombre:'Ataque con la otra arma ligera', src:'Reglas', grupo:'reglas',
     texto:`Si atacaste con un arma Ligera, atacas con otra distinta.${c.tieneEstilo('dosarmas') ? ' Sumas tu modificador al daño.' : ' No sumas tu modificador al daño salvo que sea negativo.'}`});
   return E;
 }
@@ -352,7 +368,7 @@ export function buildAvisos(c){
     if (C.estilo && c.lvl >= C.estilo && !pj.estilo) falta('Estilo de combate', 'Elige tu estilo de combate.', 'clase');
     (c.elecciones || []).filter(e => e.multi ? e.valor.length < e.max : !e.valor).forEach(e =>
       falta(`Falta elegir: ${e.titulo.toLowerCase()}`, e.multi ? `${e.src} te deja elegir ${e.max}; llevas ${e.valor.length}.` : `${e.src} te pide elegir ${e.titulo.toLowerCase()}.`, e.grupo === 'especie' ? 'especie' : 'clase'));
-    if (C.maestrias && (pj.maestrias || []).length < C.maestrias) falta('Maestría con armas', `Elige ${C.maestrias} tipos de armas.`, 'equipo');
+    if (C.maestrias && (pj.maestrias || []).length < C.maestrias) falta('Maestría con armas', `Elige ${C.maestrias} tipos de armas.`, 'habs');
     if (C.hasta && c.lvl > C.hasta && !getAltos(pj, pj.clase)) A.push({nivel:'info', t:'Rasgos de nivel alto', txt:`Los rasgos de ${C.n.toLowerCase()} están cargados hasta nivel ${C.hasta}. Agrega los de niveles superiores en Rasgos propios.`, paso:'rasgos'});
     if (c.lvl >= c.subNivel && pj.subclase === 'otra') A.push({nivel:'info', t:'Subclase propia', txt:'Sus rasgos van en Rasgos propios, con su tipo de acción.', paso:'rasgos'});
     else if (c.SD && c.SD.hasta && c.lvl > c.SD.hasta && !getSubAltos(pj, pj.clase, c.SD.key)) A.push({nivel:'info', t:'Rasgos de subclase', txt:`${c.SD.n} está cargada hasta nivel ${c.SD.hasta}.`, paso:'rasgos'});

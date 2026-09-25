@@ -14,9 +14,10 @@ import { mejoraDeDote } from '@/features/reglas/domain/mejora-dote';
 import { allDotes } from '@/features/biblioteca/domain/biblioteca';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { quitarEquipoClase, savePj, tirarPg, tomarEquipoClase } from '../../acciones';
-import { AbSel, Casilla, CampoArea, CampoNumero, CampoTexto, Selector } from './campos';
+import { AbSel, CampoArea, CampoNumero, CampoTexto, Selector } from './campos';
 import { EquipoTrasfondo } from './PasosOrigen';
 import { ElegirElecciones } from './InfoSubclase';
+import { ElegirManos } from '../Manos';
 
 /* ---------- Características ---------- */
 /* Las acciones cambian el personaje fuera del componente: el componente solo lee y las llama */
@@ -290,6 +291,11 @@ export function PasoHabs({ pj, c }: { pj: any; c: any }) {
           <ElegirPericia pj={pj} c={c} />
         </Seccion>
       )}
+      {C?.maestrias > 0 && (
+        <Seccion titulo={`Maestría con armas (${pj.maestrias.length} de ${C.maestrias})`} descripcion={pj.clase === 'barbaro' ? 'Solo armas cuerpo a cuerpo con las que eres competente.' : 'Puedes usar la maestría de estos tipos de arma. Solo armas con las que eres competente; se pueden cambiar tras un descanso largo.'}>
+          <ElegirMaestrias pj={pj} c={c} />
+        </Seccion>
+      )}
     </>
   );
 }
@@ -347,7 +353,6 @@ export function PasoEquipo({ pj, c }: { pj: any; c: any }) {
               ); })}
             </Selector>
           </Campo>
-          {(compArm.escudo || pj.escudo) && <div className="self-end"><Casilla path="escudo" checked={pj.escudo}>Escudo (+2 CA){!compArm.escudo ? ' — sin competencia' : ''}</Casilla></div>}
         </div>
         <p className="mb-0 mt-3">CA resultante: <b className="font-serif text-xl">{c.ac}</b>{c.armor?.sigilo ? '. Desventaja en Sigilo.' : '.'}</p>
       </Seccion>
@@ -370,12 +375,9 @@ export function PasoEquipo({ pj, c }: { pj: any; c: any }) {
           </label>
           <Boton variante="primario" onClick={agregar}>Agregar</Boton>
         </div>
+        <h3 className="mb-2 mt-5 font-serif text-lg font-bold">En las manos</h3>
+        <ElegirManos pj={pj} c={c} />
       </Seccion>
-      {C?.maestrias > 0 && (
-        <Seccion titulo={`Maestría con armas (${pj.maestrias.length} de ${C.maestrias})`} descripcion={pj.clase === 'barbaro' ? 'Solo armas cuerpo a cuerpo con las que eres competente.' : 'Solo armas con las que eres competente.'}>
-          <ElegirMaestrias pj={pj} c={c} />
-        </Seccion>
-      )}
       {C && <Seccion titulo="Equipo de la clase"><EquipoClase pj={pj} /></Seccion>}
       {c.T && <Seccion titulo="Equipo del trasfondo"><EquipoTrasfondo pj={pj} /></Seccion>}
       <Seccion titulo="Lo demás">
