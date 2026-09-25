@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { S, render, irArriba } from '@/app-shell/estado';
 import { modStr, norm, richT, sign, slug } from '@/shared/utils/texto';
-import { Aviso, Boton, Campo, EncabezadoPagina, Insignia, Lista, PanelPestana, Pestanas, Plegable, Seccion, Tarjeta, cx } from '@/shared/ui/kit';
+import { Aviso, Boton, EncabezadoPagina, Insignia, Lista, PanelPestana, Pestanas, Plegable, Seccion, Tarjeta, cx } from '@/shared/ui/kit';
 import { AB, SKILLS, TIPOS, ORDEN_TIPOS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { COMUNES } from '@/features/reglas/data/comunes';
 import { textoArmaduras, textoArmas } from '@/features/reglas/domain/competencias';
@@ -13,8 +13,7 @@ import { Ataque, ConjuroFila, ConjuroTarjeta, Entrada, Recursos } from '../pieza
 import { abrirSubida, bajarArchivo, bajarNivel, borrarPj, irAPaso } from '../../acciones';
 import { faltaParaSubir } from '../../domain/pendientes';
 import { avisar } from '@/shared/ui/avisos';
-import { ElegirManos } from '../Manos';
-import { CampoArea, CampoNumero } from '../editor/campos';
+import { Inventario } from '../Inventario';
 
 export const PASO_N: Record<string, string> = { especie: 'Especie', clase: 'Clase', trasfondo: 'Trasfondo', stats: 'Características', habs: 'Habilidades', equipo: 'Equipo', conjuros: 'Conjuros', rasgos: 'Rasgos propios', detalles: 'Detalles' };
 
@@ -141,37 +140,6 @@ function Hoja({ c }: { c: any }) {
   );
 }
 
-/** Equipo: qué empuña en cada mano, armadura, armas que lleva, oro e inventario. */
-function EquipoTab({ c }: { c: any }) {
-  const pj = S.pj;
-  return (
-    <div className="flex flex-col gap-4">
-      <Seccion titulo="En las manos" descripcion="Solo las armas empuñadas salen en Atacar.">
-        <ElegirManos pj={pj} c={c} />
-      </Seccion>
-      <Seccion titulo="Armadura">
-        <p className="m-0">{c.armor ? c.armor.n : 'Sin armadura'}{c.shield ? ' y escudo' : ''}. CA <b className="font-serif text-xl">{c.ac}</b>{c.armor?.sigilo ? '. Desventaja en Sigilo.' : '.'}</p>
-      </Seccion>
-      <Seccion titulo="Armas que llevas">
-        <Lista etiqueta="Armas">
-          {c.armas.length ? c.armas.map((a: any) => (
-            <li key={a.i} className="flex items-baseline justify-between gap-3 py-2">
-              <span>{a.nombre} <span className="text-sm text-muted">{a.w.p.join(', ')}</span></span>
-              <span className="text-sm font-bold text-muted">{a.mano === 'principal' ? 'Mano principal' : a.mano === 'otra' ? 'Otra mano' : 'Guardada'}</span>
-            </li>
-          )) : <li className="py-2 text-sm text-muted">Todavía no hay armas. Agrégalas en Editar, paso Equipo.</li>}
-        </Lista>
-      </Seccion>
-      <Seccion titulo="Oro e inventario">
-        <div className="grid gap-3">
-          <Campo etiqueta="Oro (po)" className="max-w-40"><CampoNumero path="oro" value={pj.oro || 0} min={0} /></Campo>
-          <Campo etiqueta="Inventario"><CampoArea path="inventario" value={pj.inventario} rows={5} /></Campo>
-        </div>
-      </Seccion>
-    </div>
-  );
-}
-
 function ConjurosTab({ c }: { c: any }) {
   const sp = c.conjuros || [];
   const cab = c.casterAb && (
@@ -255,7 +223,7 @@ export function Ficha({ c }: { c: any }) {
       <PanelPestana idBase="ficha" activa={S.tab}>
         {S.tab === 'turno' && <Turno c={c} />}
         {S.tab === 'hoja' && <Hoja c={c} />}
-        {S.tab === 'equipo' && <EquipoTab c={c} />}
+        {S.tab === 'equipo' && <Inventario c={c} />}
         {S.tab === 'conjuros' && <ConjurosTab c={c} />}
         {S.tab === 'revisar' && <Avisos c={c} />}
       </PanelPestana>

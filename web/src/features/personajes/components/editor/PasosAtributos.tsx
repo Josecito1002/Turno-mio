@@ -310,7 +310,7 @@ export function ElegirMaestrias({ pj, c }: { pj: any; c: any }) {
   const C = c.C;
   const maestria = (k: string, el: HTMLInputElement) => alternarEn('maestrias', k, C?.maestrias || 0, el);
   const tiene = [...new Set<string>(pj.armas.map((a: any) => a[0]))];
-  const conMaestria = Object.keys(ARMAS).filter(k => competenteArma(c, k) && !(pj.clase === 'barbaro' && ARMAS[k].dist));
+  const conMaestria = Object.keys(ARMAS).filter(k => !k.startsWith('x:') && competenteArma(c, k) && !(pj.clase === 'barbaro' && ARMAS[k].dist));
   const maestriaTiene = [...new Set([...tiene.filter(k => conMaestria.includes(k)), ...pj.maestrias])];
   const maestriaResto = conMaestria.filter(k => !maestriaTiene.includes(k));
   const cb = (k: string) => (
@@ -338,9 +338,9 @@ export function PasoEquipo({ pj, c }: { pj: any; c: any }) {
   const agregar = () => agregarArma((document.getElementById('addW') as HTMLSelectElement).value);
   // Competencias reales del personaje: las de la clase más las que dan especie, subclase y dotes
   const compArm = c.compArm;
-  const armaduras = Object.keys(ARMADURAS).filter(k => compArm[ARMADURAS[k].cat]);
+  const armaduras = Object.keys(ARMADURAS).filter(k => !k.startsWith('x:') && compArm[ARMADURAS[k].cat]);
   const armaduraFuera = c.armorKey && !armaduras.includes(c.armorKey);
-  const armasOk = Object.keys(ARMAS).filter(k => competenteArma(c, k));
+  const armasOk = Object.keys(ARMAS).filter(k => !k.startsWith('x:') && competenteArma(c, k));
   return (
     <>
       <Seccion titulo="Armadura" descripcion={`Eres competente con: ${textoArmaduras(c).toLowerCase()}.`}>

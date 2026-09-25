@@ -18,8 +18,10 @@ import { competenciasBase, leerCompetencias, competenteArma } from '@/features/r
 import { mejoraDeDote } from '@/features/reglas/domain/mejora-dote';
 import { baseScores } from './modelo';
 import { manosDe, aDosManos, portadorDual } from './manos';
+import { registrarPropias } from './inventario';
 
 export function compute(pj): any {
+  registrarPropias(pj);
   const E = getE(pj, pj.especie?.key), C = getC(pj, pj.clase), T = getT(pj, pj.trasfondo?.key);
   const lvl = Math.min(20, Math.max(1, +pj.nivel || 1)), tl = lvl, pb = Math.ceil(tl / 4) + 1;
   const tb = pj.trasfondo || {};

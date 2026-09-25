@@ -15,6 +15,8 @@ import { compute, puedeLanzar } from './domain/calculo';
 import { pendientesAlSubir } from './domain/pendientes';
 import { snapshot } from './domain/importar-personaje';
 import { manosDe, aDosManos, puedeIrEnLaOtra } from './domain/manos';
+import { armadurasDe, bolsaDe, guardarBolsa, nuevaClave, pagar, pasoEquipoEnEditor } from './domain/inventario';
+import { ARMAS, ARMADURAS } from '@/features/reglas/data/equipo';
 
 export type Tirar = (expr: string, label: string, o?: OpcionesTirada) => Promise<Resultado>;
 
@@ -214,7 +216,13 @@ export function tomarEquipoTrasfondo(op: 'A' | 'B') {
   avisar(op === 'A' ? `Kit de ${T?.n || 'trasfondo'} agregado: armas, inventario y ${kit.oro} po.` : `${kit.alternativa} po agregadas.`);
 }
 
-export function irAPaso(paso: string) { S.subida = null; S.view = 'editor'; S.step = paso; render(); irArriba(); }
+export function irAPaso(paso: string) {
+  S.subida = null;
+  // Pasada la creación, el equipo está en la pestaña Equipo de la hoja
+  if (paso === 'equipo' && S.pj && !pasoEquipoEnEditor(S.pj, compute(S.pj), kitClase, kitTrasfondo)) { S.view = 'ficha'; S.tab = 'equipo'; }
+  else { S.view = 'editor'; S.step = paso; }
+  render(); irArriba();
+}
 
 /* ---- Conjuros y rasgos ---- */
 export async function confirmarNoLanzador() {
@@ -252,6 +260,7 @@ export const claveRasgo = (nombre: string) => norm(nombre);
     Un arma a dos manos en la principal suelta lo que hubiera en la otra. */
 export function setMano(lado: 'a' | 'b', v: string) {
   const pj = S.pj, m = manosDe(pj);
+  pj.armaduras = armadurasDe(pj); // el escudo que se suelta sigue en el inventario
   if (lado === 'a') {
     m.a = v;
     if (v && aDosManos(v)) { m.b = ''; pj.escudo = false; }
@@ -261,4 +270,64 @@ export function setMano(lado: 'a' | 'b', v: string) {
     m.b = v === 'escudo' ? '' : v;
   }
   pj.manos = m; savePj(); render();
+}
+
+/* ---- Inventario: armas, armaduras y objetos, y monedas ---- */
+export function agregarArma(k: string, def?: any) {
+  const pj = S.pj;
+  if (def) { k = nuevaClave(); pj.armasPropias = { ...(pj.armasPropias || {}), [k]: def }; }
+  const ex = pj.armas.find((a: any) => a[0] === k); if (ex) ex[1]++; else pj.armas.push([k, 1]);
+  savePj(); render(); avisar(`${def?.n || ARMAS[k]?.n || 'Arma'} agregada.`);
+}
+export function quitarArma(k: string) {
+  const pj = S.pj; pj.armas = pj.armas.filter((a: any) => a[0] !== k);
+  if (pj.armasPropias?.[k]) delete pj.armasPropias[k];
+  savePj(); render();
+}
+export function agregarArmadura(k: string, def?: any) {
+  const pj = S.pj;
+  if (def) { k = nuevaClave(); pj.armadurasPropias = { ...(pj.armadurasPropias || {}), [k]: def }; }
+  const tiene = armadurasDe(pj);
+  if (tiene.includes(k)) return avisar(k === 'escudo' ? 'Ya tienes un escudo.' : 'Ya tienes esa armadura.', 'info');
+  pj.armaduras = [...tiene, k];
+  savePj(); render(); avisar(`${k === 'escudo' ? 'Escudo' : def?.n || ARMADURAS[k]?.n || 'Armadura'} agregado.`);
+}
+export function quitarArmadura(k: string) {
+  const pj = S.pj;
+  pj.armaduras = armadurasDe(pj).filter(x => x !== k);
+  if (pj.armadura === k) pj.armadura = 'ninguna';
+  if (k === 'escudo') pj.escudo = false;
+  if (pj.armadurasPropias?.[k]) delete pj.armadurasPropias[k];
+  savePj(); render();
+}
+/** Cambia la armadura puesta por otra que tenga; la anterior queda guardada. */
+export function ponerArmadura(k: string) {
+  const pj = S.pj;
+  pj.armaduras = armadurasDe(pj); pj.armadura = k || 'ninguna';
+  savePj(); render();
+}
+export function agregarObjeto(nombre: string, q: number) {
+  const pj = S.pj, n = nombre.trim(); if (!n) return;
+  const ex = (pj.objetos || []).find((o: any) => o.n.toLowerCase() === n.toLowerCase());
+  if (ex) ex.q += q; else pj.objetos = [...(pj.objetos || []), { n, q }];
+  savePj(); render();
+}
+export function cambiarObjeto(i: number, d: number) {
+  const pj = S.pj, o = pj.objetos?.[i]; if (!o) return;
+  o.q += d; if (o.q <= 0) pj.objetos.splice(i, 1);
+  savePj(); render();
+}
+/** Suma o gasta monedas; al gastar, cambia monedas mayores o junta menores si hace falta. */
+export function moverMonedas(den: string, n: number, gastar: boolean) {
+  const pj = S.pj, b = bolsaDe(pj); n = Math.floor(n); if (!(n > 0)) return;
+  if (!gastar) { b[den] += n; guardarBolsa(pj, b); savePj(); render(); return; }
+  const r = pagar(b, den, n);
+  if (!r) return avisar('No te alcanza el dinero.', 'aviso');
+  guardarBolsa(pj, r); savePj(); render();
+}
+export function cambiarCantidadArma(i: number, d: number) {
+  const pj = S.pj, a = pj.armas[i]; if (!a) return;
+  a[1] += d;
+  if (a[1] <= 0) { pj.armas.splice(i, 1); if (pj.armasPropias?.[a[0]]) delete pj.armasPropias[a[0]]; }
+  savePj(); render();
 }

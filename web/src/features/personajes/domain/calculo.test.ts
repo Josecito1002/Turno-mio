@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { pagar, armadurasDe } from './inventario';
 import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { setLib, getSubs, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
@@ -734,5 +735,32 @@ describe('Manos: qué arma se empuña', () => {
     assert.equal(dos.manos.b, 'daga');
     assert.ok(dos.entries.some((e: any) => e.nombre === 'Ataque con la otra arma ligera'));
     assert.equal(gue({ armas: [['daga', 1]], manos: { a: 'daga', b: 'daga' } }).manos.b, '');
+  });
+});
+
+describe('Inventario y monedas', () => {
+  test('pagar con la misma moneda, o cambiando una mayor y recibiendo el cambio', () => {
+    const b = { pt: 0, po: 35, pp: 3, pc: 1 };
+    assert.deepEqual(pagar(b, 'pp', 2), { pt: 0, po: 35, pp: 1, pc: 1 });
+    // 5 de plata con solo 3: se cambia 1 de oro (10 de plata), quedan 8
+    assert.deepEqual(pagar(b, 'pp', 5), { pt: 0, po: 34, pp: 8, pc: 1 });
+    // 1 de oro sin oro: se cambia 1 de platino
+    assert.deepEqual(pagar({ pt: 1, po: 0, pp: 0, pc: 0 }, 'po', 1), { pt: 0, po: 9, pp: 0, pc: 0 });
+    // Sin mayores, se juntan menores
+    assert.deepEqual(pagar({ pt: 0, po: 0, pp: 12, pc: 5 }, 'po', 1), { pt: 0, po: 0, pp: 2, pc: 5 });
+    assert.deepEqual(pagar({ pt: 0, po: 0, pp: 1, pc: 0 }, 'pc', 3), { pt: 0, po: 0, pp: 0, pc: 7 });
+    assert.equal(pagar({ pt: 0, po: 1, pp: 0, pc: 0 }, 'pt', 1), null);
+  });
+  test('armas y armaduras personalizadas cuentan en ataques y CA', () => {
+    const c = pj('guerrero', 3, '', { fue: 16, des: 14 }, {
+      armas: [['x:hacha', 1]], armasPropias: { 'x:hacha': { n: 'Hacha rúnica', d: '1d10', tipo: 'cortante', cat: 'marcial', p: [] } },
+      armadura: 'x:malla', armadurasPropias: { 'x:malla': { n: 'Malla élfica', base: 14, cat: 'ligera' } },
+    });
+    assert.equal(c.armas[0].w.n, 'Hacha rúnica');
+    assert.equal(c.armas[0].dmg, "1d10 + 3 cortante");
+    assert.equal(c.ac, 16);
+  });
+  test('la armadura que se quita del cuerpo sigue en el inventario, y el escudo también', () => {
+    assert.deepEqual(armadurasDe({ armadura: 'mallas', armaduras: ['cuero'], escudo: true }), ['mallas', 'cuero', 'escudo']);
   });
 });
