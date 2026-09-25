@@ -235,12 +235,14 @@ export function bajarArchivo(nombre: string, texto: string) {
   a.download = nombre; document.body.appendChild(a); a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
 }
-export async function borrarPj() {
-  const pj = S.pj;
-  if (!(await confirmar({ titulo: `¿Borrar a ${pj.nombre || 'este personaje'}?`, si: 'Borrar personaje', peligro: true,
-    texto: 'Se quita de tu cuenta y no se puede deshacer. Si quieres conservar una copia, usa antes «Descargar respaldo».' }))) return;
-  almacen.borrarPj(pj.id); S.list = S.list.filter(p => p.id !== pj.id); almacen.ultimo(null);
-  S.pj = null; S.view = 'home'; render();
+/** Borra el personaje abierto o, con `id`, uno de la lista de inicio. */
+export async function borrarPj(id: string = S.pj?.id) {
+  const nombre = id === S.pj?.id ? S.pj.nombre : S.list.find(p => p.id === id)?.name;
+  if (!(await confirmar({ titulo: `¿Borrar a ${nombre || 'este personaje'}?`, si: 'Borrar personaje', peligro: true,
+    texto: 'Se quita de tu cuenta y no se puede deshacer. Si quieres conservar una copia, abre su hoja y usa antes «Descargar respaldo».' }))) return;
+  almacen.borrarPj(id); S.list = S.list.filter(p => p.id !== id); almacen.ultimo(null);
+  if (S.pj?.id === id) S.pj = null;
+  S.view = 'home'; render(); avisar('Personaje borrado.');
 }
 
 export const claveRasgo = (nombre: string) => norm(nombre);
