@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { setLib, getSubs } from '@/features/biblioteca/domain/biblioteca';
+import { setLib, getSubs, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
 import { compute } from './calculo';
 import { nuevoPj } from './modelo';
 import { pendientes, pendientesAlSubir } from './pendientes';
@@ -635,5 +635,17 @@ describe('Explorador 2024 (Lote 10)', () => {
     assert.match(entrada(exp(11, 'lib:caminante-invierno'), 'Explorador Gélido').texto, /1d6 de daño de frío/);
     assert.match(entrada(exp(3, 'lib:caminante-invierno'), 'Escarcha del Cazador').texto, /1d10 \+ 3 PG temporales/);
     assert.match(entrada(exp(11, 'lib:hadas'), 'Golpes Pavorosos').texto, /1d6 de daño psíquico/);
+  });
+});
+
+describe('Selector de clase', () => {
+  test('el Artífice sale una sola vez: la clase completa de la biblioteca, con su nombre', () => {
+    const lista = clasesParaElegir('');
+    const artifices = lista.filter(([, x]) => /art[ií]fice/i.test(x.n));
+    assert.deepEqual(artifices.map(([k, x]) => [k, x.n]), [['lib:arcanista', 'Artífice']]);
+    assert.ok(lista.some(([k]) => k === 'lib:pugilista') && lista.some(([k]) => k === 'mago'));
+  });
+  test('un personaje que ya tenía el Artífice de las reglas lo sigue viendo', () => {
+    assert.ok(clasesParaElegir('artifice').some(([k]) => k === 'artifice'));
   });
 });

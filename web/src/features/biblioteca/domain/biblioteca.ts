@@ -122,3 +122,17 @@ export function sinRepetidas(lib: Record<string, any>, base: Record<string, any>
   const nombres = new Set(Object.values(base).map((x: any) => norm(x.n)));
   return Object.entries(lib).filter(([k, v]) => k === elegida || !nombres.has(norm(v?.n)));
 }
+
+/* Clases para elegir: las de las reglas y las de biblioteca. Una clase de reglas que solo es un esbozo y tiene
+   su versión completa en la biblioteca (el Artífice, importado como "Arcanista (Artífice)") sale una sola vez:
+   la de biblioteca, con el nombre de la clase base. La de reglas solo queda si el personaje ya la tiene. */
+export function clasesParaElegir(elegida?: string): [string, any][] {
+  const lib = sinRepetidas(LIB.clases, CLASES, elegida).filter(([k, x]) => x?.dado && !CLASES[k]);
+  const reemplazo: Record<string, string> = {};
+  for (const [k, x] of lib) { const b = claseBase(k, x); if (b && b !== k && !reemplazo[b]) reemplazo[b] = k; }
+  const base = Object.entries(CLASES).filter(([k]) => !reemplazo[k] || k === elegida);
+  return [...base, ...lib.map(([k, x]): [string, any] => {
+    const b = Object.keys(reemplazo).find(bk => reemplazo[bk] === k);
+    return b && b !== elegida ? [k, { ...x, n: CLASES[b].n }] : [k, x];
+  })];
+}
