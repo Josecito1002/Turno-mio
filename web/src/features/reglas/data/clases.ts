@@ -59,9 +59,9 @@ export const CLASES: Record<string, any> = {
       {n:5,t:'gratis',nombre:'Resurgir Salvaje',texto:()=>'Una vez por turno, sin usos de Forma Salvaje, gastas un espacio para recuperar uno. Una vez por descanso largo, gastas un uso de Forma Salvaje para recuperar un espacio de nivel 1.'},
     ]},
   explorador:{n:'Explorador', al:['ranger'], dado:10, sv:['fue','des'], habN:3, habs:['Trato con Animales','Atletismo','Perspicacia','Investigación','Naturaleza','Percepción','Sigilo','Supervivencia'], arm:'Ligeras, medias y escudos', armas:'Sencillas y marciales', w:{simple:1,martial:1}, lanz:'sab', caster:'half', maestrias:2, estilo:2, estilos:['arqueria','defensa','duelo','dosarmas','druidico'], hasta:5,
-    recursos: c => [{id:'enemigo',nombre:'Marca del cazador sin espacio',max:c.lvl>=17?6:c.lvl>=13?5:c.lvl>=9?4:c.lvl>=5?3:2,reset:'largo'}],
+    recursos: c => [{id:'enemigo',nombre:'Enemigo Predilecto',nota:'Lanzas Marca del cazador sin gastar espacio. Vuelve con descanso largo',solo:true,max:c.lvl>=17?6:c.lvl>=13?5:c.lvl>=9?4:c.lvl>=5?3:2,reset:'largo'}],
     rasgos:[
-      {n:1,t:'adicional',nombre:'Marca del Cazador',coste:'1 espacio o 1 uso gratis',texto:()=>'Siempre preparada (concentración, 1 hora): +1d6 de fuerza al golpear a la criatura marcada, y ventaja en Percepción o Supervivencia para encontrarla.'},
+      {n:1,t:'adicional',nombre:'Marca del Cazador',coste:'1 uso de Enemigo Predilecto o 1 espacio',recurso:'enemigo',texto:()=>'Siempre preparada (concentración, 1 hora): +1d6 de fuerza al golpear a la criatura marcada, y ventaja en Percepción o Supervivencia para encontrarla.'},
       MAESTRIA(2),
       {n:2,t:'pasiva',nombre:'Explorador Hábil',texto:()=>'Pericia en una habilidad (elígela en Habilidades) y dos idiomas más.'},
       ATAQUE_EXTRA,
