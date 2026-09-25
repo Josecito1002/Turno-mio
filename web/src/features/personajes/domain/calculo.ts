@@ -343,7 +343,9 @@ export function buildEntries(c){
 
 /** Tirada del ataque con la otra mano: la segunda arma empuñada; sin el estilo Dos Armas no suma el modificador al daño (salvo negativo). */
 export function ataqueOtraMano(c) {
-  const a = (c.armas || []).find(x => x.mano === 'otra'); if (!a) return undefined;
+  // Con la misma arma en las dos manos (dos dagas) solo hay una fila, la de la mano principal
+  const a = (c.armas || []).find(x => x.mano === 'otra') || (c.manos?.b && c.manos.b === c.manos.a ? (c.armas || []).find(x => x.mano === 'principal') : null);
+  if (!a) return undefined;
   const m = /^(.*?)([+-]\d+)?$/.exec(a.expr), dado = m[1], mod = +(m[2] || 0), bono = a.w?.bono || 0;
   const dm = c.tieneEstilo('dosarmas') ? mod : Math.min(0, mod - bono) + bono;
   return [`1d20${modStr(a.atk)}`, `${dado}${dm ? modStr(dm) : ''}`, a.w?.n || a.nombre];

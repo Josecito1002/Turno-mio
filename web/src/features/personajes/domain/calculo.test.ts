@@ -874,6 +874,13 @@ describe('Lanzar conjuros y seguir un ataque', () => {
     assert.equal(dadosAlLanzar('1d10', 1, 2, 'El daño de frío aumenta en 1d6 por cada nivel por encima de 1.'), '1d10+1d6');
     assert.equal(dadosAlLanzar('3d6', 2, 2, '', 3), '3d6+3');
   });
+  test('Ataque con la otra mano: con dos armas iguales también tiene tirada', () => {
+    const c = pj('picaro', 5, '', {}, { armas: [['daga', 2]], manos: { a: 'daga', b: 'daga' } });
+    const e = entrada(c, 'Ataque con la otra arma ligera');
+    assert.ok(e?.roll, 'la tarjeta tiene su tirada');
+    assert.doesNotMatch(e.roll[1], /\+/); // sin el modificador al daño
+    assert.ok(extrasAtaque(c, c.armas.find((a: any) => a.mano === 'principal')).some((x: any) => x.atk));
+  });
   test('Evocación Potenciada solo en conjuros de Evocación', () => {
     setLib({ clases: { mago: MAGO_2024 } });
     const e = pj('mago', 10, 'lib:evocacion');

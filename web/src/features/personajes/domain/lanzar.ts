@@ -27,6 +27,13 @@ export function espaciosPara(c: any, nivel: number) {
     .sort((a: any, b: any) => a.nivel - b.nivel);
 }
 
+const recursoDe = (c: any, id: string) => (c.recursos || []).find((r: any) => r.id === id);
+/** El recurso, si todavía le queda algún uso. */
+function recursoLibre(c: any, id: string) {
+  const r = recursoDe(c, id); if (!r) return null;
+  return Math.min(c.pj?.used?.[id] || 0, r.max) < r.max ? r : null;
+}
+
 const AL_ACERTAR = /(al|cuando|si|tras|cada vez que|despues de) (aciert|acertar|impact|golpe)|al atacar|accion atacar|un ataque (adicional|extra)|otro ataque/;
 
 export type Extra = { nombre: string; t: string; expr: string; atk?: string; gasta?: string; requiere?: 'ventaja' };
@@ -42,7 +49,17 @@ export function extrasAtaque(c: any, a?: any): Extra[] {
     if (!['gratis', 'adicional', 'pasiva'].includes(e.t) || /^ataque extra/.test(n) || !AL_ACERTAR.test(norm(e.texto || ''))) continue;
     // Ataque Furtivo: con un arma sutil o a distancia, y con ventaja
     if (/^ataque furtivo/.test(n)) { if (sutilODist) out.push({ nombre: e.nombre, t: e.t, expr: dado(e.texto), requiere: 'ventaja' }); continue; }
-    out.push({ nombre: e.nombre, t: e.t, expr: dado(e.texto) });
+    // Un rasgo que se paga con espacios (Castigo Divino): una opción por nivel de espacio que te quede, y la gratis si le queda uso.
+    // Lo que no se puede pagar no se ofrece.
+    const expr = dado(e.texto), rec = e.recurso ? recursoLibre(c, e.recurso) : null;
+    if (/espacio/.test(norm(e.coste || ''))) {
+      if (rec) out.push({ nombre: `${e.nombre} (${rec.nombre.toLowerCase()})`, t: e.t, expr, gasta: rec.id });
+      for (const x of espaciosPara(c, 1).filter((x: any) => x.quedan > 0))
+        out.push({ nombre: `${e.nombre} (espacio de nivel ${x.nivel})`, t: e.t, expr: dadosAlLanzar(expr, 1, x.nivel, e.texto), gasta: 'slot' + x.nivel });
+      continue;
+    }
+    if (e.recurso && !rec && recursoDe(c, e.recurso)) continue;
+    out.push({ nombre: e.nombre, t: e.t, expr, ...(rec ? { gasta: rec.id } : {}) });
   }
   // Con un arma ligera en la mano principal, el ataque con la otra (acción adicional)
   const otra = (c.entries || []).find((e: any) => e.nombre === 'Ataque con la otra arma ligera');
