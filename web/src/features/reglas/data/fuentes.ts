@@ -4,7 +4,7 @@
  *   5.5e 2024: Manual del Jugador 2024 (reglas básicas).
  *   D&D Beyond: otros libros oficiales (y el Cazador de Sangre, que publica D&D Beyond).
  *   Homebrew: contenido no oficial.
- *   Playtest: material de prueba oficial (todavía no hay ninguno marcado).
+ *   Playtest: material de prueba oficial (Unearthed Arcana), que todavía no está en un libro.
  * Los trasfondos de la biblioteca se contrastaron con la lista oficial de 5etools (24/09/2026).
  */
 import { norm } from '@/shared/utils/texto';
@@ -20,6 +20,7 @@ export const ETIQUETA_FUENTE: Record<TipoFuente, string> = { basicas: '5.5e 2024
 const PHB: Fuente = { tipo: 'basicas', libro: 'Manual del Jugador 2024' };
 const dndb = (libro: string): Fuente => ({ tipo: 'dndbeyond', libro });
 const HOMEBREW: Fuente = { tipo: 'homebrew', libro: 'Contenido no oficial' };
+const playtest = (libro: string): Fuente => ({ tipo: 'playtest', libro });
 
 /* ---------- Clases ---------- */
 const CLASES_LIB: Record<string, Fuente> = {
@@ -80,12 +81,19 @@ const SUBCLASES_DNDB: Record<string, string> = {
   'vastago de los tres': 'Forgotten Realms: Heroes of Faerûn (2025)',
   'inquisitivo': "Xanathar's Guide to Everything",
 };
+/* Material de prueba de Unearthed Arcana (web/scripts/datos/playtest-2025.ts) */
+const UA_2025 = 'Unearthed Arcana 2025: Subclasses Update';
+const SUBCLASES_PLAYTEST: Record<string, string> = {
+  'senda del guardian espiritual': UA_2025, 'senda del heraldo de la tormenta': UA_2025, 'caballero (playtest)': UA_2025,
+  'guerrero de la embriaguez': UA_2025, 'rompejuramentos': UA_2025,
+};
 /** s: subclase como la da getSubs (lib: si viene de la biblioteca); clase: clave de la clase. */
 export function fuenteSubclase(s: { n: string; lib?: boolean }, clase: string): Fuente {
   const deClase = fuenteClase(clase);
   if (deClase.tipo !== 'basicas') return deClase; // las de Artífice, Cazador de Sangre y Pugilista van con su clase
   if (!s.lib) return PHB;
   const n = norm(s.n);
+  if (SUBCLASES_PLAYTEST[n]) return playtest(SUBCLASES_PLAYTEST[n]);
   const g = FUENTES_GENERADAS[n]; // de los lotes hechos con Gemini
   if (g) return /Manual del Jugador.*2024/.test(g) ? PHB : dndb(g);
   if (SUBCLASES_DNDB[n]) return dndb(SUBCLASES_DNDB[n]);

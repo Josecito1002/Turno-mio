@@ -1185,6 +1185,18 @@ Respuesta de Gemini revisada el 2026-09-25. Versiones: Manual del Jugador 2024 (
 - [x] **Paso Veloz** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la mano abierta|paso veloz -->
 - [x] **Palma Quiebra-almas** (nivel 17): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la mano abierta|palma quiebra-almas -->
 
+## Playtest: Unearthed Arcana 2025 Subclasses Update
+
+Revisado el 2026-09-25 con el PDF oficial de prueba (noviembre de 2025). No es material oficial: se agregan con la etiqueta
+Playtest junto a las subclases oficiales, sin reemplazar ninguna. Datos en `web/scripts/datos/playtest-2025.ts`
+(`npm run db:actualizar-clase -- playtest`).
+
+- [x] **Senda del Guardián Espiritual** (bárbaro; antes Guardián Ancestral de Xanathar, que la app no tenía).
+- [x] **Senda del Heraldo de la Tormenta** (bárbaro; la app no la tenía): dados del aura según el daño de Furia y CD con CON.
+- [x] **Caballero (Playtest)** (guerrero): convive con el Caballero de Xanathar (lote 11). Marca Inquebrantable sin límite de usos y Carga Feroz nueva.
+- [x] **Guerrero de la Embriaguez** (monje): nueva versión del Maestro Borracho, que se conserva. Brebaje Místico con su CD y su dado.
+- [x] **Rompejuramentos** (paladín; antes de la Guía del DM 2014, que la app no tenía): conjuros siempre preparados. Saeta de bruja y Golpe de viento de acero no están en el catálogo. Golpe Sombrío en Ataques.
+
 ## Lote 15: Paladín (subclases y rasgos de nivel alto de la biblioteca)
 
 Dudosos: 13. Con tipo claro: 6. Ya revisados: 0.

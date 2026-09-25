@@ -46,6 +46,12 @@ export function extrasAtaque(c: any, a?: any): Extra[] {
   const out: Extra[] = [];
   for (const e of c.entries || []) {
     const n = norm(e.nombre);
+    // Disparos Arcanos: al acertar con un arma con munición, gastando un uso (los que se disparan sin tirar ataque no siguen a un ataque)
+    if (/uso de disparo arcano/.test(norm(e.coste || ''))) {
+      const r = (c.recursos || []).find((x: any) => norm(x.nombre) === 'disparo arcano'), libre = r && recursoLibre(c, r.id);
+      if (libre && (w?.p || []).includes('munición') && !/^no tiras ataque/.test(norm(e.texto || ''))) out.push({ nombre: e.nombre, t: 'gratis', expr: dado(e.texto), gasta: libre.id });
+      continue;
+    }
     if (!['gratis', 'adicional', 'pasiva'].includes(e.t) || /^ataque extra/.test(n) || !AL_ACERTAR.test(norm(e.texto || ''))) continue;
     // Ataque Furtivo: con un arma sutil o a distancia, y con ventaja
     if (/^ataque furtivo/.test(n)) { if (sutilODist) out.push({ nombre: e.nombre, t: e.t, expr: dado(e.texto), requiere: 'ventaja' }); continue; }

@@ -199,6 +199,12 @@ export const DESC_SUBCLASES: Record<string, any> = {
   fantasma:'Tocado por la muerte: habla con fantasmas y roba recuerdos de los caídos.',
   'vastago-tres':'Pícaro vinculado a un poder oscuro, con magia de sangre y terror.',
   inquisitivo:'Detective que descubre mentiras y encuentra el punto débil del rival.',
+  // Playtest (Unearthed Arcana 2025)
+  'guardian-espiritual':'Bárbaros que llaman a espíritus guardianes en su Furia para distraer, proteger y golpear a sus enemigos.',
+  'heraldo-tormenta':'Bárbaros envueltos en un aura de desierto, mar o tundra que quema, electrocuta o congela a quien se acerca.',
+  'caballero-playtest':'Jinetes y protectores que marcan a sus enemigos y cierran el paso a quien ataque a sus aliados.',
+  embriaguez:'Monjes de pasos tambaleantes que beben brebajes místicos para exhalar fuego, resistir la magia o curarse más.',
+  rompejuramentos:'Paladines que rompieron su juramento y buscan poder a cualquier precio, con muertos vivientes y un aura de odio.',
 };
 
 /* Las de los lotes hechos con Gemini (scripts/gemini/revisar.ts) reemplazan a las de arriba */

@@ -127,6 +127,8 @@ export const objetosArt = c => c.lvl >= 18 ? 6 : c.lvl >= 14 ? 5 : c.lvl >= 10 ?
 export const elixiresN = c => c.lvl >= 15 ? 5 : c.lvl >= 9 ? 4 : c.lvl >= 5 ? 3 : 2;
 export const danoCanon = c => c.lvl >= 9 ? '3d8' : '2d8';
 /* Conjuros de subclase, siempre preparados: [nivel de artífice, nombres como están en el catálogo] */
+/* Rompejuramentos (Unearthed Arcana 2025): los que están en el catálogo */
+const CONJUROS_ROMPE = [[3, ['Reprensión infernal']], [5, ['Corona de la locura', 'Oscuridad']], [9, ['Miedo', 'Invocar muerto viviente']], [13, ['Marchitar', 'Asesino fantasmal']], [17, ['Contagio']]];
 const conjurosSub = (nombre, tabla) => ({nombre, t:'pasiva',
   texto: c => `Siempre preparados, sin contar en tu límite: ${tabla.filter(([n]) => c.lvl >= n).flatMap(([, s]) => s).join(', ')}.`});
 /* Armas especiales de la Armadura Arcana: usan INT, y Armero Mejorado suma +1 desde nivel 9 */
@@ -1400,6 +1402,32 @@ export const REGLAS: any[] = [
     texto: c => `Sumas tu INT (${sign(c.m.int)}) a la iniciativa (ya sumado).`},
   {de:/^magia de cronurgia$/, n:/^conciencia temporal$/, t:'pasiva', efecto: c => { c.init += c.m.int; },
     texto: c => `Sumas tu INT (${sign(c.m.int)}) a la iniciativa (ya sumado).`},
+
+  /* ---------- Playtest: Unearthed Arcana 2025 Subclasses Update (scripts/datos/playtest-2025.ts) ---------- */
+  {de:/^senda del guardian espiritual$/, n:/^escudo espiritual$/, t:'reaccion',
+    texto: c => `Con tu Furia activa, cuando otra criatura que ves a 30 pies recibe daño, con tu reacción lo reduces en ${danoFuria(c)}d6 (tantos d6 como tu bonificador de daño de Furia).`},
+  {de:/^senda del heraldo de la tormenta$/, n:/^aura de tormenta$/, t:'adicional',
+    texto: c => `Al entrar en Furia eliges Desierto, Mar o Tundra y te rodea un aura de 10 pies mientras dure; su efecto se activa al entrar en Furia y otra vez en cada turno con una acción adicional (CD ${cdCon(c)}). Desierto: las criaturas del aura hacen una salvación de DES o reciben ${danoFuria(c)}d4 de fuego (puedes librar a una). Mar: una criatura del aura hace una salvación de DES o recibe ${danoFuria(c)}d6 de rayo (la mitad si la pasa). Tundra: una criatura del aura hace una salvación de FUE o resta ${danoFuria(c)}d4 a su siguiente tirada de daño.`},
+  {de:/^caballero \(playtest\)$/, n:/^maniobra de proteccion$/, t:'reaccion', usos: c => Math.max(1, c.m.con), reset:'largo',
+    texto: () => 'Si tú o una criatura que ves a 5 pies recibís un acierto, con tu reacción (empuñando un arma cuerpo a cuerpo o un escudo) sumas 1d8 a la CA del objetivo contra ese ataque; si aun así acierta, el objetivo resiste el daño.'},
+  {de:/^caballero \(playtest\)$/, n:/^carga feroz$/, t:'pasiva',
+    texto: c => `En la primera ronda de cada combate, tú y tu montura tenéis 10 pies más de velocidad y vuestro movimiento no provoca ataques de oportunidad. Cuando llegas a 5 pies de una criatura esa ronda, hace una salvación de FUE (CD ${cdFue(c)}) o la empujas 5 pies o la derribas (una salvación por turno).`},
+  {de:/^guerrero de la embriaguez$/, n:/^vaiven ebrio$/, t:'reaccion', coste:'1 Focus',
+    texto: () => 'Levantarte del suelo te cuesta solo 5 pies de movimiento. Además, cuando una criatura falla un ataque cuerpo a cuerpo contra ti, con tu reacción y 1 Punto de Enfoque haces que acierte a otra criatura que elijas a 5 pies de ti.'},
+  {de:/^guerrero de la embriaguez$/, n:/^brebaje mistico$/, t:'fuera',
+    texto: c => `Al terminar un descanso corto o largo con útiles de cervecero, creas una bebida mágica que solo te sirve a ti; desaparece en el siguiente descanso si no la bebes. Beber una pinta lleva 1 minuto y su efecto dura 1 hora (8 horas si al crearla gastas 1 Punto de Enfoque). Dragón de Canela: como acción mágica exhalas un cono de 30 pies; salvación de DES (CD ${c.dcFocus}) o 4d${c.md} de fuego y Envenenado hasta el final de su siguiente turno (la mitad y sin veneno si la pasa). Espíritu Celestial: resistencia al daño psíquico y radiante. Chapuzón Refrescante: cada vez que recuperas PG, sumas 1d${c.md}.${c.lvl >= 11 ? ' Con Maestro Cervecero también puedes crear Relámpago Azul o Suerte del Borracho.' : ''}`},
+  {de:/^rompejuramentos$/, n:/^conjurar muertos vivientes$/, t:'adicional', coste:'1 Canalizar',
+    texto: c => `Con una acción adicional y un uso de Canalizar Divinidad invocas ${Math.max(1, Math.ceil(c.m.car / 2))} esqueleto(s) o zombi(s), a tu elección, a 30 pies. Te obedecen 1 minuto y luego se deshacen en ceniza; actúan justo después de ti y, si no les das órdenes, Esquivan.`},
+  {de:/^rompejuramentos$/, n:/^aspecto temible$/, t:'gratis', coste:'1 Canalizar',
+    texto: c => `Justo después de lanzar Castigo divino, puedes gastar un uso de Canalizar Divinidad: las criaturas que elijas a 30 pies hacen una salvación de SAB (CD ${c.dcSpell}) o quedan Asustadas 1 minuto (repiten la salvación al final de cada turno suyo).`},
+  {de:/^rompejuramentos$/, n:/^conjuros del rompejuramentos$/, t:'pasiva',
+    texto: c => `Saeta de bruja (nivel 3) y Golpe de viento de acero (nivel 17) también son del juramento, pero la app todavía no los tiene y hay que escribirlos a mano. Siempre preparados, sin contar en tu límite: ${CONJUROS_ROMPE.filter(([n]) => c.lvl >= n).flatMap(([, x]) => x).join(', ')}.`},
+  {de:/^rompejuramentos$/, n:/^aura de odio$/, t:'pasiva',
+    texto: c => `Cuando tú, o un infernal o muerto viviente aliado dentro de tu Aura de Protección, acertáis a una criatura con un ataque cuerpo a cuerpo, hace ${Math.max(0, c.m.car)} de daño necrótico extra (tu CAR).`},
+  {de:/^rompejuramentos$/, n:/^senor del terror$/, t:'adicional', usos:1, reset:'largo',
+    ataques: c => [{nombre:'Golpe Sombrío (Señor del Terror)', atk: c.atkSpell, expr: `3d10${modStr(c.m.car)}`, dmg: `3d10${fmtMod(c.m.car)} necrótico`,
+      notas:['Con Señor del Terror activo: acción adicional, contra una criatura dentro de tu Aura de Protección']}],
+    texto: () => 'Con una acción adicional llenas tu Aura de Protección de penumbra durante 10 minutos: oscuridad mágica en la que tú y tus aliados veis; las criaturas Asustadas que empiezan su turno en ella reciben 4d10 de daño psíquico; y con una acción adicional haces el Golpe Sombrío (sale en Ataques). Una vez por descanso largo, o gastando un espacio de nivel 5.'},
 
   /* ---------- Lanzadores de un tercio: Caballero Arcano, Embaucador Arcano (Manual del Jugador 2024) y Guerrero de las Artes Místicas (Arcana Unleashed 2026) ---------- */
   {de:/^caballero arcano$/, n:/^lanzamiento de conjuros$/, t:'pasiva', ...lanzadorTercio('int', 'mago', c => c.lvl >= 10 ? 3 : 2)},
