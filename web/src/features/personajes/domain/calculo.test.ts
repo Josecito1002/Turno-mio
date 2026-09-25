@@ -708,3 +708,31 @@ describe('Selector de clase', () => {
     assert.ok(clasesParaElegir('artifice').some(([k]) => k === 'artifice'));
   });
 });
+
+describe('Manos: qué arma se empuña', () => {
+  const gue = (extra: Record<string, any>) => pj('guerrero', 5, '', { fue: 16, des: 14 }, extra);
+  test('sin elegir, empuña la primera cuerpo a cuerpo y las demás quedan guardadas', () => {
+    const c = gue({ armas: [['arco_corto', 1], ['espada_larga', 1], ['daga', 2]] });
+    assert.deepEqual(c.armas.map((a: any) => a.mano), [null, 'principal', null]);
+  });
+  test('un arma a dos manos no deja usar el escudo ni otra arma', () => {
+    const c = gue({ armas: [['espadon', 1], ['daga', 1]], escudo: true, manos: { a: 'espadon', b: 'daga' } });
+    assert.equal(c.shield, false);
+    assert.equal(c.manos.b, '');
+  });
+  test('la versátil solo hace su daño a dos manos con la otra mano libre', () => {
+    const libre = gue({ armas: [['espada_larga', 1]], manos: { a: 'espada_larga', b: '' } });
+    const conEscudo = gue({ armas: [['espada_larga', 1]], escudo: true, manos: { a: 'espada_larga', b: '' } });
+    assert.ok(libre.armas[0].v);
+    assert.equal(conEscudo.armas[0].v, null);
+    assert.equal(conEscudo.ac, libre.ac + 2);
+  });
+  test('en la otra mano solo va un arma ligera, y con dos ligeras sale el ataque adicional', () => {
+    const noLigera = gue({ armas: [['espada_corta', 1], ['maza', 1]], manos: { a: 'espada_corta', b: 'maza' } });
+    assert.equal(noLigera.manos.b, '');
+    const dos = gue({ armas: [['espada_corta', 1], ['daga', 1]], manos: { a: 'espada_corta', b: 'daga' } });
+    assert.equal(dos.manos.b, 'daga');
+    assert.ok(dos.entries.some((e: any) => e.nombre === 'Ataque con la otra arma ligera'));
+    assert.equal(gue({ armas: [['daga', 1]], manos: { a: 'daga', b: 'daga' } }).manos.b, '');
+  });
+});
