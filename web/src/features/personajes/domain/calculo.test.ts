@@ -591,3 +591,14 @@ describe('Druida 2024 (Lote 9)', () => {
     assert.match(entrada(dru(10, 'lib:circulo-esporas'), 'Entidad Simbiótica').texto, /40 PG temporales.*2d8/);
   });
 });
+
+describe('Conjuros de rasgos: lanzarlos con espacios', () => {
+  const nota = (c: any, n: string) => c.conjuros.find((s: any) => s.nombre === n)?.nota || '';
+  test('solo se ofrece si el personaje tiene espacios de ese nivel', () => {
+    setLib({ dotes: { 'lib:marca-escritura': { n: 'Marca de Escritura', t: 'pasiva', texto: '', cat: 'Marca de Dragón' } } });
+    assert.match(nota(pj('mago', 1, '', {}, { dotesExtra: [{ key: 'lib:marca-escritura' }] }), 'Comprender idiomas'), /con tus espacios/);
+    assert.doesNotMatch(nota(pj('guerrero', 1, '', {}, { dotesExtra: [{ key: 'lib:marca-escritura' }] }), 'Comprender idiomas'), /espacios/);
+    setLib({ clases: { brujo: BRUJO_2024 }, conjuros: { x: { nombre: 'Círculo de muerte', nivel: 6, clases: ['brujo'], desc: '' } } });
+    assert.doesNotMatch(nota(pj('brujo', 11, '', {}, { elecciones: { 'arcano-6': 'circulo de muerte' } }), 'Círculo de muerte'), /con tus espacios/);
+  });
+});

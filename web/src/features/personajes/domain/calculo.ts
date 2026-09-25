@@ -472,10 +472,13 @@ export function conjurosDeRasgos(c){
     if (x.desde && c.lvl < x.desde) continue;
     if (out.some(o => norm(o.nombre) === norm(x.nombre))) continue;
     const s = cat.get(norm(x.nombre)) || {nombre: x.nombre, nivel: x.nivel || 0, desc: ''};
-    const max = x.usos === 'pb' ? c.pb : +x.usos || 0;
-    const nota = [x.nota || (max ? '' : +s.nivel ? 'Siempre preparado' : ''), max ? `${usoTxt(max, x.reset)} sin gastar espacio${+s.nivel ? ' (o con tus espacios)' : ''}` : ''].filter(Boolean).join('. ');
-    out.push(conCd({...s, extra: true, rasgo: x.src, nota}, x.ab || abLibre));
-    if (max) c.extraRes.push({id: 'cr-' + slug(x.nombre), nombre: `${s.nombre} (${x.src})`, max, reset: x.reset || 'largo'});
+    const max = x.usos === 'pb' ? c.pb : +x.usos || 0, nv = +s.nivel || 0;
+    // Con usos se lanza sin espacio; también con uno propio solo si el personaje tiene espacios de ese nivel
+    const conEspacios = nv > 0 && (c.slots.some(e => e.nivel >= nv) || (c.pj.clase === 'brujo' && pacto(c.lvl).nivel >= nv));
+    const nota = [x.nota || (!max && nv ? 'Siempre preparado' : ''), max && `Sin gastar espacio${conEspacios ? '; también puedes lanzarlo con tus espacios' : ''}`].filter(Boolean).join('. ');
+    const recurso = max ? 'cr-' + slug(x.nombre) : '';
+    out.push(conCd({...s, extra: true, rasgo: x.src, nota, coste: max ? usoTxt(max, x.reset) : '', recurso}, x.ab || abLibre));
+    if (max) c.extraRes.push({id: recurso, nombre: `${s.nombre} (${x.src})`, max, reset: x.reset || 'largo'});
   }
   c.conjurosRasgo = out;
 }

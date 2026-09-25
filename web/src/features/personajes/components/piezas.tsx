@@ -96,38 +96,69 @@ export function Ataque({ a }: { a: any }) {
   );
 }
 
-export function ConjuroFila({ s, c }: { s: any; c: any }) {
+/** Lo que muestran las dos vistas de un conjuro: nivel y etiquetas, dados ya escalados, CD y ataque (los de un rasgo pueden usar otra característica). */
+function datosConjuro(s: any, c: any) {
   const nv = +s.nivel || 0, bits = [nv === 0 ? 'Truco' : `Nivel ${nv}`];
   let dados = s.dados || '';
   if (nv === 0 && dados && !s.noEscala && /^1d\d+$/.test(dados)) dados = dados.replace(/^1d/, (c.lvl >= 17 ? 4 : c.lvl >= 11 ? 3 : c.lvl >= 5 ? 2 : 1) + 'd');
-  // Los conjuros de un rasgo pueden usar otra característica (s.cd la trae calculada)
   const mSpell = s.cd != null ? s.cd - 8 - c.pb : c.mSpell;
   const dexpr = dados ? dados + (s.mod && mSpell ? modStr(mSpell) : '') : '';
   if (s.conc) bits.push('Concentración'); if (s.ritual) bits.push('Ritual');
   const meta = [s.alcance && `Alcance: ${s.alcance}`, s.dur].filter(Boolean).join('. ');
-  const atk = s.atk ?? c.atkSpell, cd = s.cd ?? c.dcSpell;
-  const hayBotones = (s.ataque && atk != null) || s.salv || dexpr;
+  // Cómo se lanza, si lo da un rasgo
+  const origen = s.rasgo ? [s.nota, s.abNota && `Usa ${s.abNota}`].filter(Boolean).join('. ') : '';
+  return { bits, dexpr, meta, origen, atk: s.atk ?? c.atkSpell, cd: s.cd ?? c.dcSpell };
+}
+
+function BotonesConjuro({ s, d }: { s: any; d: ReturnType<typeof datosConjuro> }) {
+  if (!((s.ataque && d.atk != null) || s.salv || d.dexpr)) return null;
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-2">
+      {s.ataque && d.atk != null && <BotonTirada expr={`1d20${modStr(d.atk)}`} label={`${s.nombre}: ataque`} dmg={d.dexpr} dmgLabel={s.nombre}>{sign(d.atk)} al ataque</BotonTirada>}
+      {s.salv && <span className="rounded-lg px-2 py-1 text-sm font-bold ring-1 ring-inset ring-rule">Salvación de {s.salv} CD {d.cd ?? '?'}</span>}
+      {d.dexpr && <BotonTirada expr={d.dexpr} label={s.nombre}>{d.dexpr.replace(/([+-])/g, ' $1 ')}{s.tipo ? ' ' + s.tipo : ''}</BotonTirada>}
+    </div>
+  );
+}
+
+/** Conjuro en la pestaña Conjuros: fila plegable. */
+export function ConjuroFila({ s, c }: { s: any; c: any }) {
+  const d = datosConjuro(s, c);
   return (
     <li className="py-1">
       <details className="group">
         <summary className={cx('flex min-h-12 cursor-pointer list-none items-baseline justify-between gap-3 rounded-lg py-2 [&::-webkit-details-marker]:hidden', foco)}>
           <span className="font-serif text-[1.05rem] font-bold"><span aria-hidden="true" className="mr-1 inline-block text-muted transition-transform group-open:rotate-90">▸</span>{s.nombre}</span>
-          <span className="text-right text-sm text-muted">{bits.join(', ')}{s.rasgo && <span className="block">De {s.rasgo}</span>}</span>
+          <span className="text-right text-sm text-muted">{d.bits.join(', ')}{s.coste ? `, ${s.coste}` : ''}</span>
         </summary>
         <div className="pb-2 pl-4 text-[0.96rem]">
-          {s.rasgo && <p className="m-0 text-sm text-muted">De {s.rasgo}{s.nota ? `. ${s.nota}` : ''}{s.abNota ? `. Usa ${s.abNota}` : ''}.</p>}
-          {meta && <p className="m-0 text-sm text-muted">{meta}</p>}
+          {d.meta && <p className="m-0 text-sm text-muted">{d.meta}</p>}
           <TextoConDados html={richT(s.desc || '')} label={s.nombre} className="mb-0 mt-1" />
+          {d.origen && <p className="mb-0 mt-1 text-sm">{d.origen}.</p>}
+          {s.rasgo && <p className="m-0 text-xs text-muted">De {s.rasgo}</p>}
         </div>
       </details>
-      {hayBotones && (
-        <div className="flex flex-wrap items-center gap-2 pb-2">
-          {s.ataque && atk != null && <BotonTirada expr={`1d20${modStr(atk)}`} label={`${s.nombre}: ataque`} dmg={dexpr} dmgLabel={s.nombre}>{sign(atk)} al ataque</BotonTirada>}
-          {s.salv && <span className="rounded-lg px-2 py-1 text-sm font-bold ring-1 ring-inset ring-rule">Salvación de {s.salv} CD {cd ?? '?'}</span>}
-          {dexpr && <BotonTirada expr={dexpr} label={s.nombre}>{dexpr.replace(/([+-])/g, ' $1 ')}{s.tipo ? ' ' + s.tipo : ''}</BotonTirada>}
-        </div>
-      )}
+      <div className="pb-2"><BotonesConjuro s={s} d={d} /></div>
     </li>
+  );
+}
+
+/** Conjuro en tu turno: la misma tarjeta que los rasgos, con su tipo de acción, sus usos y sus tiradas. */
+export function ConjuroTarjeta({ s, c, t }: { s: any; c: any; t: string }) {
+  const d = datosConjuro(s, c), color = COLOR_TIPO[t] || COLOR_TIPO.pasiva;
+  return (
+    <article className={cx('my-2 rounded-2xl border-l-4 bg-surface px-4 py-3 shadow-sm ring-1 ring-rule/50 break-inside-avoid', color.borde)}>
+      <header className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+        <h3 className="m-0 font-serif text-lg font-bold leading-snug">{s.nombre}</h3>
+        {s.coste && <span className={cx('text-sm font-bold', color.texto)}>{s.coste}</span>}
+      </header>
+      <p className="m-0 text-sm text-muted">{[d.bits.join(', '), d.meta].filter(Boolean).join('. ')}</p>
+      <TextoConDados html={richT(s.desc || '')} label={s.nombre} className="mb-0 mt-1" />
+      {d.origen && <p className="mb-0 mt-1">{d.origen}.</p>}
+      <BotonesConjuro s={s} d={d} />
+      {s.recurso && S.view === 'ficha' && <RecursoInline id={s.recurso} />}
+      <p className="m-0 mt-1 text-xs text-muted">{s.rasgo ? `Conjuro de ${s.rasgo}` : 'Conjuro'}</p>
+    </article>
   );
 }
 

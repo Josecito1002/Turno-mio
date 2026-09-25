@@ -9,7 +9,7 @@ import { COMUNES } from '@/features/reglas/data/comunes';
 import { textoArmaduras, textoArmas } from '@/features/reglas/domain/competencias';
 import { FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { BotonTirada } from '@/features/dados/components/BotonTirada';
-import { Ataque, ConjuroFila, Entrada, Recursos } from '../piezas';
+import { Ataque, ConjuroFila, ConjuroTarjeta, Entrada, Recursos } from '../piezas';
 import { abrirSubida, bajarArchivo, bajarNivel, borrarPj, irAPaso } from '../../acciones';
 
 export const PASO_N: Record<string, string> = { especie: 'Especie', clase: 'Clase', trasfondo: 'Trasfondo', stats: 'Características', habs: 'Habilidades', equipo: 'Equipo', conjuros: 'Conjuros', rasgos: 'Rasgos propios', detalles: 'Detalles' };
@@ -50,7 +50,7 @@ function Turno({ c }: { c: any }) {
               </Tarjeta>
             )}
             {ents.map((e: any, i: number) => <Entrada key={i} e={e} />)}
-            {sps.length > 0 && <Lista etiqueta={`Conjuros: ${TIPOS[t][0]}`} className="my-2">{sps.map((s: any, i: number) => <ConjuroFila key={i} s={s} c={c} />)}</Lista>}
+            {sps.map((s: any, i: number) => <ConjuroTarjeta key={'s' + i} s={s} c={c} t={t} />)}
             {com.length > 0 && (
               <Plegable titulo={t === 'accion' ? 'Acciones que cualquiera puede hacer' : 'Para cualquier personaje'}>
                 {com.map(([n, f]: [string, (c: any) => string]) => <Entrada key={n} e={{ t, nombre: n, texto: f(c), src: 'Reglas básicas' }} />)}
