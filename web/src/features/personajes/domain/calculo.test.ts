@@ -24,6 +24,7 @@ import { EXPLORADOR_2024 } from '../../../../scripts/datos/explorador-2024';
 import { GUERRERO_2024 } from '../../../../scripts/datos/guerrero-2024';
 import { HECHICERO_2024 } from '../../../../scripts/datos/hechicero-2024';
 import { MAGO_2024 } from '../../../../scripts/datos/mago-2024';
+import { MONJE_2024 } from '../../../../scripts/datos/monje-2024';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
 import { ARMAS } from '@/features/reglas/data/equipo';
 import { EQUIPO_TRASFONDOS, kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
@@ -914,5 +915,22 @@ describe('Ventaja sobre una tirada ya hecha', () => {
       const d = resolver('1d20+4', { adv: -1, previo: 7 });
       assert.equal(d.nat, Math.min(7, d.groups[0].vals[1]));
     }
+  });
+});
+
+describe('Monje 2024 (Lote 14)', () => {
+  const mon = (nivel: number, stats: Record<string, number> = {}, sub = '') => { setLib({ clases: { monje: MONJE_2024 } }); return pj('monje', nivel, sub, stats); };
+  test('Cuerpo y Mente: +4 a DES y SAB en el nivel 20, hasta 25', () => {
+    const c19 = mon(19, { des: 20, sab: 16 }), c20 = mon(20, { des: 20, sab: 16 });
+    assert.equal(c19.sc.des, 20);
+    assert.equal(c20.sc.des, 24);
+    assert.equal(c20.sc.sab, 20);
+    assert.equal(c20.ac, c19.ac + 4);
+  });
+  test('los rasgos altos son los de 2024', () => {
+    const c = mon(20);
+    assert.ok(entrada(c, 'Superviviente Disciplinado'));
+    assert.equal(entrada(c, 'Alma Diamantina'), undefined);
+    assert.equal(entrada(c, 'Desafiar a la Muerte'), undefined);
   });
 });

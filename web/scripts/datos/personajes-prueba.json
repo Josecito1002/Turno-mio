@@ -75,6 +75,31 @@
       "clase": "paladin",
       "subclase": "",
       "nivel": 5
+    },
+    {
+      "clase": "monje",
+      "subclase": "misericordia",
+      "nivel": 11
+    },
+    {
+      "clase": "monje",
+      "subclase": "elementos",
+      "nivel": 17
+    },
+    {
+      "clase": "monje",
+      "subclase": "artes-misticas",
+      "nivel": 6
+    },
+    {
+      "clase": "monje",
+      "subclase": "sombra",
+      "nivel": 17
+    },
+    {
+      "clase": "monje",
+      "subclase": "manoabierta",
+      "nivel": 20
     }
   ]
 }

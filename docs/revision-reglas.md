@@ -1116,37 +1116,44 @@ Respuesta de Gemini revisada el 2026-09-25. Versiones: Manual del Jugador 2024 (
 
 ## Lote 14: Monje (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 15. Con tipo claro: 2. Ya revisados: 0.
+Dudosos: 0. Con tipo claro: 0. Ya revisados: 28.
 
-### Monje
+Respuesta de Gemini revisada el 2026-09-25. Versiones: Manual del Jugador 2024 (clase, Misericordia, Sombra, Elementos y Mano Abierta), Arcana Unleashed 2026 (Artes Místicas, nueva). Los Elementos de 2024 reemplazan al Camino de los Cuatro Elementos; Dragón Ascendente, Yo Astral, Maestro Borracho, Kensei, Larga Muerte y Alma Solar (libros de 2015 a 2021) no están en la app y el encargo no traía su texto, así que no se agregaron.
 
-- [ ] **Disciplina Perfecta** (nivel 15): hoy `pasiva`, no menciona tipo de acción <!-- monje|disciplina perfecta -->
-- [ ] **Defensa Superior** (nivel 18): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- monje|defensa superior -->
-- [ ] **Desafiar a la Muerte** (nivel 20): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- monje|desafiar a la muerte -->
-- [ ] **Alma Diamantina** (nivel 14): hoy `pasiva`, no menciona tipo de acción <!-- monje|alma diamantina -->
+- [x] **Corregido de la respuesta**: los libros de C con clave; Elementalismo sí está en la app; Sintonía Elemental (la salvación de FUE es solo si cambias el tipo de daño), Conjuros y Enfoque Místico de las Artes Místicas (preparados, foco, tabla de coste para recuperar espacios) y la duración de Manto de Sombras. Se quitaron Paso de Sombra e Integridad del Cuerpo de nivel 6 porque ya los trae la subclase integrada.
+- [x] **La biblioteca difería**: rasgos altos de 2014 (Disciplina Perfecta, Alma Diamantina, Desafiar a la Muerte, Tranquilidad, Oportunista) y Misericordia y Elementos resumidos en una línea; ahora siguen 2024.
+- [x] **Cuerpo y Mente**: +4 a DES y SAB (máximo 25) en el nivel 20, calculado.
 
-### Camino de los Elementos
+### Revisados
 
-- [ ] **Sintonía Elemental** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- camino de los elementos|sintonia elemental -->
-- [ ] **Explosión Ambiental** (nivel 6): hoy `pasiva`, no menciona tipo de acción <!-- camino de los elementos|explosion ambiental -->
-- [ ] **Zancada Ágil** (nivel 10): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- camino de los elementos|zancada agil -->
-- [ ] **Avatar de los Elementos** (nivel 14): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- camino de los elementos|avatar de los elementos -->
-
-### Camino de la Misericordia
-
-- [ ] **Mano de la Curación** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- camino de la misericordia|mano de la curacion -->
-- [ ] **Mano del Daño** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- camino de la misericordia|mano del dano -->
-- [ ] **Toque del Médico** (nivel 6): hoy `pasiva`, no menciona tipo de acción <!-- camino de la misericordia|toque del medico -->
-- [ ] **Mano de la Misericordia Suprema** (nivel 17): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- camino de la misericordia|mano de la misericordia suprema -->
-
-### Guerrero de la Mano Abierta
-
-- [ ] **Tranquilidad** (nivel 11): hoy `pasiva`, no menciona tipo de acción <!-- guerrero de la mano abierta|tranquilidad -->
-- [ ] **Palma Quiebra-almas** (nivel 17): hoy `pasiva`, no menciona tipo de acción <!-- guerrero de la mano abierta|palma quiebra-almas -->
-
-### Guerrero de la Sombra
-
-- [ ] **Manto de Sombras** (nivel 11): hoy `pasiva`, no menciona tipo de acción <!-- guerrero de la sombra|manto de sombras -->
+- [x] **Evasión** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- monje|evasion -->
+- [x] **Movimiento Acrobático** (nivel 9): `pasiva`. Manual del Jugador (2024). <!-- monje|movimiento acrobatico -->
+- [x] **Enfoque Elevado** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- monje|enfoque elevado -->
+- [x] **Autorestauración** (nivel 10): `gratis`. Manual del Jugador (2024). <!-- monje|autorestauracion -->
+- [x] **Desviar Energía** (nivel 13): `pasiva`. Manual del Jugador (2024). <!-- monje|desviar energia -->
+- [x] **Superviviente Disciplinado** (nivel 14): `pasiva`. Manual del Jugador (2024). <!-- monje|superviviente disciplinado -->
+- [x] **Enfoque Perfecto** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- monje|enfoque perfecto -->
+- [x] **Defensa Superior** (nivel 18): `gratis`. Manual del Jugador (2024). <!-- monje|defensa superior -->
+- [x] **Cuerpo y Mente** (nivel 20): `pasiva`. Manual del Jugador (2024). <!-- monje|cuerpo y mente -->
+- [x] **Implementos de Misericordia** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la misericordia|implementos de misericordia -->
+- [x] **Mano de Daño** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la misericordia|mano de dano -->
+- [x] **Mano de Curación** (nivel 3): `accion`. Manual del Jugador (2024). <!-- guerrero de la misericordia|mano de curacion -->
+- [x] **Toque del Médico** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la misericordia|toque del medico -->
+- [x] **Ráfaga de Curación y Daño** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la misericordia|rafaga de curacion y dano -->
+- [x] **Mano de Misericordia Suprema** (nivel 17): `accion`. Manual del Jugador (2024). <!-- guerrero de la misericordia|mano de misericordia suprema -->
+- [x] **Sintonía Elemental** (nivel 3): `gratis`. Manual del Jugador (2024). <!-- guerrero de los elementos|sintonia elemental -->
+- [x] **Explosión Elemental** (nivel 6): `accion`. Manual del Jugador (2024). <!-- guerrero de los elementos|explosion elemental -->
+- [x] **Zancada de los Elementos** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- guerrero de los elementos|zancada de los elementos -->
+- [x] **Epítome Elemental** (nivel 17): `pasiva`. Manual del Jugador (2024). <!-- guerrero de los elementos|epitome elemental -->
+- [x] **Conjuros de las Artes Místicas** (nivel 3): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- guerrero de las artes misticas|conjuros de las artes misticas -->
+- [x] **Estilo de Lucha Místico** (nivel 6): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- guerrero de las artes misticas|estilo de lucha mistico -->
+- [x] **Enfoque Místico** (nivel 6): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- guerrero de las artes misticas|enfoque mistico -->
+- [x] **Golpe Concentrado** (nivel 11): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- guerrero de las artes misticas|golpe concentrado -->
+- [x] **Estilo de Lucha Místico Mejorado** (nivel 17): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- guerrero de las artes misticas|estilo de lucha mistico mejorado -->
+- [x] **Paso de Sombra Mejorado** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la sombra|paso de sombra mejorado -->
+- [x] **Manto de Sombras** (nivel 17): `accion`. Manual del Jugador (2024). <!-- guerrero de la sombra|manto de sombras -->
+- [x] **Paso Veloz** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la mano abierta|paso veloz -->
+- [x] **Palma Quiebra-almas** (nivel 17): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la mano abierta|palma quiebra-almas -->
 
 ## Lote 15: Paladín (subclases y rasgos de nivel alto de la biblioteca)
 

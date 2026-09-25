@@ -5736,75 +5736,151 @@
   },
   "monje": {
    "subclases": {
-    "elementos": {
-     "n": "Camino de los Elementos",
-     "rasgos": [
-      {
-       "nombre": "Sintonía Elemental",
-       "t": "pasiva",
-       "texto": "Tus ataques alcanzan 10 pies más e infligen daño de Fuego, Frío, Rayo o Ácido.",
-       "n": 3,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Explosión Ambiental",
-       "t": "pasiva",
-       "texto": "Creas efectos de área (empujes de aire, explosiones de fuego) usando Ki.",
-       "n": 6,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Zancada Ágil",
-       "t": "pasiva",
-       "texto": "Velocidad de vuelo y nado temporal mientras usas tus poderes.",
-       "n": 10,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Avatar de los Elementos",
-       "t": "pasiva",
-       "texto": "Ganas resistencia a daños elementales y tus ataques son devastadores.",
-       "n": 14,
-       "usos": 0,
-       "reset": "largo"
-      }
-     ]
-    },
     "misericordia": {
-     "n": "Camino de la Misericordia",
+     "n": "Guerrero de la Misericordia",
      "rasgos": [
       {
-       "nombre": "Mano de la Curación",
+       "nombre": "Implementos de Misericordia",
        "t": "pasiva",
-       "texto": "Gasta Ki para curar a alguien con un toque.",
+       "texto": "Obtienes competencia en las habilidades de Perspicacia y Medicina, y con el Kit de herborista.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Mano del Daño",
+       "nombre": "Mano de Daño",
        "t": "pasiva",
-       "texto": "Gasta Ki para infligir daño necrótico extra en un ataque.",
+       "texto": "Una vez por turno, cuando golpeas con un ataque desarmado, puedes gastar 1 Punto de Enfoque para infligir daño Necrótico extra igual a un dado de Artes Marciales + SAB.",
        "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Mano de Curación",
+       "t": "accion",
+       "texto": "Como Acción Mágica, gastas 1 Punto de Enfoque para tocar y curar a una criatura un valor igual a un dado de Artes Marciales + SAB. Puedes sustituir uno de los golpes de tu Ráfaga de Golpes para usar esto sin gastar el punto de enfoque por la curación.",
+       "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Toque del Médico",
        "t": "pasiva",
-       "texto": "Tus curaciones eliminan condiciones (ciego, sordo, paralizado, etc.).",
+       "texto": "Tu Mano de Daño ahora aplica la condición de Envenenado hasta el fin de tu próximo turno. Tu Mano de Curación puede eliminar las condiciones de Ciego, Sordo, Paralizado, Envenenado o Aturdido.",
        "n": 6,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Mano de la Misericordia Suprema",
+       "nombre": "Ráfaga de Curación y Daño",
        "t": "pasiva",
-       "texto": "Puedes resucitar a los muertos con un toque y gasto de Ki.",
+       "texto": "Puedes sustituir todos los golpes de Ráfaga de Golpes por Mano de Curación sin coste extra. Si haces daño, aplicas Mano de Daño gratis (1/turno).",
+       "n": 11,
+       "manual": true,
+       "usos": "max(1, SAB)",
+       "reset": "largo"
+      },
+      {
+       "nombre": "Mano de Misericordia Suprema",
+       "t": "accion",
+       "texto": "Como Acción Mágica, gastas 5 Puntos de Enfoque para resucitar un cadáver (muerto hace menos de 24 horas). Recupera 4d10 + SAB Puntos de Golpe y revive sin condiciones negativas.",
        "n": 17,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "elementos": {
+     "n": "Guerrero de los Elementos",
+     "rasgos": [
+      {
+       "nombre": "Sintonía Elemental",
+       "t": "gratis",
+       "texto": "Al inicio de tu turno, gastas 1 Punto de Enfoque para imbuirte de energía por 10 minutos. Tus golpes sin armas alcanzan 10 pies más y, al acertar, pueden hacer daño de Ácido, Frío, Fuego, Rayo o Trueno; si lo haces, el objetivo hace una salvación de FUE y, si falla, lo mueves hasta 10 pies hacia ti o lejos de ti. Termina antes si quedas Incapacitado. Además conoces el truco Elementalismo y lo lanzas con SAB.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Explosión Elemental",
+       "t": "accion",
+       "texto": "Como Acción Mágica, gastas 2 Puntos de Enfoque para detonar energía en una esfera de 20 pies de radio (hasta 120 pies de ti). Infliges 3 dados de Artes Marciales del daño elemental elegido (salvación DES para mitad de daño).",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Zancada de los Elementos",
+       "t": "pasiva",
+       "texto": "Mientras tu Sintonía Elemental está activa, tienes velocidad de Vuelo y de Nado iguales a tu velocidad terrestre.",
+       "n": 11,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Epítome Elemental",
+       "t": "pasiva",
+       "texto": "En Sintonía Elemental ganas Resistencia a un daño elemental (cambiable al inicio de tu turno). Tu Paso del Viento aumenta tu velocidad en +20 pies y causa daño elemental pasivo (1 dado) al pasar junto a enemigos. Tus golpes sin armas hacen 1 dado de daño extra (1 vez por turno).",
+       "n": 17,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "artes-misticas": {
+     "n": "Guerrero de las Artes Místicas",
+     "rasgos": [
+      {
+       "nombre": "Conjuros de las Artes Místicas",
+       "t": "pasiva",
+       "texto": "Lanzas conjuros de la lista de Hechicero con SAB y puedes usar un foco arcano. Conoces dos trucos (se recomiendan Guardia de cuchillas y Tronar) y uno más en el nivel 10. Tienes espacios de conjuro según la tabla de la subclase y preparas conjuros de Hechicero de los niveles que tengas (al empezar, tres de nivel 1); al subir de nivel puedes cambiar un truco y un conjuro.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Estilo de Lucha Místico",
+       "t": "pasiva",
+       "texto": "Al tomar la acción de Atacar, puedes sustituir uno de tus golpes sin armas por el lanzamiento de un truco de Hechicero que requiera 1 Acción.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Enfoque Místico",
+       "t": "pasiva",
+       "texto": "Sin gastar acción, puedes gastar un espacio de conjuro para recuperar tantos Puntos de Enfoque como su nivel. Al terminar un descanso corto o usar Metabolismo Asombroso, puedes gastar Puntos de Enfoque para recuperar un espacio: nivel 1 por 2 puntos (monje 6), nivel 2 por 3 (monje 7), nivel 3 por 5 (monje 13) y nivel 4 por 6 (monje 19).",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Golpe Concentrado",
+       "t": "pasiva",
+       "texto": "Cuando usas Golpe Aturdidor, pase o falle la salvación, el objetivo tiene Desventaja en las tiradas de salvación contra tus conjuros hasta el inicio de tu próximo turno.",
+       "n": 11,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Estilo de Lucha Místico Mejorado",
+       "t": "pasiva",
+       "texto": "Al usar Ráfaga de Golpes, puedes sustituir dos golpes desarmados por el lanzamiento de un conjuro de Hechicero de nivel 1 o 2 (que cueste 1 Acción), integrado en esa misma Acción Adicional.",
+       "n": 17,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
@@ -5813,79 +5889,124 @@
    },
    "rasgosAltos": [
     {
-     "nombre": "Autorestauración",
-     "t": "accion",
-     "texto": "Al final de tu turno, puedes eliminar condiciones de encantado, asustado o envenenado sin gastar acción. Inmune a veneno.",
-     "n": 10,
+     "nombre": "Evasión",
+     "t": "pasiva",
+     "texto": "Cuando un efecto te permite hacer una salvación de Destreza para recibir la mitad del daño, en su lugar no recibes daño si tienes éxito, y solo la mitad si fallas. No funciona si estás incapacitado.",
+     "n": 7,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
-     "nombre": "Disciplina Perfecta",
+     "nombre": "Movimiento Acrobático",
      "t": "pasiva",
-     "texto": "Si al iniciar turno tienes menos de 4 Focus, recuperas hasta tener 4.",
+     "texto": "Mientras no uses armadura ni escudo, puedes moverte a través de líquidos y superficies verticales durante tu turno sin caerte.",
+     "n": 9,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Enfoque Elevado",
+     "t": "pasiva",
+     "texto": "Tu Ráfaga de Golpes permite hacer tres ataques. Al usar Defensa Paciente con Puntos de Enfoque, ganas PG temporales (dos dados de Artes Marciales). Al usar Paso del Viento con Puntos de Enfoque, puedes llevar contigo a un aliado a 5 pies.",
+     "n": 10,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Autorestauración",
+     "t": "gratis",
+     "texto": "Al final de cada uno de tus turnos, puedes eliminar la condición de Hechizado, Asustado o Envenenado de ti mismo (sin requerir acción). Además, no comer ni beber ya no te causa Agotamiento.",
+     "n": 10,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Desviar Energía",
+     "t": "pasiva",
+     "texto": "Tu rasgo Desviar Ataques ahora funciona contra cualquier tipo de daño, no solo daño Contundente, Perforante o Cortante.",
+     "n": 13,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Superviviente Disciplinado",
+     "t": "pasiva",
+     "texto": "Obtienes competencia en todas las tiradas de salvación. Si fallas una tirada de salvación, puedes gastar 1 Punto de Enfoque para repetirla (debes usar el nuevo resultado).",
+     "n": 14,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Enfoque Perfecto",
+     "t": "pasiva",
+     "texto": "Al tirar Iniciativa, si no usas Metabolismo Asombroso y tienes 3 o menos Puntos de Enfoque, recuperas puntos hasta tener 4.",
      "n": 15,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
      "nombre": "Defensa Superior",
-     "t": "pasiva",
-     "texto": "Gasta 3 Focus para ganar Resistencia a todo el daño excepto Fuerza por 1 minuto.",
+     "t": "gratis",
+     "texto": "Al inicio de tu turno, puedes gastar 3 Puntos de Enfoque para obtener resistencia a todo el daño (excepto daño de Fuerza) durante 1 minuto o hasta que quedes incapacitado.",
      "n": 18,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
-     "nombre": "Desafiar a la Muerte",
+     "nombre": "Cuerpo y Mente",
      "t": "pasiva",
-     "texto": "Si caes a 0 PG, puedes gastar 4 Focus para evitarlo y quedarte con 4 dados de artes marciales de vida.",
+     "texto": "Tus puntuaciones de Destreza y Sabiduría aumentan en 4, hasta un máximo de 25.",
      "n": 20,
-     "usos": 0,
-     "reset": "largo"
-    },
-    {
-     "nombre": "Alma Diamantina",
-     "t": "pasiva",
-     "texto": "Competencia en todas las tiradas de salvación.",
-     "n": 14,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     }
    ],
    "subAltos": {
+    "sombra": [
+     {
+      "nombre": "Paso de Sombra Mejorado",
+      "t": "pasiva",
+      "texto": "Puedes gastar 1 Punto de Enfoque al usar Paso de Sombra para ignorar el requisito de estar en luz tenue u oscuridad. Además, puedes hacer un ataque sin armas inmediatamente después de teletransportarte como parte de la Acción Adicional.",
+      "n": 11,
+      "manual": true,
+      "usos": 0,
+      "reset": "largo"
+     },
+     {
+      "nombre": "Manto de Sombras",
+      "t": "accion",
+      "texto": "Como Acción Mágica en luz tenue u oscuridad, gastas 3 Puntos de Enfoque para cubrirte de sombras. Te vuelves Invisible, puedes atravesar criaturas como si fueran terreno difícil y usas Ráfaga de Golpes sin coste de Enfoque. Dura 1 minuto, hasta que quedes Incapacitado o hasta que termines tu turno en luz brillante.",
+      "n": 17,
+      "manual": true,
+      "usos": 0,
+      "reset": "largo"
+     }
+    ],
     "manoabierta": [
      {
-      "nombre": "Tranquilidad",
+      "nombre": "Paso Veloz",
       "t": "pasiva",
-      "texto": "Efecto de Santuario constante tras descanso largo.",
+      "texto": "Cuando tomas una Acción Adicional que no sea Paso del Viento, puedes usar Paso del Viento inmediatamente después.",
       "n": 11,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
       "nombre": "Palma Quiebra-almas",
       "t": "pasiva",
-      "texto": "Vibraciones letales que pueden reducir a 0 PG (Salvación CON).",
+      "texto": "Al impactar desarmado, puedes gastar 4 Puntos de Enfoque para imbuir vibraciones letales que duran días igual a tu nivel. Puedes usar tu acción (o renunciar a un ataque) para terminarlas: el objetivo hace salvación de CON, sufriendo 10d12 de daño de Fuerza si falla, o la mitad si salva.",
       "n": 17,
-      "usos": 0,
-      "reset": "largo"
-     }
-    ],
-    "sombra": [
-     {
-      "nombre": "Manto de Sombras",
-      "t": "pasiva",
-      "texto": "Invisibilidad en luz tenue u oscuridad.",
-      "n": 11,
-      "usos": 0,
-      "reset": "largo"
-     },
-     {
-      "nombre": "Oportunista",
-      "t": "reaccion",
-      "texto": "Ataque de reacción cuando alguien golpea a una criatura cerca de ti.",
-      "n": 17,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      }
