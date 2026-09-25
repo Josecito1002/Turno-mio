@@ -1123,6 +1123,7 @@ Respuesta de Gemini revisada el 2026-09-25. Versiones: Manual del Jugador 2024 (
 - [x] **Corregido de la respuesta**: los libros de C con clave; Elementalismo sí está en la app; Sintonía Elemental (la salvación de FUE es solo si cambias el tipo de daño), Conjuros y Enfoque Místico de las Artes Místicas (preparados, foco, tabla de coste para recuperar espacios) y la duración de Manto de Sombras. Se quitaron Paso de Sombra e Integridad del Cuerpo de nivel 6 porque ya los trae la subclase integrada.
 - [x] **La biblioteca difería**: rasgos altos de 2014 (Disciplina Perfecta, Alma Diamantina, Desafiar a la Muerte, Tranquilidad, Oportunista) y Misericordia y Elementos resumidos en una línea; ahora siguen 2024.
 - [x] **Cuerpo y Mente**: +4 a DES y SAB (máximo 25) en el nivel 20, calculado.
+- [x] **Sintonía Elemental**: el golpe sin armas elemental sale en Ataques (tipo a elegir al acertar, CD de FUE para moverlo y +1 dado de Artes Marciales del Epítome desde el nivel 17).
 - [x] **Artes Místicas**: lanza conjuros de hechicero con SAB, con los espacios de un tercio de lanzador (los mismos que Caballero Arcano y Embaucador Arcano, que ahora también los tienen), trucos 2/3 y preparados de la tabla.
 
 ### Revisados

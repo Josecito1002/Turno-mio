@@ -949,6 +949,13 @@ describe('Monje 2024 (Lote 14)', () => {
     assert.equal(recurso(mon(5, {}, 'lib:dragon-ascendente'), 'Aliento del Dragón')?.max, 3);
     assert.ok(entrada(mon(17, {}, 'lib:alma-solar'), 'Escudo Solar'));
   });
+  test('Sintonía Elemental: golpe sin armas elemental en Ataques', () => {
+    const c = mon(17, { des: 16 }, 'lib:elementos');
+    const a = c.naturales.find((x: any) => /Sintonía/.test(x.nombre));
+    assert.equal(a?.atk, c.unarmed.atk);
+    assert.match(a.dmg, /ácido, frío, fuego, rayo o trueno/);
+    assert.match(a.notas.join(' '), /Epítome/);
+  });
   test('los rasgos altos son los de 2024', () => {
     const c = mon(20);
     assert.ok(entrada(c, 'Superviviente Disciplinado'));

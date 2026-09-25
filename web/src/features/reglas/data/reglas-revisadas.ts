@@ -1406,6 +1406,14 @@ export const REGLAS: any[] = [
   {de:/^embaucador arcano$/, n:/^lanzamiento de conjuros$/, t:'pasiva', ...lanzadorTercio('int', 'mago', c => c.lvl >= 10 ? 4 : 3)},
   {de:/^guerrero de las artes misticas$/, n:/^conjuros de las artes misticas$/, t:'pasiva', ...lanzadorTercio('sab', 'hechicero', c => c.lvl >= 10 ? 3 : 2)},
 
+  /* ---------- Monje (lote 14): Guerrero de los Elementos ---------- */
+  {de:/^guerrero de los elementos$/, n:/^sintonia elemental$/, t:'gratis', coste:'1 Focus',
+    ataques: c => [{nombre:'Golpe elemental (Sintonía Elemental)', atk: c.unarmed.atk, expr: c.unarmed.expr,
+      dmg: c.unarmed.dmg.replace(/contundente$/, 'de ácido, frío, fuego, rayo o trueno'),
+      notas:[`Con la Sintonía activa: alcance de 15 pies; eliges el tipo al acertar y el objetivo hace una salvación de FUE (CD ${c.dcFocus}) o lo mueves hasta 10 pies`,
+        ...(c.lvl >= 17 ? [`Una vez por turno: +1d${c.md} del mismo tipo (Epítome Elemental)`] : [])]}],
+    texto: c => `Al inicio de tu turno puedes gastar 1 Punto de Enfoque para cargarte de energía elemental durante 10 minutos (acaba antes si quedas Incapacitado). Mientras dura, tus golpes sin armas alcanzan 10 pies más y, al acertar, pueden hacer daño de ácido, frío, fuego, rayo o trueno; si lo haces, el objetivo hace una salvación de FUE (CD ${c.dcFocus}) o lo mueves hasta 10 pies hacia ti o lejos de ti. El golpe elemental sale en Ataques. Además conoces el truco Elementalismo y lo lanzas con SAB.`},
+
   /* Lo generado desde las respuestas de Gemini (scripts/gemini/revisar.ts); las de arriba tienen prioridad */
   ...REGLAS_GENERADAS,
 ];
