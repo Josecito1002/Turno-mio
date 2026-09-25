@@ -17,6 +17,7 @@ import { snapshot } from './domain/importar-personaje';
 import { manosDe, aDosManos, puedeIrEnLaOtra } from './domain/manos';
 import { armadurasDe, bolsaDe, guardarBolsa, nuevaClave, pagar, pasoEquipoEnEditor } from './domain/inventario';
 import { ARMAS, ARMADURAS } from '@/features/reglas/data/equipo';
+import { MAX_SINTONIA, armaMagica, armaduraMagica, defDe, sintonizados } from './domain/magicos';
 
 export type Tirar = (expr: string, label: string, o?: OpcionesTirada) => Promise<Resultado>;
 
@@ -315,6 +316,41 @@ export function agregarObjeto(nombre: string, q: number) {
 export function cambiarObjeto(i: number, d: number) {
   const pj = S.pj, o = pj.objetos?.[i]; if (!o) return;
   o.q += d; if (o.q <= 0) pj.objetos.splice(i, 1);
+  savePj(); render();
+}
+/** Añade un objeto mágico del catálogo (`k`) o personalizado (`def`). Si es un arma o armadura mágica, `base` es la
+    que lo lleva: se crea su arma o armadura con el bono en el inventario. */
+export function agregarMagico(k: string, def?: any, base?: string) {
+  const pj = S.pj, id = nuevaClave().slice(2), m: any = { id, ...(def ? { def } : { k }), sint: false };
+  const d = defDe(m); if (!d) return;
+  if (d.base === 'arma' && base) {
+    const w = armaMagica(base, d); if (!w) return;
+    m.arma = nuevaClave(); pj.armasPropias = { ...(pj.armasPropias || {}), [m.arma]: w }; pj.armas.push([m.arma, 1]);
+  } else if (d.base === 'armadura' && base) {
+    const a = armaduraMagica(base, d); if (!a) return;
+    m.armadura = nuevaClave(); pj.armadurasPropias = { ...(pj.armadurasPropias || {}), [m.armadura]: a };
+    pj.armaduras = [...armadurasDe(pj), m.armadura];
+  } else if (d.base === 'escudo') {
+    m.escudo = true; if (!armadurasDe(pj).includes('escudo')) pj.armaduras = [...armadurasDe(pj), 'escudo'];
+  }
+  pj.magicos = [...(pj.magicos || []), m];
+  savePj(); render(); avisar(`${d.n} agregado${d.sint ? '. Sintonízalo para que funcione' : ''}.`);
+}
+export function quitarMagico(id: string) {
+  const pj = S.pj, m = (pj.magicos || []).find((x: any) => x.id === id); if (!m) return;
+  if (m.arma) { pj.armas = pj.armas.filter((a: any) => a[0] !== m.arma); delete pj.armasPropias?.[m.arma]; }
+  if (m.armadura) {
+    pj.armaduras = armadurasDe(pj).filter((k: string) => k !== m.armadura); delete pj.armadurasPropias?.[m.armadura];
+    if (pj.armadura === m.armadura) pj.armadura = 'ninguna';
+  }
+  pj.magicos = pj.magicos.filter((x: any) => x.id !== id);
+  savePj(); render();
+}
+/** Sintoniza o deja de sintonizar; no deja pasar del límite de 3. */
+export function sintonizar(id: string) {
+  const pj = S.pj, m = (pj.magicos || []).find((x: any) => x.id === id); if (!m) return;
+  if (!m.sint && sintonizados(pj) >= MAX_SINTONIA) return avisar(`Ya tienes ${MAX_SINTONIA} objetos sintonizados, el máximo. Deja de sintonizar uno primero.`, 'info');
+  m.sint = !m.sint;
   savePj(); render();
 }
 /** Suma o gasta monedas; al gastar, cambia monedas mayores o junta menores si hace falta. */
