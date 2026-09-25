@@ -225,6 +225,8 @@ const TIERRAS = {
 const dadoAyudaTierra = c => c.lvl >= 14 ? '4d6' : c.lvl >= 10 ? '3d6' : '2d6';
 const dadoEstrella = c => c.lvl >= 10 ? '2d8' : '1d8';
 const dadoHalo = c => c.lvl >= 14 ? '1d10' : c.lvl >= 10 ? '1d8' : c.lvl >= 6 ? '1d6' : '1d4';
+/* Explorador: la Marca del cazador hace 1d10 con Cazador de Enemigos (nivel 20) */
+const dadoMarca = c => c.lvl >= 20 ? '1d10' : '1d6';
 
 export const REGLAS: any[] = [
   /* ---------- Pugilista (The Pugilist Class 2024, Benjamin Huffman) ----------
@@ -1094,6 +1096,28 @@ export const REGLAS: any[] = [
     texto: c => `Cuando una criatura que ves se mueve a 10 pies de ti o empieza su turno allí, hace una salvación de CON (CD ${c.dcSpell}) o recibe ${dadoHalo(c)} de daño necrótico.`},
   {de:/^circulo de las esporas$/, n:/^entidad simbiotica/, t:'accion', coste:'1 Forma Salvaje',
     texto: c => `Ganas ${4 * c.lvl} PG temporales durante 10 minutos. Mientras los tengas, el daño de tu Halo de Esporas pasa a ${dadoHalo(c).replace(/^1/, '2')} y tus ataques cuerpo a cuerpo hacen 1d6 necrótico extra.`},
+
+  /* ---------- Explorador (Lote 10: Manual del Jugador 2024; Guardián Hueco de Ravenloft 2026, Caminante del Invierno de Heroes of Faerûn 2025) ----------
+     Lo demás (textos, usos, selectores, conjuros de subclase) está en generadas/explorador.ts */
+  {de:/^explorador$/, n:/^marca del cazador$/, t:'adicional', coste:'1 espacio o 1 uso gratis',
+    texto: c => `Siempre preparada (concentración, 1 hora): +${dadoMarca(c)} de fuerza al golpear a la criatura marcada, y ventaja en Percepción o Supervivencia para encontrarla.`},
+  {de:/^explorador$/, n:/^incansable$/, t:'accion', usos: c => Math.max(1, c.m.sab), reset:'largo',
+    texto: c => `Con una acción mágica ganas 1d8${fmtMod(Math.max(1, c.m.sab))} PG temporales. Además, al terminar un descanso corto tu agotamiento, si tienes, baja 1 nivel.`},
+  {de:/^explorador$/, n:/^cazador de enemigos$/, t:'pasiva',
+    texto: () => 'El dado de daño extra de tu Marca del cazador es 1d10 en vez de 1d6 (ya en el rasgo Marca del Cazador).'},
+  {de:/^caminante de las hadas$/, n:/^golpes pavorosos$/, t:'gratis',
+    texto: c => `Una vez por turno por criatura, al acertar con un arma haces ${c.lvl >= 11 ? '1d6' : '1d4'} de daño psíquico extra.`},
+  {de:/^acechador de las sombras$/, n:/^emboscador temible$/, t:'gratis', usos: c => Math.max(1, c.m.sab), reset:'largo',
+    texto: c => `Sumas tu SAB (${sign(c.m.sab)}) a la iniciativa, y en tu primer turno de cada combate tu velocidad sube 10 pies. Una vez por turno, al acertar con un arma, puedes gastar un uso para hacer ${c.lvl >= 11 ? '2d8' : '2d6'} de daño psíquico extra.`},
+  {de:/^acechador de las sombras$/, n:/^vista umbria$/, t:'pasiva',
+    efecto: c => { c.vision = (c.vision || 0) + 60; },
+    texto: () => 'Visión en la oscuridad a 60 pies, o 60 más si ya tenías (ya sumado). Totalmente en la oscuridad, eres Invisible para quien dependa de la visión en la oscuridad para verte.'},
+  {de:/^guardian hueco$/, n:/^poder hambriento$/, t:'pasiva',
+    texto: c => `Sumas ${sign(Math.max(1, c.m.sab))} a tus salvaciones de CON. Transformado con Ira de lo Salvaje y estando Maltrecho, la primera vez que aciertas un ataque en cada turno recuperas 1d10${fmtMod(c.m.sab)} PG.`},
+  {de:/^caminante del invierno$/, n:/^explorador gelido$/, t:'gratis',
+    texto: c => `Tienes resistencia al frío, y el daño de tus ataques con arma, conjuros y rasgos de explorador ignora la resistencia al frío. Una vez por turno por criatura, al acertar con un arma haces ${c.lvl >= 11 ? '1d6' : '1d4'} de daño de frío extra.`},
+  {de:/^caminante del invierno$/, n:/^escarcha del cazador$/, t:'pasiva',
+    texto: c => `Al lanzar Marca del cazador ganas 1d10 + ${c.lvl} PG temporales, y mientras dure la criatura marcada no puede Destrabarse.`},
 
   /* ---------- Especies (Lote 4) ----------
      Sus tipos, usos y textos están en la biblioteca (scripts/datos/especies-2025.ts, rasgos con `manual`).

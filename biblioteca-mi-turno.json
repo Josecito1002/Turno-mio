@@ -3435,75 +3435,42 @@
   },
   "explorador": {
    "subclases": {
-    "cazador": {
-     "n": "Cazador",
-     "rasgos": [
-      {
-       "nombre": "Presa del Cazador",
-       "t": "reaccion",
-       "texto": "Elige Coloso Matador (+1d8 daño), Asesino de Gigantes (reacción para atacar) o Cazador de Hordas (ataque extra a otro objetivo).",
-       "n": 3,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Tácticas Defensivas",
-       "t": "pasiva",
-       "texto": "Evasión contra ataques de área o defensa contra multiataques.",
-       "n": 7,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Multiataque del Cazador",
-       "t": "pasiva",
-       "texto": "Aprendes el conjuro Conjurar Descarga y puedes lanzarlo con espacios de menor nivel.",
-       "n": 11,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Defensa Superior",
-       "t": "pasiva",
-       "texto": "Esquiva asombrosa o mantenerse en pie tras golpes fatales.",
-       "n": 15,
-       "usos": 0,
-       "reset": "largo"
-      }
-     ]
-    },
     "bestias": {
      "n": "Maestro de Bestias",
      "rasgos": [
       {
-       "nombre": "Compañero del Explorador",
-       "t": "pasiva",
-       "texto": "Invocas un espíritu animal (Tierra, Mar o Aire) que actúa en tu turno.",
+       "nombre": "Compañero Primigenio",
+       "t": "adicional",
+       "texto": "Invocas mágicamente una bestia primigenia (de tierra, mar o cielo) que te obedece y actúa en tu turno. Si no usas tu Acción Adicional o sacrificas uno de tus ataques para darle una orden, solo tomará la acción de Esquivar. Puedes revivirla o cambiarla gastando magia o tras un Descanso Largo.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Entrenamiento Excepcional",
        "t": "pasiva",
-       "texto": "Tu bestia puede hacer acciones adicionales y sus ataques son mágicos.",
+       "texto": "Cuando usas tu Acción Adicional para ordenarle a tu bestia que actúe, también puedes ordenarle que Corra, se Destrabe, Esquive o Ayude. Además, sus ataques pueden infligir daño de Fuerza en lugar de su tipo normal.",
        "n": 7,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Furia de Bestia",
        "t": "pasiva",
-       "texto": "Tu compañero puede hacer dos ataques.",
+       "texto": "Cuando ordenas a tu bestia usar su ataque, puede atacar dos veces. La primera vez en el turno que golpee a un objetivo bajo tu Marca del cazador, inflige daño extra de Fuerza igual al daño de tu Marca.",
        "n": 11,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Compartir Conjuros",
        "t": "pasiva",
-       "texto": "Cuando te lanzas un conjuro, también afecta a tu bestia.",
+       "texto": "Cuando lanzas un conjuro que te tiene a ti como objetivo, también puedes hacer que afecte a tu bestia si está a 30 pies o menos de ti.",
        "n": 15,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
@@ -3513,35 +3480,57 @@
      "n": "Caminante de las Hadas",
      "rasgos": [
       {
-       "nombre": "Ataque Pavoroso",
+       "nombre": "Conjuros del Caminante de las Hadas",
        "t": "pasiva",
-       "texto": "+1d4 daño psíquico a tus ataques.",
+       "texto": "La magia de las hadas te otorga conjuros siempre preparados en los niveles 3, 5, 9, 13 y 17.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Magia Feérica",
+       "nombre": "Golpes Pavorosos",
        "t": "pasiva",
-       "texto": "Aprendes conjuros como Sonrisa de Tasha y Paso Brumoso.",
+       "texto": "Tus ataques canalizan magia que daña la mente. Una vez por turno, cuando golpeas a una criatura con un arma, infliges 1d4 de daño Psíquico adicional (aumenta a 1d6 a nivel 11).",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Giro Etéreo",
+       "nombre": "Glamour de Otro Mundo",
        "t": "pasiva",
-       "texto": "Si alguien falla una salvación contra encanto/miedo cerca de ti, puedes intentar encantar a otro.",
+       "texto": "Ganas una bendición feérica y sumas tu modificador de Sabiduría a todas tus pruebas de Carisma. También obtienes competencia en Engaño, Interpretación o Persuasión.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Giro Engañoso",
+       "t": "reaccion",
+       "texto": "Tienes Ventaja para evitar o terminar estados de Hechizado o Asustado. Si alguien a 120 pies supera una salvación contra estos estados, puedes usar tu Reacción para forzar a otra criatura a hacer una salvación de Sabiduría o quedar Hechizada o Asustada por 1 minuto.",
        "n": 7,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Paso Nebuloso",
+       "nombre": "Refuerzos Feéricos",
        "t": "pasiva",
-       "texto": "Puedes teletransportarte y llevar aliados contigo varias veces al día.",
+       "texto": "Puedes lanzar Invocar feérico sin componentes materiales y una vez sin gastar espacio de conjuro. Al lanzarlo, puedes elegir que dure 1 minuto sin requerir concentración.",
+       "n": 11,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Caminante Nebuloso",
+       "t": "adicional",
+       "texto": "Puedes lanzar Paso brumoso sin gastar espacio de conjuro un número de veces igual a tu SAB. Cuando lo haces, puedes llevar contigo a una criatura voluntaria a 5 pies de ti.",
        "n": 15,
-       "usos": 0,
+       "manual": true,
+       "usos": "max(1, SAB)",
        "reset": "largo"
       }
      ]
@@ -3550,34 +3539,156 @@
      "n": "Acechador de las Sombras",
      "rasgos": [
       {
+       "nombre": "Conjuros del Acechador de las Sombras",
+       "t": "pasiva",
+       "texto": "La magia oscura te otorga conjuros siempre preparados en los niveles 3, 5, 9, 13 y 17.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
        "nombre": "Emboscador Temible",
        "t": "pasiva",
-       "texto": "Sumas SAB a Iniciativa. +10 velocidad en primer turno. Puedes infligir daño extra (2d6?) en ataques varias veces al día.",
+       "texto": "Sumas tu Sabiduría a la Iniciativa y tu velocidad aumenta 10 pies en tu primer turno. Al impactar, puedes infligir 2d6 de daño Psíquico adicional (limitado a tus usos por descanso).",
        "n": 3,
-       "usos": 0,
+       "manual": true,
+       "usos": "max(1, SAB)",
        "reset": "largo"
       },
       {
        "nombre": "Vista Umbría",
        "t": "pasiva",
-       "texto": "Visión en la oscuridad 60 pies. Eres invisible para criaturas que dependen de visión oscura.",
+       "texto": "Obtienes Visión en la oscuridad a 60 pies (o la aumentas en 60 pies). Además, eres invisible para las criaturas que dependan de visión en la oscuridad para verte en la oscuridad total.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Mente de Hierro",
        "t": "pasiva",
-       "texto": "Competencia en salvaciones de Sabiduría.",
+       "texto": "Has perfeccionado tu resistencia contra poderes que alteran la mente. Obtienes competencia en tiradas de salvación de Sabiduría (o Inteligencia/Carisma si ya la tenías).",
        "n": 7,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Ráfaga del Acechador",
        "t": "pasiva",
-       "texto": "Si fallas un ataque, puedes hacer otro inmediatamente.",
+       "texto": "El daño psíquico de tu Emboscador Temible aumenta a 2d8. Al usarlo, también puedes elegir hacer un ataque adicional a otro enemigo a 5 pies o forzar a los enemigos cercanos al objetivo a hacer una salvación o asustarse.",
        "n": 11,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Evasión Sombría",
+       "t": "reaccion",
+       "texto": "Cuando una criatura te ataque, puedes usar tu Reacción para imponerle Desventaja en la tirada. Acierte o falle, luego puedes teletransportarte hasta 30 pies a un lugar desocupado.",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "guardian-hueco": {
+     "n": "Guardián Hueco",
+     "rasgos": [
+      {
+       "nombre": "Conjuros del Guardián Hueco",
+       "t": "pasiva",
+       "texto": "Los horrores antiguos te otorgan conjuros siempre preparados en los niveles 3, 5, 9, 13 y 17.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Ira de lo Salvaje",
+       "t": "adicional",
+       "texto": "Como Acción Adicional, gastas un uso de Enemigo Predilecto (un lanzamiento gratis de Marca del cazador) para tomar una forma espantosa durante 1 minuto. Ganas +1 a la CA (+2 desde nivel 11), puedes hacer un ataque de oportunidad a quien, a 5 pies, te dañe a ti o a un aliado, y al transformarte y al inicio de cada turno las criaturas que elijas a 10 pies hacen una salvación de Sabiduría o quedan Asustadas.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Poder Hambriento",
+       "t": "pasiva",
+       "texto": "Sumas tu Sabiduría a las salvaciones de Constitución. Al estar transformado y Ensangrentado, curas 1d10 + SAB la primera vez que golpeas en el turno.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Putrefacción y Violencia",
+       "t": "pasiva",
+       "texto": "En tu forma espantosa, los enemigos asustados por tu aura no pueden curarse ni reaccionar. Además, al golpear puedes aplicar la maestría de armas de Ralentizar o Mermar junto con otra maestría.",
+       "n": 11,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Poder Antiguo",
+       "t": "pasiva",
+       "texto": "Eres inmune al Agotamiento. Infliges daño extra igual a tu SAB a criaturas asustadas. Si caes a 0 PG estando transformado, en su lugar te recuperas con PG iguales al doble de tu nivel de Explorador.",
+       "n": 15,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "cazador": {
+     "n": "Cazador",
+     "rasgos": [
+      {
+       "nombre": "Presa del Cazador",
+       "t": "pasiva",
+       "texto": "Eliges una táctica: Asesino de Colosos (daño extra a criaturas heridas) o Rompehordas (ataque extra a otro enemigo cercano). Puedes cambiar de táctica en cada Descanso Corto o Largo.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Saber del Cazador",
+       "t": "pasiva",
+       "texto": "Tu conexión con la naturaleza te revela los secretos de tu presa. Mientras una criatura esté marcada por tu Marca del cazador, conoces todas sus inmunidades, resistencias y vulnerabilidades.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Tácticas Defensivas",
+       "t": "pasiva",
+       "texto": "Eliges una defensa: Escapar de la Horda (desventaja en ataques de oportunidad contra ti) o Defensa Contra Multiataques (quien te golpee tiene desventaja en sus siguientes ataques este turno). Cambias de táctica al descansar.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Presa del Cazador Superior",
+       "t": "pasiva",
+       "texto": "Una vez por turno, cuando infliges daño a la criatura marcada por tu Marca del cazador, puedes aplicar también el daño extra del conjuro a una segunda criatura que puedas ver a 30 pies de la original.",
+       "n": 11,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Defensa Superior del Cazador",
+       "t": "reaccion",
+       "texto": "Cuando recibes daño, puedes usar tu Reacción para obtener Resistencia a ese daño y a cualquier otro del mismo tipo hasta el final de tu turno actual.",
+       "n": 15,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
@@ -3587,43 +3698,57 @@
      "n": "Caminante del Invierno",
      "rasgos": [
       {
-       "nombre": "Explorador Gélido",
-       "t": "gratis",
-       "texto": "Obtienes los siguientes beneficios. Frío Mordiente: el daño de tus ataques con arma, conjuros de Explorador y rasgos de Explorador ignora la Resistencia al daño de Frío. Resistencia a la Escarcha: tienes Resistencia al daño de Frío. Golpes Polares: cuando golpeas a una criatura con una tirada de ataque usando un arma, puedes infligir 1d4 de daño de Frío adicional al objetivo, que solo puede recibir este daño adicional una vez por turno. Cuando alcanzas el nivel 11 de Explorador, este daño adicional aumenta a 1d6.",
+       "nombre": "Conjuros del Caminante del Invierno",
+       "t": "pasiva",
+       "texto": "La hostilidad del frío te otorga conjuros siempre preparados en los niveles 3, 5, 9, 13 y 17.",
        "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Explorador Gélido",
+       "t": "pasiva",
+       "texto": "Tienes resistencia al frío y tus ataques/conjuros ignoran la resistencia al frío del enemigo. Además, una vez por turno al golpear, infliges 1d4 de daño de Frío adicional (aumenta a 1d6 a nivel 11).",
+       "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Escarcha del Cazador",
        "t": "pasiva",
-       "texto": "El hielo te cubre a ti y a tu presa, protegiéndote y obstaculizándola. Cuando lanzas Marca del Cazador, obtienes Puntos de Golpe temporales iguales a 1d10 + tu nivel de Explorador. Además, mientras una criatura esté marcada por tu Marca del Cazador, no puede usar la acción de Destrabarse.",
+       "texto": "El hielo te protege. Cuando lanzas Marca del cazador, ganas 1d10 + nivel en Puntos de Golpe Temporales. La criatura marcada no puede usar la acción de Destrabarse.",
        "n": 3,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Conjuros del Caminante del Invierno",
-       "t": "pasiva",
-       "texto": "Cuando alcanzas un nivel de Explorador indicado en la tabla Conjuros del Caminante del Invierno, a partir de ese momento siempre tienes preparados los conjuros indicados. Nivel 3: Cuchillo de Hielo. Nivel 5: Inmovilizar Persona. Nivel 9: Quitar Maldición. Nivel 13: Tormenta de Hielo. Nivel 17: Cono de Frío.",
-       "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Alma Fortalecedora",
        "t": "accion",
-       "texto": "Tu experiencia sobreviviendo entornos angustiosos te permite reforzar a tus aliados además de a ti mismo. Como acción Mágica, elige un número de criaturas que puedas ver igual a tu modificador de Sabiduría (mínimo una). Cada criatura elegida recupera Puntos de Golpe iguales a 1d10 + tu nivel de Explorador y tiene Ventaja en tiradas de salvación para evitar o terminar el estado Asustado durante 1 hora.",
+       "texto": "Como acción mágica, sanas a un número de criaturas igual a tu SAB. Cada una recupera 1d10 + nivel de Explorador en PG y tiene Ventaja en salvaciones contra el miedo por 1 hora.",
        "n": 7,
-       "usos": 0,
+       "manual": true,
+       "usos": 1,
        "reset": "largo"
       },
       {
-       "nombre": "Alma Congelada",
-       "t": "pasiva",
-       "texto": "Tu esencia se vuelve gélida, otorgándote los siguientes beneficios. Alma Helada: tienes Inmunidad al daño de Frío. Cuando adoptas esta forma por primera vez y al inicio de cada uno de tus turnos siguientes, cada criatura de tu elección en una emanación de 15 pies originada en ti recibe 2d4 de daño de Frío. Parcialmente Incorpóreo: tienes Inmunidad a los estados Agarrado, Derribado y Apresado. Puedes atravesar criaturas y objetos como si fueran Terreno Difícil, pero recibes 1d10 de daño de Fuerza si terminas tu turno dentro de una criatura o un objeto. Si la forma termina mientras estás dentro de una criatura u objeto, eres expulsado al espacio desocupado más cercano.",
+       "nombre": "Retribución Helada",
+       "t": "reaccion",
+       "texto": "Cuando te golpean, usas tu Reacción para forzar al atacante a una salvación de Sabiduría; si falla, queda Aturdido hasta el final de tu próximo turno y su velocidad es 0.",
        "n": 11,
-       "usos": 0,
+       "manual": true,
+       "usos": "max(1, SAB)",
+       "reset": "largo"
+      },
+      {
+       "nombre": "Aparición Congelada",
+       "t": "pasiva",
+       "texto": "Al lanzar Marca del cazador, adoptas una forma fantasmal nevada. Te vuelves inmune al daño de Frío, infliges daño pasivo a tu alrededor, eres inmune a ser Derribado, Agarrado o Apresado y puedes atravesar materia física.",
+       "n": 15,
+       "manual": true,
+       "usos": 1,
        "reset": "largo"
       }
      ]
@@ -3633,44 +3758,77 @@
     {
      "nombre": "Errante",
      "t": "pasiva",
-     "texto": "Tu velocidad aumenta 10 pies. Ganas velocidad de Trepar y Nadar.",
+     "texto": "Tu velocidad aumenta en 10 pies mientras no uses armadura pesada. Además, obtienes una velocidad de trepar y de nadar iguales a tu velocidad terrestre.",
      "n": 6,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Pericia",
+     "t": "pasiva",
+     "texto": "Elige dos de tus competencias en habilidades en las que no tengas Pericia y obtienes Pericia en ellas.",
+     "n": 9,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
      "nombre": "Incansable",
-     "t": "pasiva",
-     "texto": "Acción para ganar PG temporales (1d8 + SAB). Reduce nivel de agotamiento en Descanso Corto.",
+     "t": "accion",
+     "texto": "Como acción mágica, puedes obtener Puntos de Golpe temporales. Además, siempre que termines un Descanso Corto, tu nivel de Agotamiento (si tienes alguno) se reduce en 1.",
      "n": 10,
-     "usos": 0,
-     "reset": "corto"
+     "manual": true,
+     "usos": "max(1, SAB)",
+     "reset": "largo"
     },
     {
-     "nombre": "Velo de la Naturaleza",
-     "t": "adicional",
-     "texto": "Acción Adicional para volverte Invisible hasta el final de tu siguiente turno.",
-     "n": 14,
+     "nombre": "Cazador Implacable",
+     "t": "pasiva",
+     "texto": "Recibir daño no puede romper tu Concentración en el conjuro Marca del cazador.",
+     "n": 13,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
-     "nombre": "Ocultarse a Plena Vista",
+     "nombre": "Velo de la Naturaleza",
+     "t": "adicional",
+     "texto": "Invocas espíritus naturales para ocultarte mágicamente. Como Acción Adicional, obtienes el estado Invisible hasta el final de tu siguiente turno.",
+     "n": 14,
+     "manual": true,
+     "usos": "max(1, SAB)",
+     "reset": "largo"
+    },
+    {
+     "nombre": "Cazador Preciso",
      "t": "pasiva",
-     "texto": "Camuflaje que te da +10 a Sigilo si no te mueves.",
-     "n": 10,
+     "texto": "Tienes Ventaja en las tiradas de ataque contra la criatura que esté marcada actualmente por tu Marca del cazador.",
+     "n": 17,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Sentidos Salvajes",
+     "t": "pasiva",
+     "texto": "Tu conexión con las fuerzas de la naturaleza te otorga Visión ciega con un alcance de 30 pies.",
+     "n": 18,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
      "nombre": "Cazador de Enemigos",
      "t": "pasiva",
-     "texto": "El daño de tu Marca del Cazador aumenta de 1d6 a 1d10.",
+     "texto": "El dado de daño extra de tu conjuro Marca del cazador pasa de ser un d6 a ser un d10.",
      "n": 20,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     }
-   ]
+   ],
+   "subAltos": {}
   },
   "guerrero": {
    "subclases": {

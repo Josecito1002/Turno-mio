@@ -5,6 +5,36 @@
       "clase": "clerigo",
       "subclase": "",
       "nivel": 3
+    },
+    {
+      "clase": "explorador",
+      "subclase": "bestias",
+      "nivel": 20
+    },
+    {
+      "clase": "explorador",
+      "subclase": "hadas",
+      "nivel": 20
+    },
+    {
+      "clase": "explorador",
+      "subclase": "sombras",
+      "nivel": 20
+    },
+    {
+      "clase": "explorador",
+      "subclase": "guardian-hueco",
+      "nivel": 20
+    },
+    {
+      "clase": "explorador",
+      "subclase": "cazador",
+      "nivel": 20
+    },
+    {
+      "clase": "explorador",
+      "subclase": "caminante-invierno",
+      "nivel": 20
     }
   ]
 }

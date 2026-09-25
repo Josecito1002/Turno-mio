@@ -1,5 +1,6 @@
-=== A ===
-TypeScript
+/* Explorador de la biblioteca puesto al día con su versión oficial más reciente (texto oficial de 5etools, redactado por
+   Gemini y revisado con scripts/gemini/revisar.ts). Libros: Manual del Jugador (2024); Ravenloft: The Horrors Within (2026); Forgotten Realms: Heroes of Faerûn (2025).
+   Lo aplica scripts/actualizar-clase.ts (opción "explorador"). */
 
 const r = (n: number, nombre: string, t: string, texto: string, extra: Record<string, unknown> = {}) => ({ nombre, t, texto, n, manual: true, usos: 0, reset: 'largo', ...extra });
 
@@ -80,99 +81,3 @@ export const EXPLORADOR_2024 = {
     }
   }
 };
-
-=== B ===
-JSON
-
-[
-  { "donde": "clase", "rasgo": "Incansable", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo" },
-  { "donde": "clase", "rasgo": "Incansable", "tipo": "pg", "detalle": "1d8 + SAB" },
-  { "donde": "clase", "rasgo": "Velo de la Naturaleza", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo" },
-  { "donde": "clase", "rasgo": "Cazador de Enemigos", "tipo": "dado", "dado": "1d10" },
-  { "donde": "bestias", "rasgo": "Compañero Primigenio", "tipo": "eleccion", "id": "tipo-bestia", "cuantas": "1",
-    "opciones": [
-      { "key": "bestia-tierra", "nombre": "Bestia de Tierra", "desc": "Espíritu con forma terrestre.", "nivel": 3, "requiere": null },
-      { "key": "bestia-mar", "nombre": "Bestia de Mar", "desc": "Espíritu con forma acuática.", "nivel": 3, "requiere": null },
-      { "key": "bestia-cielo", "nombre": "Bestia de Cielo", "desc": "Espíritu con forma voladora.", "nivel": 3, "requiere": null }
-    ]
-  },
-  { "donde": "hadas", "rasgo": "Conjuros del Caminante de las Hadas", "tipo": "conjuros", "por_nivel": { "3": ["Hechizar persona"], "5": ["Paso brumoso"], "9": ["Invocar feérico"], "13": ["Puerta dimensional"], "17": ["Engañar"] } },
-  { "donde": "hadas", "rasgo": "Golpes Pavorosos", "tipo": "daño", "daño": "1d4; 1d6 desde nivel 11" },
-  { "donde": "hadas", "rasgo": "Glamour de Otro Mundo", "tipo": "eleccion", "id": "habilidad-hadas", "cuantas": "1",
-    "opciones": [
-      { "key": "hadas-engano", "nombre": "Engaño", "desc": "Competencia en Engaño.", "nivel": 3, "requiere": null },
-      { "key": "hadas-interpretacion", "nombre": "Interpretación", "desc": "Competencia en Interpretación.", "nivel": 3, "requiere": null },
-      { "key": "hadas-persuasion", "nombre": "Persuasión", "desc": "Competencia en Persuasión.", "nivel": 3, "requiere": null }
-    ]
-  },
-  { "donde": "hadas", "rasgo": "Caminante Nebuloso", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo" },
-  { "donde": "sombras", "rasgo": "Conjuros del Acechador de las Sombras", "tipo": "conjuros", "por_nivel": { "3": ["Disfrazarse"], "5": ["Truco de la cuerda"], "9": ["Miedo"], "13": ["Invisibilidad mejorada"], "17": ["Apariencia"] } },
-  { "donde": "sombras", "rasgo": "Emboscador Temible", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo" },
-  { "donde": "sombras", "rasgo": "Emboscador Temible", "tipo": "daño", "daño": "2d6; 2d8 desde nivel 11" },
-  { "donde": "sombras", "rasgo": "Vista Umbría", "tipo": "vision", "detalle": "Visión en la oscuridad 60 pies (o suma 60 pies a la actual)" },
-  { "donde": "guardian-hueco", "rasgo": "Conjuros del Guardián Hueco", "tipo": "conjuros", "por_nivel": { "3": ["Castigo furioso"], "5": ["Alterar el propio aspecto"], "9": ["Corcel fantasma"], "13": ["Dominar bestia"], "17": ["Golpe de Viento Acerado"] } },
-  { "donde": "guardian-hueco", "rasgo": "Poder Hambriento", "tipo": "daño", "daño": "1d10 + SAB" },
-  { "donde": "cazador", "rasgo": "Presa del Cazador", "tipo": "eleccion", "id": "presa-cazador", "cuantas": "1",
-    "opciones": [
-      { "key": "asesino-colosos", "nombre": "Asesino de Colosos", "desc": "+1d8 daño si el objetivo ya está herido (1/turno).", "nivel": 3, "requiere": null },
-      { "key": "rompehordas", "nombre": "Rompehordas", "desc": "Puedes hacer un ataque extra a otro enemigo cercano a tu objetivo original.", "nivel": 3, "requiere": null }
-    ]
-  },
-  { "donde": "cazador", "rasgo": "Tácticas Defensivas", "tipo": "eleccion", "id": "defensa-cazador", "cuantas": "1",
-    "opciones": [
-      { "key": "escapar-horda", "nombre": "Escapar de la Horda", "desc": "Ataques de oportunidad en tu contra tienen Desventaja.", "nivel": 7, "requiere": null },
-      { "key": "defensa-multiataque", "nombre": "Defensa contra Multiataques", "desc": "Cuando te golpean, el enemigo tiene Desventaja en todos sus ataques restantes contra ti este turno.", "nivel": 7, "requiere": null }
-    ]
-  },
-  { "donde": "caminante-invierno", "rasgo": "Conjuros del Caminante del Invierno", "tipo": "conjuros", "por_nivel": { "3": ["Cuchillo de hielo"], "5": ["Inmovilizar persona"], "9": ["Levantar maldición"], "13": ["Tormenta de hielo"], "17": ["Cono de frío"] } },
-  { "donde": "caminante-invierno", "rasgo": "Explorador Gélido", "tipo": "daño", "daño": "1d4; 1d6 desde nivel 11" },
-  { "donde": "caminante-invierno", "rasgo": "Escarcha del Cazador", "tipo": "pg", "detalle": "1d10 + nivel" },
-  { "donde": "caminante-invierno", "rasgo": "Alma Fortalecedora", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "caminante-invierno", "rasgo": "Retribución Helada", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo" }
-]
-
-=== C ===
-JSON
-
-{
-  "bestias": "Manual del Jugador (2024)",
-  "hadas": "Manual del Jugador (2024)",
-  "sombras": "Manual del Jugador (2024)",
-  "guardian-hueco": "Ravenloft: The Horrors Within (2026)",
-  "cazador": "Manual del Jugador (2024)",
-  "caminante-invierno": "Forgotten Realms: Heroes of Faerûn (2025)"
-}
-
-=== D ===
-JSON
-
-{
-  "bestias": "Forjan un poderoso vínculo primordial con el espíritu de una bestia mágica que lucha codo a codo junto a ellos.",
-  "hadas": "Canalizan la magia del mundo de las hadas, usando engaños, ilusiones, y ataques psíquicos para atemorizar a sus enemigos.",
-  "sombras": "Maestros de la oscuridad que operan de manera invisible en las sombras, emboscando brutalmente a los enemigos en el primer turno.",
-  "guardian-hueco": "Asumen transformaciones aterradoras potenciadas por horrores antiguos, devorando y aterrorizando a sus oponentes.",
-  "cazador": "Especialistas en cazar presas difíciles: eligen tácticas para rematar a enemigos heridos o golpear a varios a la vez, y aprenden a defenderse de grupos.",
-  "caminante-invierno": "Sobrevivientes glaciales que utilizan hielo mágico y frío penetrante para congelar y ralentizar a sus presas."
-}
-
-=== E ===
-
-    Errante (Nivel 6): Actualizado en la app: ya no da +10 incondicional, ahora aplica solo "mientras no uses armadura pesada".
-
-    Incansable (Nivel 10): Se aclara que los usos son fijos por descanso Largo basados en tu mod de Sabiduría.
-
-    Ocultarse a Plena Vista (Nivel 10): [ELIMINADO] Este rasgo fue removido completamente de la clase en las reglas de 2024 y ya no debe existir en la app.
-
-    Velo de la Naturaleza (Nivel 14): Se le asignaron sus usos limitados basados en Sabiduría, algo que faltaba en la app actual.
-
-    Marca del Cazador (Nivel 1): El texto que tiene la app actual incluye "ventaja en Percepción" en la descripción del rasgo, cuando en realidad eso es un efecto del propio conjuro. Además, la tabla oficial 2024 indica que tienes usos gratuitos por descanso Largo que escalan, lo cual no pude incluir en las mecánicas JSON porque el texto no facilitó la tabla numérica, pero debería revisarse.
-
-    Cazador (Nivel 3, 11 y 15): La táctica Asesino de Gigantes fue eliminada en 2024; ahora solo están Asesino de Colosos y Rompehordas. Su Nivel 11 ya no da el conjuro Conjurar Descarga, sino la capacidad de propagar Marca del Cazador, y su Defensa de Nivel 15 pasó a ser una reacción para obtener resistencia a un tipo de daño.
-
-    Acechador de las Sombras (Niveles 3, 7 y 11): El rasgo Nivel 3 (Emboscador Temible) ahora requiere usar usos limitados (SAB) para causar el daño extra y hace daño Psíquico (2d6 escalando a 2d8), en lugar de estar siempre activo el primer turno. Nivel 7 es ahora Mente de Hierro (salvaciones de Sabiduría). Nivel 11 fue rediseñado.
-
-    Conjuros Modificados: He adaptado los nombres requeridos, señalando Invocar feérico (NO ESTÁ EN LA APP) porque no aparecía exactamente en la lista suministrada (Summon Fey). Asigné "Levantar maldición" para el Caminante del Invierno en vez de "Quitar Maldición".
-
-    Subclases Mencionadas sin Texto: Las subclases Drakewarden, Horizon Walker, Monster Slayer, y Swarmkeeper estaban listadas en los títulos pero el documento entregado no incluyó sus textos descriptivos. Siguiendo la regla de no inventar y hacer "una subclase por cada subclase del texto oficial", no se generó JSON ni código TypeScript para ellas, pero sus referencias originales deben respetarse si se extraen posteriormente.
-
-    Nota [NO CONFIRMADO]: En Guardián Hueco Nivel 3, el texto inglés indica "expend a use of XPHB", probablemente un error tipográfico del material original que refería a la Marca del Cazador u otro recurso; se transcribió literalmente como "[NO CONFIRMADO]".
