@@ -11,6 +11,7 @@ import { FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { BotonTirada } from '@/features/dados/components/BotonTirada';
 import { Ataque, ConjuroFila, ConjuroTarjeta, Entrada, Recursos } from '../piezas';
 import { abrirSubida, bajarArchivo, bajarNivel, borrarPj, irAPaso } from '../../acciones';
+import { faltaParaSubir } from '../../domain/pendientes';
 
 export const PASO_N: Record<string, string> = { especie: 'Especie', clase: 'Clase', trasfondo: 'Trasfondo', stats: 'Características', habs: 'Habilidades', equipo: 'Equipo', conjuros: 'Conjuros', rasgos: 'Rasgos propios', detalles: 'Detalles' };
 
@@ -176,6 +177,7 @@ export function Ficha({ c }: { c: any }) {
   const subN = c.SD ? c.SD.n : (pj.subclase === 'otra' && c.lvl >= c.subNivel ? pj.subclaseNombre : '');
   const who = `${esp || 'Sin especie'}. ${c.C ? `${c.C.n} de nivel ${c.lvl}` : 'Sin clase'}${subN ? `, ${subN}` : ''}${c.chain ? ', Pacto de la Cadena' : ''}.`;
   const nAv = c.avisos.filter((a: any) => a.nivel === 'aviso').length;
+  const falta = faltaParaSubir(c);
   const tabs = [
     { id: 'turno', texto: 'En tu turno' }, { id: 'hoja', texto: 'Hoja' }, { id: 'conjuros', texto: 'Conjuros' },
     { id: 'revisar', texto: 'Revisar', insignia: nAv > 0 ? <Insignia etiqueta={`${nAv} cosas por elegir`}>{nAv}</Insignia> : undefined },
@@ -183,9 +185,12 @@ export function Ficha({ c }: { c: any }) {
   return (
     <>
       <EncabezadoPagina id="titulo-vista" titulo={pj.nombre || 'Sin nombre'} subtitulo={who}>
-        {c.C && c.lvl < 20 && <Boton variante="primario" onClick={abrirSubida}>Subir a nivel {c.lvl + 1}</Boton>}
+        {c.C && c.lvl < 20 && <Boton variante="primario" onClick={abrirSubida} disabled={falta.length > 0}>Subir a nivel {c.lvl + 1}</Boton>}
         {c.C && c.lvl > 1 && <Boton onClick={bajarNivel}>Bajar a nivel {c.lvl - 1}</Boton>}
       </EncabezadoPagina>
+      {c.C && c.lvl < 20 && falta.length > 0 && (
+        <p className="-mt-2 mb-4 text-sm text-muted">Para subir de nivel falta elegir: {falta.map((a: any) => a.t.toLowerCase()).join(', ')}. Está en la pestaña Revisar.</p>
+      )}
       <div className="mb-4 grid grid-cols-3 gap-px overflow-hidden rounded-2xl bg-rule ring-1 ring-rule sm:grid-cols-6">
         <Stat valor={c.ac} etiqueta="CA" />
         <Stat valor={c.hpMax} etiqueta="PG máximos" />

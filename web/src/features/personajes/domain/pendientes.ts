@@ -25,3 +25,10 @@ export function pendientesAlSubir(c: any, haySubclases: boolean): string[] {
   if (haySubclases && c.lvl === c.subNivel && !out.includes('subclase')) out.unshift('subclase');
   return out;
 }
+
+/** Lo que falta elegir y no deja subir de nivel: especie, clase, trasfondo, subclase, estilo, mejoras, habilidades,
+ *  pericias, maestrías y elecciones de rasgos. Los conjuros por preparar y el equipo no lo impiden. */
+export function faltaParaSubir(c: any): any[] {
+  return (c.avisos || []).filter((a: any) => a.nivel === 'aviso'
+    && (['especie', 'clase', 'trasfondo', 'stats', 'habs'].includes(a.paso) || /maestria/.test(norm(a.t))));
+}
