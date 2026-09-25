@@ -172,7 +172,6 @@ async function main() {
   writeFileSync(`scripts/datos/${clase}-2024.ts`, `/* ${C.n} de la biblioteca puesto al día con su versión oficial más reciente (texto oficial de 5etools, redactado por
    Gemini y revisado con scripts/gemini/revisar.ts). Libros: ${[...new Set(Object.values(Cf))].join('; ')}.
    Lo aplica scripts/actualizar-clase.ts (opción "${clase}"). */
-/* eslint-disable */
 
 ${codigoA.replace(/^\s*(\/\*[\s\S]*?\*\/\s*)?/, '')}
 `);

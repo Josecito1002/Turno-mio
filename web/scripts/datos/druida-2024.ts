@@ -1,7 +1,6 @@
 /* Druida de la biblioteca puesto al día con su versión oficial más reciente (texto oficial de 5etools, redactado por
    Gemini y revisado con scripts/gemini/revisar.ts). Libros: Manual del Jugador (2024); Xanathar's Guide to Everything (2017); Tasha's Cauldron of Everything (2020).
    Lo aplica scripts/actualizar-clase.ts (opción "druida"). */
-/* eslint-disable */
 
 const r = (n: number, nombre: string, t: string, texto: string, extra: Record<string, unknown> = {}) => ({ nombre, t, texto, n, manual: true, usos: 0, reset: 'largo', ...extra });
 

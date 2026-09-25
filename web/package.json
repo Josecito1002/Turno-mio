@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "tsx scripts/despliegue.ts && next build",
     "start": "next start",
     "lint": "eslint",
     "db:generar": "drizzle-kit generate",
@@ -18,6 +18,8 @@
     "gemini:revisar": "tsx scripts/gemini/revisar.ts",
     "prueba:crear": "tsx --env-file-if-exists=.env.local scripts/gemini/personajes-prueba.ts",
     "prueba:borrar": "tsx --env-file-if-exists=.env.local scripts/gemini/personajes-prueba.ts --borrar",
+    "prueba:pedir": "tsx scripts/gemini/personajes-prueba.ts --lista",
+    "prueba:quitar": "tsx scripts/gemini/personajes-prueba.ts --lista --borrar",
     "db:actualizar-clase": "tsx --env-file-if-exists=.env.local scripts/actualizar-clase.ts"
   },
   "dependencies": {

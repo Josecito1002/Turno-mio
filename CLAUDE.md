@@ -34,7 +34,8 @@ investigación que ya trae el texto oficial.
    contra el texto oficial del encargo.
 4. `npm run gemini:revisar -- <clase> --aplicar`: escribe `scripts/datos/<clase>-2024.ts` y
    `src/features/reglas/data/generadas/<clase>.ts`, y marca el documento de revisión.
-5. `npm run db:actualizar-clase -- <clase> --ver`, y sin `--ver` para guardar en la biblioteca y en la base.
+5. `npm run db:actualizar-clase -- <clase> --ver`, y luego sin `--ver` (en la nube, con `--solo-archivo`: la base se
+   actualiza al publicar).
 6. Lo que el informe lista "para hacer a mano" (CA, ataques, daños especiales) va en
    `src/features/reglas/data/reglas-revisadas.ts`, que tiene prioridad sobre lo generado.
 7. Pruebas automáticas solo para lo que el motor calcula (usos, CA, daños, selectores, pericias), no para rasgos que
@@ -70,5 +71,16 @@ Sus encargos los genera `npm run gemini:encargo-extra` (`scripts/gemini/encargo-
 
 ## Base de datos
 
-`db:actualizar-clase`, `prueba:crear` y `prueba:borrar` necesitan `DATABASE_URL` (en la PC está en `web/.env.local`,
-que no está en git). Si no está disponible, haz todo lo demás y dile al usuario que ese paso queda para la PC.
+**Al publicar en Vercel (producción), `scripts/despliegue.ts` deja la base igual que el repositorio** antes de
+compilar: aplica migraciones, reescribe cada clase, especie y dote de `biblioteca-mi-turno.json` que difiera de la base,
+y deja en la cuenta de prueba exactamente los personajes de `web/scripts/datos/personajes-prueba.json`. El resultado
+sale en el registro de la compilación, en las líneas `[despliegue]`.
+
+- **En la nube no hay conexión a la base** (solo sale tráfico web), así que:
+  - aplica los lotes con `npm run db:actualizar-clase -- <clase> --solo-archivo` (solo el JSON) y súbelo: la base se
+    pone al día al publicar;
+  - para personajes de prueba usa `npm run prueba:pedir -- <clase> [clave-subclase:nivel ...]` y, cuando el usuario
+    termine de revisar, `npm run prueba:quitar`; en los dos casos, commit y push para que se apliquen.
+- En la PC, con `DATABASE_URL` en `web/.env.local`, también sirven `db:actualizar-clase` sin `--solo-archivo`,
+  `prueba:crear` y `prueba:borrar`, que actúan al momento.
+- Los personajes de prueba tardan lo que tarde Vercel en publicar (un par de minutos): díselo al usuario.
