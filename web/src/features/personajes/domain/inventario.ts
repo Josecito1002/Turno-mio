@@ -30,6 +30,16 @@ export function guardarBolsa(pj: any, b: Bolsa) { pj.oro = b.po; pj.monedas = { 
 const valor = Object.fromEntries(MONEDAS.map(([k, , v]) => [k, v]));
 const totalCobre = (b: Bolsa) => MONEDAS.reduce((s, [k, , v]) => s + (b[k] || 0) * v, 0);
 
+/** Junta monedas menores en mayores hasta el oro: 10 de cobre son 1 de plata y 10 de plata, 1 de oro.
+    El oro no pasa a platino: casi todo se paga en oro. */
+export function juntar(bolsa: Bolsa): Bolsa {
+  const b = { ...bolsa };
+  b.pp += Math.floor(b.pc / 10); b.pc %= 10;
+  b.po += Math.floor(b.pp / 10); b.pp %= 10;
+  return b;
+}
+export const puedeJuntar = (b: Bolsa) => b.pc >= 10 || b.pp >= 10;
+
 /** Da `cobre` de cambio en monedas menores que `limite`, de la mayor a la menor. */
 function darCambio(b: Bolsa, cobre: number, limite: number) {
   for (const [k, , v] of MONEDAS) if (v < limite && cobre >= v) { b[k] += Math.floor(cobre / v); cobre %= v; }
