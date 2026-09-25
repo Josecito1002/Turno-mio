@@ -124,7 +124,7 @@ function Hoja({ c }: { c: any }) {
         <Boton variante="primario" onClick={() => { S.view = 'editor'; S.step = S.step || 'especie'; render(); irArriba(); }}>Editar personaje</Boton>
         <Boton onClick={() => window.print()}>Imprimir o guardar PDF</Boton>
         <Boton onClick={exportar}>Descargar respaldo</Boton>
-        <Boton variante="peligro" onClick={borrarPj}>Borrar personaje</Boton>
+        <Boton variante="peligro" onClick={() => borrarPj()}>Borrar personaje</Boton>
       </div>
     </>
   );
