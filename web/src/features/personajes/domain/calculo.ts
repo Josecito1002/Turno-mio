@@ -478,7 +478,8 @@ export function conjurosDeRasgos(c){
     const nota = [x.nota || (!max && nv ? 'Siempre preparado' : ''), max && `Sin gastar espacio${conEspacios ? '; también puedes lanzarlo con tus espacios' : ''}`].filter(Boolean).join('. ');
     const recurso = max ? 'cr-' + slug(x.nombre) : '';
     out.push(conCd({...s, extra: true, rasgo: x.src, nota, coste: max ? usoTxt(max, x.reset) : '', recurso}, x.ab || abLibre));
-    if (max) c.extraRes.push({id: recurso, nombre: `${s.nombre} (${x.src})`, max, reset: x.reset || 'largo'});
+    // El origen va en la nota del recurso, no en su nombre; `solo` evita que se ligue a otro rasgo por palabras sueltas
+    if (max) c.extraRes.push({id: recurso, nombre: s.nombre, nota: `De ${x.src}. Vuelve con descanso ${x.reset === 'corto' ? 'corto' : 'largo'}`, max, reset: x.reset || 'largo', solo: true});
   }
   c.conjurosRasgo = out;
 }

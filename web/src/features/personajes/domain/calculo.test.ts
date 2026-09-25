@@ -517,7 +517,7 @@ describe('Brujo 2024 (Lote 7)', () => {
     assert.ok(!bru(10).elecciones.some((e: any) => e.id === 'arcano-6'));
     assert.equal(bru(11).elecciones.find((e: any) => e.id === 'arcano-6').opciones[0].nombre, 'Círculo de muerte');
     const c = bru(11, '', {}, { elecciones: { 'arcano-6': 'circulo de muerte' } });
-    assert.equal(recurso(c, 'Círculo de muerte (Arcano Místico)')?.max, 1);
+    assert.equal(recurso(c, 'Círculo de muerte')?.max, 1);
     assert.ok(c.conjuros.some((s: any) => s.nombre === 'Círculo de muerte' && s.rasgo === 'Arcano Místico'));
   });
   test('Gran Antiguo: conjuros del patrón hasta nivel 9', () => {
@@ -545,7 +545,7 @@ describe('Conjuros que dan los rasgos', () => {
     assert.deepEqual(nombres(t1), ['Rociada venenosa', 'Taumaturgia']);
     const t5 = pj('guerrero', 5, '', {}, { especie: { key: 'tiefling', sub: 'abisal' } });
     assert.ok(nombres(t5).includes('Rayo nauseabundo') && nombres(t5).includes('Inmovilizar persona'));
-    assert.equal(recurso(t5, 'Rayo nauseabundo (Legado Infernal)')?.max, 1);
+    assert.equal(recurso(t5, 'Rayo nauseabundo')?.max, 1);
     assert.equal(t5.conjuros.find((s: any) => s.nombre === 'Rociada venenosa').cd, 8 + t5.pb + 3); // INT 16
   });
   test('dote: Marca de Escritura da Mensaje, Comprender idiomas y desde el nivel 3 Boca mágica', () => {
