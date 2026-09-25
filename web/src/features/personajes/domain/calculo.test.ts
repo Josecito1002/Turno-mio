@@ -11,6 +11,7 @@ import { EQUIPO_CLASES, kitClase } from '@/features/reglas/data/equipo-clases';
 import { ESPECIES_2025 } from '../../../../scripts/datos/especies-2025';
 import { BARBARO_2024 } from '../../../../scripts/datos/barbaro-2024';
 import { BARDO_2024 } from '../../../../scripts/datos/bardo-2024';
+import { CLERIGO_2024 } from '../../../../scripts/datos/clerigo-2024';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
 import { ARMAS } from '@/features/reglas/data/equipo';
 import { EQUIPO_TRASFONDOS, kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
@@ -456,5 +457,30 @@ describe('Bardo 2024 (Lote 6)', () => {
     assert.equal(bardo(3, 'lib:colegio-glamour').esExtra({ nombre: 'Hechizar persona' }), true);
     assert.equal(bardo(3, 'lib:colegio-glamour').esExtra({ nombre: 'Orden imperiosa' }), false);
     assert.equal(bardo(6, 'lib:colegio-glamour').esExtra({ nombre: 'Orden imperiosa' }), true);
+  });
+});
+
+describe('Clérigo 2024 (Lote 8)', () => {
+  const cler = (nivel: number, sub = '', stats: Record<string, number> = {}, extra: Record<string, any> = {}) => { setLib({ clases: { clerigo: CLERIGO_2024 } }); return pj('clerigo', nivel, sub, stats, extra); };
+  test('Vida: conjuros del dominio siempre preparados según el nivel', () => {
+    assert.equal(cler(3, 'lib:dominio-vida').esExtra({ nombre: 'Ayuda' }), true);
+    assert.equal(cler(3, 'lib:dominio-vida').esExtra({ nombre: 'Revivir' }), false);
+    assert.equal(cler(5, 'lib:dominio-vida').esExtra({ nombre: 'Revivir' }), true);
+  });
+  test('Luz: Destello Protector usa SAB y se recupera con descanso corto desde el nivel 6', () => {
+    const a = recurso(cler(3, 'lib:dominio-luz', { sab: 16 }), 'Destello Protector'), b = recurso(cler(6, 'lib:dominio-luz', { sab: 16 }), 'Destello Protector');
+    assert.equal(a.max, 3); assert.equal(a.reset, 'largo'); assert.equal(b.reset, 'corto');
+  });
+  test('Conocimiento: las dos habilidades elegidas ganan competencia y pericia', () => {
+    const c = cler(3, 'lib:dominio-conocimiento', { int: 10 }, { elecciones: { 'saber-habs': ['arcanos', 'historia'] } });
+    assert.equal(c.skill.arcanos, 2 * c.pb);
+    assert.equal(c.skillPer.historia, true);
+  });
+  test('Forja: +1 a la CA con armadura pesada desde el nivel 6', () => {
+    assert.equal(cler(6, 'lib:dominio-forja', {}, { armadura: 'mallas' }).ac - cler(5, 'lib:dominio-forja', {}, { armadura: 'mallas' }).ac, 1);
+  });
+  test('Golpes Benditos: el texto sigue a la opción elegida', () => {
+    const c = cler(14, '', { sab: 16 }, { elecciones: { 'golpes-benditos': 'golpe-divino' } });
+    assert.match(entrada(c, 'Golpes Benditos').texto, /2d8/);
   });
 });

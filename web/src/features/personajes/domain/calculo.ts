@@ -47,7 +47,8 @@ export function compute(pj): any {
   c.subDmg = E?.subs?.[c.esub]?.dmg || 'tu tipo de daño';
   c.subNivel = subNivel(pj, pj.clase);
   c.SD = lvl >= c.subNivel ? getSubs(pj, pj.clase).find(s => s.key === pj.subclase && s.key !== 'cadena') || null : null;
-  c.chain = pj.clase === 'brujo' && pj.pactoCadena ? SUBCLASES.find(s => s.key === 'cadena') : null;
+  // Pacto de la Cadena: en 2024 es una invocación (o la casilla de antes, para personajes viejos)
+  c.chain = pj.clase === 'brujo' && (pj.pactoCadena || [].concat(pj.elecciones?.invocaciones || []).includes('pacto-cadena')) ? SUBCLASES.find(s => s.key === 'cadena') : null;
 
   // Dotes
   c.dotes = [];
@@ -383,8 +384,9 @@ export function aplicarReglas(c){
     c.extraRes = c.extraRes.filter(r => r.nombre !== x.nombre);
     const max = usosMax(R.usos, c); if (!max) return;
     // `pool: true` la muestra como reserva de puntos (se gastan de a varios), no como casillas
-    c.extraRes.push({id, nombre:x.nombre, max, reset:R.reset || 'largo', solo:true, ...(R.pool ? {tipo:'pool'} : {})});
-    x.recurso = id; x.coste = x.coste || usoTxt(max, R.reset);
+    const reset = valor(R.reset, c) || 'largo';
+    c.extraRes.push({id, nombre:x.nombre, max, reset, solo:true, ...(R.pool ? {tipo:'pool'} : {})});
+    x.recurso = id; x.coste = x.coste || usoTxt(max, reset);
   };
   c.entries.forEach(e => {
     const n = norm(e.nombre), de = norm(e.src || '');
@@ -401,8 +403,11 @@ export function aplicarReglas(c){
     if (R.ataques) c.ataquesReglas.push(...R.ataques(c));
     // Una regla puede pedir una elección o varias (lista)
     for (const el of [].concat(R.eleccion || [])) {
-      // Con `max` se eligen varias (fórmulas, maldiciones...); las opciones con `nivel` salen desde ese nivel
-      const max = valor(el.max, c), guardado = c.pj.elecciones?.[el.id];
+      // `si(c)`: la elección solo aparece cuando aplica (p. ej. el Arcano Místico de nivel 7 desde el nivel 13)
+      if (el.si && !el.si(c)) continue;
+      // Con `max` se eligen varias (fórmulas, maldiciones...); las opciones con `nivel` salen desde ese nivel,
+      // y las que `requiere` otra opción de la misma elección, solo cuando esa ya está elegida
+      const max = valor(el.max, c), guardado = c.pj.elecciones?.[el.id], ya = [].concat(guardado || []);
       // Qué hace cada opción: su `desc`, o el texto de la opción del rasgo ligada a ella (`elegida: [id, key]`)
       const descDe = o => {
         if (o.desc) return valor(o.desc, c);
@@ -410,7 +415,7 @@ export function aplicarReglas(c){
         return x ? `${TIPOS[valor(x.t, c)]?.[0] || ''}. ${x.texto(c)}` : '';
       };
       c.elecciones.push({...el, max, multi: !!max, grupo: e.grupo, src: e.nombre, nivel: e.nivel,
-        opciones: el.opciones.filter(o => !o.nivel || o.nivel <= c.lvl).map(o => ({...o, desc: descDe(o)})),
+        opciones: valor(el.opciones, c).filter(o => (!o.nivel || o.nivel <= c.lvl) && (!o.requiere || ya.includes(o.requiere) || ya.includes(o.key))).map(o => ({...o, desc: descDe(o)})),
         valor: max ? [].concat(guardado || []) : (guardado || '')});
     }
     e.revisada = true; e.noSplit = true;

@@ -3,7 +3,7 @@
 Rasgos de la biblioteca sin regla revisada en `web/src/features/reglas/data/reglas-revisadas.ts` cuyo tipo es dudoso:
 el clasificador los deja como pasiva aunque su texto sugiere que se activan, o su texto no menciona ningún tipo de acción.
 
-Generado con `npx tsx scripts/auditar-reglas.ts` (desde `web/`). Pendientes al generar: 245.
+Generado con `npx tsx scripts/auditar-reglas.ts` (desde `web/`). Pendientes al generar: 227.
 Al marcar una casilla, agrega al final una nota corta con la fuente si hubo que investigar.
 
 ## Selectores
@@ -39,10 +39,10 @@ Las que se deciden al usar el rasgo (a quién, qué efecto) no llevan selector: 
 
 - [ ] **Colegio de la Luna: truco de druida**: un truco de druida que no cuenta en el límite. <!-- selector|truco-luna -->
 
-### Lote 8: Clérigo
+### Hechos
 
-- [ ] **Golpes Benditos (nivel 7)**: Golpe Divino o Lanzamiento Potente. <!-- selector|golpes-benditos -->
-- [ ] **Dominio del Conocimiento: Bendiciones del Saber**: dos habilidades con pericia (Arcanos, Historia, Naturaleza o Religión) y una herramienta. <!-- selector|bendiciones-saber -->
+- [x] **Clérigo: Golpes Benditos (nivel 7)**: Golpe Divino o Lanzamiento Potente; el texto sube a 2d8 o da PG temporales en el nivel 14. <!-- selector|golpes-benditos -->
+- [x] **Dominio del Conocimiento: Bendiciones del Saber**: unas herramientas de artesano y dos habilidades con pericia (Arcanos, Historia, Naturaleza o Religión), sumadas en el cálculo. <!-- selector|bendiciones-saber -->
 
 ### Lote 9: Druida
 
@@ -93,14 +93,14 @@ Se agregan en el lote de su clase, con su versión oficial más reciente. Las ma
 
 ### Lote 8: Clérigo
 
-- [ ] **Dominio de la Tempestad** (Manual del Jugador 2014) <!-- agregar|dominio de la tempestad -->
-- [ ] **Dominio de la Naturaleza** (Manual del Jugador 2014) <!-- agregar|dominio de la naturaleza -->
-- [ ] **Dominio de la Forja** (Xanathar's Guide to Everything) <!-- agregar|dominio de la forja -->
-- [ ] **Dominio del Orden** (Tasha's Cauldron of Everything) <!-- agregar|dominio del orden -->
-- [ ] **Dominio de la Paz** (Tasha's Cauldron of Everything) <!-- agregar|dominio de la paz -->
-- [ ] **Dominio del Crepúsculo** (Tasha's Cauldron of Everything) <!-- agregar|dominio del crepusculo -->
-- [ ] **Dominio Arcano** (Sword Coast Adventurer's Guide) <!-- agregar|dominio arcano -->
-- [ ] **Dominio de la Muerte** (Guía del Dungeon Master 2014) <!-- agregar|dominio de la muerte -->
+- [x] **Dominio de la Tempestad** (Manual del Jugador 2014): agregado. <!-- agregar|dominio de la tempestad -->
+- [x] **Dominio de la Naturaleza** (Manual del Jugador 2014): agregado. <!-- agregar|dominio de la naturaleza -->
+- [x] **Dominio de la Forja** (Xanathar's Guide to Everything): agregado. <!-- agregar|dominio de la forja -->
+- [x] **Dominio del Orden** (Tasha's Cauldron of Everything): agregado. <!-- agregar|dominio del orden -->
+- [x] **Dominio de la Paz** (Tasha's Cauldron of Everything): agregado. <!-- agregar|dominio de la paz -->
+- [x] **Dominio del Crepúsculo** (Tasha's Cauldron of Everything): agregado. <!-- agregar|dominio del crepusculo -->
+- [x] **Dominio Arcano** (Sword Coast Adventurer's Guide): agregado en su versión de Arcana Unleashed (2026). <!-- agregar|dominio arcano -->
+- [x] **Dominio de la Muerte** (Guía del Dungeon Master 2014): agregado. <!-- agregar|dominio de la muerte -->
 
 ### Lote 9: Druida
 
@@ -665,46 +665,93 @@ Dudosos: 13. Con tipo claro: 5. Ya revisados: 0.
 
 ## Lote 8: Clérigo (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 18. Con tipo claro: 12. Ya revisados: 0.
+Dudosos: 0. Con tipo claro: 0. Ya revisados: 82.
 
-### Clérigo
 
-- [ ] **Golpes Benditos** (nivel 7): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- clerigo|golpes benditos -->
-- [ ] **Intervención Divina** (nivel 10): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- clerigo|intervencion divina -->
-- [ ] **Intervención Divina Mayor** (nivel 20): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- clerigo|intervencion divina mayor -->
+### Revisados
 
-### Dominio de la Vida
-
-- [ ] **Discípulo de la Vida** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- dominio de la vida|discipulo de la vida -->
-- [ ] **Canalizar: Preservar Vida** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- dominio de la vida|canalizar: preservar vida -->
-- [ ] **Curación Bendita** (nivel 6): hoy `pasiva`, no menciona tipo de acción <!-- dominio de la vida|curacion bendita -->
-- [ ] **Curación Suprema** (nivel 17): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- dominio de la vida|curacion suprema -->
-
-### Dominio de la Luz
-
-- [ ] **Destello Mejorado** (nivel 6): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- dominio de la luz|destello mejorado -->
-- [ ] **Corona de Luz** (nivel 17): hoy `pasiva`, no menciona tipo de acción <!-- dominio de la luz|corona de luz -->
-
-### Dominio del Engaño
-
-- [ ] **Bendición del Tramposo** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- dominio del engano|bendicion del tramposo -->
-- [ ] **Duplicidad Mejorada** (nivel 17): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- dominio del engano|duplicidad mejorada -->
-
-### Dominio de la Guerra
-
-- [ ] **Canalizar: Golpe Guiado** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- dominio de la guerra|canalizar: golpe guiado -->
-- [ ] **Resistencia de Avatar** (nivel 17): hoy `pasiva`, no menciona tipo de acción <!-- dominio de la guerra|resistencia de avatar -->
-
-### Dominio del Conocimiento
-
-- [ ] **Bendiciones del Saber** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- dominio del conocimiento|bendiciones del saber -->
-- [ ] **Conjuros del Dominio del Conocimiento** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- dominio del conocimiento|conjuros del dominio del conocimiento -->
-- [ ] **Mente Desatada** (nivel 6): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- dominio del conocimiento|mente desatada -->
-
-### Dominio de la Tumba
-
-- [ ] **Potenciar Conjuros** (nivel 6): hoy `pasiva`, no menciona tipo de acción <!-- dominio de la tumba|potenciar conjuros -->
-- [ ] **Custodio de Almas** (nivel 17): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- dominio de la tumba|custodio de almas -->
+- [x] **Golpes Benditos** (nivel 7): `pasiva`. selector Golpe Divino / Lanzamiento Potente; Manual del Jugador 2024. <!-- clerigo|golpes benditos -->
+- [x] **Intervención Divina** (nivel 10): `accion`. la biblioteca decía pasiva; es acción mágica; Manual del Jugador 2024. <!-- clerigo|intervencion divina -->
+- [x] **Golpes Benditos Mejorados** (nivel 14): `pasiva`. nuevo, agregado; el texto depende de la opción elegida; Manual del Jugador 2024. <!-- clerigo|golpes benditos mejorados -->
+- [x] **Intervención Divina Mayor** (nivel 20): `pasiva`. corregido: tras Deseo no se usa en 2d4 descansos largos; Manual del Jugador 2024. <!-- clerigo|intervencion divina mayor -->
+- [x] **Conjuros del Dominio de la Vida** (nivel 3): `pasiva`. lista siempre preparada por nivel, con los nombres del catálogo; Manual del Jugador 2024. <!-- dominio de la vida|conjuros del dominio de la vida -->
+- [x] **Discípulo de la Vida** (nivel 3): `pasiva`. Manual del Jugador 2024. <!-- dominio de la vida|discipulo de la vida -->
+- [x] **Preservar Vida** (nivel 3): `accion`. la biblioteca decía pasiva; PG calculados; Manual del Jugador 2024. <!-- dominio de la vida|preservar vida -->
+- [x] **Sanador Bendito** (nivel 6): `gratis`. antes "Curación Bendita"; Manual del Jugador 2024. <!-- dominio de la vida|sanador bendito -->
+- [x] **Curación Suprema** (nivel 17): `pasiva`. Manual del Jugador 2024. <!-- dominio de la vida|curacion suprema -->
+- [x] **Conjuros del Dominio de la Luz** (nivel 3): `pasiva`. lista siempre preparada por nivel, con los nombres del catálogo; Manual del Jugador 2024. <!-- dominio de la luz|conjuros del dominio de la luz -->
+- [x] **Resplandor del Alba** (nivel 3): `accion`. la biblioteca decía pasiva; CD y daño calculados; Manual del Jugador 2024. <!-- dominio de la luz|resplandor del alba -->
+- [x] **Destello Protector** (nivel 3): `reaccion`. antes "Destello de Resplandor"; usos SAB, descanso corto desde nivel 6; Manual del Jugador 2024. <!-- dominio de la luz|destello protector -->
+- [x] **Destello Protector Mejorado** (nivel 6): `pasiva`. antes "Destello Mejorado", que estaba mal; Manual del Jugador 2024. <!-- dominio de la luz|destello protector mejorado -->
+- [x] **Corona de Luz** (nivel 17): `accion`. la biblioteca decía pasiva; usos SAB; Manual del Jugador 2024. <!-- dominio de la luz|corona de luz -->
+- [x] **Conjuros del Dominio del Engaño** (nivel 3): `pasiva`. lista siempre preparada por nivel, con los nombres del catálogo; Manual del Jugador 2024. <!-- dominio del engano|conjuros del dominio del engano -->
+- [x] **Bendición del Embaucador** (nivel 3): `accion`. la biblioteca decía pasiva; Manual del Jugador 2024. <!-- dominio del engano|bendicion del embaucador -->
+- [x] **Invocar Duplicidad** (nivel 3): `adicional`. Manual del Jugador 2024. <!-- dominio del engano|invocar duplicidad -->
+- [x] **Transposición del Embaucador** (nivel 6): `adicional`. nuevo de 2024, reemplaza a "Capa de Sombras"; Manual del Jugador 2024. <!-- dominio del engano|transposicion del embaucador -->
+- [x] **Duplicidad Mejorada** (nivel 17): `pasiva`. la biblioteca decía "hasta 4 duplicados", que es de 2014; Manual del Jugador 2024. <!-- dominio del engano|duplicidad mejorada -->
+- [x] **Conjuros del Dominio de la Guerra** (nivel 3): `pasiva`. lista siempre preparada por nivel, con los nombres del catálogo; Manual del Jugador 2024. <!-- dominio de la guerra|conjuros del dominio de la guerra -->
+- [x] **Golpe Guiado** (nivel 3): `gratis`. la biblioteca decía pasiva; Manual del Jugador 2024. <!-- dominio de la guerra|golpe guiado -->
+- [x] **Sacerdote de la Guerra** (nivel 3): `adicional`. usos SAB por descanso corto; Manual del Jugador 2024. <!-- dominio de la guerra|sacerdote de la guerra -->
+- [x] **Bendición del Dios de la Guerra** (nivel 6): `accion`. la biblioteca decía reacción con +10 (2014); Manual del Jugador 2024. <!-- dominio de la guerra|bendicion del dios de la guerra -->
+- [x] **Avatar de la Batalla** (nivel 17): `pasiva`. la biblioteca decía "no mágico" (2014); Manual del Jugador 2024. <!-- dominio de la guerra|avatar de la batalla -->
+- [x] **Conjuros del Dominio del Conocimiento** (nivel 3): `pasiva`. lista siempre preparada por nivel, con los nombres del catálogo; Heroes of Faerûn (2025). <!-- dominio del conocimiento|conjuros del dominio del conocimiento -->
+- [x] **Bendiciones del Saber** (nivel 3): `pasiva`. selector de herramientas y 2 habilidades con pericia, en el cálculo; Heroes of Faerûn (2025). <!-- dominio del conocimiento|bendiciones del saber -->
+- [x] **Magia de la Mente** (nivel 3): `accion`. Heroes of Faerûn (2025). <!-- dominio del conocimiento|magia de la mente -->
+- [x] **Mente Desatada** (nivel 6): `pasiva`. Heroes of Faerûn (2025). <!-- dominio del conocimiento|mente desatada -->
+- [x] **Presciencia Divina** (nivel 17): `adicional`. Heroes of Faerûn (2025). <!-- dominio del conocimiento|presciencia divina -->
+- [x] **Conjuros del Dominio de la Tumba** (nivel 3): `pasiva`. lista siempre preparada por nivel, con los nombres del catálogo; Ravenloft: The Horrors Within (2026). <!-- dominio de la tumba|conjuros del dominio de la tumba -->
+- [x] **Círculo de la Mortalidad** (nivel 3): `pasiva`. versión 2026 con daño extra 1d4/1d6; Ravenloft: The Horrors Within (2026). <!-- dominio de la tumba|circulo de la mortalidad -->
+- [x] **Sendero a la Tumba** (nivel 3): `adicional`. versión 2026: acción adicional y desventaja; Ravenloft: The Horrors Within (2026). <!-- dominio de la tumba|sendero a la tumba -->
+- [x] **Centinela en la Puerta de la Muerte** (nivel 6): `reaccion`. versión 2026: reduce a la mitad; usos SAB; Ravenloft: The Horrors Within (2026). <!-- dominio de la tumba|centinela en la puerta de la muerte -->
+- [x] **Segador Divino** (nivel 17): `pasiva`. nuevo de 2026, une Nigromancia Potenciada y Guardián de Almas; Ravenloft: The Horrors Within (2026). <!-- dominio de la tumba|segador divino -->
+- [x] **Conjuros del Dominio Arcano** (nivel 3): `pasiva`. lista siempre preparada por nivel, con los nombres del catálogo; Arcana Unleashed (2026). <!-- dominio arcano|conjuros del dominio arcano -->
+- [x] **Estudiante de lo Arcano** (nivel 3): `pasiva`. Arcana Unleashed (2026). <!-- dominio arcano|estudiante de lo arcano -->
+- [x] **Modificar la Magia** (nivel 3): `gratis`. dos opciones aparte; Arcana Unleashed (2026). <!-- dominio arcano|modificar la magia -->
+- [x] **Recuperación Disipadora** (nivel 6): `gratis`. Arcana Unleashed (2026). <!-- dominio arcano|recuperacion disipadora -->
+- [x] **Maestría Mágica** (nivel 17): `pasiva`. Arcana Unleashed (2026). <!-- dominio arcano|maestria magica -->
+- [x] **Conjuros del Dominio de la Tempestad** (nivel 3): `pasiva`. lista siempre preparada por nivel, con los nombres del catálogo; Manual del Jugador 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la tempestad|conjuros del dominio de la tempestad -->
+- [x] **Competencias de la Tormenta** (nivel 3): `pasiva`. Manual del Jugador 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la tempestad|competencias de la tormenta -->
+- [x] **Ira de la Tormenta** (nivel 3): `reaccion`. usos SAB; CD calculada; Manual del Jugador 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la tempestad|ira de la tormenta -->
+- [x] **Ira Destructora** (nivel 3): `gratis`. Manual del Jugador 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la tempestad|ira destructora -->
+- [x] **Golpe del Trueno** (nivel 6): `pasiva`. Manual del Jugador 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la tempestad|golpe del trueno -->
+- [x] **Nacido de la Tormenta** (nivel 17): `pasiva`. Manual del Jugador 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la tempestad|nacido de la tormenta -->
+- [x] **Conjuros del Dominio de la Naturaleza** (nivel 3): `pasiva`. lista siempre preparada por nivel, con los nombres del catálogo; Manual del Jugador 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la naturaleza|conjuros del dominio de la naturaleza -->
+- [x] **Acólito de la Naturaleza** (nivel 3): `pasiva`. Manual del Jugador 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la naturaleza|acolito de la naturaleza -->
+- [x] **Competencia Adicional** (nivel 3): `pasiva`. Manual del Jugador 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la naturaleza|competencia adicional -->
+- [x] **Hechizar Animales y Plantas** (nivel 3): `accion`. Manual del Jugador 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la naturaleza|hechizar animales y plantas -->
+- [x] **Amortiguar los Elementos** (nivel 6): `reaccion`. Manual del Jugador 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la naturaleza|amortiguar los elementos -->
+- [x] **Señor de la Naturaleza** (nivel 17): `adicional`. Manual del Jugador 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la naturaleza|senor de la naturaleza -->
+- [x] **Conjuros del Dominio de la Forja** (nivel 3): `pasiva`. lista siempre preparada por nivel, con los nombres del catálogo; Xanathar, rasgos de nivel 1-2 al 3. <!-- dominio de la forja|conjuros del dominio de la forja -->
+- [x] **Competencias de la Forja** (nivel 3): `pasiva`. Xanathar, rasgos de nivel 1-2 al 3. <!-- dominio de la forja|competencias de la forja -->
+- [x] **Bendición de la Forja** (nivel 3): `fuera`. Xanathar, rasgos de nivel 1-2 al 3. <!-- dominio de la forja|bendicion de la forja -->
+- [x] **Bendición del Artesano** (nivel 3): `fuera`. Xanathar, rasgos de nivel 1-2 al 3. <!-- dominio de la forja|bendicion del artesano -->
+- [x] **Alma de la Forja** (nivel 6): `pasiva`. +1 CA con armadura pesada en el cálculo; Xanathar, rasgos de nivel 1-2 al 3. <!-- dominio de la forja|alma de la forja -->
+- [x] **Santo de la Forja y el Fuego** (nivel 17): `pasiva`. Xanathar, rasgos de nivel 1-2 al 3. <!-- dominio de la forja|santo de la forja y el fuego -->
+- [x] **Conjuros del Dominio del Orden** (nivel 3): `pasiva`. lista siempre preparada por nivel, con los nombres del catálogo; Tasha, rasgos de nivel 1-2 al 3. <!-- dominio del orden|conjuros del dominio del orden -->
+- [x] **Competencias del Orden** (nivel 3): `pasiva`. Tasha, rasgos de nivel 1-2 al 3. <!-- dominio del orden|competencias del orden -->
+- [x] **Voz de Autoridad** (nivel 3): `gratis`. Tasha, rasgos de nivel 1-2 al 3. <!-- dominio del orden|voz de autoridad -->
+- [x] **Exigencia del Orden** (nivel 3): `accion`. Tasha, rasgos de nivel 1-2 al 3. <!-- dominio del orden|exigencia del orden -->
+- [x] **Encarnación de la Ley** (nivel 6): `gratis`. Tasha, rasgos de nivel 1-2 al 3. <!-- dominio del orden|encarnacion de la ley -->
+- [x] **Cólera del Orden** (nivel 17): `gratis`. Tasha, rasgos de nivel 1-2 al 3. <!-- dominio del orden|colera del orden -->
+- [x] **Conjuros del Dominio de la Paz** (nivel 3): `pasiva`. lista siempre preparada por nivel, con los nombres del catálogo; Tasha, rasgos de nivel 1-2 al 3. <!-- dominio de la paz|conjuros del dominio de la paz -->
+- [x] **Instrumento de la Paz** (nivel 3): `pasiva`. Tasha, rasgos de nivel 1-2 al 3. <!-- dominio de la paz|instrumento de la paz -->
+- [x] **Vínculo Alentador** (nivel 3): `accion`. usos = competencia; Tasha, rasgos de nivel 1-2 al 3. <!-- dominio de la paz|vinculo alentador -->
+- [x] **Bálsamo de Paz** (nivel 3): `accion`. Tasha, rasgos de nivel 1-2 al 3. <!-- dominio de la paz|balsamo de paz -->
+- [x] **Vínculo Protector** (nivel 6): `reaccion`. Tasha, rasgos de nivel 1-2 al 3. <!-- dominio de la paz|vinculo protector -->
+- [x] **Vínculo Expansivo** (nivel 17): `pasiva`. Tasha, rasgos de nivel 1-2 al 3. <!-- dominio de la paz|vinculo expansivo -->
+- [x] **Conjuros del Dominio del Crepúsculo** (nivel 3): `pasiva`. lista siempre preparada por nivel, con los nombres del catálogo; Tasha, rasgos de nivel 1-2 al 3. <!-- dominio del crepusculo|conjuros del dominio del crepusculo -->
+- [x] **Competencias del Crepúsculo** (nivel 3): `pasiva`. Tasha, rasgos de nivel 1-2 al 3. <!-- dominio del crepusculo|competencias del crepusculo -->
+- [x] **Ojos de la Noche** (nivel 3): `accion`. visión 300 pies en el cálculo; Tasha, rasgos de nivel 1-2 al 3. <!-- dominio del crepusculo|ojos de la noche -->
+- [x] **Bendición del Vigilante** (nivel 3): `accion`. Tasha, rasgos de nivel 1-2 al 3. <!-- dominio del crepusculo|bendicion del vigilante -->
+- [x] **Santuario Crepuscular** (nivel 3): `accion`. Tasha, rasgos de nivel 1-2 al 3. <!-- dominio del crepusculo|santuario crepuscular -->
+- [x] **Pasos de la Noche** (nivel 6): `adicional`. usos = competencia; Tasha, rasgos de nivel 1-2 al 3. <!-- dominio del crepusculo|pasos de la noche -->
+- [x] **Mortaja Crepuscular** (nivel 17): `pasiva`. Tasha, rasgos de nivel 1-2 al 3. <!-- dominio del crepusculo|mortaja crepuscular -->
+- [x] **Conjuros del Dominio de la Muerte** (nivel 3): `pasiva`. lista siempre preparada por nivel, con los nombres del catálogo; Guía del DM 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la muerte|conjuros del dominio de la muerte -->
+- [x] **Competencia Adicional** (nivel 3): `pasiva`. Guía del DM 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la muerte|competencia adicional -->
+- [x] **Segador** (nivel 3): `pasiva`. Guía del DM 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la muerte|segador -->
+- [x] **Toque de la Muerte** (nivel 3): `gratis`. daño calculado; Guía del DM 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la muerte|toque de la muerte -->
+- [x] **Destrucción Ineludible** (nivel 6): `pasiva`. Guía del DM 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la muerte|destruccion ineludible -->
+- [x] **Segador Mejorado** (nivel 17): `pasiva`. Guía del DM 2014, rasgos de nivel 1-2 al 3. <!-- dominio de la muerte|segador mejorado -->
 
 ## Lote 9: Druida (subclases y rasgos de nivel alto de la biblioteca)
 

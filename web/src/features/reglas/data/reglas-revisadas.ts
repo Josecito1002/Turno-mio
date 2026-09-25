@@ -746,6 +746,118 @@ export const REGLAS: any[] = [
     texto: () => 'Una vez por turno, al lanzar con un espacio un conjuro de bardo que daña o cura, sumas 1d6. Siempre tienes preparado Espíritus guardianes y lo lanzas una vez por descanso largo sin espacio; una vez por descanso corto o largo, al lanzarlo tú y tus aliados en su área tenéis cobertura.',
     opciones: [conjurosSub('Conjuros de los Espíritus', [[6, ['Espíritus guardianes']]])]},
 
+  /* ---------- Clérigo (Lote 8) ----------
+     Rasgos y textos en la biblioteca (scripts/datos/clerigo-2024.ts); aquí las listas de conjuros, los números y los selectores. */
+  {de:/^clerigo$/, n:/^golpes benditos$/, t:'pasiva',
+    eleccion: {id:'golpes-benditos', titulo:'Golpes Benditos', opciones: [
+      {key:'golpe-divino', nombre:'Golpe Divino', desc:'Una vez por turno, al acertar con un arma, haces 1d8 de daño radiante o necrótico extra (2d8 desde el nivel 14).'},
+      {key:'lanzamiento-potente', nombre:'Lanzamiento Potente', desc:'Sumas tu SAB al daño de tus trucos de clérigo; desde el nivel 14 también das PG temporales al dañar con uno.'}]},
+    texto: c => ({
+      'golpe-divino': `Golpe Divino: una vez por turno, al acertar con un arma, ${c.lvl >= 14 ? '2d8' : '1d8'} de daño radiante o necrótico extra (tú eliges).`,
+      'lanzamiento-potente': `Lanzamiento Potente: sumas ${sign(c.m.sab)} (SAB) al daño de tus trucos de clérigo.`,
+    })[elegido(c, 'golpes-benditos')] || 'Elige Golpe Divino o Lanzamiento Potente en el paso Clase.'},
+  {de:/^clerigo$/, n:/^golpes benditos mejorados/, t:'pasiva',
+    texto: c => elegido(c, 'golpes-benditos') === 'lanzamiento-potente'
+      ? `Al dañar con un truco, tú o una criatura a 60 pies ganáis ${Math.max(0, 2 * c.m.sab)} PG temporales (el doble de tu SAB).`
+      : 'Golpe Divino hace 2d8 de daño extra (ya en Golpes Benditos).'},
+
+  {de:/dominio de la vida/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Ayuda', 'Bendecir', 'Curar heridas', 'Restablecimiento menor']], [5, ['Palabra curativa en masa', 'Revivir']], [7, ['Aura de vida', 'Guarda contra la Muerte']], [9, ['Restablecimiento mayor', 'Curar heridas en masa']]]).texto},
+  {de:/dominio de la vida/, n:/^preservar vida/, t:'accion', coste:'1 Canalizar Divinidad',
+    texto: c => `Como acción mágica, repartes ${5 * c.lvl} PG entre criaturas Ensangrentadas a 30 pies (tú incluido), sin subir a nadie por encima de la mitad de sus PG máximos.`},
+
+  {de:/dominio de la luz/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Manos ardientes', 'Fuego feérico', 'Rayo abrasador', 'Ver invisibilidad']], [5, ['Luz del día', 'Bola de fuego']], [7, ['Ojo arcano', 'Muro de fuego']], [9, ['Golpe Flamígero', 'Escudriñar']]]).texto},
+  {de:/dominio de la luz/, n:/^resplandor del alba/, t:'accion', coste:'1 Canalizar Divinidad',
+    texto: c => `Deshaces la oscuridad mágica a 30 pies; quienes elijas en esa zona hacen una salvación de CON (CD ${c.dcSpell}) o reciben 2d10 + ${c.lvl} de daño radiante (mitad si la pasan).`},
+  {de:/dominio de la luz/, n:/^destello protector$/, t:'reaccion', usos: c => Math.max(1, c.m.sab), reset: c => c.lvl >= 6 ? 'corto' : 'largo',
+    texto: () => 'Cuando una criatura que ves a 30 pies hace una tirada de ataque, la hace con desventaja.'},
+  {de:/dominio de la luz/, n:/^destello protector mejorado/, t:'pasiva',
+    texto: c => `Destello Protector se recupera también con un descanso corto, y al usarlo el objetivo del ataque gana 2d6${fmtMod(c.m.sab)} PG temporales.`},
+  {de:/dominio de la luz/, n:/^corona de luz/, t:'accion', usos: c => Math.max(1, c.m.sab), reset:'largo',
+    texto: () => 'Durante 1 minuto irradias luz brillante a 60 pies (y tenue 30 más); los enemigos en la luz brillante tienen desventaja en las salvaciones contra Resplandor del Alba y contra tus conjuros de fuego o radiantes.'},
+
+  {de:/dominio del engano/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Hechizar persona', 'Disfrazarse', 'Invisibilidad', 'Pasar sin rastro']], [5, ['Patrón hipnótico', 'Indetectable']], [7, ['Confusión', 'Puerta dimensional']], [9, ['Dominar persona', 'Alterar los recuerdos']]]).texto},
+  {de:/dominio del engano/, n:/^invocar duplicidad/, t:'adicional', coste:'1 Canalizar Divinidad'},
+  {de:/dominio del engano/, n:/^duplicidad mejorada/, t:'pasiva',
+    texto: c => `Tus aliados también tienen ventaja al atacar a criaturas a 5 pies de tu ilusión. Cuando la ilusión acaba, tú o una criatura a 5 pies de ella recuperáis ${c.lvl} PG.`},
+
+  {de:/dominio de la guerra/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Rayo guía', 'Arma mágica', 'Escudo de fe', 'Arma espiritual']], [5, ['Manto del cruzado', 'Espíritus guardianes']], [7, ['Escudo de fuego', 'Libertad de movimiento']], [9, ['Inmovilizar monstruo', 'Golpe de Viento Acerado']]]).texto},
+  {de:/dominio de la guerra/, n:/^golpe guiado/, t:'gratis', coste:'1 Canalizar Divinidad'},
+  {de:/dominio de la guerra/, n:/^sacerdote de la guerra/, t:'adicional', usos: c => Math.max(1, c.m.sab), reset:'corto'},
+  {de:/dominio de la guerra/, n:/^bendicion del dios de la guerra/, t:'accion', coste:'1 Canalizar Divinidad'},
+
+  {de:/dominio del conocimiento/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Orden imperiosa', 'Comprender idiomas', 'Detectar magia', 'Detectar pensamientos', 'Identificar', 'Clavo mental']], [5, ['Disipar magia', 'Indetectable', 'Don de lenguas']], [7, ['Ojo arcano', 'Destierro', 'Confusión']], [9, ['Conocer las leyendas', 'Escudriñar', 'Estática Sináptica']]]).texto},
+  {de:/dominio del conocimiento/, n:/^bendiciones del saber/, t:'pasiva',
+    eleccion: [
+      {id:'saber-herr', titulo:'Herramientas de artesano (Bendiciones del Saber)', opciones: opcionesCompetencia(['artesano'])},
+      {id:'saber-habs', titulo:'Habilidades con pericia (Bendiciones del Saber)', max: 2, opciones: ['Arcanos', 'Historia', 'Naturaleza', 'Religión'].map(h => ({key: norm(h), nombre: h, desc: `Competencia y pericia en ${h}.`}))},
+    ],
+    efecto: c => {
+      aplicarElegidas(c, 'saber-herr', 'Bendiciones del Saber');
+      for (const k of elegidos(c, 'saber-habs')) {
+        if (!c.skillProf[k]) { c.skill[k] += c.pb; c.skillProf[k] = true; }
+        if (!c.skillPer[k]) { c.skill[k] += c.pb; c.skillPer[k] = true; }
+      }
+    },
+    texto: c => elegidos(c, 'saber-habs').length === 2 && elegido(c, 'saber-herr')
+      ? 'Competencia con tus herramientas y pericia en tus dos habilidades (ya sumado).'
+      : 'Elige en el paso Clase unas herramientas de artesano y dos habilidades (Arcanos, Historia, Naturaleza o Religión) con pericia.'},
+  {de:/dominio del conocimiento/, n:/^magia de la mente/, t:'accion', coste:'1 Canalizar Divinidad'},
+  {de:/dominio del conocimiento/, n:/^mente desatada/, t:'pasiva',
+    texto: c => `Telepatía a 60 pies con hasta ${Math.max(1, c.m.sab)} criatura(s) a la vez. Competencia en salvaciones de INT (o en otra que te falte, si ya la tenías).`},
+
+  {de:/dominio de la tumba/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Detectar el bien y el mal', 'Falsa vida', 'Dulce descanso', 'Rayo debilitador', 'Perdonar a los moribundos']], [5, ['Revivir', 'Toque vampírico']], [7, ['Marchitar', 'Guarda contra la Muerte']], [9, ['Disipar el bien y el mal', 'Alzar a los muertos']]]).texto},
+  {de:/dominio de la tumba/, n:/^circulo de la mortalidad/, t:'pasiva',
+    texto: c => `Una vez por turno, al dañar con un conjuro o una tirada de ataque a una criatura a la que le faltan PG, ${c.lvl >= 11 ? '1d6' : '1d4'} de daño necrótico extra. Lanzas Perdonar a los moribundos como acción adicional, y al curar a alguien con 0 PG usas el máximo de cada dado.`},
+  {de:/dominio de la tumba/, n:/^sendero a la tumba/, t:'adicional', coste:'1 Canalizar Divinidad',
+    texto: c => `Maldices hasta el inicio de tu próximo turno a una criatura que ves a 30 pies: desventaja en ataques y salvaciones. Cuando tú o un aliado la acertáis, podéis acabar la maldición para hacer ${c.lvl} de daño necrótico o radiante extra.`},
+  {de:/dominio de la tumba/, n:/^centinela en la puerta/, t:'reaccion', usos: c => Math.max(1, c.m.sab), reset:'largo'},
+  {de:/dominio de la tumba/, n:/^segador divino/, t:'pasiva',
+    texto: c => `Con 1 Canalizar Divinidad, un conjuro de nigromancia de nivel 5 o menor de un objetivo, o uno de tu dominio, afecta a un segundo objetivo. Guardián de Almas: cuando muere un enemigo a 60 pies, tú o una criatura que ves recuperáis ${2 * c.lvl} PG; una vez por descanso corto o largo, o gastando un espacio de nivel 6+.`},
+
+  {de:/dominio arcano/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Detectar magia', 'Proyectil mágico', 'Arma mágica', 'Aura mágica de Nystul']], [5, ['Contrahechizo', 'Disipar magia']], [7, ['Ojo arcano', 'Cofre oculto de Leomund']], [9, ['Mano de Bigby', 'Círculo de teletransportación']]]).texto},
+  {de:/dominio arcano/, n:/^modificar la magia/, t:'pasiva', texto: () => 'Al lanzar un conjuro, gastas 1 Canalizar Divinidad para cambiarlo de una de estas formas.',
+    opciones: [
+      {nombre:'Conjuro Fortificante', t:'gratis', coste:'1 Canalizar Divinidad', texto: c => `Un objetivo del conjuro gana 2d8 + ${c.lvl} PG temporales.`},
+      {nombre:'Conjuro Tenaz', t:'gratis', coste:'1 Canalizar Divinidad', texto: () => 'Si una criatura que ves pasa la salvación del conjuro, tira 1d6 y réstalo a su primera salvación contra el efecto del conjuro.'},
+    ]},
+
+  {de:/dominio de la tempestad/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Niebla', 'Onda atronadora', 'Ráfaga de viento', 'Hacer añicos']], [5, ['Llamar al relámpago', 'Tormenta de aguanieve']], [7, ['Controlar agua', 'Tormenta de hielo']], [9, ['Ola destructora', 'Plaga de insectos']]]).texto},
+  {de:/dominio de la tempestad/, n:/^ira de la tormenta/, t:'reaccion', usos: c => Math.max(1, c.m.sab), reset:'largo',
+    texto: c => `Cuando una criatura a 5 pies que ves te acierta, hace una salvación de DES (CD ${c.dcSpell}) o recibe 2d8 de daño de trueno o relámpago (mitad si la pasa).`},
+  {de:/dominio de la tempestad/, n:/^ira destructora/, t:'gratis', coste:'1 Canalizar Divinidad'},
+
+  {de:/dominio de la naturaleza/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Amistad con los animales', 'Hablar con los Animales', 'Piel robliza', 'Crecimiento espinoso']], [5, ['Crecimiento vegetal', 'Muro de viento']], [7, ['Dominar bestia', 'Enredadera']], [9, ['Plaga de insectos', 'Caminar entre árboles']]]).texto},
+  {de:/dominio de la naturaleza/, n:/^hechizar animales/, t:'accion', coste:'1 Canalizar Divinidad',
+    texto: c => `Las bestias y plantas que te ven a 30 pies hacen una salvación de SAB (CD ${c.dcSpell}) o quedan Hechizadas por ti 1 minuto, o hasta que reciban daño.`},
+
+  {de:/dominio de la forja/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Identificar', 'Castigo abrasador', 'Calentar metal', 'Arma mágica']], [5, ['Arma elemental', 'Protección contra energía']], [7, ['Fabricar', 'Muro de fuego']], [9, ['Animar objetos', 'Creación']]]).texto},
+  {de:/dominio de la forja/, n:/^alma de la forja/, t:'pasiva',
+    efecto: c => { if (c.armor?.cat === 'pesada') c.ac += 1; },
+    texto: () => 'Tienes resistencia al fuego y, con armadura pesada, +1 a la CA (ya sumado).'},
+  {de:/dominio de la forja/, n:/^bendicion del artesano/, t:'fuera', coste:'1 Canalizar Divinidad'},
+
+  {de:/dominio del orden/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Orden imperiosa', 'Heroísmo', 'Inmovilizar persona', 'Zona de la verdad']], [5, ['Palabra curativa en masa', 'Ralentizar']], [7, ['Compulsión', 'Localizar criatura']], [9, ['Comunión', 'Dominar persona']]]).texto},
+  {de:/dominio del orden/, n:/^exigencia del orden/, t:'accion', coste:'1 Canalizar Divinidad',
+    texto: c => `Las criaturas que elijas a 30 pies hacen una salvación de SAB (CD ${c.dcSpell}) o quedan Hechizadas hasta el final de tu próximo turno o hasta recibir daño; puedes hacer que suelten lo que llevan.`},
+  {de:/dominio del orden/, n:/^encarnacion de la ley/, t:'gratis', usos: c => Math.max(1, c.m.sab), reset:'largo'},
+
+  {de:/dominio de la paz/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Heroísmo', 'Santuario', 'Ayuda', 'Vínculo protector']], [5, ['Señal de esperanza', 'Recado']], [7, ['Aura de pureza', 'Esfera elástica de Otiluke']], [9, ['Restablecimiento mayor', 'Vínculo telepático de Rary']]]).texto},
+  {de:/dominio de la paz/, n:/^vinculo alentador/, t:'accion', usos: c => c.pb, reset:'largo',
+    texto: c => `Unes 10 minutos a hasta ${c.pb} criaturas voluntarias a 30 pies (puedes incluirte). Una vez por turno, un vinculado a 30 pies de otro suma 1d4 a una tirada de ataque, prueba o salvación.`},
+  {de:/dominio de la paz/, n:/^balsamo de paz/, t:'accion', coste:'1 Canalizar Divinidad',
+    texto: c => `Te mueves tu velocidad sin provocar ataques de oportunidad y curas 2d6${fmtMod(c.m.sab)} PG una vez a cada criatura que elijas a 5 pies durante el recorrido.`},
+
+  {de:/dominio del crepusculo/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Fuego feérico', 'Dormir', 'Rayo de luna', 'Ver invisibilidad']], [5, ['Aura de vitalidad', 'Pequeña choza de Leomund']], [7, ['Aura de vida', 'Invisibilidad mejorada']], [9, ['Círculo de poder', 'Engañar']]]).texto},
+  {de:/dominio del crepusculo/, n:/^ojos de la noche/, t:'accion', usos:1, reset:'largo', efecto: c => { c.vision = Math.max(c.vision || 0, 300); },
+    texto: c => `Ves en la oscuridad a 300 pies (ya en tus sentidos). Como acción, compartes esa visión 1 hora con hasta ${Math.max(1, c.m.sab)} criatura(s) voluntaria(s) a 10 pies; una vez por descanso largo, o gastando un espacio.`},
+  {de:/dominio del crepusculo/, n:/^santuario crepuscular/, t:'accion', coste:'1 Canalizar Divinidad',
+    texto: c => `Durante 1 minuto emanas una esfera de penumbra de 30 pies. Al final del turno de cada criatura que elijas dentro, le das 1d6 + ${c.lvl} PG temporales o le quitas Hechizado o Asustado.`},
+  {de:/dominio del crepusculo/, n:/^pasos de la noche/, t:'adicional', usos: c => c.pb, reset:'largo'},
+
+  {de:/dominio de la muerte/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Falsa vida', 'Rayo nauseabundo', 'Sordera/Ceguera', 'Rayo debilitador']], [5, ['Animar a los muertos', 'Toque vampírico']], [7, ['Marchitar', 'Guarda contra la Muerte']], [9, ['Caparazón antivida', 'Nube aniquiladora']]]).texto},
+  {de:/dominio de la muerte/, n:/^toque de la muerte/, t:'gratis', coste:'1 Canalizar Divinidad',
+    texto: c => `Al acertar con un ataque cuerpo a cuerpo, haces ${5 + 2 * c.lvl} de daño necrótico extra.`},
+
   /* ---------- Especies (Lote 4) ----------
      Sus tipos, usos y textos están en la biblioteca (scripts/datos/especies-2025.ts, rasgos con `manual`).
      Aquí solo lo que necesita cálculo o selector. */

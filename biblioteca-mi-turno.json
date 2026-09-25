@@ -1841,34 +1841,47 @@
      "n": "Dominio de la Vida",
      "rasgos": [
       {
+       "nombre": "Conjuros del Dominio de la Vida",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros de tu dominio, que se amplían en los niveles 5, 7 y 9.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
        "nombre": "Discípulo de la Vida",
        "t": "pasiva",
-       "texto": "Tus curaciones de nivel 1+ sanan 2 + nivel del conjuro adicionales.",
+       "texto": "Cuando un conjuro que lanzas con un espacio devuelve PG, sanas además 2 + el nivel del espacio, en el turno en que lo lanzas.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Canalizar: Preservar Vida",
-       "t": "pasiva",
-       "texto": "Curas 5x nivel clérigo puntos de golpe repartidos en aliados a 30 pies (hasta mitad de sus PG).",
+       "nombre": "Preservar Vida",
+       "t": "accion",
+       "texto": "Como acción mágica y con un uso de Canalizar Divinidad, repartes PG entre criaturas Ensangrentadas a 30 pies (tú incluido), sin subir a nadie por encima de la mitad de sus PG máximos.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Curación Bendita",
-       "t": "pasiva",
-       "texto": "Cuando curas a otros, tú también recuperas 2 + nivel del conjuro PG.",
+       "nombre": "Sanador Bendito",
+       "t": "gratis",
+       "texto": "Cuando un conjuro que lanzas con un espacio cura a otra criatura, tú recuperas 2 + el nivel del espacio.",
        "n": 6,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Curación Suprema",
        "t": "pasiva",
-       "texto": "Usas el valor máximo de los dados de curación.",
+       "texto": "Cuando curas con un conjuro o con Canalizar Divinidad, no tiras los dados: cada uno da su valor máximo.",
        "n": 17,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
@@ -1878,34 +1891,47 @@
      "n": "Dominio de la Luz",
      "rasgos": [
       {
-       "nombre": "Destello de Resplandor",
+       "nombre": "Conjuros del Dominio de la Luz",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros de tu dominio, que se amplían en los niveles 5, 7 y 9.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Resplandor del Alba",
+       "t": "accion",
+       "texto": "Como acción mágica y con un uso de Canalizar Divinidad, deshaces la oscuridad mágica a 30 pies y quienes elijas en esa zona hacen una salvación de CON o reciben daño radiante (mitad si la pasan).",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Destello Protector",
        "t": "reaccion",
-       "texto": "Como reacción, impones desventaja a quien te ataque a 30 pies.",
+       "texto": "Cuando una criatura que ves a 30 pies hace una tirada de ataque, la haces con desventaja con un destello de luz.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Canalizar: Resplandor del Alba",
+       "nombre": "Destello Protector Mejorado",
        "t": "pasiva",
-       "texto": "Acción para infligir 2d10 + nivel clérigo de daño Radiante en área de 30 pies y disipar oscuridad.",
-       "n": 3,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Destello Mejorado",
-       "t": "pasiva",
-       "texto": "Puedes usar tu destello para proteger a aliados cercanos.",
+       "texto": "Recuperas los usos de Destello Protector también con un descanso corto, y al usarlo el objetivo del ataque gana PG temporales.",
        "n": 6,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Corona de Luz",
-       "t": "pasiva",
-       "texto": "Emanas un aura de luz solar que debilita enemigos (desventaja contra daño fuego/radiante).",
+       "t": "accion",
+       "texto": "Como acción mágica, durante 1 minuto irradias luz brillante a 60 pies; los enemigos en ella tienen desventaja en las salvaciones contra Resplandor del Alba y contra tus conjuros de fuego o radiantes.",
        "n": 17,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
@@ -1915,34 +1941,47 @@
      "n": "Dominio del Engaño",
      "rasgos": [
       {
-       "nombre": "Bendición del Tramposo",
+       "nombre": "Conjuros del Dominio del Engaño",
        "t": "pasiva",
-       "texto": "Das ventaja en Sigilo a otra criatura voluntaria.",
+       "texto": "Siempre tienes preparados los conjuros de tu dominio, que se amplían en los niveles 5, 7 y 9.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Canalizar: Invocar Duplicado",
-       "t": "adicional",
-       "texto": "Como Acción Adicional, creas una ilusión perfecta de ti mismo (1 min, sin concentración). Puedes lanzar conjuros desde su espacio.",
-       "n": 3,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Capa de Sombras",
+       "nombre": "Bendición del Embaucador",
        "t": "accion",
-       "texto": "Como acción, te vuelves invisible hasta el final de tu siguiente turno.",
+       "texto": "Como acción mágica, das a una criatura voluntaria que tocas (o a ti) ventaja en Sigilo hasta tu próximo descanso largo o hasta que la uses de nuevo.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Invocar Duplicidad",
+       "t": "adicional",
+       "texto": "Con un uso de Canalizar Divinidad, creas durante 1 minuto una ilusión perfecta de ti a 30 pies, que puedes mover 30 pies como acción adicional. Lanzas conjuros como si estuvieras en su lugar y, si tú y ella estáis a 5 pies de una criatura, tienes ventaja al atacarla.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Transposición del Embaucador",
+       "t": "adicional",
+       "texto": "Cuando creas o mueves tu ilusión con la acción adicional, puedes intercambiar tu lugar con ella.",
        "n": 6,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Duplicidad Mejorada",
        "t": "pasiva",
-       "texto": "Puedes crear hasta 4 duplicados a la vez.",
+       "texto": "Tus aliados también tienen ventaja al atacar a criaturas a 5 pies de tu ilusión. Cuando la ilusión acaba, tú o una criatura a 5 pies de ella recuperáis tantos PG como tu nivel de clérigo.",
        "n": 17,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
@@ -1952,34 +1991,47 @@
      "n": "Dominio de la Guerra",
      "rasgos": [
       {
-       "nombre": "Sacerdote de la Guerra",
-       "t": "adicional",
-       "texto": "Al atacar, puedes hacer otro ataque como acción adicional (usos = mod SAB).",
+       "nombre": "Conjuros del Dominio de la Guerra",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros de tu dominio, que se amplían en los niveles 5, 7 y 9.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Canalizar: Golpe Guiado",
-       "t": "pasiva",
-       "texto": "Suma +10 a una tirada de ataque propia.",
+       "nombre": "Golpe Guiado",
+       "t": "gratis",
+       "texto": "Cuando tú o una criatura a 30 pies falla una tirada de ataque, gastas un uso de Canalizar Divinidad para sumarle +10. Si el ataque es de otra criatura, te cuesta la reacción.",
        "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Sacerdote de la Guerra",
+       "t": "adicional",
+       "texto": "Como acción adicional, haces un ataque con arma o un golpe sin armas.",
+       "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Bendición del Dios de la Guerra",
-       "t": "reaccion",
-       "texto": "Usa reacción para dar +10 al ataque de un aliado.",
+       "t": "accion",
+       "texto": "Con un uso de Canalizar Divinidad lanzas Escudo de fe o Arma espiritual sin espacio; así lanzados no requieren concentración y duran 1 minuto.",
        "n": 6,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Resistencia de Avatar",
+       "nombre": "Avatar de la Batalla",
        "t": "pasiva",
-       "texto": "Resistencia a daño físico no mágico.",
+       "texto": "Tienes resistencia al daño contundente, cortante y perforante.",
        "n": 17,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
@@ -1989,43 +2041,48 @@
      "n": "Dominio del Conocimiento",
      "rasgos": [
       {
-       "nombre": "Bendiciones del Saber",
+       "nombre": "Conjuros del Dominio del Conocimiento",
        "t": "pasiva",
-       "texto": "Obtienes competencia con un tipo de herramientas de artesano a tu elección y en dos de las siguientes habilidades a tu elección: Arcanos, Historia, Naturaleza o Religión. Tienes Experticia en esas dos habilidades.",
+       "texto": "Siempre tienes preparados los conjuros de tu dominio, que se amplían en los niveles 5, 7 y 9.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Conjuros del Dominio del Conocimiento",
+       "nombre": "Bendiciones del Saber",
        "t": "pasiva",
-       "texto": "Cuando alcanzas un nivel de Clérigo indicado en la tabla Conjuros del Dominio del Conocimiento, a partir de ese momento siempre tienes preparados los conjuros indicados. Nivel 3: Orden, Comprender Idiomas, Detectar Magia, Detectar Pensamientos, Identificar, Astilla Mental. Nivel 5: Disipar Magia, Antidetección, Lenguas. Nivel 7: Ojo Arcano, Desterrar, Confusión. Nivel 9: Saber Legendario, Escudriñar, Descarga Sináptica. Los conjuros marcados con asterisco en la tabla son de la escuela de Adivinación.",
+       "texto": "Ganas competencia con unas herramientas de artesano y con dos habilidades entre Arcanos, Historia, Naturaleza y Religión, en las que además tienes pericia.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Magia de la Mente",
        "t": "accion",
-       "texto": "Como acción Mágica, puedes gastar un uso de tu Canalizar Divinidad para manifestar tu conocimiento mágico. Elige un conjuro de la escuela de Adivinación de la tabla de Conjuros del Dominio del Conocimiento que tengas preparado. Como parte de esa acción, lanzas ese conjuro sin gastar un espacio de conjuro ni necesitar componentes materiales.",
+       "texto": "Como acción mágica y con un uso de Canalizar Divinidad, lanzas un conjuro de adivinación de tu dominio que tengas preparado, sin gastar espacio ni componentes materiales.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Mente Desatada",
        "t": "pasiva",
-       "texto": "Obtienes telepatía con un alcance de 60 pies. Cuando usas esta telepatía, puedes contactar simultáneamente con un número de criaturas igual a tu modificador de Sabiduría (mínimo una). Además, obtienes competencia en tiradas de salvación de Inteligencia. Si ya tienes esta competencia, en su lugar obtienes competencia en tiradas de salvación con una característica en la que carezcas de ella.",
+       "texto": "Tienes telepatía a 60 pies y puedes hablar a la vez con tantas criaturas como tu SAB. Ganas competencia en salvaciones de INT (o, si ya la tenías, en otra que te falte).",
        "n": 6,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Presciencia Divina",
        "t": "adicional",
-       "texto": "Como Acción Adicional, expandes mágicamente tu mente hacia el futuro. Durante 1 hora, tienes Ventaja en pruebas de d20. Una vez que uses este rasgo, no puedes volver a usarlo hasta que termines un Descanso Largo. También puedes restaurar su uso gastando un espacio de conjuro de nivel 6 o superior (sin requerir acción).",
+       "texto": "Durante 1 hora tienes ventaja en las pruebas de d20. Recuperas el uso con un descanso largo o gastando un espacio de nivel 6 o más.",
        "n": 17,
-       "usos": 0,
+       "manual": true,
+       "usos": 1,
        "reset": "largo"
       }
      ]
@@ -2034,50 +2091,519 @@
      "n": "Dominio de la Tumba",
      "rasgos": [
       {
+       "nombre": "Conjuros del Dominio de la Tumba",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros de tu dominio, que se amplían en los niveles 5, 7 y 9.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
        "nombre": "Círculo de la Mortalidad",
+       "t": "pasiva",
+       "texto": "Una vez por turno, al dañar con un conjuro o una tirada de ataque a una criatura que no tiene todos sus PG, le haces daño necrótico extra. Lanzas Perdonar a los moribundos como acción adicional, y al curar a alguien con 0 PG usas el máximo de cada dado.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Sendero a la Tumba",
        "t": "adicional",
-       "texto": "Obtienes la capacidad de manipular la línea entre la vida y la muerte. Cuando normalmente tirarías uno o más dados para restaurar Puntos de Golpe con un conjuro a una criatura que tiene 0 Puntos de Golpe, en su lugar usas el número más alto posible en cada dado. Además, aprendes el truco Estabilizar, que no cuenta para el número de trucos de clérigo que conoces. Para ti, tiene un alcance de 30 pies, y puedes lanzarlo como Acción Adicional.",
+       "texto": "Con un uso de Canalizar Divinidad, maldices hasta el inicio de tu próximo turno a una criatura que ves a 30 pies: tiene desventaja en ataques y salvaciones. Cuando tú o un aliado la acertáis, podéis acabar la maldición para sumar tu nivel de clérigo como daño necrótico o radiante.",
        "n": 3,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Ojos de la Tumba",
-       "t": "accion",
-       "texto": "Obtienes la capacidad de percibir ocasionalmente la presencia de muertos vivientes, cuya existencia es un insulto al ciclo natural de la vida. Como acción, puedes abrir tu consciencia para detectar mágicamente a los muertos vivientes. Hasta el final de tu siguiente turno, conoces la ubicación de cualquier muerto viviente que esté a 60 pies o menos de ti, que no esté detrás de cobertura total y que no esté protegido contra magia de adivinación. Este sentido no te dice nada sobre las capacidades o la identidad de la criatura. Puedes usar este rasgo una cantidad de veces igual a tu modificador de Sabiduría (mínimo una). Recuperas todos los usos gastados cuando terminas un Descanso Largo.",
-       "n": 3,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Canalizar Divinidad: Sendero hacia la Tumba",
-       "t": "accion",
-       "texto": "Puedes usar tu Canalizar Divinidad para marcar la fuerza vital de otra criatura para su aniquilación. Como acción, eliges una criatura que puedas ver a 30 pies o menos de ti, maldiciéndola hasta el final de tu siguiente turno. La próxima vez que tú o un aliado tuyo golpee a la criatura maldita con un ataque, la criatura tiene vulnerabilidad a todo el daño de ese ataque, y luego la maldición termina.",
-       "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Centinela en la Puerta de la Muerte",
        "t": "reaccion",
-       "texto": "Obtienes la capacidad de impedir el avance de la muerte. Como reacción, cuando tú o un aliado que puedas ver a 30 pies o menos de ti sufre un golpe crítico, puedes convertir ese ataque en un golpe normal. Cualquier efecto provocado por un golpe crítico queda cancelado. Puedes usar este rasgo una cantidad de veces igual a tu modificador de Sabiduría (mínimo una). Recuperas todos los usos gastados cuando terminas un Descanso Largo.",
+       "texto": "Cuando un ataque acierta a ti o a una criatura Ensangrentada que ves a 60 pies, reduces su daño a la mitad; si era crítico, se anulan sus efectos de crítico.",
        "n": 6,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Potenciar Conjuros",
+       "nombre": "Segador Divino",
        "t": "pasiva",
-       "texto": "Sumas tu modificador de Sabiduría al daño que infliges con cualquier truco de clérigo.",
-       "n": 6,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Custodio de Almas",
-       "t": "pasiva",
-       "texto": "Puedes arrebatar un rastro de vitalidad a un alma que parte y usarlo para curar a los vivos. Cuando un enemigo que puedas ver muere a 30 pies o menos de ti, tú o un aliado a tu elección que esté a 30 pies o menos de ti recupera Puntos de Golpe iguales al número de Dados de Golpe del enemigo. Puedes usar este rasgo solo si no estás Incapacitado. Una vez que lo usas, no puedes volver a hacerlo hasta el inicio de tu siguiente turno.",
+       "texto": "Con un uso de Canalizar Divinidad, un conjuro de nigromancia de nivel 5 o menor de un solo objetivo, o uno de tu dominio, afecta a un segundo objetivo. Además, cuando muere un enemigo a 60 pies, tú o una criatura que ves recuperáis el doble de tu nivel de clérigo en PG (una vez por descanso, o gastando un espacio de nivel 6 o más).",
        "n": 17,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
+      }
+     ]
+    },
+    "dominio-arcano": {
+     "n": "Dominio Arcano",
+     "rasgos": [
+      {
+       "nombre": "Conjuros del Dominio Arcano",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros de tu dominio, que se amplían en los niveles 5, 7 y 9.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Estudiante de lo Arcano",
+       "t": "pasiva",
+       "texto": "Ganas competencia en Arcanos (o en otra habilidad de las que ofrece el clérigo) y aprendes dos trucos de mago, que puedes cambiar al subir de nivel.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Modificar la Magia",
+       "t": "gratis",
+       "texto": "Al lanzar un conjuro, gastas un uso de Canalizar Divinidad para cambiarlo (las opciones salen aparte).",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Recuperación Disipadora",
+       "t": "gratis",
+       "texto": "Justo después de curar o quitar un estado con un conjuro de espacio, lanzas Disipar magia sin espacio. Se recupera con un descanso corto o largo, o gastando un uso de Canalizar Divinidad.",
+       "n": 6,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
+      },
+      {
+       "nombre": "Maestría Mágica",
+       "t": "pasiva",
+       "texto": "Aprendes un conjuro de mago de cada nivel 6, 7, 8 y 9, siempre preparados; al subir de nivel puedes cambiar uno por otro del mismo nivel.",
+       "n": 17,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "dominio-tempestad": {
+     "n": "Dominio de la Tempestad",
+     "rasgos": [
+      {
+       "nombre": "Conjuros del Dominio de la Tempestad",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros de tu dominio, que se amplían en los niveles 5, 7 y 9.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Competencias de la Tormenta",
+       "t": "pasiva",
+       "texto": "Ganas competencia con armas marciales y armaduras pesadas.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Ira de la Tormenta",
+       "t": "reaccion",
+       "texto": "Cuando una criatura a 5 pies que ves te acierta, hace una salvación de DES o recibe daño de trueno o relámpago (mitad si la pasa).",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Ira Destructora",
+       "t": "gratis",
+       "texto": "Al tirar daño de trueno o relámpago, gastas un uso de Canalizar Divinidad para que cada dado dé su máximo.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Golpe del Trueno",
+       "t": "pasiva",
+       "texto": "Cuando haces daño de relámpago a una criatura Grande o más pequeña, puedes empujarla hasta 10 pies.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Nacido de la Tormenta",
+       "t": "pasiva",
+       "texto": "Al aire libre tienes velocidad de vuelo igual a tu velocidad.",
+       "n": 17,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "dominio-naturaleza": {
+     "n": "Dominio de la Naturaleza",
+     "rasgos": [
+      {
+       "nombre": "Conjuros del Dominio de la Naturaleza",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros de tu dominio, que se amplían en los niveles 5, 7 y 9.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Acólito de la Naturaleza",
+       "t": "pasiva",
+       "texto": "Aprendes un truco de druida y ganas competencia en Trato con Animales, Naturaleza o Supervivencia.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Competencia Adicional",
+       "t": "pasiva",
+       "texto": "Ganas competencia con armaduras pesadas.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Hechizar Animales y Plantas",
+       "t": "accion",
+       "texto": "Con un uso de Canalizar Divinidad, las bestias y plantas que te ven a 30 pies hacen una salvación de SAB o quedan Hechizadas por ti 1 minuto, o hasta que reciban daño.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Amortiguar los Elementos",
+       "t": "reaccion",
+       "texto": "Cuando tú o una criatura a 30 pies recibís daño de ácido, frío, fuego, relámpago o trueno, le das resistencia a ese daño.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Señor de la Naturaleza",
+       "t": "adicional",
+       "texto": "Das órdenes a las criaturas que tienes Hechizadas con Hechizar Animales y Plantas.",
+       "n": 17,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "dominio-forja": {
+     "n": "Dominio de la Forja",
+     "rasgos": [
+      {
+       "nombre": "Conjuros del Dominio de la Forja",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros de tu dominio, que se amplían en los niveles 5, 7 y 9.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Competencias de la Forja",
+       "t": "pasiva",
+       "texto": "Ganas competencia con armaduras pesadas y con herramientas de herrero.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Bendición de la Forja",
+       "t": "fuera",
+       "texto": "Al final de un descanso largo, tocas un arma o armadura no mágica: hasta tu próximo descanso largo es mágica y da +1 al ataque y al daño, o +1 a la CA.",
+       "n": 3,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Bendición del Artesano",
+       "t": "fuera",
+       "texto": "Con un uso de Canalizar Divinidad y un ritual de 1 hora, creas un objeto no mágico con algo de metal, de hasta 100 po, fundiendo metal de su mismo valor.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Alma de la Forja",
+       "t": "pasiva",
+       "texto": "Tienes resistencia al fuego y, con armadura pesada, +1 a la CA.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Santo de la Forja y el Fuego",
+       "t": "pasiva",
+       "texto": "Eres inmune al fuego y, con armadura pesada, tienes resistencia al daño contundente, cortante y perforante de ataques no mágicos.",
+       "n": 17,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "dominio-orden": {
+     "n": "Dominio del Orden",
+     "rasgos": [
+      {
+       "nombre": "Conjuros del Dominio del Orden",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros de tu dominio, que se amplían en los niveles 5, 7 y 9.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Competencias del Orden",
+       "t": "pasiva",
+       "texto": "Ganas competencia con armaduras pesadas y en Intimidación o Persuasión.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Voz de Autoridad",
+       "t": "gratis",
+       "texto": "Cuando lanzas con un espacio un conjuro que tiene como objetivo a un aliado, ese aliado puede usar su reacción para hacer un ataque con arma.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Exigencia del Orden",
+       "t": "accion",
+       "texto": "Con un uso de Canalizar Divinidad, las criaturas que elijas a 30 pies hacen una salvación de SAB o quedan Hechizadas hasta el final de tu próximo turno o hasta recibir daño; puedes hacer que suelten lo que llevan.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Encarnación de la Ley",
+       "t": "gratis",
+       "texto": "Lanzas un conjuro de encantamiento de espacio y de 1 acción como acción adicional.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Cólera del Orden",
+       "t": "gratis",
+       "texto": "Una vez por turno, al dañar a una criatura con Golpe Divino la maldices hasta tu próximo turno: el siguiente aliado que la acierte le hace 2d8 de daño psíquico extra.",
+       "n": 17,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "dominio-paz": {
+     "n": "Dominio de la Paz",
+     "rasgos": [
+      {
+       "nombre": "Conjuros del Dominio de la Paz",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros de tu dominio, que se amplían en los niveles 5, 7 y 9.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Instrumento de la Paz",
+       "t": "pasiva",
+       "texto": "Ganas competencia en Perspicacia, Interpretación o Persuasión.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Vínculo Alentador",
+       "t": "accion",
+       "texto": "Unes durante 10 minutos a tantas criaturas voluntarias a 30 pies como tu competencia (puedes incluirte). Una vez por turno, un vinculado que esté a 30 pies de otro suma 1d4 a una tirada de ataque, prueba o salvación.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Bálsamo de Paz",
+       "t": "accion",
+       "texto": "Con un uso de Canalizar Divinidad, te mueves tu velocidad sin provocar ataques de oportunidad y curas una vez a cada criatura que elijas a 5 pies durante el recorrido.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Vínculo Protector",
+       "t": "reaccion",
+       "texto": "Cuando un vinculado va a recibir daño, otro vinculado a 30 pies puede usar su reacción para teletransportarse junto a él y recibir el daño en su lugar.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Vínculo Expansivo",
+       "t": "pasiva",
+       "texto": "Tus vínculos llegan a 60 pies, y quien recibe el daño con Vínculo Protector tiene resistencia a él.",
+       "n": 17,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "dominio-crepusculo": {
+     "n": "Dominio del Crepúsculo",
+     "rasgos": [
+      {
+       "nombre": "Conjuros del Dominio del Crepúsculo",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros de tu dominio, que se amplían en los niveles 5, 7 y 9.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Competencias del Crepúsculo",
+       "t": "pasiva",
+       "texto": "Ganas competencia con armas marciales y armaduras pesadas.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Ojos de la Noche",
+       "t": "accion",
+       "texto": "Ves en la oscuridad a 300 pies. Como acción, compartes esa visión durante 1 hora con tantas criaturas voluntarias a 10 pies como tu SAB; una vez por descanso largo, o gastando un espacio.",
+       "n": 3,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Bendición del Vigilante",
+       "t": "accion",
+       "texto": "Tocas a una criatura (puedes ser tú): tiene ventaja en su siguiente tirada de iniciativa. Solo una criatura a la vez.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Santuario Crepuscular",
+       "t": "accion",
+       "texto": "Con un uso de Canalizar Divinidad, emanas durante 1 minuto una esfera de penumbra de 30 pies. Al final del turno de cada criatura que elijas dentro, le das PG temporales o le quitas Hechizado o Asustado.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Pasos de la Noche",
+       "t": "adicional",
+       "texto": "En luz tenue u oscuridad, ganas durante 1 minuto velocidad de vuelo igual a tu velocidad.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Mortaja Crepuscular",
+       "t": "pasiva",
+       "texto": "Tú y tus aliados tenéis media cobertura dentro de tu Santuario Crepuscular.",
+       "n": 17,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "dominio-muerte": {
+     "n": "Dominio de la Muerte",
+     "rasgos": [
+      {
+       "nombre": "Conjuros del Dominio de la Muerte",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros de tu dominio, que se amplían en los niveles 5, 7 y 9.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Competencia Adicional",
+       "t": "pasiva",
+       "texto": "Ganas competencia con armas marciales.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Segador",
+       "t": "pasiva",
+       "texto": "Aprendes un truco de nigromancia de cualquier lista. Tus trucos de nigromancia de un solo objetivo pueden afectar a dos criaturas que estén a 5 pies entre sí.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Toque de la Muerte",
+       "t": "gratis",
+       "texto": "Al acertar con un ataque cuerpo a cuerpo, gastas un uso de Canalizar Divinidad para hacer daño necrótico extra.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Destrucción Ineludible",
+       "t": "pasiva",
+       "texto": "El daño necrótico de tus conjuros de clérigo y de Canalizar Divinidad ignora la resistencia al necrótico.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Segador Mejorado",
+       "t": "pasiva",
+       "texto": "Tus conjuros de nigromancia de nivel 1 a 5 de un solo objetivo pueden afectar a dos criaturas a 5 pies entre sí (pones el componente material de cada una si se consume).",
+       "n": 17,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
@@ -2088,28 +2614,41 @@
     {
      "nombre": "Golpes Benditos",
      "t": "pasiva",
-     "texto": "Elige: Golpe Divino (+1d8 radiante/necrótico en ataques 1/turno) o Lanzamiento Potente (Suma SAB a daño de trucos).",
+     "texto": "Tu dios bendice tus golpes o tus trucos: eliges Golpe Divino o Lanzamiento Potente.",
      "n": 7,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
      "nombre": "Intervención Divina",
-     "t": "pasiva",
-     "texto": "Puedes lanzar cualquier conjuro de Clérigo de nivel 5 o inferior sin gastar espacio ni componentes (1/descanso largo).",
+     "t": "accion",
+     "texto": "Como acción mágica, lanzas cualquier conjuro de clérigo de nivel 5 o menor que no sea de reacción, sin gastar espacio ni componentes materiales.",
      "n": 10,
+     "manual": true,
      "usos": 1,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Golpes Benditos Mejorados",
+     "t": "pasiva",
+     "texto": "Tu opción de Golpes Benditos se hace más fuerte.",
+     "n": 14,
+     "manual": true,
+     "usos": 0,
      "reset": "largo"
     },
     {
      "nombre": "Intervención Divina Mayor",
      "t": "pasiva",
-     "texto": "Ahora puedes usar Intervención Divina para lanzar Deseo (si replica un conjuro de nivel 8 o menor de cualquier lista).",
+     "texto": "Con Intervención Divina puedes lanzar Deseo. Si lo haces, no puedes volver a usar Intervención Divina hasta terminar 2d4 descansos largos.",
      "n": 20,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     }
-   ]
+   ],
+   "subAltos": {}
   },
   "druida": {
    "subclases": {
