@@ -3,7 +3,7 @@
 Rasgos de la biblioteca sin regla revisada en `web/src/features/reglas/data/reglas-revisadas.ts` cuyo tipo es dudoso:
 el clasificador los deja como pasiva aunque su texto sugiere que se activan, o su texto no menciona ningún tipo de acción.
 
-Generado con `npx tsx scripts/auditar-reglas.ts` (desde `web/`). Pendientes al generar: 177.
+Generado con `npx tsx scripts/auditar-reglas.ts` (desde `web/`). Pendientes al generar: 159.
 Al marcar una casilla, agrega al final una nota corta con la fuente si hubo que investigar.
 
 ## Selectores
@@ -59,7 +59,11 @@ Las que se deciden al usar el rasgo (a quién, qué efecto) no llevan selector: 
 
 ### Lote 11: Guerrero
 
-- [ ] **Campeón: Estilo de Combate Adicional**: un segundo estilo; en 2024 es en el nivel 7 (la biblioteca dice 10). <!-- selector|estilo-campeon -->
+- [x] **Campeón: Estilo de Combate Adicional**: un segundo estilo; en 2024 es en el nivel 7 (la biblioteca dice 10). Lote 11: se elige en el paso Clase (sin repetir el de la clase) y su efecto se suma igual que el primero. <!-- selector|estilo-campeon -->
+- [x] **Arquero Arcano: Disparos Arcanos**: los 8 de Arcana Unleashed (2026), 2 conocidos y uno más en los niveles 7, 10, 15 y 18; se eligen en el paso Clase y salen con su dado y su CD (INT). <!-- selector|disparo-arcano -->
+- [x] **Caballero Rúnico: runas**: las 6 de Tasha (Colina y Tormenta desde el nivel 7), 2/3/4/5 conocidas en los niveles 3/7/10/15; cada runa elegida sale con su uso (dos desde el nivel 15) y la CD con CON. Poder de Gigante con usos = bonificador de competencia y dado 1d6/1d8/1d10. <!-- selector|runas -->
+- [x] **Samurái: Espíritu de Lucha**: 3 usos por descanso largo, 5/10/15 PG temporales en los niveles 3/10/15. <!-- samurai|espiritu de lucha -->
+- ⚠ **Abanderado (Banneret)**: no se encontró el nombre oficial en español de Heroes of Faerûn; se deja "Abanderado" hasta confirmarlo.
 - [x] **Maestro de Batalla: maniobras y Estudiante de la Guerra**: maniobras conocidas según nivel, cada una como opción con su dado de superioridad; más una herramienta y una habilidad. Lote 11: las 20 maniobras de 2024 se eligen en el paso Clase y salen en tu turno con su tipo, su dado y su CD. <!-- selector|maniobras -->
 
 ### Lote 16: Pícaro
@@ -122,10 +126,10 @@ Se agregan en el lote de su clase, con su versión oficial más reciente. Las ma
 ### Lote 11: Guerrero
 
 - [x] **Arquero Arcano** (Xanathar's Guide to Everything): agregado, versión de Arcana Unleashed (2026). <!-- agregar|arquero arcano -->
-- [ ] **Caballero (Cavalier)** (Xanathar's Guide to Everything) <!-- agregar|caballero (cavalier) -->
-- [ ] **Samurái** (Xanathar's Guide to Everything) <!-- agregar|samurai -->
-- [ ] **Caballero Rúnico** (Tasha's Cauldron of Everything) <!-- agregar|caballero runico -->
-- [ ] **Caballero del Eco** (Explorer's Guide to Wildemount) <!-- agregar|caballero del eco -->
+- [x] **Caballero (Cavalier)** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). <!-- agregar|caballero (cavalier) -->
+- [x] **Samurái** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). <!-- agregar|samurai -->
+- [x] **Caballero Rúnico** (Tasha's Cauldron of Everything): agregado, versión de Tasha's Cauldron of Everything (2020). <!-- agregar|caballero runico -->
+- [x] **Caballero del Eco** (Explorer's Guide to Wildemount): agregado, versión de Explorer's Guide to Wildemount (2020). <!-- agregar|caballero del eco -->
 
 ### Lote 12: Hechicero
 
@@ -884,49 +888,57 @@ Dudosos: 0. Con tipo claro: 0. Ya revisados: 40.
 
 ## Lote 11: Guerrero (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 18. Con tipo claro: 3. Ya revisados: 3.
+Dudosos: 0. Con tipo claro: 0. Ya revisados: 46.
 
-### Guerrero
-
-- [x] **Indomable** (nivel 9): `gratis`. Manual del Jugador (2024). <!-- guerrero|indomable -->
-- [x] **Ataques Estudiados** (nivel 13): `pasiva`. Manual del Jugador (2024). <!-- guerrero|ataques estudiados -->
-
-### Campeón
-
-- [x] **Crítico Mejorado** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- campeon|critico mejorado -->
-- [x] **Atleta Notable** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- campeon|atleta notable -->
-- [x] **Estilo de Combate Adicional** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- campeon|estilo de combate adicional -->
-- [x] **Superviviente** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- campeon|superviviente -->
-
-### Maestro de Batalla
-
-- [x] **Implacable** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- maestro de batalla|implacable -->
-
-### Caballero Arcano
-
-- [x] **Lanzamiento de Conjuros** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- caballero arcano|lanzamiento de conjuros -->
-- [x] **Vínculo con el Arma** (nivel 3): pasa a llamarse Vínculo de Guerra (ritual, hasta dos armas); Manual del Jugador (2024). <!-- caballero arcano|vinculo con el arma -->
-- [x] **Magia de Guerra** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- caballero arcano|magia de guerra -->
-- [x] **Magia de Guerra Mejorada** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- caballero arcano|magia de guerra mejorada -->
-
-### Guerrero Psiónico
-
-- [x] **Poder Psiónico** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- guerrero psionico|poder psionico -->
-- [x] **Mente Protegida** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- guerrero psionico|mente protegida -->
-- [x] **Maestro de la Telequinesis** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- guerrero psionico|maestro de la telequinesis -->
-
-### Caballero del Dragón Púrpura
-
-- [x] **Enviado Caballeresco** (nivel 3): `pasiva`; la subclase pasa a llamarse Abanderado (Banneret); Forgotten Realms: Heroes of Faerûn (2025). <!-- caballero del dragon purpura|enviado caballeresco -->
-- [x] **Recuperación Grupal** (nivel 3): `gratis`, al usar Segundo Aliento; 1 uso por descanso corto, en el cálculo; Forgotten Realms: Heroes of Faerûn (2025). <!-- caballero del dragon purpura|recuperacion grupal -->
-- [x] **Tácticas de Equipo** (nivel 7): `pasiva` (acompaña a Recuperación Grupal); Forgotten Realms: Heroes of Faerûn (2025). <!-- caballero del dragon purpura|tacticas de equipo -->
-- [x] **Comandante Inspirador** (nivel 18): `pasiva`; Forgotten Realms: Heroes of Faerûn (2025). <!-- caballero del dragon purpura|comandante inspirador -->
 
 ### Revisados
 
+- [x] **Indomable** (nivel 9): `gratis`. Manual del Jugador (2024). <!-- guerrero|indomable -->
+- [x] **Maestro Táctico** (nivel 9): `pasiva`. Manual del Jugador (2024). <!-- guerrero|maestro tactico -->
+- [x] **Dos Ataques Extras** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- guerrero|dos ataques extras -->
+- [x] **Ataques Estudiados** (nivel 13): `pasiva`. Manual del Jugador (2024). <!-- guerrero|ataques estudiados -->
+- [x] **Oleada de Acción (Dos Usos)** (nivel 17): `gratis`. Manual del Jugador (2024). <!-- guerrero|oleada de accion (dos usos) -->
+- [x] **Tres Ataques Extras** (nivel 20): `pasiva`. Manual del Jugador (2024). <!-- guerrero|tres ataques extras -->
+- [x] **Saber del Arquero Arcano** (nivel 3): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|saber del arquero arcano -->
+- [x] **Disparo Arcano** (nivel 3): `gratis`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|disparo arcano -->
+- [x] **Disparo Curvo** (nivel 7): `adicional`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|disparo curvo -->
+- [x] **Munición Mágica** (nivel 7): `accion`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|municion magica -->
+- [x] **Disparo Siempre Listo** (nivel 10): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|disparo siempre listo -->
+- [x] **Teletransporte Indomable** (nivel 15): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|teletransporte indomable -->
+- [x] **Tirador Magistral** (nivel 18): `reaccion`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|tirador magistral -->
+- [x] **Enviado Caballeresco** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|enviado caballeresco -->
+- [x] **Recuperación Grupal** (nivel 3): `gratis`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|recuperacion grupal -->
+- [x] **Tácticas de Equipo** (nivel 7): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|tacticas de equipo -->
+- [x] **Oleada Inspiradora** (nivel 10): `gratis`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|oleada inspiradora -->
+- [x] **Resistencia Compartida** (nivel 15): `reaccion`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|resistencia compartida -->
+- [x] **Comandante Inspirador** (nivel 18): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|comandante inspirador -->
 - [x] **Superioridad en Combate** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- maestro de batalla|superioridad en combate -->
 - [x] **Estudiante de la Guerra** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- maestro de batalla|estudiante de la guerra -->
 - [x] **Conoce a tu Enemigo** (nivel 7): `adicional`. Manual del Jugador (2024). <!-- maestro de batalla|conoce a tu enemigo -->
+- [x] **Superioridad en Combate Mejorada** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- maestro de batalla|superioridad en combate mejorada -->
+- [x] **Implacable** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- maestro de batalla|implacable -->
+- [x] **Superioridad en Combate Definitiva** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- maestro de batalla|superioridad en combate definitiva -->
+- [x] **Crítico Mejorado** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- campeon|critico mejorado -->
+- [x] **Atleta Notable** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- campeon|atleta notable -->
+- [x] **Estilo de Combate Adicional** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- campeon|estilo de combate adicional -->
+- [x] **Guerrero Heroico** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- campeon|guerrero heroico -->
+- [x] **Crítico Superior** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- campeon|critico superior -->
+- [x] **Superviviente** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- campeon|superviviente -->
+- [x] **Lanzamiento de Conjuros** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- caballero arcano|lanzamiento de conjuros -->
+- [x] **Vínculo de Guerra** (nivel 3): `fuera`. Manual del Jugador (2024). <!-- caballero arcano|vinculo de guerra -->
+- [x] **Magia de Guerra** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- caballero arcano|magia de guerra -->
+- [x] **Golpe Sobrenatural** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- caballero arcano|golpe sobrenatural -->
+- [x] **Carga Arcana** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- caballero arcano|carga arcana -->
+- [x] **Magia de Guerra Mejorada** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- caballero arcano|magia de guerra mejorada -->
+- [x] **Poder Psiónico** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- guerrero psionico|poder psionico -->
+- [x] **Campo Protector** (nivel 3): `reaccion`. Manual del Jugador (2024). <!-- guerrero psionico|campo protector -->
+- [x] **Golpe Psiónico** (nivel 3): `gratis`. Manual del Jugador (2024). <!-- guerrero psionico|golpe psionico -->
+- [x] **Movimiento Telequinético** (nivel 3): `accion`. Manual del Jugador (2024). <!-- guerrero psionico|movimiento telequinetico -->
+- [x] **Salto Potenciado por Psi** (nivel 7): `adicional`. Manual del Jugador (2024). <!-- guerrero psionico|salto potenciado por psi -->
+- [x] **Empujón Telequinético** (nivel 7): `gratis`. Manual del Jugador (2024). <!-- guerrero psionico|empujon telequinetico -->
+- [x] **Mente Protegida** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- guerrero psionico|mente protegida -->
+- [x] **Baluarte de Fuerza** (nivel 15): `adicional`. Manual del Jugador (2024). <!-- guerrero psionico|baluarte de fuerza -->
+- [x] **Maestro de la Telequinesis** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- guerrero psionico|maestro de la telequinesis -->
 
 ## Lote 12: Hechicero (subclases y rasgos de nivel alto de la biblioteca)
 
@@ -1238,36 +1250,37 @@ Dudosos: 12. Con tipo claro: 1. Ya revisados: 0.
 
 ## Revisados en pasadas anteriores
 
-- [x] **Maestro Táctico** (nivel 9): `pasiva`. Manual del Jugador (2024). <!-- guerrero|maestro tactico -->
-- [x] **Dos Ataques Extras** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- guerrero|dos ataques extras -->
-- [x] **Oleada de Acción (Dos Usos)** (nivel 17): `gratis`. Manual del Jugador (2024). <!-- guerrero|oleada de accion (dos usos) -->
-- [x] **Tres Ataques Extras** (nivel 20): `pasiva`. Manual del Jugador (2024). <!-- guerrero|tres ataques extras -->
-- [x] **Saber del Arquero Arcano** (nivel 3): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|saber del arquero arcano -->
-- [x] **Disparo Arcano** (nivel 3): `gratis`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|disparo arcano -->
-- [x] **Disparo Curvo** (nivel 7): `adicional`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|disparo curvo -->
-- [x] **Munición Mágica** (nivel 7): `accion`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|municion magica -->
-- [x] **Disparo Siempre Listo** (nivel 10): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|disparo siempre listo -->
-- [x] **Teletransporte Indomable** (nivel 15): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|teletransporte indomable -->
-- [x] **Tirador Magistral** (nivel 18): `reaccion`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|tirador magistral -->
-- [x] **Enviado Caballeresco** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|enviado caballeresco -->
-- [x] **Recuperación Grupal** (nivel 3): `gratis`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|recuperacion grupal -->
-- [x] **Tácticas de Equipo** (nivel 7): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|tacticas de equipo -->
-- [x] **Oleada Inspiradora** (nivel 10): `gratis`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|oleada inspiradora -->
-- [x] **Resistencia Compartida** (nivel 15): `reaccion`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|resistencia compartida -->
-- [x] **Comandante Inspirador** (nivel 18): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|comandante inspirador -->
-- [x] **Superioridad en Combate Mejorada** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- maestro de batalla|superioridad en combate mejorada -->
-- [x] **Superioridad en Combate Definitiva** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- maestro de batalla|superioridad en combate definitiva -->
-- [x] **Guerrero Heroico** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- campeon|guerrero heroico -->
-- [x] **Crítico Superior** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- campeon|critico superior -->
-- [x] **Vínculo de Guerra** (nivel 3): `fuera`. Manual del Jugador (2024). <!-- caballero arcano|vinculo de guerra -->
-- [x] **Golpe Sobrenatural** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- caballero arcano|golpe sobrenatural -->
-- [x] **Carga Arcana** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- caballero arcano|carga arcana -->
-- [x] **Campo Protector** (nivel 3): `reaccion`. Manual del Jugador (2024). <!-- guerrero psionico|campo protector -->
-- [x] **Golpe Psiónico** (nivel 3): `gratis`. Manual del Jugador (2024). <!-- guerrero psionico|golpe psionico -->
-- [x] **Movimiento Telequinético** (nivel 3): `accion`. Manual del Jugador (2024). <!-- guerrero psionico|movimiento telequinetico -->
-- [x] **Salto Potenciado por Psi** (nivel 7): `adicional`. Manual del Jugador (2024). <!-- guerrero psionico|salto potenciado por psi -->
-- [x] **Empujón Telequinético** (nivel 7): `gratis`. Manual del Jugador (2024). <!-- guerrero psionico|empujon telequinetico -->
-- [x] **Baluarte de Fuerza** (nivel 15): `adicional`. Manual del Jugador (2024). <!-- guerrero psionico|baluarte de fuerza -->
+- [x] **Competencia Adicional** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- caballero|competencia adicional -->
+- [x] **Nacido para la Silla** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- caballero|nacido para la silla -->
+- [x] **Marca Inquebrantable** (nivel 3): `gratis`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- caballero|marca inquebrantable -->
+- [x] **Maniobra de Protección** (nivel 7): `reaccion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- caballero|maniobra de proteccion -->
+- [x] **Mantener la Línea** (nivel 10): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- caballero|mantener la linea -->
+- [x] **Carga Feroz** (nivel 15): `gratis`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- caballero|carga feroz -->
+- [x] **Defensor Vigilante** (nivel 18): `reaccion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- caballero|defensor vigilante -->
+- [x] **Manifestar Eco** (nivel 3): `adicional`. subclase nueva; Explorer's Guide to Wildemount (2020). <!-- caballero del eco|manifestar eco -->
+- [x] **Desatar Encarnación** (nivel 3): `gratis`. subclase nueva; Explorer's Guide to Wildemount (2020). <!-- caballero del eco|desatar encarnacion -->
+- [x] **Avatar del Eco** (nivel 7): `accion`. subclase nueva; Explorer's Guide to Wildemount (2020). <!-- caballero del eco|avatar del eco -->
+- [x] **Mártir Sombrío** (nivel 10): `reaccion`. subclase nueva; Explorer's Guide to Wildemount (2020). <!-- caballero del eco|martir sombrio -->
+- [x] **Reclamar Potencial** (nivel 15): `gratis`. subclase nueva; Explorer's Guide to Wildemount (2020). <!-- caballero del eco|reclamar potencial -->
+- [x] **Legión de Uno** (nivel 18): `pasiva`. subclase nueva; Explorer's Guide to Wildemount (2020). <!-- caballero del eco|legion de uno -->
+- [x] **Competencia Adicional** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- samurai|competencia adicional -->
+- [x] **Espíritu de Lucha** (nivel 3): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- samurai|espiritu de lucha -->
+- [x] **Cortesano Elegante** (nivel 7): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- samurai|cortesano elegante -->
+- [x] **Espíritu Incansable** (nivel 10): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- samurai|espiritu incansable -->
+- [x] **Golpe Rápido** (nivel 15): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- samurai|golpe rapido -->
+- [x] **Fuerza antes que la Muerte** (nivel 18): `reaccion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- samurai|fuerza antes que la muerte -->
+- [x] **Competencias Adicionales** (nivel 3): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- caballero runico|competencias adicionales -->
+- [x] **Tallador de Runas** (nivel 3): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- caballero runico|tallador de runas -->
+- [x] **Poder de Gigante** (nivel 3): `adicional`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- caballero runico|poder de gigante -->
+- [x] **Escudo Rúnico** (nivel 7): `reaccion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- caballero runico|escudo runico -->
+- [x] **Gran Estatura** (nivel 10): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- caballero runico|gran estatura -->
+- [x] **Maestro de las Runas** (nivel 15): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- caballero runico|maestro de las runas -->
+- [x] **Coloso Rúnico** (nivel 18): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- caballero runico|coloso runico -->
+- [x] **Vínculo con el Arma** (nivel 3): pasa a llamarse Vínculo de Guerra (ritual, hasta dos armas); Manual del Jugador (2024). <!-- caballero arcano|vinculo con el arma -->
+- [x] **Enviado Caballeresco** (nivel 3): `pasiva`; la subclase pasa a llamarse Abanderado (Banneret); Forgotten Realms: Heroes of Faerûn (2025). <!-- caballero del dragon purpura|enviado caballeresco -->
+- [x] **Recuperación Grupal** (nivel 3): `gratis`, al usar Segundo Aliento; 1 uso por descanso corto, en el cálculo; Forgotten Realms: Heroes of Faerûn (2025). <!-- caballero del dragon purpura|recuperacion grupal -->
+- [x] **Tácticas de Equipo** (nivel 7): `pasiva` (acompaña a Recuperación Grupal); Forgotten Realms: Heroes of Faerûn (2025). <!-- caballero del dragon purpura|tacticas de equipo -->
+- [x] **Comandante Inspirador** (nivel 18): `pasiva`; Forgotten Realms: Heroes of Faerûn (2025). <!-- caballero del dragon purpura|comandante inspirador -->
 - [x] **Ocultarse a Plena Vista** (nivel 10): quitado: no existe en 2024 (el nivel 10 es Incansable); Manual del Jugador (2024). <!-- explorador|ocultarse a plena vista -->
 - [x] **Multiataque del Cazador** (nivel 11): sustituido por Presa del Cazador Superior (el daño de Marca del cazador salta a otra criatura a 30 pies); Manual del Jugador (2024). <!-- cazador|multiataque del cazador -->
 - [x] **Defensa Superior** (nivel 15): pasa a llamarse Defensa Superior del Cazador: reacción, resistencia al tipo de daño recibido; Manual del Jugador (2024). <!-- cazador|defensa superior -->

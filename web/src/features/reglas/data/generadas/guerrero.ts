@@ -54,6 +54,13 @@ export const reglas = [
   {de:/^arquero arcano$/, n:/^municion magica$/, usos: c => 1, reset: "corto"},
   {de:/^abanderado$/, n:/^recuperacion grupal$/, usos: c => 1, reset: "corto"},
   {de:/^maestro de batalla$/, n:/^conoce a tu enemigo$/, usos: c => 1, reset: "largo"},
+  {de:/^caballero$/, n:/^marca inquebrantable$/, usos: c => Math.max(1, c.m.fue), reset: "largo"},
+  {de:/^caballero$/, n:/^maniobra de proteccion$/, usos: c => Math.max(1, c.m.con), reset: "largo"},
+  {de:/^caballero del eco$/, n:/^desatar encarnacion$/, usos: c => Math.max(1, c.m.con), reset: "largo"},
+  {de:/^caballero del eco$/, n:/^martir sombrio$/, usos: c => 1, reset: "corto"},
+  {de:/^caballero del eco$/, n:/^reclamar potencial$/, usos: c => Math.max(1, c.m.con), reset: "largo"},
+  {de:/^samurai$/, n:/^fuerza antes que la muerte$/, usos: c => 1, reset: "largo"},
+  {de:/^caballero runico$/, n:/^escudo runico$/, usos: 'pb', reset: "largo"},
 ];
 
 /* Para hacer a mano en reglas-revisadas.ts:
@@ -73,7 +80,11 @@ export const fuentes: Record<string, string> = {
   "maestro de batalla": "Manual del Jugador (2024)",
   "campeon": "Manual del Jugador (2024)",
   "caballero arcano": "Manual del Jugador (2024)",
-  "guerrero psionico": "Manual del Jugador (2024)"
+  "guerrero psionico": "Manual del Jugador (2024)",
+  "caballero": "Xanathar's Guide to Everything (2017)",
+  "caballero del eco": "Explorer's Guide to Wildemount (2020)",
+  "samurai": "Xanathar's Guide to Everything (2017)",
+  "caballero runico": "Tasha's Cauldron of Everything (2020)"
 };
 
 export const descripciones: Record<string, string> = {
@@ -82,5 +93,9 @@ export const descripciones: Record<string, string> = {
   "maestro-batalla": "Estudiantes del arte de la guerra que usan maniobras precisas y dados de superioridad para desarmar, empujar o burlar al enemigo.",
   "campeon": "Guerreros centrados en la excelencia física: críticos más frecuentes, atletismo notable y una resistencia que los mantiene en pie.",
   "caballero-arcano": "Combatientes que estudian la magia de mago para completar sus armas: escudos arcanos, explosiones y teletransporte en plena batalla.",
-  "guerrero-psionico": "Guerreros que han despertado el poder de su mente, usando telequinesis para volar, lanzar enemigos y proyectar barreras de fuerza."
+  "guerrero-psionico": "Guerreros que han despertado el poder de su mente, usando telequinesis para volar, lanzar enemigos y proyectar barreras de fuerza.",
+  "caballero": "Guardianes montados que marcan a sus enemigos y protegen a quien tienen cerca, sin dejar que nadie cruce su línea.",
+  "caballero-eco": "Guerreros que invocan un eco de sí mismos desde otra línea temporal para atacar y moverse desde dos lugares a la vez.",
+  "samurai": "Combatientes de espíritu indomable que se lanzan al ataque con una determinación que ni la muerte frena.",
+  "caballero-runico": "Guerreros que tallan runas de gigante en su equipo para crecer en batalla y desatar la magia de fuego, escarcha, piedra y tormenta."
 };

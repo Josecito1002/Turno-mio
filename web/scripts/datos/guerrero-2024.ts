@@ -1,5 +1,5 @@
 /* Guerrero de la biblioteca puesto al día con su versión oficial más reciente (texto oficial de 5etools, redactado por
-   Gemini y revisado con scripts/gemini/revisar.ts). Libros: Arcana Unleashed (2026); Forgotten Realms: Heroes of Faerûn (2025); Manual del Jugador (2024).
+   Gemini y revisado con scripts/gemini/revisar.ts). Libros: Arcana Unleashed (2026); Forgotten Realms: Heroes of Faerûn (2025); Manual del Jugador (2024); Xanathar's Guide to Everything (2017); Explorer's Guide to Wildemount (2020); Tasha's Cauldron of Everything (2020).
    Lo aplica scripts/actualizar-clase.ts (opción "guerrero"). */
 
 const r = (n: number, nombre: string, t: string, texto: string, extra: Record<string, unknown> = {}) => ({ nombre, t, texto, n, manual: true, usos: 0, reset: 'largo', ...extra });
@@ -83,6 +83,52 @@ export const GUERRERO_2024 = {
         r(10, 'Mente Protegida', 'pasiva', 'Tienes resistencia al daño Psíquico. Si inicias tu turno Hechizado o Asustado, puedes gastar un dado psiónico (sin acción) para curarte el estado.'),
         r(15, 'Baluarte de Fuerza', 'adicional', 'Como Acción Adicional, das Cobertura Media por 1 minuto a varias criaturas a 30 pies (hasta mod. Inteligencia). Gratis 1 vez al día o gastando un dado psiónico.', { usos: 1, reset: 'largo' }),
         r(18, 'Maestro de la Telequinesis', 'pasiva', 'Siempre tienes Telequinesis. La lanzas sin componentes gratis una vez al día o gastando un dado psiónico. Mientras te concentras, puedes atacar como acción adicional.', { usos: 1, reset: 'largo' })
+      ]
+    },
+    'caballero': {
+      n: 'Caballero',
+      rasgos: [
+        r(3, 'Competencia Adicional', 'pasiva', 'Ganas competencia en una de estas habilidades: Trato con Animales, Historia, Perspicacia, Interpretación o Persuasión. Si lo prefieres, aprendes un idioma.'),
+        r(3, 'Nacido para la Silla', 'pasiva', 'Tienes ventaja en las salvaciones para no caerte de tu montura, y si caes 10 pies o menos aterrizas de pie (si no estás Incapacitado). Montar o desmontar te cuesta solo 5 pies de movimiento.'),
+        r(3, 'Marca Inquebrantable', 'gratis', 'Al acertar un ataque cuerpo a cuerpo con arma, marcas a la criatura hasta el final de tu próximo turno. Si está a 5 pies de ti tiene desventaja al atacar a otros, y si daña a otro, en tu próximo turno puedes hacerle un ataque especial como acción adicional, con ventaja y daño extra igual a la mitad de tu nivel de guerrero.'),
+        r(7, 'Maniobra de Protección', 'reaccion', 'Si a ti o a una criatura que veas a 5 pies la aciertan con un ataque y empuñas un arma cuerpo a cuerpo o un escudo, sumas 1d8 a su CA contra ese ataque; si aun así acierta, el objetivo tiene resistencia a ese daño.'),
+        r(10, 'Mantener la Línea', 'pasiva', 'Las criaturas provocan tu ataque de oportunidad si se mueven 5 pies o más dentro de tu alcance, y si lo aciertas su velocidad baja a 0 hasta el final del turno.'),
+        r(15, 'Carga Feroz', 'gratis', 'Una vez por turno, si te mueves al menos 10 pies en línea recta justo antes de acertar un ataque, el objetivo hace una salvación de FUE o queda Derribado.'),
+        r(18, 'Defensor Vigilante', 'reaccion', 'En combate tienes una reacción especial en el turno de cada criatura salvo el tuyo, solo para hacer un ataque de oportunidad, y no en el mismo turno en que uses tu reacción normal.')
+      ]
+    },
+    'caballero-eco': {
+      n: 'Caballero del Eco',
+      rasgos: [
+        r(3, 'Manifestar Eco', 'adicional', 'Creas un eco tuyo a 15 pies: CA 14 + tu competencia, 1 PG e inmune a los estados. Lo mueves 30 pies por turno sin acción, puedes intercambiarte con él (acción adicional, 15 pies de movimiento), atacar desde su espacio y hacer ataques de oportunidad desde él. Desaparece si se aleja más de 30 pies al final de tu turno.'),
+        r(3, 'Desatar Encarnación', 'gratis', 'Al usar la acción Atacar, haces un ataque cuerpo a cuerpo adicional desde la posición de tu eco.'),
+        r(7, 'Avatar del Eco', 'accion', 'Ves y oyes a través de tu eco hasta 10 minutos, y mientras tanto puede estar hasta a 1000 pies de ti; tú quedas Cegado y Ensordecido.'),
+        r(10, 'Mártir Sombrío', 'reaccion', 'Antes de que ataquen a una criatura que veas, teletransportas a tu eco a 5 pies de ella y el ataque va contra el eco.'),
+        r(15, 'Reclamar Potencial', 'gratis', 'Cuando destruyen a tu eco con daño, ganas 2d6 + CON PG temporales si no tenías.'),
+        r(18, 'Legión de Uno', 'pasiva', 'Puedes tener dos ecos a la vez y actuar desde cualquiera. Al tirar iniciativa sin usos de Desatar Encarnación, recuperas uno.')
+      ]
+    },
+    'samurai': {
+      n: 'Samurái',
+      rasgos: [
+        r(3, 'Competencia Adicional', 'pasiva', 'Ganas competencia en Historia, Perspicacia, Interpretación o Persuasión (a elegir), o aprendes un idioma.'),
+        r(3, 'Espíritu de Lucha', 'adicional', 'Ganas ventaja en tus ataques con arma hasta el final del turno y PG temporales.'),
+        r(7, 'Cortesano Elegante', 'pasiva', 'Sumas tu SAB a tus pruebas de Persuasión y ganas competencia en salvaciones de SAB (o de INT o CAR si ya la tenías).'),
+        r(10, 'Espíritu Incansable', 'pasiva', 'Al tirar iniciativa sin usos de Espíritu de Lucha, recuperas uno.'),
+        r(15, 'Golpe Rápido', 'pasiva', 'Una vez por turno, si tienes ventaja en un ataque de la acción Atacar, puedes renunciar a ella para hacer otro ataque con arma contra ese objetivo.'),
+        r(18, 'Fuerza antes que la Muerte', 'reaccion', 'Si caes a 0 PG sin morir, retrasas quedar Inconsciente y haces un turno extra de inmediato. Al terminar, caes si sigues en 0 PG.')
+      ]
+    },
+    'caballero-runico': {
+      n: 'Caballero Rúnico',
+      rasgos: [
+        r(3, 'Competencias Adicionales', 'pasiva', 'Ganas competencia con herramientas de herrero y aprendes a hablar, leer y escribir gigante.'),
+        r(3, 'Tallador de Runas', 'pasiva', 'Conoces runas de gigante y, al terminar un descanso largo, inscribes cada una en un objeto que lleves (arma, armadura, escudo o joya).'),
+        r(3, 'Poder de Gigante', 'adicional', 'Durante 1 minuto creces a Grande, tienes ventaja en pruebas y salvaciones de FUE y, una vez por turno, un ataque con arma o golpe sin armas hace daño extra.'),
+        r(7, 'Escudo Rúnico', 'reaccion', 'Cuando aciertan a otra criatura que veas a 60 pies, obligas al atacante a repetir la tirada y usar la nueva.'),
+        r(10, 'Gran Estatura', 'pasiva', 'Creces 3d4 pulgadas y el daño extra de Poder de Gigante sube a 1d8.'),
+        r(15, 'Maestro de las Runas', 'pasiva', 'Puedes invocar cada runa dos veces, y recuperas los usos con un descanso corto o largo.'),
+        r(18, 'Coloso Rúnico', 'pasiva', 'El daño extra de Poder de Gigante sube a 1d10, y al usarlo puedes crecer a Enorme, con 5 pies más de alcance.')
       ]
     }
   }

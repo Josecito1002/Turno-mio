@@ -4221,6 +4221,260 @@
        "reset": "largo"
       }
      ]
+    },
+    "caballero": {
+     "n": "Caballero",
+     "rasgos": [
+      {
+       "nombre": "Competencia Adicional",
+       "t": "pasiva",
+       "texto": "Ganas competencia en una de estas habilidades: Trato con Animales, Historia, Perspicacia, Interpretación o Persuasión. Si lo prefieres, aprendes un idioma.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Nacido para la Silla",
+       "t": "pasiva",
+       "texto": "Tienes ventaja en las salvaciones para no caerte de tu montura, y si caes 10 pies o menos aterrizas de pie (si no estás Incapacitado). Montar o desmontar te cuesta solo 5 pies de movimiento.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Marca Inquebrantable",
+       "t": "gratis",
+       "texto": "Al acertar un ataque cuerpo a cuerpo con arma, marcas a la criatura hasta el final de tu próximo turno. Si está a 5 pies de ti tiene desventaja al atacar a otros, y si daña a otro, en tu próximo turno puedes hacerle un ataque especial como acción adicional, con ventaja y daño extra igual a la mitad de tu nivel de guerrero.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Maniobra de Protección",
+       "t": "reaccion",
+       "texto": "Si a ti o a una criatura que veas a 5 pies la aciertan con un ataque y empuñas un arma cuerpo a cuerpo o un escudo, sumas 1d8 a su CA contra ese ataque; si aun así acierta, el objetivo tiene resistencia a ese daño.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Mantener la Línea",
+       "t": "pasiva",
+       "texto": "Las criaturas provocan tu ataque de oportunidad si se mueven 5 pies o más dentro de tu alcance, y si lo aciertas su velocidad baja a 0 hasta el final del turno.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Carga Feroz",
+       "t": "gratis",
+       "texto": "Una vez por turno, si te mueves al menos 10 pies en línea recta justo antes de acertar un ataque, el objetivo hace una salvación de FUE o queda Derribado.",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Defensor Vigilante",
+       "t": "reaccion",
+       "texto": "En combate tienes una reacción especial en el turno de cada criatura salvo el tuyo, solo para hacer un ataque de oportunidad, y no en el mismo turno en que uses tu reacción normal.",
+       "n": 18,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "caballero-eco": {
+     "n": "Caballero del Eco",
+     "rasgos": [
+      {
+       "nombre": "Manifestar Eco",
+       "t": "adicional",
+       "texto": "Creas un eco tuyo a 15 pies: CA 14 + tu competencia, 1 PG e inmune a los estados. Lo mueves 30 pies por turno sin acción, puedes intercambiarte con él (acción adicional, 15 pies de movimiento), atacar desde su espacio y hacer ataques de oportunidad desde él. Desaparece si se aleja más de 30 pies al final de tu turno.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Desatar Encarnación",
+       "t": "gratis",
+       "texto": "Al usar la acción Atacar, haces un ataque cuerpo a cuerpo adicional desde la posición de tu eco.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Avatar del Eco",
+       "t": "accion",
+       "texto": "Ves y oyes a través de tu eco hasta 10 minutos, y mientras tanto puede estar hasta a 1000 pies de ti; tú quedas Cegado y Ensordecido.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Mártir Sombrío",
+       "t": "reaccion",
+       "texto": "Antes de que ataquen a una criatura que veas, teletransportas a tu eco a 5 pies de ella y el ataque va contra el eco.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Reclamar Potencial",
+       "t": "gratis",
+       "texto": "Cuando destruyen a tu eco con daño, ganas 2d6 + CON PG temporales si no tenías.",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Legión de Uno",
+       "t": "pasiva",
+       "texto": "Puedes tener dos ecos a la vez y actuar desde cualquiera. Al tirar iniciativa sin usos de Desatar Encarnación, recuperas uno.",
+       "n": 18,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "samurai": {
+     "n": "Samurái",
+     "rasgos": [
+      {
+       "nombre": "Competencia Adicional",
+       "t": "pasiva",
+       "texto": "Ganas competencia en Historia, Perspicacia, Interpretación o Persuasión (a elegir), o aprendes un idioma.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Espíritu de Lucha",
+       "t": "adicional",
+       "texto": "Ganas ventaja en tus ataques con arma hasta el final del turno y PG temporales.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Cortesano Elegante",
+       "t": "pasiva",
+       "texto": "Sumas tu SAB a tus pruebas de Persuasión y ganas competencia en salvaciones de SAB (o de INT o CAR si ya la tenías).",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Espíritu Incansable",
+       "t": "pasiva",
+       "texto": "Al tirar iniciativa sin usos de Espíritu de Lucha, recuperas uno.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Golpe Rápido",
+       "t": "pasiva",
+       "texto": "Una vez por turno, si tienes ventaja en un ataque de la acción Atacar, puedes renunciar a ella para hacer otro ataque con arma contra ese objetivo.",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Fuerza antes que la Muerte",
+       "t": "reaccion",
+       "texto": "Si caes a 0 PG sin morir, retrasas quedar Inconsciente y haces un turno extra de inmediato. Al terminar, caes si sigues en 0 PG.",
+       "n": 18,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "caballero-runico": {
+     "n": "Caballero Rúnico",
+     "rasgos": [
+      {
+       "nombre": "Competencias Adicionales",
+       "t": "pasiva",
+       "texto": "Ganas competencia con herramientas de herrero y aprendes a hablar, leer y escribir gigante.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Tallador de Runas",
+       "t": "pasiva",
+       "texto": "Conoces runas de gigante y, al terminar un descanso largo, inscribes cada una en un objeto que lleves (arma, armadura, escudo o joya).",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Poder de Gigante",
+       "t": "adicional",
+       "texto": "Durante 1 minuto creces a Grande, tienes ventaja en pruebas y salvaciones de FUE y, una vez por turno, un ataque con arma o golpe sin armas hace daño extra.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Escudo Rúnico",
+       "t": "reaccion",
+       "texto": "Cuando aciertan a otra criatura que veas a 60 pies, obligas al atacante a repetir la tirada y usar la nueva.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Gran Estatura",
+       "t": "pasiva",
+       "texto": "Creces 3d4 pulgadas y el daño extra de Poder de Gigante sube a 1d8.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Maestro de las Runas",
+       "t": "pasiva",
+       "texto": "Puedes invocar cada runa dos veces, y recuperas los usos con un descanso corto o largo.",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Coloso Rúnico",
+       "t": "pasiva",
+       "texto": "El daño extra de Poder de Gigante sube a 1d10, y al usarlo puedes crecer a Enorme, con 5 pies más de alcance.",
+       "n": 18,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
     }
    },
    "rasgosAltos": [

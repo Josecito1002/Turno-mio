@@ -124,7 +124,7 @@ ${(lib.rasgosAltos || []).map(linea).join('\n') || '(ninguno)'}`);
   if (selectores) partes.push(`### Selectores que faltan en este lote\n${selectores}`);
 
   partes.push(`## Texto oficial (fuente única)\n\n### Clase ${nom} (Manual del Jugador 2024)\n${of.clase.map(lineaOficial).join('\n')}`);
-  for (const s of of.subclases) partes.push(`### ${s.nombre} — ${s.libro}\n${s.rasgos.map(lineaOficial).join('\n')}`);
+  for (const s of of.subclases) partes.push(`### ${s.nombre} — ${s.libro}\n${s.rasgos.map(lineaOficial).join('\n')}${(s.opciones || []).map(o => `\n\nOpciones de ${o.titulo}:\n${o.items.map(x => `- ${x.nombre}${x.requisito ? ` (${x.requisito})` : ''}: ${x.texto}`.replace(/\s+/g, ' ')).join('\n')}`).join('')}`);
   if (of.opciones) partes.push(`### ${of.opciones.titulo} (Manual del Jugador 2024)\n${of.opciones.items.map(o => `- ${o.nombre}${o.requisito ? ` (${o.requisito})` : ''}: ${o.texto}`.replace(/\s+/g, ' ')).join('\n')}`);
 
   /* Nombres de conjuros tal como los tiene la app, por nivel */

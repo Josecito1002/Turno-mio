@@ -54,7 +54,8 @@ export const sinEtiquetas = (s: string) => {
 };
 
 export type Rasgo = { n: number; nombre: string; texto: string };
-export type SubOficial = { nombre: string; corto: string; fuente: string; libro: string; anio: number; rasgos: Rasgo[] };
+export type Opcion = { nombre: string; requisito: string; texto: string };
+export type SubOficial = { nombre: string; corto: string; fuente: string; libro: string; anio: number; rasgos: Rasgo[]; opciones?: { titulo: string; items: Opcion[] }[] };
 export type Oficial = { clase: Rasgo[]; subclases: SubOficial[]; opciones?: { titulo: string; items: { nombre: string; requisito: string; texto: string }[] } };
 
 export async function oficial(clase: string): Promise<Oficial> {
@@ -94,20 +95,42 @@ export async function oficial(clase: string): Promise<Oficial> {
   const porNombre = new Map<string, any>();
   for (const s of d.subclass || []) {
     if (!LIBROS[s.source]) continue;
+    if (s.reprintedAs) continue; // reeditada con otro nombre o libro (Caballero del Dragón Púrpura → Banneret)
     const clave = s.shortName.replace(/\s*\(.*\)$/, '');
     const cur = porNombre.get(clave);
     const puntos = (x: any) => (x.classSource === 'XPHB' ? 10000 : 0) + LIBROS[x.source][1];
     if (!cur || puntos(s) > puntos(cur)) porNombre.set(clave, s);
   }
-  const subclases: SubOficial[] = [...porNombre.values()].map(s => ({
-    nombre: s.name, corto: s.shortName, fuente: s.source, libro: libro(s.source), anio: LIBROS[s.source][1],
-    rasgos: (s.subclassFeatures || []).map((ref: string) => { const f = buscarSub(ref); return f && { n: f.level, nombre: f.name, texto: plano(f.entries) }; }).filter(Boolean),
-  })).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  // Las subclases antiguas adaptadas a la clase 2024 son copias (`_copy`) sin rasgos propios: se toman del original
+  const original = (s: any) => s.subclassFeatures ? s : (s._copy && (d.subclass || []).find((o: any) => o.name === s._copy.name
+    && o.source === s._copy.source && (o.classSource || 'PHB') === (s._copy.classSource || 'PHB') && o.subclassFeatures)) || s;
+  const of = await json('optionalfeatures.json');
+  const subclases: SubOficial[] = [...porNombre.values()].map(s0 => {
+    const s = original(s0);
+    // Opciones propias de la subclase (Disparo Arcano, runas...), en su versión más reciente
+    const opciones = (s0.optionalfeatureProgression || s.optionalfeatureProgression || []).map((p: any) => {
+      const porNom = new Map<string, any>();
+      // Las ya pedidas como opciones de la clase (maniobras) no se repiten; una subclase de 2024 o posterior solo usa opciones de su época
+      if (OPCIONES[clase] && p.featureType.includes(OPCIONES[clase].tipo)) return { titulo: p.name, items: [] };
+      const minimo = LIBROS[s0.source][1] >= 2024 ? 2024 : 0;
+      for (const x of of.optionalfeature.filter((x: any) => p.featureType.some((t: string) => x.featureType.includes(t)) && LIBROS[x.source] && LIBROS[x.source][1] >= minimo)) {
+        const cur = porNom.get(x.name);
+        if (!cur || LIBROS[x.source][1] > LIBROS[cur.source][1]) porNom.set(x.name, x);
+      }
+      return { titulo: p.name, items: [...porNom.values()].map((x: any) => ({ nombre: x.name, requisito: (x.prerequisite || []).map((q: any) => q.level ? `nivel ${q.level.level ?? q.level}` : '').filter(Boolean).join(', '), texto: plano(x.entries) }))
+        .sort((a: any, b: any) => a.nombre.localeCompare(b.nombre)) };
+    }).filter((o: any) => o.items.length);
+    return {
+      nombre: s0.name, corto: s0.shortName, fuente: s0.source, libro: libro(s0.source), anio: LIBROS[s0.source][1],
+      rasgos: (s.subclassFeatures || []).map((ref: string) => { const f = buscarSub(ref); return f && { n: f.level, nombre: f.name, texto: plano(f.entries) }; }).filter(Boolean),
+      ...(opciones.length ? { opciones } : {}),
+    };
+  }).sort((a, b) => a.nombre.localeCompare(b.nombre));
 
   // Opciones que se eligen de una lista, solo en su versión 2024 o posterior
   let opciones: Oficial['opciones'];
   if (OPCIONES[clase]) {
-    const o = await json('optionalfeatures.json');
+    const o = of;
     const req = (x: any) => (x.prerequisite || []).map((p: any) => [
       p.level && `nivel ${p.level.level ?? p.level}`, p.pact && `Pacto ${p.pact}`,
       p.optionalfeature && `requiere ${p.optionalfeature.map((r: string) => r.split('|')[0]).join(' o ')}`,

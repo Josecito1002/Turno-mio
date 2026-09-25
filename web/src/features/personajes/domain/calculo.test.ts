@@ -668,4 +668,31 @@ describe('Guerrero 2024 (Lote 11)', () => {
     assert.match(entrada(gue(5, 'lib:caballero-dragon-purpura', { car: 14 }), 'Recuperación Grupal').texto, /2 aliado\(s\) a 30 pies recuperan 1d4 \+ 5/);
     assert.match(entrada(gue(15, 'lib:arquero-arcano'), 'Disparo Arcano').texto, /1d10/);
   });
+  test('Arquero Arcano: disparos conocidos 2 a 6 y solo salen los elegidos, con su CD', () => {
+    const c = gue(7, 'lib:arquero-arcano', { int: 16 }, { elecciones: { 'disparo-arcano': ['sombra', 'explosivo'] } });
+    assert.equal(c.elecciones.find((e: any) => e.id === 'disparo-arcano').max, 3);
+    assert.equal(gue(18, 'lib:arquero-arcano').elecciones.find((e: any) => e.id === 'disparo-arcano').max, 6);
+    assert.match(entrada(c, 'Disparo de Sombra').texto, /1d6 .*CD 14/);
+    assert.equal(c.entries.some((e: any) => e.nombre === 'Disparo Buscador'), false);
+  });
+  test('Campeón: el estilo adicional del nivel 7 suma su efecto', () => {
+    const sin = gue(7, 'lib:campeon', { des: 10 }, { estilo: 'duelo', armadura: 'cuero' });
+    const con = gue(7, 'lib:campeon', { des: 10 }, { estilo: 'duelo', armadura: 'cuero', elecciones: { 'estilo-campeon': 'defensa' } });
+    assert.equal(con.ac, sin.ac + 1);
+    assert.equal(con.elecciones.find((e: any) => e.id === 'estilo-campeon').opciones.some((o: any) => o.key === 'duelo'), false);
+    assert.equal(gue(6, 'lib:campeon', { des: 10 }, { estilo: 'duelo', armadura: 'cuero', elecciones: { 'estilo-campeon': 'defensa' } }).ac, sin.ac);
+  });
+  test('Samurái y Caballero Rúnico: usos, PG temporales, runas por nivel y dado de gigante', () => {
+    assert.equal(usos(gue(3, 'lib:samurai'), 'Espíritu de Lucha'), 3);
+    assert.match(entrada(gue(10, 'lib:samurai'), 'Espíritu de Lucha').texto, /10 PG temporales/);
+    const r = gue(3, 'lib:caballero-runico', { con: 14 }, { elecciones: { runas: ['fuego'] } });
+    assert.equal(usos(r, 'Poder de Gigante'), 2);
+    assert.match(entrada(r, 'Poder de Gigante').texto, /1d6/);
+    assert.match(entrada(r, 'Runa de Fuego').texto, /CD 12/);
+    assert.equal(usos(r, 'Runa de Fuego'), 1);
+    assert.equal(r.elecciones.find((e: any) => e.id === 'runas').opciones.some((o: any) => o.key === 'tormenta'), false);
+    const r15 = gue(15, 'lib:caballero-runico', {}, { elecciones: { runas: ['nube'] } });
+    assert.equal(usos(r15, 'Runa de Nube'), 2);
+    assert.equal(r15.elecciones.find((e: any) => e.id === 'runas').max, 5);
+  });
 });

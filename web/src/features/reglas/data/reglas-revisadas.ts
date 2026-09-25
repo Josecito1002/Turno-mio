@@ -7,6 +7,7 @@ import { CLASES, INVOCACIONES } from './clases';
 import { REGLAS_GENERADAS } from './generadas';
 import { todosConjuros } from '@/features/biblioteca/domain/biblioteca';
 import { conjuroDeLaLista } from '../domain/restricciones';
+import { ESTILOS } from './estilos';
 const HABS_GUERRERO: string[] = CLASES.guerrero.habs;
 const NOMBRE_AB = {fue:'Fuerza', des:'Destreza', con:'Constitución', int:'Inteligencia', sab:'Sabiduría', car:'Carisma'};
 
@@ -255,6 +256,30 @@ const MANIOBRAS: [string, string, string, (c: any) => string][] = [
   ['ataque-barrido', 'Ataque de Barrido', 'gratis', c => `Al acertar cuerpo a cuerpo, otra criatura a 5 pies del objetivo y a tu alcance recibe 1${dadoSup(c)} de daño del mismo tipo si tu tirada también la habría acertado.`],
   ['eval-tactica', 'Evaluación Táctica', 'gratis', c => `Sumas 1${dadoSup(c)} a una prueba de Historia, Investigación o Perspicacia.`],
   ['ataque-derribo', 'Ataque de Derribo', 'gratis', c => `Al acertar, sumas 1${dadoSup(c)} al daño y, si es Grande o menor, el objetivo hace una salvación de FUE (CD ${cdManiobra(c)}) o queda Derribado.`],
+];
+
+/* Disparos Arcanos (Arcana Unleashed 2026): [clave, nombre, tipo, texto] */
+const cdArcano = c => 8 + c.pb + c.m.int;
+const DISPAROS_ARCANOS: [string, string, string, (c: any) => string][] = [
+  ['desterrador', 'Disparo Desterrador', 'gratis', c => `El objetivo recibe 1${dadoArcano(c)} de daño psíquico extra y hace una salvación de CAR (CD ${cdArcano(c)}); si falla, queda apartado en un semiplano: Incapacitado y con velocidad 0, y vuelve a su sitio (o al más cercano libre) al terminar su siguiente turno.`],
+  ['hechizante', 'Disparo Hechizante', 'gratis', c => `El objetivo recibe 2${dadoArcano(c)} de daño psíquico extra y hace una salvación de SAB (CD ${cdArcano(c)}); si falla, queda Hechizado hasta el inicio de tu próximo turno, por ti o por un aliado a 30 pies de él (tú eliges). Se rompe si ese encantador lo ataca, lo daña o le fuerza una salvación.`],
+  ['explosivo', 'Disparo Explosivo', 'gratis', c => `Tras dañar al objetivo, él y cada criatura en una emanación de 10 pies a su alrededor reciben 2${dadoArcano(c)} de daño de fuerza.`],
+  ['debilitador', 'Disparo Debilitador', 'gratis', c => `El objetivo recibe 2${dadoArcano(c)} de daño necrótico extra y hace una salvación de CON (CD ${cdArcano(c)}); si falla, queda Envenenado hasta el final de su siguiente turno, y cada vez que acierte un ataque resta 1${dadoArcano(c)} a su daño.`],
+  ['atrapador', 'Disparo Atrapador', 'gratis', c => `El objetivo recibe 1${dadoArcano(c)} de daño cortante extra y hace una salvación de FUE (CD ${cdArcano(c)}); si falla, unas zarzas lo dejan Apresado 1 minuto o hasta que vuelvas a usar este disparo. Él u otro a su alcance puede usar una acción para una prueba de FUE (Atletismo) contra esa CD y liberarlo.`],
+  ['perforante', 'Disparo Perforante', 'gratis', c => `No tiras ataque: el proyectil recorre una línea de 30 pies por 1 de ancho desde ti, atravesando cobertura. Cada criatura en ella hace una salvación de DES (CD ${cdArcano(c)}); si falla, recibe el daño del arma más 2${dadoArcano(c)} de daño perforante, y si la supera, la mitad.`],
+  ['buscador', 'Disparo Buscador', 'gratis', c => `No tiras ataque: eliges una criatura que hayas visto en el último minuto y el proyectil la persigue, doblando esquinas e ignorando cobertura media y de tres cuartos. Si está dentro del alcance largo, hace una salvación de DES (CD ${cdArcano(c)}); si falla, recibe el daño del arma más 2${dadoArcano(c)} de daño de fuerza y sabes dónde está, y si la supera, solo la mitad del daño.`],
+  ['sombra', 'Disparo de Sombra', 'gratis', c => `El objetivo recibe 1${dadoArcano(c)} de daño psíquico extra y hace una salvación de SAB (CD ${cdArcano(c)}); si falla, queda Cegado hasta el final de su siguiente turno.`],
+];
+/* Runas del Caballero Rúnico (Tasha 2020): [clave, nombre, tipo, nivel, texto]; se invocan una vez por descanso (dos desde el nivel 15) */
+const cdRuna = c => 8 + c.pb + c.m.con;
+const dadoGigante = c => c.lvl >= 18 ? '1d10' : c.lvl >= 10 ? '1d8' : '1d6';
+const RUNAS: [string, string, string, number, (c: any) => string][] = [
+  ['nube', 'Runa de Nube', 'reaccion', 3, () => 'Pasiva: ventaja en Juego de Manos y Engaño. Al invocarla: cuando aciertan un ataque a ti o a alguien que veas a 30 pies, desvías ese ataque (con la misma tirada) a otra criatura a 30 pies de ti que no sea el atacante.'],
+  ['fuego', 'Runa de Fuego', 'gratis', 3, c => `Pasiva: duplicas tu bonificador de competencia en pruebas con herramientas en las que seas competente. Al invocarla: al acertar con un arma, el objetivo recibe 2d6 de fuego extra y hace una salvación de FUE (CD ${cdRuna(c)}) o queda Apresado por grilletes de fuego 1 minuto, recibiendo 2d6 de fuego al inicio de cada turno suyo; repite la salvación al final de cada turno.`],
+  ['escarcha', 'Runa de Escarcha', 'adicional', 3, () => 'Pasiva: ventaja en Trato con Animales e Intimidación. Al invocarla: durante 10 minutos sumas +2 a pruebas y salvaciones de FUE y CON.'],
+  ['piedra', 'Runa de Piedra', 'reaccion', 3, c => `Pasiva: ventaja en Perspicacia y visión en la oscuridad a 120 pies. Al invocarla: cuando una criatura que veas termina su turno a 30 pies, hace una salvación de SAB (CD ${cdRuna(c)}) o queda Hechizada por ti 1 minuto, con velocidad 0 e Incapacitada; repite la salvación al final de cada turno suyo.`],
+  ['colina', 'Runa de Colina', 'adicional', 7, () => 'Pasiva: ventaja en salvaciones contra quedar Envenenado y resistencia al daño de veneno. Al invocarla: durante 1 minuto tienes resistencia al daño contundente, perforante y cortante.'],
+  ['tormenta', 'Runa de Tormenta', 'adicional', 7, () => 'Pasiva: ventaja en Arcanos y no te pueden sorprender mientras no estés Incapacitado. Al invocarla: durante 1 minuto, cuando tú u otra criatura que veas a 60 pies hace un ataque, una salvación o una prueba, puedes usar tu reacción para darle ventaja o desventaja.'],
 ];
 
 export const REGLAS: any[] = [
@@ -1164,12 +1189,32 @@ export const REGLAS: any[] = [
   /* Campeón */
   {de:/^campeon$/, n:/^superviviente$/, t:'pasiva',
     texto: c => `Tienes ventaja en las salvaciones de muerte, y un 18 o 19 cuenta como 20. Al empezar tu turno Maltrecho y con al menos 1 PG, recuperas ${Math.max(0, 5 + c.m.con)} PG (5 + CON).`},
+  {de:/^campeon$/, n:/^estilo de combate adicional$/, t:'pasiva',
+    texto: () => 'Ganas un segundo estilo de combate, distinto del que ya tienes. Elígelo en el paso Clase; su efecto ya se suma.',
+    eleccion: {id:'estilo-campeon', titulo:'Estilo de combate adicional',
+      opciones: c => (c.C?.estilos || []).filter(k => k !== c.estilo && ESTILOS[k]).map(k => ({key:k, nombre:ESTILOS[k][0], desc:ESTILOS[k][2]}))}},
   /* Arquero Arcano */
-  {de:/^arquero arcano$/, n:/^disparo arcano$/, t:'gratis', usos: c => Math.max(1, c.m.int), reset:'corto',
-    texto: c => `Una vez por turno, al atacar a distancia con un arma con munición, aplicas una de tus opciones de Disparo Arcano (2, y una más en los niveles 7, 10, 15 y 18). Tu dado de Disparo Arcano es 1${dadoArcano(c)} y la CD es ${8 + c.pb + c.m.int} (INT).`},
+  {de:/^arquero arcano$/, n:/^disparo arcano$/, t:'pasiva', usos: c => Math.max(1, c.m.int), reset:'corto',
+    texto: c => `Una vez por turno, al acertar y dañar con un ataque a distancia con un arma con munición, aplicas uno de tus Disparos Arcanos (gasta un uso). Tu dado de Disparo Arcano es 1${dadoArcano(c)} y la CD es ${cdArcano(c)} (INT). Elige tus disparos en el paso Clase.`,
+    eleccion: {id:'disparo-arcano', titulo:'Disparos Arcanos', max: c => c.lvl >= 18 ? 6 : c.lvl >= 15 ? 5 : c.lvl >= 10 ? 4 : c.lvl >= 7 ? 3 : 2,
+      opciones: DISPAROS_ARCANOS.map(([key, nombre]) => ({key, nombre}))},
+    opciones: DISPAROS_ARCANOS.map(([key, nombre, t, texto]) => ({nombre, t, coste:'1 uso de Disparo Arcano', elegida:['disparo-arcano', key],
+      si: c => [].concat(c.pj?.elecciones?.['disparo-arcano'] || []).includes(key), texto}))},
   /* Abanderado (antes Caballero del Dragón Púrpura) */
   {de:/^abanderado$/, n:/^recuperacion grupal$/, t:'gratis', usos:1, reset:'corto',
     texto: c => `Al usar Segundo Aliento para curarte, hasta ${Math.max(1, c.m.car)} aliado(s) a ${c.lvl >= 18 ? 60 : 30} pies recuperan 1d4 + ${c.lvl} PG cada uno.`},
+  /* Samurái (Xanathar 2017) */
+  {de:/^samurai$/, n:/^espiritu de lucha$/, t:'adicional', usos:3, reset:'largo',
+    texto: c => `Tienes ventaja en tus ataques con arma hasta el final del turno y ganas ${c.lvl >= 15 ? 15 : c.lvl >= 10 ? 10 : 5} PG temporales.`},
+  /* Caballero Rúnico (Tasha 2020): runas conocidas (2, 3 en nivel 7, 4 en 10 y 5 en 15) y Poder de Gigante */
+  {de:/^caballero runico$/, n:/^tallador de runas$/, t:'pasiva',
+    texto: c => `Al terminar un descanso largo inscribes cada runa que conoces en un objeto distinto que lleves (arma, armadura, escudo, joya...). Cada runa da su efecto pasivo y se puede invocar ${c.lvl >= 15 ? 'dos veces' : 'una vez'} por descanso corto o largo. La CD de tus runas es ${cdRuna(c)} (CON). Elige tus runas en el paso Clase.`,
+    eleccion: {id:'runas', titulo:'Runas', max: c => c.lvl >= 15 ? 5 : c.lvl >= 10 ? 4 : c.lvl >= 7 ? 3 : 2,
+      opciones: RUNAS.map(([key, nombre, , nivel]) => ({key, nombre, nivel}))},
+    opciones: RUNAS.map(([key, nombre, t, , texto]) => ({nombre, t, usos: c => c.lvl >= 15 ? 2 : 1, reset:'corto', elegida:['runas', key],
+      si: c => [].concat(c.pj?.elecciones?.runas || []).includes(key), texto}))},
+  {de:/^caballero runico$/, n:/^poder de gigante$/, t:'adicional', usos:'pb', reset:'largo',
+    texto: c => `Durante 1 minuto creces a Grande${c.lvl >= 18 ? ' (o Enorme, con 5 pies más de alcance)' : ''} si hay espacio, tienes ventaja en pruebas y salvaciones de FUE, y una vez por turno un ataque con arma o golpe sin armas que acierte hace ${dadoGigante(c)} de daño extra.`},
   /* Guerrero Psiónico: dados de energía psiónica (recuperas 1 con descanso corto y todos con uno largo) */
   {de:/^guerrero psionico$/, n:/^poder psionico$/, t:'pasiva', usos: c => c.lvl >= 17 ? 12 : c.lvl >= 13 ? 10 : c.lvl >= 9 ? 8 : c.lvl >= 5 ? 6 : 4, reset:'corto1', coste:'1 vuelve con descanso corto, todos con uno largo',
     texto: c => `Tus dados de energía psiónica son ${dadoPsi(c)}. Recuperas uno al terminar un descanso corto y todos al terminar uno largo.`},
