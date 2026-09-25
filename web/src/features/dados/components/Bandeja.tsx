@@ -29,8 +29,9 @@ const EXTRA_T: Record<string, string> = { adicional: 'acción adicional', gratis
 type Estado = { r: Resultado; rolling: boolean; caras: number[]; seq: number };
 
 /** Bandeja de dados. Cualquier botón con data-roll en la página tira al tocarlo. */
-/** `gastar(id)`: gasta un recurso del personaje (un espacio de conjuro) antes de tirar un extra que lo pide; false si no queda. */
-export function BandejaDados({ children, gastar }: { children: ReactNode; gastar?: (id: string) => boolean }) {
+/** `gastar(id)`: gasta un recurso del personaje (un espacio de conjuro) antes de tirar un extra que lo pide; false si no queda.
+    `quedan(id)`: si al recurso le queda algún uso, para no ofrecer lo que ya no se puede pagar. */
+export function BandejaDados({ children, gastar, quedan }: { children: ReactNode; gastar?: (id: string) => boolean; quedan?: (id: string) => boolean }) {
   const [st, setSt] = useState<Estado | null>(null);
   const [abierta, setAbierta] = useState(false);
   const [hist, setHist] = useState<Resultado[]>([]);
@@ -52,7 +53,8 @@ export function BandejaDados({ children, gastar }: { children: ReactNode; gastar
         res(r);
       };
       if (reduce || !r.groups.length) { finish(); return; }
-      const girar = () => r.groups.flatMap(g => g.vals.map(() => rnd(g.d)));
+      // El dado conservado (ventaja o desventaja sobre una tirada ya hecha) no gira
+      const girar = () => r.groups.flatMap(g => g.vals.map((v, i) => (o.previo && g.d === 20 && i === 0 ? v : rnd(g.d))));
       setSt({ r, rolling: true, caras: girar(), seq: mySeq });
       let t = 0;
       timer.current = setInterval(() => {
@@ -86,7 +88,7 @@ export function BandejaDados({ children, gastar }: { children: ReactNode; gastar
   const critico = !!r && (r.nat === 20 || !!o.crit);
   // Lo que pide ventaja (Ataque Furtivo) solo se ofrece si la tirada de ataque fue con ventaja; en el daño, si lo fue el ataque
   const conVentaja = (o.adv || 0) > 0 || !!o.conVentaja;
-  const extrasVis = (o.extras || []).filter(x => x.requiere !== 'ventaja' || conVentaja);
+  const extrasVis = (o.extras || []).filter(x => (x.requiere !== 'ventaja' || conVentaja) && (!x.gasta || !quedan || quedan(x.gasta)));
   const sinVentaja = o.dmg && (o.adv || 0) >= 0 && !conVentaja ? (o.extras || []).filter(x => x.requiere === 'ventaja') : [];
   const botones: [string, string][] = [];
   let desc = '';
@@ -102,7 +104,8 @@ export function BandejaDados({ children, gastar }: { children: ReactNode; gastar
   }
   const accion = (a: string) => {
     if (!r) return;
-    if (a === 'adv' || a === 'dis') tirar(r.expr, r.label!, { ...o, adv: a === 'adv' ? 1 : -1 });
+    // Se conserva el d20 que ya salió y solo se tira el segundo
+    if (a === 'adv' || a === 'dis') tirar(r.expr, r.label!, { ...o, adv: a === 'adv' ? 1 : -1, previo: r.nat ?? undefined });
     if (a === 'again') tirar(r.expr, r.label!, o);
     if (a === 'dmg' || a === 'crit') tirar(o.dmg!, o.dmgLabel || 'Daño', { min3: o.dmgMin3, crit: a === 'crit', extras: o.extras, conVentaja: (o.adv || 0) > 0 });
   };

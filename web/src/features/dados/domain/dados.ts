@@ -1,6 +1,7 @@
 export type Termino = { n: number; d: number; s: number } | { k: number };
 export type OpcionesTirada = {
-  adv?: number; crit?: boolean; keep?: number; min3?: boolean; neutral?: boolean; noRepeat?: boolean;
+  /** previo: el d20 que ya salió; con ventaja o desventaja se conserva y solo se tira el segundo */
+  adv?: number; previo?: number; crit?: boolean; keep?: number; min3?: boolean; neutral?: boolean; noRepeat?: boolean;
   dmg?: string; dmgLabel?: string; dmgMin3?: boolean; conVentaja?: boolean;
   /** Lo que puede seguir a un ataque (rasgos al acertar, acciones adicionales), para ofrecerlo tras la tirada */
   extras?: { nombre: string; t: string; expr: string; atk?: string; gasta?: string; requiere?: 'ventaja' }[];
@@ -34,7 +35,7 @@ export function resolver(expr: string, o: OpcionesTirada): Resultado {
     const n = t.n * (o.crit ? 2 : 1);
     let vals = Array.from({ length: n }, () => rnd(t.d)), kept = vals.map(() => true);
     if (t.d === 20 && n === 1 && o.adv) {
-      vals = [rnd(20), rnd(20)];
+      vals = [o.previo || rnd(20), rnd(20)];
       const i = o.adv > 0 ? (vals[0] >= vals[1] ? 0 : 1) : (vals[0] <= vals[1] ? 0 : 1);
       kept = [i === 0, i === 1];
     }
