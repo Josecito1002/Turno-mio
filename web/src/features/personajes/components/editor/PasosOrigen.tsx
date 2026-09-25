@@ -139,7 +139,8 @@ export function PasoClase({ pj, c }: { pj: any; c: any }) {
         {C.estilo && c.lvl >= C.estilo && <ElegirEstilo pj={pj} c={c} />}
       </div>
       <ElegirElecciones pj={pj} elecciones={(c.elecciones || []).filter((e: any) => e.grupo === 'clase')} />
-      {pj.clase === 'brujo' && <Casilla path="pactoCadena" checked={pj.pactoCadena}>Tiene la invocación Pacto de la Cadena</Casilla>}
+      {/* El Pacto de la Cadena ahora se elige como invocación; la casilla solo queda para quien ya la tenía marcada */}
+      {pj.clase === 'brujo' && pj.pactoCadena && <Casilla path="pactoCadena" checked={pj.pactoCadena}>Pacto de la Cadena (casilla antigua: ahora elígelo en Invocaciones)</Casilla>}
       <Seccion titulo="Subclase" descripcion={c.lvl < c.subNivel ? `La eliges al llegar a nivel ${c.subNivel}.` : 'Toca una para ver qué da en cada nivel.'}>
         <ElegirSubclase pj={pj} c={c} />
       </Seccion>

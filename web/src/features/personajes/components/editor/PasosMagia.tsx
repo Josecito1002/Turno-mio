@@ -176,7 +176,7 @@ export function PasoRasgos({ pj }: { pj: any }) {
   const agregar = () => { const r = leerRasgo('r'); if (!r) return; pj.rasgosExtra.push(r); savePj(); render(); avisar(`${r.nombre} agregado.`); };
   return (
     <>
-      <p className="mt-2">Habilidades de tu personaje que la app no trae: invocaciones de brujo, poderes de objetos mágicos o regalos de tu DM.</p>
+      <p className="mt-2">Habilidades de tu personaje que la app no trae: poderes de objetos mágicos, regalos de tu DM o reglas de la casa.</p>
       <Lista etiqueta="Rasgos propios">
         {pj.rasgosExtra.length ? pj.rasgosExtra.map((r: any, i: number) => (
           <Fila key={i}>

@@ -1259,54 +1259,373 @@
      "n": "El No Muerto",
      "rasgos": [
       {
-       "nombre": "Lista de Conjuros Ampliada",
+       "nombre": "Conjuros del No Muerto",
        "t": "pasiva",
-       "texto": "El No Muerto te permite elegir entre una lista de conjuros ampliada cuando aprendes un conjuro de brujo. Los siguientes conjuros se añaden a la lista de conjuros de brujo para ti. Nivel 1: Falsa Vida, Perdición. Nivel 2: Fuerza Fantasmal, Sordera/Ceguera. Nivel 3: Corcel Fantasma, Hablar con los Muertos. Nivel 4: Escudo de Fuego, Nube Aniquiladora. Nivel 5: Caparazón Antivida, Nube Aniquiladora Mejorada.",
-       "n": 1,
+       "texto": "Siempre tienes preparados los conjuros de tu patrón, que se amplían en los niveles 5, 7 y 9.",
+       "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Forma del Terror",
        "t": "adicional",
-       "texto": "Manifiestas un aspecto del terrorífico poder de tu patrón. Como Acción Adicional, puedes transformarte durante 1 minuto. Mientras estés transformado, obtienes los siguientes beneficios: obtienes una cantidad de Puntos de Golpe temporales igual a 1d10 + tu nivel de brujo; una vez durante cada uno de tus turnos, cuando impactes a una criatura con una tirada de ataque, podrás obligarla a realizar una tirada de salvación de Sabiduría y, si la falla, el objetivo queda Asustado de ti hasta el final de tu siguiente turno; eres inmune al estado de Asustado. Puedes transformarte una cantidad de veces igual a tu bonificador de competencia y recuperas todos los usos tras finalizar un Descanso Largo. La apariencia de tu Forma del Terror refleja algún aspecto de tu patrón.",
-       "n": 1,
+       "texto": "Te transformas durante 1 minuto en un avatar del poder de tu patrón: ganas PG temporales, eres inmune a quedar Asustado (y dejas de estarlo) y, una vez por turno al acertar con una tirada de ataque, el objetivo hace una salvación de SAB o queda Asustado hasta el final de tu próximo turno. Acaba antes si quedas Incapacitado o si la terminas.",
+       "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Toque Sepulcral",
        "t": "pasiva",
-       "texto": "Los poderes de tu patrón ejercen un profundo efecto sobre tu cuerpo y tu magia. No necesitas comer, beber ni respirar. Además, una vez durante cada uno de tus turnos, cuando impactes con una tirada de ataque a una criatura y realices la tirada de daño contra ella, puedes sustituir el tipo de daño por daño necrótico. Mientras estés usando tu Forma del Terror, podrás tirar un dado de daño adicional al determinar el daño necrótico que recibe el objetivo.",
+       "texto": "Tu daño necrótico de ataques, conjuros y rasgos de brujo ignora la resistencia al necrótico, y una vez por turno puedes cambiar a necrótico el daño de un conjuro. En Forma del Terror, al hacer daño necrótico con una tirada de ataque tiras un dado de daño más (una vez por turno). No sufres cansancio por hambre, sed ni asfixia, no necesitas dormir y la magia no puede dormirte.",
        "n": 6,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Cáscara Necrótica",
-       "t": "reaccion",
-       "texto": "Tu cuerpo se ve saturado por tu conexión con la muerte en vida y la energía necrótica. Tienes resistencia al daño necrótico. Si te has transformado usando tu Forma del Terror, en vez de eso, te vuelves inmune al daño necrótico. Además, cuando tus Puntos de Golpe fueran a reducirse a 0, puedes usar tu reacción para quedarte con 1 Punto de Golpe y hacer que de tu cuerpo brote una energía mortífera. Cada criatura de tu elección que esté a 30 pies o menos de ti recibe una cantidad de daño necrótico igual a 2d10 + tu nivel de brujo. Luego tú sumas 1 nivel de cansancio. Cuando uses esta reacción, no podrás volver a hacerlo hasta que finalices 1d4 Descansos Largos.",
+       "t": "pasiva",
+       "texto": "Resistencia al daño necrótico, e inmunidad mientras estás en Forma del Terror. Si caes a 0 PG sin morir, puedes estallar en energía necrótica (sale aparte).",
        "n": 10,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Proyección Espiritual",
-       "t": "accion",
-       "texto": "Tu espíritu puede separarse de tu forma física. Como acción, puedes proyectar tu espíritu fuera de tu cuerpo. El cuerpo que dejas atrás queda Inconsciente y está en un estado de animación suspendida. Tu espíritu se parece a tu forma mortal en casi todo y replica tu perfil de juego, pero no tus posesiones. Cualquier daño u otros efectos que se apliquen a tu espíritu o a tu cuerpo físico afectarán al otro. Tu espíritu puede permanecer fuera de tu cuerpo hasta 1 hora o hasta que se rompa tu concentración (como si te estuvieras concentrando en un conjuro). Cuando termine tu proyección, tu espíritu regresará a tu cuerpo o tu cuerpo se teletransportará mágicamente al espacio de tu espíritu (a tu elección). Mientras proyectes tu espíritu, tanto tu espíritu como tu cuerpo obtienen resistencia al daño.",
+       "nombre": "Terror Superior",
+       "t": "pasiva",
+       "texto": "En Forma del Terror tienes resistencia al daño contundente, cortante y perforante; vuelas a tu velocidad, flotas y atraviesas criaturas y objetos como terreno difícil (1d10 de fuerza si acabas el turno dentro de uno); y lanzas tus conjuros de brujo de conjuración y nigromancia sin componentes, salvo los materiales con coste o que se consumen.",
        "n": 14,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
+      }
+     ]
+    },
+    "vestigio": {
+     "n": "El Vestigio",
+     "rasgos": [
+      {
+       "nombre": "Compañero Vestigio",
+       "t": "pasiva",
+       "texto": "Se manifiesta el vestigio de un dios moribundo que te acompaña y obedece. Eliges si es celestial, infernal o no muerto; puedes cambiar su forma y su tipo al terminar un descanso largo.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Conjuros del Vestigio",
+       "t": "pasiva",
+       "texto": "Eliges un dominio de clérigo (Vida, Luz, Engaño o Guerra): sus conjuros de dominio son conjuros de brujo para ti y los tienes siempre preparados según tu nivel de brujo.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Poder del Vestigio",
+       "t": "pasiva",
+       "texto": "Tu vestigio recupera su Poder Divino al terminar un descanso corto o largo o cuando usas Astucia Mágica. A 30 pies de él tienes resistencia a los mismos tipos de daño que él.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Recuperación del Vestigio",
+       "t": "reaccion",
+       "texto": "Cuando tu vestigio va a caer a 0 PG, gastas un espacio de pacto para que vuelva a sus PG máximos y se teletransporte a 30 pies. Una vez por descanso largo.",
+       "n": 10,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Apariencia de Vida",
+       "t": "accion",
+       "texto": "Con una acción mágica, estando tu vestigio a 90 pies, lo transformas durante 1 hora en el espíritu de Invocar celestial, Invocar infernal o Invocar muerto viviente según su tipo (a nivel de conjuro igual a la mitad de tu nivel de brujo). Conserva su personalidad, su Poder Divino y sus PG, y gana PG temporales iguales a los del espíritu. Una vez por descanso largo.",
+       "n": 14,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "filo-maldito": {
+     "n": "El Filo Maldito",
+     "rasgos": [
+      {
+       "nombre": "Lista Ampliada del Filo Maldito",
+       "t": "pasiva",
+       "texto": "Estos conjuros se suman a tu lista de brujo (no quedan preparados solos): Escudo y Castigo iracundo; Desenfocar y Castigo marcador; Parpadeo y Arma elemental; Asesino fantasmal y Castigo abrumador; Castigo desterrador y Cono de frío.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Guerrero Maleficio",
+       "t": "pasiva",
+       "texto": "Competencia con armaduras medias, escudos y armas marciales. Al terminar un descanso largo tocas un arma con la que seas competente y sin la propiedad Dos manos: hasta tu siguiente descanso largo atacas con ella usando CAR. Si tienes el Pacto del Filo, vale para cualquier arma de pacto que conjures.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Maldición del Filo Maldito",
+       "t": "adicional",
+       "texto": "Maldices durante 1 minuto a una criatura que veas a 30 pies: sumas tu bonificador de competencia al daño contra ella, le haces crítico con 19 o 20, y si muere recuperas PG. Acaba si ella muere, si mueres o si quedas Incapacitado. Una vez por descanso corto o largo.",
+       "n": 3,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
+      },
+      {
+       "nombre": "Espectro Maldito",
+       "t": "gratis",
+       "texto": "Cuando matas a un humanoide, puedes alzar su espíritu como un espectro a tus órdenes hasta tu siguiente descanso largo, con PG temporales y un bonificador de ataque extra igual a tu CAR. Una vez por descanso largo.",
+       "n": 6,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Armadura de Maleficios",
+       "t": "reaccion",
+       "texto": "Cuando te acierta la criatura con tu Maldición del Filo Maldito, tiras 1d6: con 4 o más el ataque falla.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Maestro de Maleficios",
+       "t": "gratis",
+       "texto": "Cuando muere la criatura con tu Maldición del Filo Maldito, puedes pasar la maldición a otra criatura que veas a 30 pies (entonces no recuperas PG por la muerte de la primera).",
+       "n": 14,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "genio": {
+     "n": "El Genio",
+     "rasgos": [
+      {
+       "nombre": "Lista Ampliada del Genio",
+       "t": "pasiva",
+       "texto": "Estos conjuros se suman a tu lista de brujo (no quedan preparados solos): Detectar el bien y el mal (1), Fuerza fantasmal (2), Crear comida y agua (3), Asesino fantasmal (4), Creación (5) y Deseo (9), más los de tu tipo de genio.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Recipiente del Genio",
+       "t": "pasiva",
+       "texto": "Tu patrón te da un objeto Diminuto (una lámpara, una urna, un anillo...) que te sirve de foco de conjuros. Su CA es tu CD de conjuros y es inmune al daño de veneno y psíquico. Si lo pierdes, con un ritual de 1 hora en un descanso tu patrón te da otro.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Respiro Embotellado",
+       "t": "accion",
+       "texto": "Tocando tu recipiente, desapareces dentro de él: un espacio cómodo de 20 pies de radio desde el que oyes lo que pasa fuera. Sales con acción adicional, si mueres o si se destruye el recipiente. Una vez por descanso largo.",
+       "n": 3,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Ira del Genio",
+       "t": "gratis",
+       "texto": "Una vez en cada uno de tus turnos, al acertar con una tirada de ataque, haces daño extra igual a tu bonificador de competencia, del tipo de tu genio.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Don Elemental",
+       "t": "pasiva",
+       "texto": "Tienes resistencia al tipo de daño de tu genio. Además puedes darte vuelo (sale aparte).",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Recipiente Santuario",
+       "t": "pasiva",
+       "texto": "Al entrar en tu recipiente puedes llevar hasta cinco criaturas voluntarias a 30 pies (las sacas con acción adicional). Quien pase 10 minutos dentro obtiene los beneficios de un descanso corto y suma tu bonificador de competencia a los PG que recupere con Dados de Golpe allí.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Deseo Limitado",
+       "t": "accion",
+       "texto": "Pides a tu patrón el efecto de un conjuro de nivel 6 o menor, de cualquier lista, que se lance con una acción, sin cumplir sus requisitos ni gastar componentes costosos. Después no puedes volver a usarlo hasta completar 1d4 descansos largos.",
+       "n": 14,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "insondable": {
+     "n": "El Insondable",
+     "rasgos": [
+      {
+       "nombre": "Lista Ampliada del Insondable",
+       "t": "pasiva",
+       "texto": "Estos conjuros se suman a tu lista de brujo (no quedan preparados solos): Crear o destruir agua y Onda atronadora; Ráfaga de viento y Silencio; Relámpago y Tormenta de aguanieve; Controlar agua e Invocar elemental (solo de agua); Mano de Bigby (con forma de tentáculo) y Cono de frío.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Don del Mar",
+       "t": "pasiva",
+       "texto": "Tienes velocidad de nadar de 40 pies y respiras bajo el agua.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Tentáculo de las Profundidades",
+       "t": "adicional",
+       "texto": "Creas un tentáculo espectral de 10 pies en un punto que veas a 60 pies, que dura 1 minuto, y haces con él un ataque de conjuro cuerpo a cuerpo contra una criatura a 10 pies (en Ataques). Con acción adicional lo mueves 30 pies y repites el ataque.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Espiral Guardiana",
+       "t": "reaccion",
+       "texto": "Cuando tú o una criatura que ves a 10 pies de tu tentáculo recibe daño, reduces ese daño.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Alma Oceánica",
+       "t": "pasiva",
+       "texto": "Tienes resistencia al daño de frío. Estando sumergido, te entiendes con cualquier criatura que también lo esté.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Tentáculos Aferradores",
+       "t": "accion",
+       "texto": "Aprendes Tentáculos negros de Evard, que no cuenta en tu límite; una vez por descanso largo lo lanzas sin gastar espacio. Al lanzarlo ganas PG temporales iguales a tu nivel de brujo, y el daño no rompe tu concentración en él.",
+       "n": 10,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Zambullida Insondable",
+       "t": "accion",
+       "texto": "Te teletransportas con hasta cinco criaturas voluntarias a 30 pies hasta 1 milla, a una masa de agua que hayas visto (como mínimo un estanque) o a 30 pies de ella. Una vez por descanso corto o largo.",
+       "n": 14,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
+      }
+     ]
+    },
+    "inmortal": {
+     "n": "El Inmortal",
+     "rasgos": [
+      {
+       "nombre": "Lista Ampliada del Inmortal",
+       "t": "pasiva",
+       "texto": "Estos conjuros se suman a tu lista de brujo (no quedan preparados solos): Falsa vida y Rayo nauseabundo; Sordera/Ceguera y Silencio; Fingir muerte y Hablar con los Muertos; Aura de vida y Guarda contra la Muerte; Contagio y Conocimiento legendario.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Entre los Muertos",
+       "t": "pasiva",
+       "texto": "Aprendes el truco Estabilizar, que cuenta como de brujo. Tienes ventaja en las salvaciones contra enfermedades. Si un muerto viviente te elige como objetivo de un ataque o conjuro dañino, hace una salvación de SAB contra tu CD de conjuros o tiene que elegir otro objetivo; tras la salvación (o si lo atacas) queda inmune 24 horas.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Desafiar a la Muerte",
+       "t": "gratis",
+       "texto": "Cuando superas una salvación contra la muerte o estabilizas a alguien con Estabilizar, recuperas PG. Una vez por descanso largo.",
+       "n": 6,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Naturaleza Imperecedera",
+       "t": "pasiva",
+       "texto": "Puedes contener la respiración indefinidamente y no necesitas comer, beber ni dormir (aunque sí descansar). Envejeces un año por cada diez y eres inmune al envejecimiento mágico.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Vida Indestructible",
+       "t": "adicional",
+       "texto": "Recuperas PG, y si juntas una parte de tu cuerpo cortada, se vuelve a unir. Una vez por descanso corto o largo.",
+       "n": 14,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
       }
      ]
     }
    },
    "rasgosAltos": [
     {
-     "nombre": "Arcanum Místico",
+     "nombre": "Contactar al Patrón",
+     "t": "fuera",
+     "texto": "Siempre tienes preparado Contactar con otro plano. Una vez por descanso largo lo lanzas sin gastar espacio para hablar con tu patrón, y superas su salvación automáticamente.",
+     "n": 9,
+     "manual": true,
+     "usos": 1,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Arcano Místico",
      "t": "pasiva",
-     "texto": "Conjuros de nivel 6, 7, 8 y 9 que puedes lanzar una vez al día sin gastar espacios.",
+     "texto": "Tu patrón te da un conjuro de brujo de nivel 6 que lanzas una vez por descanso largo sin gastar espacio. Ganas otro de nivel 7 en el nivel 13, de nivel 8 en el 15 y de nivel 9 en el 17. Al subir de nivel puedes cambiar uno por otro del mismo nivel.",
      "n": 11,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Maestro Sobrenatural",
+     "t": "pasiva",
+     "texto": "Cuando usas Astucia Mágica, recuperas todos tus espacios de Magia de Pacto.",
+     "n": 20,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     }
@@ -1314,53 +1633,59 @@
    "subAltos": {
     "archihada": [
      {
-      "nombre": "Escape Nebuloso",
+      "nombre": "Huida Brumosa",
       "t": "reaccion",
-      "texto": "Reacción al recibir daño para volverte invisible y teletransportarte.",
+      "texto": "Cuando recibes daño, lanzas Paso brumoso como reacción. Tus Pasos Feéricos ganan dos efectos más: Paso Evanescente (quedas Invisible hasta el inicio de tu próximo turno, o hasta que ataques, hagas daño o lances un conjuro) y Paso Temible (quien esté a 5 pies de donde sales o de donde llegas hace una salvación de SAB o recibe 2d10 de daño psíquico).",
       "n": 6,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
-      "nombre": "Defensa Atrapante",
-      "t": "pasiva",
-      "texto": "Inmune a ser hechizado; si alguien intenta hechizarte, rebota contra él.",
+      "nombre": "Defensas Cautivadoras",
+      "t": "reaccion",
+      "texto": "Eres inmune a quedar Hechizado. Justo después de que una criatura que ves te acierte, reduces el daño a la mitad y le obligas a una salvación de SAB; si falla, recibe tanto daño psíquico como el que tú recibiste. Una vez por descanso largo, o gastando un espacio de pacto para recuperarla.",
       "n": 10,
-      "usos": 0,
+      "manual": true,
+      "usos": 1,
       "reset": "largo"
      },
      {
-      "nombre": "Delirio Feérico",
-      "t": "pasiva",
-      "texto": "Sumerges a una criatura en una ilusión de terror o placer.",
+      "nombre": "Magia Hechicera",
+      "t": "gratis",
+      "texto": "Justo después de lanzar un conjuro de encantamiento o ilusión con una acción y un espacio, lanzas Paso brumoso como parte de esa acción y sin gastar espacio.",
       "n": 14,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      }
     ],
     "infernal": [
      {
-      "nombre": "Suerte del Propio Oscuro",
-      "t": "pasiva",
-      "texto": "Añade 1d10 a una prueba o salvación (1/descanso).",
-      "n": 6,
-      "usos": 1,
-      "reset": "largo"
-     },
-     {
-      "nombre": "Resiliencia Infernal",
-      "t": "pasiva",
-      "texto": "Eliges una resistencia al daño tras cada descanso.",
-      "n": 10,
-      "usos": 0,
-      "reset": "largo"
-     },
-     {
-      "nombre": "Arrojar a través del Infierno",
+      "nombre": "Suerte del Oscuro",
       "t": "gratis",
-      "texto": "Al golpear, envías al enemigo al infierno por 1 turno (10d10 daño psíquico).",
-      "n": 14,
+      "texto": "Al hacer una prueba de característica o una salvación, sumas 1d10 después de ver la tirada y antes de su efecto. Una vez por tirada.",
+      "n": 6,
+      "manual": true,
       "usos": 0,
+      "reset": "largo"
+     },
+     {
+      "nombre": "Resistencia Infernal",
+      "t": "fuera",
+      "texto": "Al terminar un descanso corto o largo eliges un tipo de daño que no sea de fuerza: tienes resistencia a él hasta que elijas otro.",
+      "n": 10,
+      "manual": true,
+      "usos": 0,
+      "reset": "largo"
+     },
+     {
+      "nombre": "Arrojar al Infierno",
+      "t": "gratis",
+      "texto": "Una vez por turno, al acertar con una tirada de ataque, el objetivo hace una salvación de CAR contra tu CD de conjuros. Si falla, desaparece por los Planos Inferiores: recibe 8d10 de daño psíquico (si no es infernal) y queda Incapacitado hasta el final de tu próximo turno, cuando vuelve. Una vez por descanso largo, o gastando un espacio de pacto para recuperarlo.",
+      "n": 14,
+      "manual": true,
+      "usos": 1,
       "reset": "largo"
      }
     ],
@@ -1368,50 +1693,65 @@
      {
       "nombre": "Alma Radiante",
       "t": "pasiva",
-      "texto": "Resistencia a daño radiante y sumas CAR al daño de fuego/radiante.",
+      "texto": "Tienes resistencia al daño radiante. Una vez por turno, cuando un conjuro tuyo hace daño radiante o de fuego, sumas tu CAR al daño contra uno de sus objetivos.",
       "n": 6,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
-      "nombre": "Vigor Celestial",
-      "t": "pasiva",
-      "texto": "Ganas muchos PV temporales tras cada descanso.",
+      "nombre": "Resiliencia Celestial",
+      "t": "fuera",
+      "texto": "Al usar Astucia Mágica o al terminar un descanso corto o largo ganas PG temporales, y hasta cinco criaturas que veas ganan la mitad.",
       "n": 10,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
-      "nombre": "Venganza Flamígera",
-      "t": "pasiva",
-      "texto": "Si caes a 0 PG, explotas con luz y te levantas con la mitad de tus PG.",
+      "nombre": "Venganza Abrasadora",
+      "t": "gratis",
+      "texto": "Cuando tú o un aliado a 60 pies vais a hacer una salvación contra la muerte, esa criatura recupera la mitad de sus PG máximos y puede dejar de estar Derribada; las criaturas que elijas a 30 pies de ella reciben daño radiante y quedan Cegadas hasta el final del turno. Una vez por descanso largo.",
       "n": 14,
-      "usos": 0,
+      "manual": true,
+      "usos": 1,
       "reset": "largo"
      }
     ],
     "primigenio": [
      {
-      "nombre": "Ward Entrópico",
-      "t": "reaccion",
-      "texto": "Reacción para imponer desventaja a un ataque y ganar ventaja tú mismo.",
+      "nombre": "Combatiente Clarividente",
+      "t": "gratis",
+      "texto": "Al formar el vínculo de Mente Despierta, la criatura hace una salvación de SAB contra tu CD de conjuros. Si falla, mientras dure el vínculo tiene desventaja al atacarte y tú ventaja al atacarla. Una vez por descanso corto o largo, o gastando un espacio de pacto para recuperarlo.",
       "n": 6,
-      "usos": 0,
-      "reset": "largo"
+      "manual": true,
+      "usos": 1,
+      "reset": "corto"
      },
      {
-      "nombre": "Escudo de Pensamiento",
+      "nombre": "Maleficio Sobrenatural",
       "t": "pasiva",
-      "texto": "Inmune a lectura de mente y resistencia a daño psíquico.",
+      "texto": "Siempre tienes Maleficio preparado. Cuando lo lanzas y eliges una característica, el objetivo también tiene desventaja en las salvaciones de esa característica mientras dure.",
       "n": 10,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
-      "nombre": "Crear Servidor",
+      "nombre": "Escudo Mental",
       "t": "pasiva",
-      "texto": "Hechizas permanentemente a un humanoide incapacitado.",
+      "texto": "Nadie puede leer tus pensamientos si no lo permites. Tienes resistencia al daño psíquico, y quien te hace daño psíquico recibe el mismo daño que tú.",
+      "n": 10,
+      "manual": true,
+      "usos": 0,
+      "reset": "largo"
+     },
+     {
+      "nombre": "Crear Siervo",
+      "t": "pasiva",
+      "texto": "Al lanzar Invocar aberración puedes hacer que no requiera concentración (dura 1 minuto). La aberración aparece con PG temporales, y la primera vez en cada turno que acierta a una criatura afectada por tu Maleficio le hace también su daño extra.",
       "n": 14,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      }

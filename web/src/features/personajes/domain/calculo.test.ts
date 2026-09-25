@@ -12,6 +12,7 @@ import { ESPECIES_2025 } from '../../../../scripts/datos/especies-2025';
 import { BARBARO_2024 } from '../../../../scripts/datos/barbaro-2024';
 import { BARDO_2024 } from '../../../../scripts/datos/bardo-2024';
 import { CLERIGO_2024 } from '../../../../scripts/datos/clerigo-2024';
+import { BRUJO_2024 } from '../../../../scripts/datos/brujo-2024';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
 import { ARMAS } from '@/features/reglas/data/equipo';
 import { EQUIPO_TRASFONDOS, kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
@@ -482,5 +483,54 @@ describe('Clérigo 2024 (Lote 8)', () => {
   test('Golpes Benditos: el texto sigue a la opción elegida', () => {
     const c = cler(14, '', { sab: 16 }, { elecciones: { 'golpes-benditos': 'golpe-divino' } });
     assert.match(entrada(c, 'Golpes Benditos').texto, /2d8/);
+  });
+});
+
+describe('Brujo 2024 (Lote 7)', () => {
+  const conjuros = { 'circulo-muerte': { nombre: 'Círculo de muerte', nivel: 6, tiempo: 'accion', clases: ['brujo', 'mago'], desc: 'Una esfera de energía negativa. Más texto.' } };
+  const bru = (nivel: number, sub = '', stats: Record<string, number> = {}, extra: Record<string, any> = {}) => { setLib({ clases: { brujo: BRUJO_2024 }, conjuros }); return pj('brujo', nivel, sub, { car: 16, ...stats }, extra); };
+  const inv = (...k: string[]) => ({ elecciones: { invocaciones: k } });
+  test('Invocaciones: cantidad según nivel y opciones con nivel y requisito', () => {
+    const el = (c: any) => c.elecciones.find((e: any) => e.id === 'invocaciones');
+    assert.equal(el(bru(1)).max, 1);
+    assert.equal(el(bru(5)).max, 5);
+    assert.ok(!el(bru(1)).opciones.some((o: any) => o.key === 'vision-diablo'));
+    assert.ok(!el(bru(5)).opciones.some((o: any) => o.key === 'filo-sediento'));
+    assert.ok(el(bru(5, '', {}, inv('pacto-filo'))).opciones.some((o: any) => o.key === 'filo-sediento'));
+  });
+  test('Armadura de Sombras y Visión del Diablo en el cálculo', () => {
+    const c = bru(2, '', { des: 14 }, inv('armadura-sombras', 'vision-diablo'));
+    assert.equal(c.ac, 15);
+    assert.equal(c.vision, 120);
+    assert.ok(entrada(c, 'Armadura de Sombras'));
+  });
+  test('Pacto del Filo: armas cuerpo a cuerpo con CAR y competencia', () => {
+    const c = bru(1, '', { fue: 10 }, { armas: [['espada_larga', 1]], ...inv('pacto-filo') });
+    assert.equal(c.armas[0].atk, c.pb + 3);
+    assert.equal(c.armas[0].notas.includes('Sin competencia'), false);
+  });
+  test('Pacto de la Cadena como invocación activa el familiar', () => {
+    assert.ok(bru(1, '', {}, inv('pacto-cadena')).chain);
+  });
+  test('Arcano Místico: selector desde el nivel 11 y uso por descanso largo', () => {
+    assert.ok(!bru(10).elecciones.some((e: any) => e.id === 'arcano-6'));
+    assert.equal(bru(11).elecciones.find((e: any) => e.id === 'arcano-6').opciones[0].nombre, 'Círculo de muerte');
+    const c = bru(11, '', {}, { elecciones: { 'arcano-6': 'circulo de muerte' } });
+    assert.equal(recurso(c, 'Arcano Místico de nivel 6')?.max, 1);
+  });
+  test('Gran Antiguo: conjuros del patrón hasta nivel 9', () => {
+    assert.equal(bru(9, 'primigenio').esExtra({ nombre: 'Telequinesis' }), true);
+    assert.equal(bru(7, 'primigenio').esExtra({ nombre: 'Telequinesis' }), false);
+  });
+  test('No Muerto: usos de Forma del Terror según CAR', () => {
+    assert.equal(recurso(bru(3, 'lib:no-muerto'), 'Forma del Terror')?.max, 3);
+  });
+  test('Vestigio: el dominio elegido da sus conjuros siempre preparados', () => {
+    assert.equal(bru(3, 'lib:vestigio', {}, { elecciones: { 'vestigio-dominio': 'guerra' } }).esExtra({ nombre: 'Arma espiritual' }), true);
+  });
+  test('Filo Maldito: arma con CAR y armas marciales', () => {
+    const c = bru(3, 'lib:filo-maldito', { fue: 10 }, { armas: [['espada_larga', 1]] });
+    assert.equal(c.armas[0].atk, c.pb + 3);
+    assert.equal(c.armas[0].notas.includes('Sin competencia'), false);
   });
 });

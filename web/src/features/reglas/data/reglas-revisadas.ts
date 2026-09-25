@@ -3,7 +3,9 @@
 import { modStr, fmtMod, sign, norm } from '@/shared/utils/texto';
 import { ARMAS, MAESTRIAS } from './equipo';
 import { opcionesCompetencia, aplicarElegidas } from '../domain/competencias';
-import { CLASES } from './clases';
+import { CLASES, INVOCACIONES } from './clases';
+import { todosConjuros } from '@/features/biblioteca/domain/biblioteca';
+import { conjuroDeLaLista } from '../domain/restricciones';
 const HABS_GUERRERO: string[] = CLASES.guerrero.habs;
 const NOMBRE_AB = {fue:'Fuerza', des:'Destreza', con:'Constitución', int:'Inteligencia', sab:'Sabiduría', car:'Carisma'};
 
@@ -140,6 +142,78 @@ const simicTexto = (c, k) => ({
   caparazon: 'Caparazón: +1 a la CA si no llevas armadura pesada (ya sumado).',
   acido: 'Escupir Ácido: sale aparte como acción.',
 })[k] || '';
+
+/* Conjuros de dominio de clérigo (Manual del Jugador 2024); los usan el clérigo y los Conjuros del Vestigio del brujo */
+const DOMINIOS_CLERIGO = {
+  vida: [[3, ['Ayuda', 'Bendecir', 'Curar heridas', 'Restablecimiento menor']], [5, ['Palabra curativa en masa', 'Revivir']], [7, ['Aura de vida', 'Guarda contra la Muerte']], [9, ['Restablecimiento mayor', 'Curar heridas en masa']]],
+  luz: [[3, ['Manos ardientes', 'Fuego feérico', 'Rayo abrasador', 'Ver invisibilidad']], [5, ['Luz del día', 'Bola de fuego']], [7, ['Ojo arcano', 'Muro de fuego']], [9, ['Golpe Flamígero', 'Escudriñar']]],
+  engano: [[3, ['Hechizar persona', 'Disfrazarse', 'Invisibilidad', 'Pasar sin rastro']], [5, ['Patrón hipnótico', 'Indetectable']], [7, ['Confusión', 'Puerta dimensional']], [9, ['Dominar persona', 'Alterar los recuerdos']]],
+  guerra: [[3, ['Rayo guía', 'Arma mágica', 'Escudo de fe', 'Arma espiritual']], [5, ['Manto del cruzado', 'Espíritus guardianes']], [7, ['Escudo de fuego', 'Libertad de movimiento']], [9, ['Inmovilizar monstruo', 'Golpe de Viento Acerado']]],
+};
+
+/* Brujo: Invocaciones Sobrenaturales del Manual del Jugador 2024 (las antiguas de Xanathar y Tasha no se reimprimieron).
+   `req`: otra invocación que hay que tener. Las que se pueden repetir llevan una segunda opción que pide la primera. */
+const INVOC: {key: string, n: string, nivel: number, req?: string, t: string, texto: (c: any) => string, usos?: number}[] = [
+  {key:'armadura-sombras', n:'Armadura de Sombras', nivel:1, t:'accion', texto: c => `Lanzas Armadura de mago sobre ti sin gastar espacio. Sin armadura, tu CA es 13 + DES = ${13 + c.m.des} (ya sumado).`},
+  {key:'mente-sobrenatural', n:'Mente Sobrenatural', nivel:1, t:'pasiva', texto: () => 'Tienes ventaja en las salvaciones de CON para mantener la concentración.'},
+  {key:'pacto-filo', n:'Pacto del Filo', nivel:1, t:'adicional', texto: c => `Conjuras en tu mano un arma de pacto cuerpo a cuerpo, sencilla o marcial, o te vinculas a un arma mágica que toques. Eres competente con ella, atacas y haces daño con CAR (${sign(c.m.car)}) en vez de FUE o DES (ya en Ataques), su daño puede ser necrótico, psíquico o radiante, y te sirve de foco de conjuros.`},
+  {key:'pacto-cadena', n:'Pacto de la Cadena', nivel:1, t:'accion', texto: () => 'Lanzas Encontrar familiar como acción mágica sin gastar espacio, con formas especiales (sale en tus rasgos).'},
+  {key:'pacto-tomo', n:'Pacto del Tomo', nivel:1, t:'pasiva', texto: () => 'Tu Libro de las Sombras te da tres trucos y dos conjuros rituales de nivel 1 de cualquier lista, siempre preparados (agrégalos en Conjuros marcando que no cuentan en el límite), y te sirve de foco de conjuros. Si lo pierdes, un rito de 1 hora te da otro.'},
+  {key:'explosion-agonizante', n:'Explosión Agonizante', nivel:2, t:'pasiva', texto: c => `Eliges un truco de brujo que haga daño (como Explosión sobrenatural): sumas tu CAR (${sign(c.m.car)}) a su daño. Pide conocer un truco de brujo que haga daño.`},
+  {key:'explosion-agonizante-2', n:'Explosión Agonizante (otro truco)', nivel:2, req:'explosion-agonizante', t:'pasiva', texto: c => `Sumas tu CAR (${sign(c.m.car)}) al daño de un segundo truco de brujo que haga daño.`},
+  {key:'vision-diablo', n:'Visión del Diablo', nivel:2, t:'pasiva', texto: () => 'Ves con normalidad en luz tenue y en oscuridad, mágica o no, a 120 pies (ya en tus sentidos).'},
+  {key:'lanza-sobrenatural', n:'Lanza Sobrenatural', nivel:2, t:'pasiva', texto: c => `Un truco de brujo que haga daño y tenga alcance de 10 pies o más gana ${30 * c.lvl} pies de alcance. Pide conocer un truco de brujo que haga daño.`},
+  {key:'lanza-sobrenatural-2', n:'Lanza Sobrenatural (otro truco)', nivel:2, req:'lanza-sobrenatural', t:'pasiva', texto: c => `Un segundo truco de brujo que haga daño gana ${30 * c.lvl} pies de alcance.`},
+  {key:'vigor-infernal', n:'Vigor Infernal', nivel:2, t:'accion', texto: () => 'Lanzas Falsa vida sobre ti sin gastar espacio y, en vez de tirar, ganas el máximo de PG temporales.'},
+  {key:'lecciones-primeros', n:'Lecciones de los Primeros', nivel:2, t:'pasiva', texto: () => 'Ganas una dote de origen que no tengas (agrégala en el paso Características).'},
+  {key:'lecciones-primeros-2', n:'Lecciones de los Primeros (otra dote)', nivel:2, req:'lecciones-primeros', t:'pasiva', texto: () => 'Ganas otra dote de origen que no tengas (agrégala en el paso Características).'},
+  {key:'mascara-caras', n:'Máscara de Mil Caras', nivel:2, t:'accion', texto: () => 'Lanzas Disfrazarse sin gastar espacio.'},
+  {key:'visiones-brumosas', n:'Visiones Brumosas', nivel:2, t:'accion', texto: () => 'Lanzas Imagen silenciosa sin gastar espacio.'},
+  {key:'salto-otro-mundo', n:'Salto de Otro Mundo', nivel:2, t:'adicional', texto: () => 'Lanzas Salto sobre ti sin gastar espacio.'},
+  {key:'explosion-repulsora', n:'Explosión Repulsora', nivel:2, t:'gratis', texto: () => 'Eliges un truco de brujo que haga daño con tirada de ataque: al acertar a una criatura Grande o menor, la empujas hasta 10 pies en línea recta. Pide conocer un truco de brujo que haga daño.'},
+  {key:'explosion-repulsora-2', n:'Explosión Repulsora (otro truco)', nivel:2, req:'explosion-repulsora', t:'gratis', texto: () => 'Lo mismo con un segundo truco de brujo que haga daño con tirada de ataque.'},
+  {key:'paso-ascendente', n:'Paso Ascendente', nivel:5, t:'accion', texto: () => 'Lanzas Levitar sobre ti sin gastar espacio.'},
+  {key:'castigo-sobrenatural', n:'Castigo Sobrenatural', nivel:5, req:'pacto-filo', t:'gratis', texto: () => 'Una vez por turno, al acertar con tu arma de pacto, gastas un espacio de Magia de Pacto: 1d8 de daño de fuerza extra, más 1d8 por nivel del espacio, y puedes dejar Derribado al objetivo si es Enorme o menor.'},
+  {key:'mirada-dos-mentes', n:'Mirada de Dos Mentes', nivel:5, t:'adicional', texto: () => 'Tocas a una criatura voluntaria y percibes por sus sentidos hasta el final de tu próximo turno (lo alargas con acción adicional). Mientras, si está a 60 pies, puedes lanzar conjuros como si estuvieras en su espacio.'},
+  {key:'don-profundidades', n:'Don de las Profundidades', nivel:5, t:'accion', usos:1, texto: () => 'Respiras bajo el agua y tienes velocidad de nadar igual a tu velocidad. Una vez por descanso largo lanzas Respirar bajo el agua sin gastar espacio.'},
+  {key:'maestro-cadena', n:'Inversión del Maestro de la Cadena', nivel:5, req:'pacto-cadena', t:'adicional', texto: c => `Tu familiar gana vuelo o nado de 40 pies; con acción adicional le ordenas que ataque; su daño puede ser necrótico o radiante y sus salvaciones usan tu CD (${c.dcSpell}). Cuando recibe daño, con tu reacción le das resistencia a ese daño.`},
+  {key:'mil-formas', n:'Maestro de las Mil Formas', nivel:5, t:'accion', texto: () => 'Lanzas Alterar el propio aspecto sin gastar espacio.'},
+  {key:'uno-sombras', n:'Uno con las Sombras', nivel:5, t:'accion', texto: () => 'En luz tenue u oscuridad, con una acción mágica te vuelves Invisible hasta que te mueves o usas una acción, acción adicional o reacción.'},
+  {key:'filo-sediento', n:'Filo Sediento', nivel:5, req:'pacto-filo', t:'pasiva', texto: () => 'Ganas Ataque Extra con tu arma de pacto: al usar la acción Atacar, atacas dos veces con ella.'},
+  {key:'susurros-tumba', n:'Susurros de la Tumba', nivel:7, t:'accion', texto: () => 'Lanzas Hablar con los muertos sin gastar espacio.'},
+  {key:'bebedor-vida', n:'Bebedor de Vida', nivel:9, req:'pacto-filo', t:'gratis', texto: c => `Una vez por turno, al acertar con tu arma de pacto, haces 1d6 de daño necrótico, psíquico o radiante extra, y puedes gastar un Dado de Golpe para recuperar su resultado${fmtMod(c.m.con)} PG (mínimo 1).`},
+  {key:'don-protectores', n:'Don de los Protectores', nivel:9, req:'pacto-tomo', t:'gratis', usos:1, texto: () => 'Quien haya escrito su nombre en tu Libro de las Sombras y caiga a 0 PG sin morir en el acto queda en 1 PG. Una vez por descanso largo.'},
+  {key:'visiones-reinos', n:'Visiones de Reinos Lejanos', nivel:9, t:'accion', texto: () => 'Lanzas Ojo arcano sin gastar espacio.'},
+  {key:'filo-devorador', n:'Filo Devorador', nivel:12, req:'filo-sediento', t:'pasiva', texto: () => 'Filo Sediento te da dos ataques extra con tu arma de pacto en vez de uno: atacas tres veces con ella.'},
+  {key:'vista-bruja', n:'Vista Bruja', nivel:15, t:'pasiva', texto: () => 'Tienes visión verdadera a 30 pies.'},
+];
+/* Las invocaciones elegidas que valen a este nivel y cuyo requisito también está elegido */
+export const invocaciones = c => { const s = elegidos(c, 'invocaciones');
+  return s.filter(k => { const i = INVOC.find(x => x.key === k); return i && i.nivel <= c.lvl && (!i.req || s.includes(i.req)); }); };
+/* Arcano Místico: [nivel del conjuro, nivel de brujo en que se gana] */
+const ARCANO = [[6, 11], [7, 13], [8, 15], [9, 17]];
+const conjurosBrujo = nv => todosConjuros().filter(s => +s.nivel === nv && conjuroDeLaLista(s, 'brujo')).sort((a, b) => a.nombre.localeCompare(b.nombre));
+const arcanoDe = (c, nv) => conjurosBrujo(nv).find(s => norm(s.nombre) === elegido(c, `arcano-${nv}`));
+/* Primera frase de una descripción, para los selectores */
+const resumen = d => { const f = String(d || '').replace(/\s+/g, ' ').trim().split(/(?<=\.)\s/)[0]; return f.length > 180 ? f.slice(0, 177) + '…' : f; };
+const tipoConjuro = t => ['accion', 'adicional', 'reaccion', 'fuera'].includes(t) ? t : 'accion';
+/* El Vestigio: tipo del compañero y dominio de sus conjuros */
+const VESTIGIO = {
+  celestial: {n:'Celestial', dano:'radiante', poder:'Toque Sanador', texto: c => `Toca a una criatura: recupera 2d8${fmtMod(c.m.car)} PG y deja de estar Cegada, Ensordecida o Envenenada.`},
+  infernal: {n:'Infernal', dano:'de fuego', poder:'Intercambio Infernal', texto: () => 'Intercambia su posición con una criatura voluntaria que vea a 60 pies, teletransportándose.'},
+  'no-muerto': {n:'No muerto', dano:'necrótico', poder:'Invocación Maldita', texto: () => 'Maldice durante 1 minuto a una criatura a 30 pies: tiene desventaja en las tiradas de ataque contra ti y contra el vestigio.'},
+};
+const DOMINIOS_VESTIGIO = {vida:'Vida', luz:'Luz', engano:'Engaño', guerra:'Guerra'};
+/* El Genio: tipo de genio, su daño y sus conjuros ampliados */
+const GENIOS = {
+  dao: {n:'Dao', dano:'contundente', conj:'Santuario (1), Crecimiento espinoso (2), Fundirse con la Piedra (3), Moldear la piedra (4) y Muro de piedra (5)'},
+  djinn: {n:'Djinn', dano:'de trueno', conj:'Onda atronadora (1), Ráfaga de viento (2), Muro de viento (3), Invisibilidad mejorada (4) y Apariencia (5)'},
+  efreet: {n:'Efreet', dano:'de fuego', conj:'Manos ardientes (1), Rayo abrasador (2), Bola de fuego (3), Escudo de fuego (4) y Golpe Flamígero (5)'},
+  marid: {n:'Marid', dano:'de frío', conj:'Nube de oscurecimiento (1), Desenfocar (2), Tormenta de aguanieve (3), Controlar agua (4) y Cono de frío (5)'},
+};
+const genio = c => GENIOS[elegido(c, 'genio-tipo')];
+const danoGenio = c => genio(c) ? `daño ${genio(c).dano}` : 'daño del tipo de tu genio';
+const dadoTentaculo = c => c.lvl >= 10 ? '2d8' : '1d8';
 
 export const REGLAS: any[] = [
   /* ---------- Pugilista (The Pugilist Class 2024, Benjamin Huffman) ----------
@@ -746,6 +820,118 @@ export const REGLAS: any[] = [
     texto: () => 'Una vez por turno, al lanzar con un espacio un conjuro de bardo que daña o cura, sumas 1d6. Siempre tienes preparado Espíritus guardianes y lo lanzas una vez por descanso largo sin espacio; una vez por descanso corto o largo, al lanzarlo tú y tus aliados en su área tenéis cobertura.',
     opciones: [conjurosSub('Conjuros de los Espíritus', [[6, ['Espíritus guardianes']]])]},
 
+  /* ---------- Brujo (Lote 7: Manual del Jugador 2024, No Muerto de Ravenloft: The Horrors Within 2026, Vestigio de Arcana Unleashed 2026) ----------
+     Rasgos y textos en la biblioteca (scripts/datos/brujo-2024.ts); aquí los selectores, los números y lo que va al cálculo. */
+  {de:/^brujo$/, n:/^invocaciones sobrenaturales/, t:'pasiva',
+    eleccion: {id:'invocaciones', titulo:'Invocaciones Sobrenaturales', max: c => INVOCACIONES[c.lvl - 1],
+      opciones: INVOC.map(i => ({key: i.key, nombre: i.n, nivel: i.nivel, requiere: i.req,
+        ...(i.key === 'pacto-cadena' ? {desc: 'Acción. Lanzas Encontrar familiar como acción mágica sin gastar espacio, con formas especiales (diablillo, pseudodragón, quasit, esqueleto...).'} : {})}))},
+    efecto: c => {
+      const s = invocaciones(c);
+      if (s.includes('armadura-sombras') && !c.armor) c.ac = Math.max(c.ac, 13 + c.m.des + (c.shield ? 2 : 0));
+      if (s.includes('vision-diablo')) c.vision = Math.max(c.vision || 0, 120);
+      if (s.includes('pacto-filo')) { const antes = c.usaCar; c.pactoFilo = true; c.usaCar = w => !w.dist || !!antes?.(w); c.rehacerArmas = true; }
+      if (s.includes('filo-sediento')) c.extraAttack = true;
+    },
+    texto: c => { const n = INVOCACIONES[c.lvl - 1], ya = invocaciones(c).length;
+      return `Conoces ${n} invocaci${n > 1 ? 'ones' : 'ón'}${ya < n ? ` (te falta${n - ya > 1 ? 'n' : ''} ${n - ya}: elígelas en el paso Clase)` : ''}; cada una sale aparte. Al subir de nivel puedes cambiar una por otra.`; },
+    opciones: INVOC.filter(i => i.key !== 'pacto-cadena').map(i => ({nombre: i.n, t: i.t, texto: i.texto, usos: i.usos, reset:'largo',
+      si: c => invocaciones(c).includes(i.key), elegida: ['invocaciones', i.key]}))},
+  {de:/^brujo$/, n:/^arcano mistico/, t:'pasiva',
+    eleccion: ARCANO.map(([nv, lv]) => ({id:`arcano-${nv}`, titulo:`Arcano Místico de nivel ${nv}`, si: c => c.lvl >= lv,
+      opciones: () => conjurosBrujo(nv).map(s => ({key: norm(s.nombre), nombre: s.nombre, desc: resumen(s.desc)}))})),
+    texto: c => { const ya = ARCANO.filter(([, lv]) => c.lvl >= lv), prox = ARCANO.find(([, lv]) => c.lvl < lv);
+      const falta = ya.some(([nv]) => !arcanoDe(c, nv));
+      return `Tu patrón te da un conjuro de brujo de nivel ${ya.map(([nv]) => nv).join(', ')} que lanzas una vez por descanso largo sin gastar espacio; cada uno sale aparte.${falta ? ' Elígelos en el paso Clase.' : ''}${prox ? ` En el nivel ${prox[1]} ganas otro de nivel ${prox[0]}.` : ''} Al subir de nivel puedes cambiar uno por otro del mismo nivel.`; },
+    opciones: ARCANO.map(([nv, lv]) => ({nombre:`Arcano Místico de nivel ${nv}`, usos:1, reset:'largo',
+      si: c => c.lvl >= lv && !!arcanoDe(c, nv), t: c => tipoConjuro(arcanoDe(c, nv)?.tiempo),
+      texto: c => { const s = arcanoDe(c, nv); return `${s.nombre}: ${resumen(s.desc)}`; }}))},
+
+  /* Patrones del manual: niveles 6, 10 y 14 */
+  {de:/patron archihada/, n:/^huida brumosa/,
+    texto: c => `Cuando recibes daño, lanzas Paso brumoso como reacción. Tus Pasos Feéricos ganan dos efectos más: Paso Evanescente (quedas Invisible hasta el inicio de tu próximo turno, o hasta que ataques, hagas daño o lances un conjuro) y Paso Temible (quien esté a 5 pies de donde sales o de donde llegas hace una salvación de SAB, CD ${c.dcSpell}, o recibe 2d10 de daño psíquico).`},
+  {de:/patron infernal/, n:/^arrojar al infierno/,
+    texto: c => `Una vez por turno, al acertar con una tirada de ataque, el objetivo hace una salvación de CAR (CD ${c.dcSpell}). Si falla, desaparece por los Planos Inferiores: recibe 8d10 de daño psíquico (si no es infernal) y queda Incapacitado hasta el final de tu próximo turno, cuando vuelve. Una vez por descanso largo, o gastando un espacio de pacto para recuperarlo.`},
+  {de:/patron celestial/, n:/^alma radiante/,
+    texto: c => `Tienes resistencia al daño radiante. Una vez por turno, cuando un conjuro tuyo hace daño radiante o de fuego, sumas ${sign(c.m.car)} (CAR) al daño contra uno de sus objetivos.`},
+  {de:/patron celestial/, n:/^resiliencia celestial/,
+    texto: c => `Al usar Astucia Mágica o al terminar un descanso corto o largo ganas ${Math.max(0, c.lvl + c.m.car)} PG temporales, y hasta cinco criaturas que veas ganan ${Math.max(0, Math.floor(c.lvl / 2) + c.m.car)}.`},
+  {de:/patron celestial/, n:/^venganza abrasadora/,
+    texto: c => `Cuando tú o un aliado a 60 pies vais a hacer una salvación contra la muerte, esa criatura recupera la mitad de sus PG máximos y puede dejar de estar Derribada; las criaturas que elijas a 30 pies de ella reciben 2d8${fmtMod(c.m.car)} de daño radiante y quedan Cegadas hasta el final del turno. Una vez por descanso largo.`},
+  {de:/patron gran antiguo/, n:/^combatiente clarividente/,
+    texto: c => `Al formar el vínculo de Mente Despierta, la criatura hace una salvación de SAB (CD ${c.dcSpell}). Si falla, mientras dure el vínculo tiene desventaja al atacarte y tú ventaja al atacarla. Una vez por descanso corto o largo, o gastando un espacio de pacto para recuperarlo.`},
+  {de:/patron gran antiguo/, n:/^crear siervo/,
+    texto: c => `Al lanzar Invocar aberración puedes hacer que no requiera concentración (dura 1 minuto). La aberración aparece con ${c.lvl} PG temporales, y la primera vez en cada turno que acierta a una criatura afectada por tu Maleficio le hace también su daño extra.`},
+
+  /* El No Muerto (Ravenloft: The Horrors Within, 2026) */
+  {de:/el no muerto/, n:/^conjuros del no muerto/, t:'pasiva', texto: conjurosSub('', [[3, ['Perdición', 'Sordera/Ceguera', 'Fuerza fantasmal', 'Rayo nauseabundo']], [5, ['Hablar con los Muertos', 'Invocar muerto viviente']], [7, ['Invisibilidad mejorada', 'Asesino fantasmal']], [9, ['Caparazón antivida', 'Nube aniquiladora']]]).texto},
+  {de:/el no muerto/, n:/^forma del terror/, t:'adicional', usos: c => Math.max(1, c.m.car), reset:'largo',
+    texto: c => `Te transformas durante 1 minuto: ganas 1d10 + ${c.lvl} PG temporales, eres inmune a quedar Asustado (y dejas de estarlo) y, una vez por turno al acertar con una tirada de ataque, el objetivo hace una salvación de SAB (CD ${c.dcSpell}) o queda Asustado hasta el final de tu próximo turno. Acaba antes si quedas Incapacitado o si la terminas.`},
+  {de:/el no muerto/, n:/^cascara necrotica/, t:'pasiva',
+    texto: () => 'Tienes resistencia al daño necrótico, e inmunidad mientras estás en Forma del Terror. Si caes a 0 PG sin morir, puedes estallar (sale aparte).',
+    opciones: [{nombre:'Estallido Necrótico', t:'gratis', usos:1, reset:'corto',
+      texto: c => `Cuando caes a 0 PG sin morir en el acto, tus PG pasan a ${2 * c.lvl} y cada criatura que elijas a 30 pies hace una salvación de CON (CD ${c.dcSpell}) o recibe 2d10${fmtMod(c.m.car)} de daño necrótico. Ganas 1 nivel de Cansancio.`}]},
+
+  /* El Vestigio (Arcana Unleashed, 2026) */
+  {de:/el vestigio/, n:/^compa.ero vestigio/, t:'pasiva',
+    eleccion: {id:'vestigio-tipo', titulo:'Tipo del vestigio', opciones: Object.entries(VESTIGIO).map(([key, v]) => ({key, nombre: v.n,
+      desc: c => `Resistencia al daño ${v.dano}; su daño es ${v.dano}. Poder Divino, ${v.poder}: ${v.texto(c)}`}))},
+    ataques: c => { const v = VESTIGIO[elegido(c, 'vestigio-tipo')], m = 3 + c.m.car;
+      return [{nombre:'Ataque del vestigio', atk: c.atkSpell, expr: `1d6${modStr(m)}`, dmg: `1d6${fmtMod(m)} ${v ? v.dano.replace(/^de /, '') : 'según su tipo'}`,
+        notas:['Lo hace tu vestigio cuando se lo ordenas con acción adicional: cuerpo a cuerpo a 5 pies o a distancia a 60 pies']}]; },
+    texto: c => { const v = VESTIGIO[elegido(c, 'vestigio-tipo')];
+      return `Te acompaña el vestigio de un dios moribundo: CA ${13 + c.m.car}, ${4 + 4 * c.lvl} PG, velocidad de 5 pies y vuelo de 30 pies (flota). Con acción adicional le ordenas atacar (en Ataques). ${v ? `Es ${v.n.toLowerCase()}: resistencia al daño ${v.dano}.` : 'Elige su tipo en el paso Clase (celestial, infernal o no muerto).'} Puedes cambiar su forma y su tipo al terminar un descanso largo.`; },
+    opciones: [{nombre:'Poder Divino', t:'adicional', usos:1, reset: c => c.lvl >= 6 ? 'corto' : 'largo',
+      texto: c => { const v = VESTIGIO[elegido(c, 'vestigio-tipo')];
+        return v ? `${v.poder}: ${v.texto(c)}` : `Según el tipo de tu vestigio: ${Object.values(VESTIGIO).map(x => `${x.poder} (${x.n.toLowerCase()}): ${x.texto(c)}`).join(' ')}`; }}]},
+  {de:/el vestigio/, n:/^conjuros del vestigio/, t:'pasiva',
+    eleccion: {id:'vestigio-dominio', titulo:'Dominio del vestigio', opciones: Object.entries(DOMINIOS_VESTIGIO).map(([key, n]) => ({key, nombre: n,
+      desc: `Conjuros del Dominio de${key === 'luz' || key === 'guerra' ? ' la' : 'l'} ${n}: ${DOMINIOS_CLERIGO[key].flatMap(([, s]) => s).join(', ')}.`}))},
+    texto: c => { const d = elegido(c, 'vestigio-dominio');
+      return d ? conjurosSub('', DOMINIOS_CLERIGO[d]).texto(c) : 'Elige un dominio de clérigo en el paso Clase (Vida, Luz, Engaño o Guerra); sus conjuros de dominio son conjuros de brujo para ti y los tienes siempre preparados según tu nivel.'; }},
+  {de:/el vestigio/, n:/^apariencia de vida/,
+    texto: c => `Con una acción mágica, estando tu vestigio a 90 pies, lo transformas durante 1 hora en el espíritu de Invocar celestial, Invocar infernal o Invocar muerto viviente según su tipo, a nivel ${Math.min(9, Math.floor(c.lvl / 2))}. Conserva su personalidad, su Poder Divino y sus PG, y gana PG temporales iguales a los del espíritu. Una vez por descanso largo.`},
+
+  /* El Filo Maldito (Xanathar) */
+  {de:/el filo maldito/, n:/^guerrero maleficio/, t:'pasiva',
+    efecto: c => { const antes = c.usaCar; c.usaCar = w => !w.p.includes('dos manos') || !!antes?.(w); c.rehacerArmas = true; },
+    texto: c => `Competencia con armaduras medias, escudos y armas marciales. Al terminar un descanso largo tocas un arma con la que seas competente y sin la propiedad Dos manos: hasta tu siguiente descanso largo atacas y haces daño con ella usando CAR (${sign(c.m.car)}); en Ataques se marcan las que pueden serlo. Si tienes el Pacto del Filo, vale para cualquier arma de pacto que conjures.`},
+  {de:/el filo maldito/, n:/^maldicion del filo maldito/,
+    texto: c => `Maldices durante 1 minuto a una criatura que veas a 30 pies: sumas ${sign(c.pb)} al daño contra ella, le haces crítico con 19 o 20, y si muere recuperas ${Math.max(1, c.lvl + c.m.car)} PG. Acaba si ella muere, si mueres o si quedas Incapacitado.`},
+  {de:/el filo maldito/, n:/^espectro maldito/,
+    texto: c => `Cuando matas a un humanoide, puedes alzar su espíritu como un espectro a tus órdenes hasta tu siguiente descanso largo, con ${Math.floor(c.lvl / 2)} PG temporales y ${sign(Math.max(0, c.m.car))} a sus tiradas de ataque. Una vez por descanso largo.`},
+
+  /* El Genio (Tasha) */
+  {de:/el genio/, n:/^lista ampliada del genio/, t:'pasiva',
+    eleccion: {id:'genio-tipo', titulo:'Tipo de genio', opciones: Object.entries(GENIOS).map(([key, g]) => ({key, nombre: g.n, desc: `Daño ${g.dano}. Conjuros: ${g.conj}.`}))},
+    texto: c => { const g = genio(c);
+      return `Estos conjuros se suman a tu lista de brujo (no quedan preparados solos): Detectar el bien y el mal (1), Fuerza fantasmal (2), Crear comida y agua (3), Asesino fantasmal (4), Creación (5) y Deseo (9)${g ? `, más los de tu genio ${g.n}: ${g.conj}.` : '. Elige tu tipo de genio en el paso Clase (Dao, Djinn, Efreet o Marid): suma sus conjuros y decide el daño de tus rasgos.'}`; }},
+  {de:/el genio/, n:/^respiro embotellado/,
+    texto: c => `Tocando tu recipiente, desapareces dentro de él: un espacio cómodo de 20 pies de radio desde el que oyes lo que pasa fuera. Puedes quedarte hasta ${2 * c.pb} horas; sales antes con acción adicional, y también si mueres o se destruye el recipiente. Una vez por descanso largo.`},
+  {de:/el genio/, n:/^ira del genio/,
+    texto: c => `Una vez en cada uno de tus turnos, al acertar con una tirada de ataque, haces ${c.pb} de ${danoGenio(c)} extra.`},
+  {de:/el genio/, n:/^don elemental/, t:'pasiva',
+    texto: c => `Tienes resistencia al ${danoGenio(c)}. Además puedes darte vuelo (sale aparte).`,
+    opciones: [{nombre:'Vuelo Elemental', t:'adicional', usos: c => c.pb, reset:'largo', texto: () => 'Ganas velocidad de vuelo de 30 pies y puedes flotar durante 10 minutos.'}]},
+  {de:/el genio/, n:/^recipiente santuario/,
+    texto: c => `Al entrar en tu recipiente puedes llevar hasta cinco criaturas voluntarias a 30 pies (las sacas con acción adicional). Quien pase 10 minutos dentro obtiene los beneficios de un descanso corto y suma ${sign(c.pb)} a los PG que recupere con Dados de Golpe allí.`},
+
+  /* El Insondable (Tasha) */
+  {de:/el insondable/, n:/^tentaculo de las profundidades/, t:'adicional', usos: c => c.pb, reset:'largo',
+    ataques: c => [{nombre:'Tentáculo de las Profundidades', atk: c.atkSpell, expr: dadoTentaculo(c), dmg: `${dadoTentaculo(c)} frío`,
+      notas:['Ataque de conjuro cuerpo a cuerpo contra una criatura a 10 pies del tentáculo. Si aciertas, su velocidad baja 10 pies hasta el inicio de tu próximo turno']}],
+    texto: c => `Creas un tentáculo espectral de 10 pies en un punto que veas a 60 pies, que dura 1 minuto, y haces con él un ataque de conjuro cuerpo a cuerpo contra una criatura a 10 pies de él: ${dadoTentaculo(c)} de daño de frío y su velocidad baja 10 pies (en Ataques). Con acción adicional lo mueves 30 pies y repites el ataque.`},
+  {de:/el insondable/, n:/^espiral guardiana/,
+    texto: c => `Cuando tú o una criatura que ves a 10 pies de tu tentáculo recibe daño, reduces ese daño en ${dadoTentaculo(c)}.`},
+  {de:/el insondable/, n:/^tentaculos aferradores/,
+    texto: c => `Aprendes Tentáculos negros de Evard, que no cuenta en tu límite; una vez por descanso largo lo lanzas sin gastar espacio. Al lanzarlo ganas ${c.lvl} PG temporales, y el daño no rompe tu concentración en él.`},
+
+  /* El Inmortal (Sword Coast) */
+  {de:/el inmortal/, n:/^desafiar a la muerte/,
+    texto: c => `Cuando superas una salvación contra la muerte o estabilizas a alguien con Estabilizar, recuperas 1d8${fmtMod(c.m.con)} PG (mínimo 1). Una vez por descanso largo.`},
+  {de:/el inmortal/, n:/^vida indestructible/,
+    texto: c => `Recuperas 1d8 + ${c.lvl} PG, y si juntas una parte de tu cuerpo cortada, se vuelve a unir. Una vez por descanso corto o largo.`},
+
   /* ---------- Clérigo (Lote 8) ----------
      Rasgos y textos en la biblioteca (scripts/datos/clerigo-2024.ts); aquí las listas de conjuros, los números y los selectores. */
   {de:/^clerigo$/, n:/^golpes benditos$/, t:'pasiva',
@@ -761,11 +947,11 @@ export const REGLAS: any[] = [
       ? `Al dañar con un truco, tú o una criatura a 60 pies ganáis ${Math.max(0, 2 * c.m.sab)} PG temporales (el doble de tu SAB).`
       : 'Golpe Divino hace 2d8 de daño extra (ya en Golpes Benditos).'},
 
-  {de:/dominio de la vida/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Ayuda', 'Bendecir', 'Curar heridas', 'Restablecimiento menor']], [5, ['Palabra curativa en masa', 'Revivir']], [7, ['Aura de vida', 'Guarda contra la Muerte']], [9, ['Restablecimiento mayor', 'Curar heridas en masa']]]).texto},
+  {de:/dominio de la vida/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', DOMINIOS_CLERIGO.vida).texto},
   {de:/dominio de la vida/, n:/^preservar vida/, t:'accion', coste:'1 Canalizar Divinidad',
     texto: c => `Como acción mágica, repartes ${5 * c.lvl} PG entre criaturas Ensangrentadas a 30 pies (tú incluido), sin subir a nadie por encima de la mitad de sus PG máximos.`},
 
-  {de:/dominio de la luz/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Manos ardientes', 'Fuego feérico', 'Rayo abrasador', 'Ver invisibilidad']], [5, ['Luz del día', 'Bola de fuego']], [7, ['Ojo arcano', 'Muro de fuego']], [9, ['Golpe Flamígero', 'Escudriñar']]]).texto},
+  {de:/dominio de la luz/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', DOMINIOS_CLERIGO.luz).texto},
   {de:/dominio de la luz/, n:/^resplandor del alba/, t:'accion', coste:'1 Canalizar Divinidad',
     texto: c => `Deshaces la oscuridad mágica a 30 pies; quienes elijas en esa zona hacen una salvación de CON (CD ${c.dcSpell}) o reciben 2d10 + ${c.lvl} de daño radiante (mitad si la pasan).`},
   {de:/dominio de la luz/, n:/^destello protector$/, t:'reaccion', usos: c => Math.max(1, c.m.sab), reset: c => c.lvl >= 6 ? 'corto' : 'largo',
@@ -775,12 +961,12 @@ export const REGLAS: any[] = [
   {de:/dominio de la luz/, n:/^corona de luz/, t:'accion', usos: c => Math.max(1, c.m.sab), reset:'largo',
     texto: () => 'Durante 1 minuto irradias luz brillante a 60 pies (y tenue 30 más); los enemigos en la luz brillante tienen desventaja en las salvaciones contra Resplandor del Alba y contra tus conjuros de fuego o radiantes.'},
 
-  {de:/dominio del engano/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Hechizar persona', 'Disfrazarse', 'Invisibilidad', 'Pasar sin rastro']], [5, ['Patrón hipnótico', 'Indetectable']], [7, ['Confusión', 'Puerta dimensional']], [9, ['Dominar persona', 'Alterar los recuerdos']]]).texto},
+  {de:/dominio del engano/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', DOMINIOS_CLERIGO.engano).texto},
   {de:/dominio del engano/, n:/^invocar duplicidad/, t:'adicional', coste:'1 Canalizar Divinidad'},
   {de:/dominio del engano/, n:/^duplicidad mejorada/, t:'pasiva',
     texto: c => `Tus aliados también tienen ventaja al atacar a criaturas a 5 pies de tu ilusión. Cuando la ilusión acaba, tú o una criatura a 5 pies de ella recuperáis ${c.lvl} PG.`},
 
-  {de:/dominio de la guerra/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Rayo guía', 'Arma mágica', 'Escudo de fe', 'Arma espiritual']], [5, ['Manto del cruzado', 'Espíritus guardianes']], [7, ['Escudo de fuego', 'Libertad de movimiento']], [9, ['Inmovilizar monstruo', 'Golpe de Viento Acerado']]]).texto},
+  {de:/dominio de la guerra/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', DOMINIOS_CLERIGO.guerra).texto},
   {de:/dominio de la guerra/, n:/^golpe guiado/, t:'gratis', coste:'1 Canalizar Divinidad'},
   {de:/dominio de la guerra/, n:/^sacerdote de la guerra/, t:'adicional', usos: c => Math.max(1, c.m.sab), reset:'corto'},
   {de:/dominio de la guerra/, n:/^bendicion del dios de la guerra/, t:'accion', coste:'1 Canalizar Divinidad'},

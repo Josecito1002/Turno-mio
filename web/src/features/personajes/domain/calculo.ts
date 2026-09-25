@@ -242,7 +242,10 @@ export function weaponRow(a, c){
   const monkW = c.isMonk && !w.dist && (w.cat === 'sencilla' || w.p.includes('ligera'));
   let ab = w.dist ? 'des' : 'fue';
   if (w.p.includes('sutil') || monkW) ab = m.des > m.fue ? 'des' : 'fue';
-  const prof = competenteArma(c, a.k);
+  // Armas que pueden atacar con CAR (arma de pacto del Pacto del Filo, Guerrero Maleficio); `c.usaCar(w)` lo pone una regla
+  const conCar = !!c.usaCar?.(w);
+  if (conCar && m.car > m[ab]) ab = 'car';
+  const prof = competenteArma(c, a.k) || (c.pactoFilo && !w.dist);
   const atk = m[ab] + (prof ? c.pb : 0) + (c.estilo === 'arqueria' && w.dist ? 2 : 0);
   let dado = w.d;
   if (monkW) { const [nn, dd] = w.d.split('d').map(Number); if (nn === 1 && c.md > dd) dado = `1d${c.md}`; }
@@ -252,6 +255,7 @@ export function weaponRow(a, c){
   if (w.r) notas.push(`${w.p.includes('arrojadiza') ? 'Arrojadiza' : 'Alcance'} ${w.r} pies`);
   if (w.p.includes('alcance')) notas.push('Alcance de 10 pies');
   if (!prof) notas.push('Sin competencia');
+  if (conCar) notas.push(c.pactoFilo && !w.dist ? 'Como arma de pacto usa CAR si es mayor' : 'Si es tu arma de Guerrero Maleficio, usa CAR si es mayor');
   let maestria = null;
   // Maestrías de la clase, más las que dan dotes como Maestro de Armas (c.maestriasExtra)
   if (w.ma && ((c.hasMastery && (pj.maestrias || []).includes(a.k)) || c.maestriasExtra?.has(a.k))) {

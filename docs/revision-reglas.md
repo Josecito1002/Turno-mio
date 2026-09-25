@@ -3,7 +3,7 @@
 Rasgos de la biblioteca sin regla revisada en `web/src/features/reglas/data/reglas-revisadas.ts` cuyo tipo es dudoso:
 el clasificador los deja como pasiva aunque su texto sugiere que se activan, o su texto no menciona ningún tipo de acción.
 
-Generado con `npx tsx scripts/auditar-reglas.ts` (desde `web/`). Pendientes al generar: 227.
+Generado con `npx tsx scripts/auditar-reglas.ts` (desde `web/`). Pendientes al generar: 214.
 Al marcar una casilla, agrega al final una nota corta con la fuente si hubo que investigar.
 
 ## Selectores
@@ -22,11 +22,13 @@ Las que se deciden al usar el rasgo (a quién, qué efecto) no llevan selector: 
 - [x] **Kobold: Legado Kobold**: Astucia, Desafío o Hechicería Dracónica (paso Especie). <!-- selector|legado-kobold -->
 - [x] **Híbrido Simic: mejoras animales**: una en nivel 1 y otra en nivel 5 (paso Especie); Caparazón y Apéndices en el cálculo, Escupir Ácido como acción. <!-- selector|simic -->
 - [x] **Bardo: Secretos Mágicos y Descubrimientos Mágicos**: el paso Conjuros ofrece también las listas de clérigo, druida y mago. <!-- selector|descubrimientos-magicos -->
+- [x] **Brujo: Invocaciones Sobrenaturales**: 1 a 10 según nivel, las 28 del Manual 2024 con su nivel y su requisito; los pactos son invocaciones y reemplazan la casilla "Pacto de la Cadena". Armadura de Sombras, Visión del Diablo, Pacto del Filo y Filo Sediento en el cálculo. <!-- selector|invocaciones -->
+- [x] **Brujo: Arcano Místico**: un conjuro de brujo de nivel 6, 7, 8 y 9 en los niveles 11, 13, 15 y 17; cada uno sale con 1 uso por descanso largo. <!-- selector|arcano-mistico -->
+- [x] **El Genio: tipo de genio**: Dao, Djinn, Efreet o Marid: su tipo de daño y sus conjuros ampliados. <!-- selector|genio-tipo -->
+- [x] **El Vestigio: tipo y dominio**: celestial, infernal o no muerto (resistencia, daño y Poder Divino) y dominio de clérigo (Vida, Luz, Engaño o Guerra) para sus conjuros siempre preparados. <!-- selector|vestigio -->
 
 ### Clases de las reglas (no están en ningún lote)
 
-- [ ] **Brujo: invocaciones sobrenaturales**: 1 a 10 según nivel; en 2024 los pactos (Cadena, Filo, Tomo) son invocaciones, así que reemplaza la casilla "Pacto de la Cadena". <!-- selector|invocaciones -->
-- [ ] **Brujo: Arcano místico**: un conjuro de nivel 6, 7, 8 y 9 en los niveles 11, 13, 15 y 17. <!-- selector|arcano-mistico -->
 - [ ] **Clérigo: Orden Divina**: Protector (armadura pesada y armas marciales) o Taumaturgo (un truco más y SAB a Arcanos o Religión); cambia competencias y trucos. <!-- selector|orden-divina -->
 - [ ] **Druida: Orden Primordial**: Mago (un truco más y SAB a Arcanos o Naturaleza) o Guardián (armadura media y armas marciales). <!-- selector|orden-primordial -->
 - [ ] **Druida: formas de Forma Salvaje**: 4, 6 y 8 bestias conocidas en los niveles 2, 4 y 8. <!-- selector|formas-salvajes -->
@@ -86,10 +88,10 @@ Se agregan en el lote de su clase, con su versión oficial más reciente. Las ma
 
 ### Lote 7: Brujo
 
-- [ ] **El Filo Maldito (Hexblade)** (Xanathar's Guide to Everything) <!-- agregar|el filo maldito (hexblade) -->
-- [ ] **El Genio** (Tasha's Cauldron of Everything) <!-- agregar|el genio -->
-- [ ] **El Insondable** (Tasha's Cauldron of Everything) <!-- agregar|el insondable -->
-- [ ] **El Inmortal** (Sword Coast Adventurer's Guide) <!-- agregar|el inmortal -->
+- [x] **El Filo Maldito (Hexblade)** (Xanathar's Guide to Everything): agregado; sus rasgos de nivel 1 pasan al 3, como indica el Manual 2024 para las subclases antiguas. <!-- agregar|el filo maldito (hexblade) -->
+- [x] **El Genio** (Tasha's Cauldron of Everything): agregado; sus rasgos de nivel 1 pasan al 3, como indica el Manual 2024 para las subclases antiguas. <!-- agregar|el genio -->
+- [x] **El Insondable** (Tasha's Cauldron of Everything): agregado; sus rasgos de nivel 1 pasan al 3, como indica el Manual 2024 para las subclases antiguas. <!-- agregar|el insondable -->
+- [x] **El Inmortal** (Sword Coast Adventurer's Guide): agregado; sus rasgos de nivel 1 pasan al 3, como indica el Manual 2024 para las subclases antiguas. <!-- agregar|el inmortal -->
 
 ### Lote 8: Clérigo
 
@@ -630,38 +632,64 @@ Dudosos: 0. Con tipo claro: 0. Ya revisados: 29.
 
 ## Lote 7: Brujo (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 13. Con tipo claro: 5. Ya revisados: 0.
+Fuente: Manual del Jugador 2024; El No Muerto de Ravenloft: The Horrors Within (2026) y El Vestigio de Arcana Unleashed (2026). El Filo Maldito, El Genio, El Insondable y El Inmortal no tienen versión 2024: se agregaron con su libro, con los rasgos de nivel 1 en el 3. Números del No Muerto y del Vestigio tomados de las fichas públicas de esas subclases (dnd2024.wikidot.com); el tipo de acción del Poder Divino del Vestigio no aparece ahí y quedó como acción adicional.
 
-### Brujo
+Dudosos: 0. Con tipo claro: 0. Ya revisados: 51.
 
-- [ ] **Arcanum Místico** (nivel 11): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- brujo|arcanum mistico -->
 
-### El No Muerto
+### Revisados
 
-- [ ] **Lista de Conjuros Ampliada**: hoy `pasiva`, no menciona tipo de acción <!-- el no muerto|lista de conjuros ampliada -->
-- [ ] **Toque Sepulcral** (nivel 6): hoy `pasiva`, queda pasiva pero parece activarse <!-- el no muerto|toque sepulcral -->
-
-### Patrón Archihada
-
-- [ ] **Defensa Atrapante** (nivel 10): hoy `pasiva`, no menciona tipo de acción <!-- patron archihada|defensa atrapante -->
-- [ ] **Delirio Feérico** (nivel 14): hoy `pasiva`, no menciona tipo de acción <!-- patron archihada|delirio feerico -->
-
-### Patrón Infernal
-
-- [ ] **Suerte del Propio Oscuro** (nivel 6): hoy `pasiva`, no menciona tipo de acción <!-- patron infernal|suerte del propio oscuro -->
-- [ ] **Resiliencia Infernal** (nivel 10): hoy `pasiva`, no menciona tipo de acción <!-- patron infernal|resiliencia infernal -->
-- [ ] **Arrojar a través del Infierno** (nivel 14): hoy `gratis`, no menciona tipo de acción <!-- patron infernal|arrojar a traves del infierno -->
-
-### Patrón Celestial
-
-- [ ] **Alma Radiante** (nivel 6): hoy `pasiva`, no menciona tipo de acción <!-- patron celestial|alma radiante -->
-- [ ] **Vigor Celestial** (nivel 10): hoy `pasiva`, no menciona tipo de acción <!-- patron celestial|vigor celestial -->
-- [ ] **Venganza Flamígera** (nivel 14): hoy `pasiva`, no menciona tipo de acción <!-- patron celestial|venganza flamigera -->
-
-### Patrón Gran Antiguo
-
-- [ ] **Escudo de Pensamiento** (nivel 10): hoy `pasiva`, no menciona tipo de acción <!-- patron gran antiguo|escudo de pensamiento -->
-- [ ] **Crear Servidor** (nivel 14): hoy `pasiva`, no menciona tipo de acción <!-- patron gran antiguo|crear servidor -->
+- [x] **Contactar al Patrón** (nivel 9): `fuera`. nuevo de 2024; Manual del Jugador 2024. <!-- brujo|contactar al patron -->
+- [x] **Arcano Místico** (nivel 11): `pasiva`. antes "Arcanum Místico"; selector de un conjuro por nivel, cada uno con 1 uso por descanso largo; Manual del Jugador 2024. <!-- brujo|arcano mistico -->
+- [x] **Maestro Sobrenatural** (nivel 20): `pasiva`. Manual del Jugador 2024. <!-- brujo|maestro sobrenatural -->
+- [x] **Conjuros del No Muerto** (nivel 3): `pasiva`. reemplaza a la Lista de Conjuros Ampliada de Van Richten; siempre preparados; Ravenloft: The Horrors Within (2026). <!-- el no muerto|conjuros del no muerto -->
+- [x] **Forma del Terror** (nivel 3): `adicional`. usos iguales a CAR (antes competencia); PG temporales y CD calculados; Ravenloft: The Horrors Within (2026). <!-- el no muerto|forma del terror -->
+- [x] **Toque Sepulcral** (nivel 6): `pasiva`. Ravenloft: The Horrors Within (2026). <!-- el no muerto|toque sepulcral -->
+- [x] **Cáscara Necrótica** (nivel 10): `pasiva`. el estallido sale aparte, 1 uso por descanso corto; Ravenloft: The Horrors Within (2026). <!-- el no muerto|cascara necrotica -->
+- [x] **Terror Superior** (nivel 14): `pasiva`. reemplaza a Proyección Espiritual; Ravenloft: The Horrors Within (2026). <!-- el no muerto|terror superior -->
+- [x] **Compañero Vestigio** (nivel 3): `pasiva`. selector de tipo; CA, PG y ataque calculados; Poder Divino aparte; Arcana Unleashed (2026). <!-- el vestigio|companero vestigio -->
+- [x] **Conjuros del Vestigio** (nivel 3): `pasiva`. selector de dominio; siempre preparados; Arcana Unleashed (2026). <!-- el vestigio|conjuros del vestigio -->
+- [x] **Poder del Vestigio** (nivel 6): `pasiva`. Arcana Unleashed (2026). <!-- el vestigio|poder del vestigio -->
+- [x] **Recuperación del Vestigio** (nivel 10): `reaccion`. Arcana Unleashed (2026). <!-- el vestigio|recuperacion del vestigio -->
+- [x] **Apariencia de Vida** (nivel 14): `accion`. Arcana Unleashed (2026). <!-- el vestigio|apariencia de vida -->
+- [x] **Lista Ampliada del Filo Maldito** (nivel 3): `pasiva`. Xanathar's Guide to Everything, nivel 1 → 3. <!-- el filo maldito|lista ampliada del filo maldito -->
+- [x] **Guerrero Maleficio** (nivel 3): `pasiva`. competencias y CAR en las armas en el cálculo; Xanathar's Guide to Everything, nivel 1 → 3. <!-- el filo maldito|guerrero maleficio -->
+- [x] **Maldición del Filo Maldito** (nivel 3): `adicional`. daño y curación calculados; Xanathar's Guide to Everything, nivel 1 → 3. <!-- el filo maldito|maldicion del filo maldito -->
+- [x] **Espectro Maldito** (nivel 6): `gratis`. Xanathar's Guide to Everything, nivel 1 → 3. <!-- el filo maldito|espectro maldito -->
+- [x] **Armadura de Maleficios** (nivel 10): `reaccion`. Xanathar's Guide to Everything, nivel 1 → 3. <!-- el filo maldito|armadura de maleficios -->
+- [x] **Maestro de Maleficios** (nivel 14): `gratis`. Xanathar's Guide to Everything, nivel 1 → 3. <!-- el filo maldito|maestro de maleficios -->
+- [x] **Lista Ampliada del Genio** (nivel 3): `pasiva`. selector de tipo de genio; Tasha's Cauldron of Everything, nivel 1 → 3. <!-- el genio|lista ampliada del genio -->
+- [x] **Recipiente del Genio** (nivel 3): `pasiva`. Tasha's Cauldron of Everything, nivel 1 → 3. <!-- el genio|recipiente del genio -->
+- [x] **Respiro Embotellado** (nivel 3): `accion`. Tasha's Cauldron of Everything, nivel 1 → 3. <!-- el genio|respiro embotellado -->
+- [x] **Ira del Genio** (nivel 3): `gratis`. daño según el tipo de genio; Tasha's Cauldron of Everything, nivel 1 → 3. <!-- el genio|ira del genio -->
+- [x] **Don Elemental** (nivel 6): `pasiva`. Vuelo Elemental aparte, usos por competencia; Tasha's Cauldron of Everything, nivel 1 → 3. <!-- el genio|don elemental -->
+- [x] **Recipiente Santuario** (nivel 10): `pasiva`. Tasha's Cauldron of Everything, nivel 1 → 3. <!-- el genio|recipiente santuario -->
+- [x] **Deseo Limitado** (nivel 14): `accion`. Tasha's Cauldron of Everything, nivel 1 → 3. <!-- el genio|deseo limitado -->
+- [x] **Lista Ampliada del Insondable** (nivel 3): `pasiva`. Tasha's Cauldron of Everything, nivel 1 → 3. <!-- el insondable|lista ampliada del insondable -->
+- [x] **Don del Mar** (nivel 3): `pasiva`. Tasha's Cauldron of Everything, nivel 1 → 3. <!-- el insondable|don del mar -->
+- [x] **Tentáculo de las Profundidades** (nivel 3): `adicional`. usos por competencia; ataque en Ataques; Tasha's Cauldron of Everything, nivel 1 → 3. <!-- el insondable|tentaculo de las profundidades -->
+- [x] **Espiral Guardiana** (nivel 6): `reaccion`. Tasha's Cauldron of Everything, nivel 1 → 3. <!-- el insondable|espiral guardiana -->
+- [x] **Alma Oceánica** (nivel 6): `pasiva`. Tasha's Cauldron of Everything, nivel 1 → 3. <!-- el insondable|alma oceanica -->
+- [x] **Tentáculos Aferradores** (nivel 10): `accion`. Tasha's Cauldron of Everything, nivel 1 → 3. <!-- el insondable|tentaculos aferradores -->
+- [x] **Zambullida Insondable** (nivel 14): `accion`. Tasha's Cauldron of Everything, nivel 1 → 3. <!-- el insondable|zambullida insondable -->
+- [x] **Lista Ampliada del Inmortal** (nivel 3): `pasiva`. Sword Coast Adventurer's Guide, nivel 1 → 3. <!-- el inmortal|lista ampliada del inmortal -->
+- [x] **Entre los Muertos** (nivel 3): `pasiva`. Sword Coast Adventurer's Guide, nivel 1 → 3. <!-- el inmortal|entre los muertos -->
+- [x] **Desafiar a la Muerte** (nivel 6): `gratis`. curación calculada; Sword Coast Adventurer's Guide, nivel 1 → 3. <!-- el inmortal|desafiar a la muerte -->
+- [x] **Naturaleza Imperecedera** (nivel 10): `pasiva`. Sword Coast Adventurer's Guide, nivel 1 → 3. <!-- el inmortal|naturaleza imperecedera -->
+- [x] **Vida Indestructible** (nivel 14): `adicional`. curación calculada; Sword Coast Adventurer's Guide, nivel 1 → 3. <!-- el inmortal|vida indestructible -->
+- [x] **Huida Brumosa** (nivel 6): `reaccion`. Manual del Jugador 2024. <!-- patron archihada|huida brumosa -->
+- [x] **Defensas Cautivadoras** (nivel 10): `reaccion`. antes "Defensa Atrapante"; Manual del Jugador 2024. <!-- patron archihada|defensas cautivadoras -->
+- [x] **Magia Hechicera** (nivel 14): `gratis`. antes "Delirio Feérico"; Manual del Jugador 2024. <!-- patron archihada|magia hechicera -->
+- [x] **Suerte del Oscuro** (nivel 6): `gratis`. antes "Suerte del Propio Oscuro"; Manual del Jugador 2024. <!-- patron infernal|suerte del oscuro -->
+- [x] **Resistencia Infernal** (nivel 10): `fuera`. Manual del Jugador 2024. <!-- patron infernal|resistencia infernal -->
+- [x] **Arrojar al Infierno** (nivel 14): `gratis`. antes "Arrojar a través del Infierno"; Manual del Jugador 2024. <!-- patron infernal|arrojar al infierno -->
+- [x] **Alma Radiante** (nivel 6): `pasiva`. Manual del Jugador 2024. <!-- patron celestial|alma radiante -->
+- [x] **Resiliencia Celestial** (nivel 10): `fuera`. antes "Vigor Celestial"; PG temporales calculados; Manual del Jugador 2024. <!-- patron celestial|resiliencia celestial -->
+- [x] **Venganza Abrasadora** (nivel 14): `gratis`. antes "Venganza Flamígera"; daño calculado; Manual del Jugador 2024. <!-- patron celestial|venganza abrasadora -->
+- [x] **Combatiente Clarividente** (nivel 6): `gratis`. Manual del Jugador 2024. <!-- patron gran antiguo|combatiente clarividente -->
+- [x] **Maleficio Sobrenatural** (nivel 10): `pasiva`. Manual del Jugador 2024. <!-- patron gran antiguo|maleficio sobrenatural -->
+- [x] **Escudo Mental** (nivel 10): `pasiva`. antes "Escudo de Pensamiento"; Manual del Jugador 2024. <!-- patron gran antiguo|escudo mental -->
+- [x] **Crear Siervo** (nivel 14): `pasiva`. antes "Crear Servidor"; PG temporales calculados; Manual del Jugador 2024. <!-- patron gran antiguo|crear siervo -->
 
 ## Lote 8: Clérigo (subclases y rasgos de nivel alto de la biblioteca)
 

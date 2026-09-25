@@ -2,6 +2,9 @@
 // @ts-nocheck -- datos portados tal cual de index.html
 import { sign, fmtMod } from '@/shared/utils/texto';
 
+/* Conjuros de patrón siempre preparados (Manual del Jugador 2024): [nivel de brujo, nombres como están en el catálogo] */
+const conjurosPatron = tabla => c => `Siempre preparados: ${tabla.filter(([n]) => c.lvl >= n).flatMap(([, s]) => s).join(', ')}.`;
+
 export const SUBCLASES: any[] = [
   {key:'sombra', clase:'monje', n:'Guerrero de la Sombra', match:/sombra|shadow/, hasta:6, rasgos:[
     {n:3,t:'accion',nombre:'Oscuridad (Artes de la Sombra)',coste:'1 Focus',texto:()=>'Lanzas Oscuridad sin componentes (concentración). Tú ves dentro y cada turno puedes moverla hasta 60 pies.'},
@@ -36,18 +39,19 @@ export const SUBCLASES: any[] = [
   ]},
   {key:'infernal', clase:'brujo', n:'Patrón Infernal', match:/infernal|diablo|demonio|fiend/, hasta:5, rasgos:[
     {n:3,t:'gratis',nombre:'Bendición del Oscuro',texto:c=>`Cuando reduces a 0 PG a un enemigo (o alguien lo hace a 10 pies de ti), ganas ${Math.max(1,c.m.car+c.lvl)} PG temporales.`},
-    {n:3,t:'pasiva',nombre:'Conjuros del patrón',texto:c=>`Siempre preparados: Manos ardientes, Orden imperiosa, Rayo abrasador, Sugestión${c.lvl>=5?', Bola de fuego, Nube apestosa':''}.`},
+    {n:3,t:'pasiva',nombre:'Conjuros del patrón',texto:conjurosPatron([[3,['Manos ardientes','Orden imperiosa','Rayo abrasador','Sugestión']],[5,['Bola de fuego','Nube apestosa']],[7,['Escudo de fuego','Muro de fuego']],[9,['Geas','Plaga de insectos']]])},
   ]},
   {key:'archihada', clase:'brujo', n:'Patrón Archihada', match:/archi|feeri|hada|archfey/, hasta:5, recursos:c=>[c.lvl>=3&&{id:'pasos',nombre:'Pasos Feéricos',max:Math.max(1,c.m.car),reset:'largo'}], rasgos:[
     {n:3,t:'adicional',nombre:'Pasos Feéricos',coste:'1 uso',texto:c=>`Lanzas Paso brumoso sin espacio y eliges: tú o alguien a 10 pies gana 1d10 PG temporales, o criaturas a 5 pies de donde saliste hacen salvación de SAB CD ${c.dcSpell} o tienen desventaja atacando a otros que no seas tú.`},
-    {n:3,t:'pasiva',nombre:'Conjuros del patrón',texto:c=>`Siempre preparados: Calmar emociones, Fuego feérico, Paso brumoso, Fuerza fantasmal, Dormir${c.lvl>=5?', Parpadeo, Crecimiento vegetal':''}.`},
+    {n:3,t:'pasiva',nombre:'Conjuros del patrón',texto:conjurosPatron([[3,['Calmar emociones','Fuego feérico','Paso brumoso','Fuerza fantasmal','Dormir']],[5,['Parpadeo','Crecimiento vegetal']],[7,['Dominar bestia','Invisibilidad mejorada']],[9,['Dominar persona','Apariencia']]])},
   ]},
   {key:'celestial', clase:'brujo', n:'Patrón Celestial', match:/celestial/, hasta:5, recursos:c=>[c.lvl>=3&&{id:'luz',nombre:'Luz Sanadora (d6)',max:1+c.lvl,reset:'largo',tipo:'pool'}], rasgos:[
     {n:3,t:'adicional',nombre:'Luz Sanadora',texto:c=>`Gastas hasta ${Math.max(1,c.m.car)} d6 de tu reserva para curar a una criatura a 60 pies.`},
-    {n:3,t:'pasiva',nombre:'Conjuros del patrón',texto:c=>`Siempre preparados: Luz, Llama sagrada, Ayuda, Curar heridas, Rayo guía, Restablecimiento menor${c.lvl>=5?', Luz del día, Revivir':''}.`},
+    {n:3,t:'pasiva',nombre:'Conjuros del patrón',texto:conjurosPatron([[3,['Luz','Llama sagrada','Ayuda','Curar heridas','Rayo guía','Restablecimiento menor']],[5,['Luz del día','Revivir']],[7,['Guardián de la Fe','Muro de fuego']],[9,['Restablecimiento mayor','Invocar celestial']]])},
   ]},
   {key:'primigenio', clase:'brujo', n:'Patrón Gran Antiguo', match:/primigenio|gran antiguo|old one/, hasta:5, rasgos:[
     {n:3,t:'adicional',nombre:'Mente Despierta',texto:c=>`Vínculo telepático con una criatura que veas a 30 pies durante ${c.lvl} minutos.`},
+    {n:3,t:'pasiva',nombre:'Conjuros del patrón',texto:conjurosPatron([[3,['Detectar pensamientos','Susurros discordantes','Fuerza fantasmal','Risa horrible de Tasha']],[5,['Clarividencia','Hambre de Hadar']],[7,['Confusión','Invocar aberración']],[9,['Alterar los recuerdos','Telequinesis']]])},
     {n:3,t:'pasiva',nombre:'Conjuros psíquicos',texto:()=>'Tus conjuros de brujo con daño pueden hacerlo psíquico, y los de encantamiento e ilusión no necesitan componentes verbales ni somáticos.'},
   ]},
   {key:'draconico', clase:'hechicero', n:'Hechicería Dracónica', match:/draco|dragon/, hasta:6, hp:c=>c.lvl, ca:c=>!c.armor?10+c.m.des+c.m.car:null, rasgos:[
