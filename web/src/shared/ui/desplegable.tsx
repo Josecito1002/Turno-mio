@@ -74,10 +74,12 @@ export function Desplegable({ children, value, defaultValue, onChange, disabled,
   const [pos, setPos] = useState<{ top: number; left: number; width: number; maxHeight: number } | null>(null);
   const boton = useRef<HTMLButtonElement>(null), lista = useRef<HTMLUListElement>(null);
   const busqueda = useRef({ t: '', hasta: 0 });
+  // Solo se mueve la lista hacia la opción activa al abrir o con el teclado; nunca mientras el dedo la desliza
+  const seguir = useRef(false);
   const auto = useId(), idLista = `${auto}-lista`, idOpcion = (i: number) => `${auto}-op-${i}`;
 
   const habilitadas = opciones.map((o, i) => (o.disabled ? -1 : i)).filter(i => i >= 0);
-  const abrir = () => { if (disabled || !opciones.length) return; setActiva(iSel >= 0 ? iSel : habilitadas[0] ?? -1); setPos(null); setAbierto(true); };
+  const abrir = () => { if (disabled || !opciones.length) return; setActiva(iSel >= 0 ? iSel : habilitadas[0] ?? -1); setPos(null); seguir.current = true; setAbierto(true); };
   const cerrar = useCallback(() => setAbierto(false), []);
   const elegir = (i: number) => {
     const o = opciones[i]; if (!o || o.disabled) return;
@@ -96,7 +98,8 @@ export function Desplegable({ children, value, defaultValue, onChange, disabled,
     const haciaArriba = abajo < Math.min(alto, 200) && arriba > abajo;
     const maxHeight = Math.max(120, Math.min(320, haciaArriba ? arriba : abajo));
     const h = Math.min(alto, maxHeight);
-    setPos({ top: haciaArriba ? r.top - hueco - h : r.bottom + hueco, left: r.left, width: r.width, maxHeight });
+    const nueva = { top: haciaArriba ? r.top - hueco - h : r.bottom + hueco, left: r.left, width: r.width, maxHeight };
+    setPos(p => (p && p.top === nueva.top && p.left === nueva.left && p.width === nueva.width && p.maxHeight === nueva.maxHeight ? p : nueva));
   }, []);
 
   useLayoutEffect(() => {
@@ -113,18 +116,25 @@ export function Desplegable({ children, value, defaultValue, onChange, disabled,
       if (!boton.current?.contains(t) && !lista.current?.contains(t)) cerrar();
     };
     document.addEventListener('pointerdown', fuera, true);
+    // Desplazar la propia lista no mueve el botón: no hace falta recolocarla (y hacerlo trababa el deslizamiento)
+    const alDesplazar = (e: Event) => { if (!lista.current?.contains(e.target as Node)) colocar(); };
     window.addEventListener('resize', colocar);
-    window.addEventListener('scroll', colocar, true);
+    window.addEventListener('scroll', alDesplazar, true);
     return () => {
       document.removeEventListener('pointerdown', fuera, true);
       window.removeEventListener('resize', colocar);
-      window.removeEventListener('scroll', colocar, true);
+      window.removeEventListener('scroll', alDesplazar, true);
     };
   }, [abierto, cerrar, colocar]);
 
   // Mantiene visible la opción activa al moverse con el teclado.
   useEffect(() => {
-    if (abierto && activa >= 0 && pos) document.getElementById(idOpcion(activa))?.scrollIntoView({ block: 'nearest' });
+    const l = lista.current, op = activa >= 0 ? document.getElementById(idOpcion(activa)) : null;
+    if (!abierto || !pos || !l || !op || !seguir.current) return;
+    seguir.current = false;
+    // Mueve solo la lista (scrollIntoView también podía mover la página)
+    if (op.offsetTop < l.scrollTop) l.scrollTop = op.offsetTop - 6;
+    else if (op.offsetTop + op.offsetHeight > l.scrollTop + l.clientHeight) l.scrollTop = op.offsetTop + op.offsetHeight - l.clientHeight + 6;
   }, [abierto, activa, pos]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const mover = (desde: number, paso: number) => {
@@ -167,14 +177,14 @@ export function Desplegable({ children, value, defaultValue, onChange, disabled,
     if (j !== -2) {
       e.preventDefault();
       if (k === 'ArrowUp' && e.altKey) { elegir(activa); return; }
-      setActiva(j); return;
+      seguir.current = true; setActiva(j); return;
     }
     if (k === 'Enter' || k === ' ') { e.preventDefault(); elegir(activa); return; }
     // Escape también detiene el cierre del diálogo que contenga al desplegable
     if (k === 'Escape') { e.preventDefault(); e.stopPropagation(); cerrar(); return; }
     if (k === 'Tab') { cerrar(); return; }
     if (k.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      const i = buscar(k, e.timeStamp); if (i >= 0) { e.preventDefault(); setActiva(i); }
+      const i = buscar(k, e.timeStamp); if (i >= 0) { e.preventDefault(); seguir.current = true; setActiva(i); }
     }
   };
 
@@ -195,11 +205,11 @@ export function Desplegable({ children, value, defaultValue, onChange, disabled,
             <li key={`g-${i}`} role="presentation" className={cx('px-3 pb-1 pt-2 font-serif text-sm font-bold text-muted', i > 0 && 'mt-1 border-t border-soft pt-3')}>{o.grupo}</li>
           ),
           <li key={i} id={idOpcion(i)} role="option" aria-selected={sel} aria-disabled={o.disabled || undefined}
-            onPointerMove={() => !o.disabled && activa !== i && setActiva(i)}
+            onPointerMove={e => e.pointerType === 'mouse' && !o.disabled && activa !== i && setActiva(i)}
             onClick={() => elegir(i)}
             className={cx(
               'flex min-h-11 items-center gap-3 rounded-xl px-3 py-1.5 leading-snug transition-colors',
-              o.disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+              o.disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer active:bg-soft',
               act && !o.disabled && 'bg-soft',
               sel && 'font-bold',
               o.grupo !== undefined && 'pl-5',
