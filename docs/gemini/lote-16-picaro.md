@@ -1,85 +1,82 @@
 # Encargo: Lote 16 (Pícaro) de la app "Mi turno"
 
-Eres un asistente de investigación de reglas de D&D 5.ª edición revisada (2024). "Mi turno" es una app de hojas de
-personaje en español. Tu trabajo: revisar todo lo que la app tiene de la clase **Pícaro** contra la versión oficial más
-reciente y devolver los datos corregidos en el formato de abajo. No escribes código de la app: otra persona revisa y
-aplica tu respuesta, así que la precisión importa más que la extensión.
+"Mi turno" es una app de hojas de personaje de D&D (reglas 2024) en español. Tu trabajo: pasar a español, en el formato
+de abajo, la clase **Pícaro** y todas sus subclases, usando **solo el texto oficial en inglés que viene al final** de
+este encargo. Ese texto ya es la versión más reciente de cada cosa y sus niveles ya están adaptados a 2024: no busques
+otras versiones ni cambies niveles. Otra persona revisa y aplica tu respuesta con un script, así que el formato tiene
+que ser exacto.
 
-## Reglas del encargo
+## Reglas
 
-1. **Versión más reciente siempre.** Usa el Manual del Jugador 2024 y, para lo que no esté ahí, la publicación oficial
-   más nueva (libros de 2025 y 2026 como Forgotten Realms: Heroes of Faerûn, Eberron: Forge of the Artificer, Ravenloft:
-   The Horrors Within, o Unearthed Arcana/Arcana Unleashed si es lo único que existe; dilo en ese caso). Las revisiones
-   de la comunidad no cuentan. **Nunca cambies algo por una versión más vieja**: lo que tiene la app puede venir ya de
-   un libro de 2025 o 2026. Antes de dar por buena una versión de 2014 a 2020, busca si Heroes of Faerûn (2025),
-   Ravenloft: The Horrors Within (2026) o Arcana Unleashed (2026) sacaron una versión nueva de esa subclase.
-2. **Subclases antiguas sin versión 2024** (Xanathar, Tasha, Sword Coast...): se conservan, pero sus rasgos se mueven a
-   los niveles de subclase de la clase 2024 (por ejemplo, lo de nivel 1 o 2 pasa al 3). Di en las notas qué moviste.
-3. **Textos propios en español**, cortos (1 a 3 frases), escritos por ti. Nunca copies ni traduzcas literal el texto
-   del libro. Nombres de rasgos y conjuros: la traducción oficial al español si existe, con el inglés entre paréntesis
-   la primera vez que aparezca un conjuro, por ejemplo "Paso brumoso (Misty Step)". **Los conjuros escríbelos con el
-   nombre exacto de la lista "Conjuros de la app" del final** (por ejemplo "Ayuda", no "Auxilio"); si uno no está en
-   la lista, usa la traducción oficial y márcalo con (NO ESTÁ EN LA APP).
-4. **No inventes.** Si no puedes confirmar un dato (un número, un nivel, un nombre), escríbelo igual con la marca
-   **[NO CONFIRMADO]** y di por qué.
-5. **Antes de agregar algo nuevo**, comprueba que no esté ya en la app con otro nombre (lista de abajo).
-6. Tipos de acción válidos para `t`: accion, adicional (acción adicional), reaccion, gratis (sin acción, por ejemplo
-   al acertar), pasiva, fuera (fuera de combate o ritual).
+1. **Una subclase por cada subclase del texto oficial**, ni más ni menos. Si la app ya la tiene (lista "Lo que tiene
+   hoy la app"), usa su misma clave; si es nueva, inventa una clave en minúsculas-con-guiones.
+2. **Textos propios en español**, de 1 a 3 frases por rasgo, que expliquen qué hace para quien juega. No traduzcas
+   literal: resume con tus palabras. Nombres: la traducción oficial al español si la conoces.
+3. **Conjuros con el nombre exacto de la lista "Conjuros de la app"** (por ejemplo "Ayuda", no "Auxilio"). Si uno no
+   está en la lista, pon tu traducción y detrás (NO ESTÁ EN LA APP).
+4. Tipos de acción para `t`: accion, adicional (acción adicional), reaccion, gratis (sin acción, por ejemplo al acertar),
+   pasiva, fuera (fuera de combate o ritual).
+5. Si algo no se entiende en el texto oficial, escríbelo igual con la marca [NO CONFIRMADO].
 
-## Qué devolver (en este orden, cada parte en su bloque de código)
+## Formato de la respuesta
 
-**A. Datos** (TypeScript, archivo `scripts/datos/picaro-2024.ts`). Este formato exacto:
+Responde **solo** con estas cinco partes, en este orden, cada una empezando con su marcador solo en una línea
+(`=== A ===`, `=== B ===`...). Nada antes de la primera ni después de la última.
+
+=== A ===
+Código TypeScript, exactamente con esta forma:
 
 ```ts
 const r = (n: number, nombre: string, t: string, texto: string, extra: Record<string, unknown> = {}) => ({ nombre, t, texto, n, manual: true, usos: 0, reset: 'largo', ...extra });
 
 export const PICARO_2024 = {
-  // Rasgos de la clase de nivel 6 a 20 (los de nivel 1 a 5 ya los tiene la app)
+  // Rasgos de la clase de nivel 6 a 20 (sin "Ability Score Improvement", "Epic Boon" ni "Subclass Feature")
   rasgosAltos: [
-    r(9, 'Nombre del rasgo', 'accion', 'Texto propio.', { usos: 1, reset: 'largo' }),  // usos/reset solo si tiene usos fijos
+    r(9, 'Nombre del rasgo', 'accion', 'Texto propio.', { usos: 1, reset: 'largo' }),  // usos/reset solo si son un número fijo
   ],
-  // Rasgos de nivel 6 en adelante de las subclases que la app trae integradas (clave: ninguna)
+  // Rasgos de nivel 6 en adelante de las subclases integradas en la app (claves: ninguna)
   subAltos: {
-    clave: [ r(6, '...', 'pasiva', '...') ],
+    // ninguna
   },
-  // Todas las demás subclases, completas (nivel 3 a 20). Clave en minúsculas-con-guiones.
+  // Todas las demás subclases, completas (todos sus niveles)
   subclases: {
-    'clave-nueva': { n: 'Nombre en español', rasgos: [ r(3, '...', 'pasiva', '...') ] },
+    'clave': { n: 'Nombre en español', rasgos: [ r(3, '...', 'pasiva', '...') ] },
   },
 };
 ```
 
-Los conjuros siempre preparados de una subclase van en un rasgo llamado "Conjuros del/de la <subclase>" cuyo texto diga
-solo que se amplían en tales niveles; la lista completa va en la parte B.
+Si una subclase tiene conjuros siempre preparados, van en un rasgo llamado "Conjuros del <nombre de la subclase>" cuyo
+texto solo diga en qué niveles se amplían; la lista va en B.
 
-**B. Mecánicas** (JSON). Una entrada por cada cosa que la app debe calcular o dejar elegir. Fórmulas con estas
-variables: `nivel` (de la clase), `pb` (bonificador por competencia), `FUE DES CON INT SAB CAR` (modificadores),
-`CD` y `ataqueConjuro`.
+=== B ===
+JSON con lo que la app calcula o deja elegir. Fórmulas con: `nivel` (de la clase), `pb` (competencia),
+`FUE DES CON INT SAB CAR` (modificadores), `CD`, `ataqueConjuro`, `max(a, b)`. "donde" es "clase" o la clave de la
+subclase, y "rasgo" el nombre exacto que usaste en A.
 
 ```json
 [
-  { "donde": "clase | clave de subclase", "rasgo": "Nombre del rasgo", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo | corto | corto desde nivel X" },
-  { "donde": "...", "rasgo": "...", "tipo": "dado", "dado": "1d8; 2d8 desde nivel 10" },
-  { "donde": "...", "rasgo": "...", "tipo": "ataque", "ataque": "ataqueConjuro", "alcance": "30 pies", "daño": "1d8 + SAB frío" },
-  { "donde": "...", "rasgo": "...", "tipo": "ca | velocidad | vision | resistencia | competencia | pg", "detalle": "fórmula o valor" },
-  { "donde": "...", "rasgo": "...", "tipo": "eleccion", "id": "id-corto", "cuantas": "2; 3 desde nivel 10",
-    "opciones": [ { "key": "id-corto", "nombre": "...", "desc": "qué hace, 1 frase propia", "nivel": 1, "requiere": "key de otra opción o null" } ] },
-  { "donde": "...", "rasgo": "Conjuros del ...", "tipo": "conjuros", "por_nivel": { "3": ["Bendecir (Bless)"], "5": [], "7": [], "9": [] } }
+  { "donde": "clave", "rasgo": "Nombre", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo | corto | corto desde nivel 6" },
+  { "donde": "clave", "rasgo": "Nombre", "tipo": "conjuros", "por_nivel": { "3": ["Bendecir"], "5": [], "7": [], "9": [] } },
+  { "donde": "clave", "rasgo": "Nombre", "tipo": "eleccion", "id": "id-corto", "cuantas": "1 | 2; 3 desde nivel 10",
+    "opciones": [ { "key": "id-corto", "nombre": "...", "desc": "1 frase propia", "nivel": 1, "requiere": null } ] },
+  { "donde": "clave", "rasgo": "Nombre", "tipo": "otro", "detalle": "daños, CA, velocidad, resistencias... en una frase con su fórmula" }
 ]
 ```
 
-**C. Fuentes** (JSON): `{ "Nombre de subclase": "Libro (año)" }` para cada subclase, incluidas las integradas.
+=== C ===
+JSON `{ "clave": "Libro (año)" }` con el libro de cada subclase, copiado del texto oficial.
 
-**D. Descripciones** (JSON): `{ "clave": "1 o 2 frases propias que presenten la subclase a quien no la conoce" }`.
+=== D ===
+JSON `{ "clave": "1 o 2 frases propias que presenten la subclase a quien no la conoce" }`.
 
-**E. Notas** (lista): por cada rasgo o subclase que cambiaste, qué versión usaste y en qué difería lo que tenía la app.
-Incluye lo que no se agrega y por qué (reemplazado en 2024, duplicado con otro nombre, sin versión vigente).
-Si algo de lo integrado en la app (rasgos de clase de nivel 1 a 5, o los primeros niveles de las subclases
-integradas) está mal, no lo metas en A: escribe aquí el rasgo, qué está mal y el texto corregido.
+=== E ===
+Lista breve: qué difiere de lo que tiene hoy la app (rasgos que cambian de nivel, de tipo o de nombre, subclases
+nuevas). Si algo de lo integrado en la app (clase de nivel 1 a 5, o los primeros niveles de las subclases integradas)
+está mal según el texto oficial, di cuál y cómo debería quedar.
 
 ## Lo que tiene hoy la app
 
-### Clase Pícaro, niveles 1 a 5 (integrados en la app)
+### Clase Pícaro, niveles 1 a 5 (integrados)
 - Nivel 1 · Ataque Furtivo [gratis]: Una vez por turno, al golpear con arma Sutil o a distancia teniendo ventaja (o con un aliado a 5 pies del objetivo): +10d6 de daño.
 - Nivel 1 · Pericia [pasiva]: Doble competencia en 2 habilidades (elígelas en Habilidades).
 - Nivel 1 · Maestría con Armas [pasiva]: Usas la maestría de 2 tipos de armas (elígelas en Equipo). Puedes cambiarlas en cada descanso largo.
@@ -89,52 +86,51 @@ integradas) está mal, no lo metas en A: escribe aquí el rasgo, qué está mal 
 - Nivel 5 · Golpe Astuto [gratis]: Al hacer Ataque Furtivo puedes quitar dados para: Veneno (1d6, salvación de CON CD 17 o Envenenado 1 minuto), Tropiezo (1d6, salvación de DES o Derribado) o Retirada (1d6, te mueves la mitad de tu velocidad sin ataques de oportunidad).
 - Nivel 5 · Esquiva Asombrosa [reaccion]: Cuando un atacante que ves te golpea, reduces a la mitad el daño de ese ataque.
 
-
-### Rasgos de nivel alto de la clase (biblioteca)
+### Rasgos de nivel alto de la clase
 - Nivel 7 · Evasión [pasiva]: En efectos de área de DES, si pasas la salvación recibes 0 daño, y si fallas, solo la mitad.
 - Nivel 7 · Talento Fiable [pasiva]: Tiradas de 9 o menos en el d20 en habilidades/herramientas con competencia se vuelven un 10.
 - Nivel 11 · Golpe Astuto Mejorado [pasiva]: Puedes usar hasta dos opciones de Golpe Astuto en un solo ataque.
 - Nivel 14 · Golpe Astuto Taimado [pasiva]: Nuevas opciones de Golpe Astuto (coste 2d6): Atontar, Cegar, Inconsciente (6d6).
 - Nivel 20 · Golpe de Suerte [pasiva]: Si fallas un ataque o prueba, puedes convertirlo en un éxito automático (1/descanso).
 
-### Embaucador Arcano (biblioteca, clave `embaucador`)
+### Embaucador Arcano (clave `embaucador`)
 - Nivel 3 · Lanzamiento de Conjuros [pasiva]: Usa Inteligencia. Conjuros de Mago (Ilusión/Encantamiento).
 - Nivel 3 · Mano de Mago Legeramente [pasiva]: Tu mano de mago es invisible y puede robar o desactivar trampas.
 - Nivel 9 · Emboscada Mágica [pasiva]: Si lanzas conjuro estando escondido, el enemigo tiene desventaja en la salvación.
 - Nivel 17 · Ladrón de Conjuros [reaccion]: Reacción para anular un conjuro enemigo y aprender a lanzarlo tú mismo.
 
-### Asesino (biblioteca, clave `asesino`)
+### Asesino (clave `asesino`)
 - Nivel 3 · Asesinar [pasiva]: Ventaja en Iniciativa. Ventaja en ataques contra criaturas que no han actuado. El primer golpe contra ellas inflige daño extra igual a tu Nivel de Pícaro.
 - Nivel 3 · Competencia en Infiltración [pasiva]: Competencia con kit de disfraz y venenos.
 - Nivel 9 · Maestro de la Suplantación [pasiva]: Puedes crear identidades falsas perfectas.
 - Nivel 17 · Golpe Mortal [gratis]: Al golpear por sorpresa, el daño puede duplicarse si fallan salvación CON.
 
-### Cuchillo Mental (biblioteca, clave `cuchillo-mental`)
+### Cuchillo Mental (clave `cuchillo-mental`)
 - Nivel 3 · Hojas Psiónicas [pasiva]: Creas dagas de energía mental que desaparecen tras impactar.
 - Nivel 3 · Poder Psiónico [pasiva]: Dados de energía para telepatía y mejorar pruebas de habilidad.
 - Nivel 9 · Hojas de Rastreo [pasiva]: Tus dagas psíquicas pueden teletransportarte o buscar objetivos.
 - Nivel 17 · Velo Psíquico [pasiva]: Invisibilidad total por 1 hora.
 
-### Ladrón (biblioteca, clave `ladron`)
+### Ladrón (clave `ladron`)
 - Nivel 3 · Manos Rápidas [adicional]: Usa objetos o herramientas de ladrón como acción adicional.
 - Nivel 3 · Trabajo en Segundo Piso [pasiva]: Velocidad de trepar igual a tu velocidad normal.
 - Nivel 13 · Usar Objeto Mágico [pasiva]: Ignoras requisitos de clase/raza para usar objetos mágicos.
 - Nivel 17 · Reflejos de Ladrón [pasiva]: Tienes dos turnos en el primer asalto del combate.
 
-### Fantasma (biblioteca, clave `fantasma`)
+### Fantasma (clave `fantasma`)
 - Nivel 3 · Susurros de los Muertos [pasiva]: Los ecos de aquellos que han muerto se aferran a ti. Cada vez que terminas un Descanso Corto o Largo, puedes obtener una competencia en una habilidad o herramienta a tu elección, mientras una presencia fantasmal comparte su conocimiento contigo. Pierdes esta competencia cuando usas este rasgo para elegir una competencia diferente de la que carezcas.
 - Nivel 3 · Lamentos de la Tumba [pasiva]: Al acercar a alguien a la tumba, puedes canalizar el poder de la muerte para dañar a otra persona también. Inmediatamente después de infligir tu daño de Ataque Furtivo a una criatura en tu turno, puedes elegir como objetivo a una segunda criatura que puedas ver a 30 pies o menos de la primera. Tira la mitad del número de dados de Ataque Furtivo correspondientes a tu nivel (redondeando hacia arriba), y la segunda criatura recibe daño necrótico igual al total de la tirada, mientras los lamentos de los muertos suenan a su alrededor por un momento. Puedes usar este rasgo una cantidad de veces igual a tu bonificador de competencia, y recuperas todos los usos gastados cuando terminas un Descanso Largo.
 - Nivel 9 · Fichas de Alma [reaccion]: Cuando una vida termina en tu presencia, eres capaz de arrebatar una ficha del alma que parte, una porción de su esencia vital que toma forma física: como reacción, cuando una criatura que puedas ver muere a 30 pies o menos de ti, puedes abrir tu mano libre y hacer que aparezca allí un pequeño abalorio (una ficha de alma). El DM determina su forma. Puedes tener un máximo de fichas de alma igual a tu bonificador de competencia, y no puedes crear una mientras estés en tu máximo. Puedes usar las fichas de alma de las siguientes maneras: mientras llevas una ficha de alma contigo, tienes ventaja en tiradas de salvación contra la muerte y en tiradas de salvación de Constitución; cuando infliges daño de Ataque Furtivo en tu turno, puedes destruir una de tus fichas de alma que lleves contigo y usar inmediatamente Lamentos de la Tumba, sin gastar un uso de ese rasgo; como acción, puedes destruir una de tus fichas de alma, sin importar dónde esté, y preguntar al espíritu asociado una pregunta. El espíritu aparece y responde en un idioma que conocía en vida. No está obligado a ser veraz y responde de la forma más concisa posible.
 - Nivel 13 · Caminar Fantasma [adicional]: Puedes atravesar parcialmente el reino de los muertos, volviéndote como un fantasma. Como Acción Adicional, asumes una forma espectral. Mientras estás en esta forma, tienes velocidad de vuelo de 10 pies, puedes flotar, y las tiradas de ataque contra ti tienen desventaja. También puedes moverte a través de criaturas y objetos como si fueran terreno difícil, pero recibes 1d10 de daño de Fuerza si terminas tu turno dentro de una criatura o un objeto. Permaneces en esta forma durante 10 minutos o hasta que la termines como Acción Adicional. Para volver a usar este rasgo, debes terminar un Descanso Largo o destruir una de tus fichas de alma como parte de la Acción Adicional que usas para activarlo.
 - Nivel 17 · Amigo de la Muerte [pasiva]: Tu asociación con la muerte se ha vuelto tan estrecha que obtienes los siguientes beneficios. Cuando usas Lamentos de la Tumba, ahora puedes infligir el daño necrótico tanto a la primera como a la segunda criatura. Al final de un Descanso Largo, aparece una ficha de alma en tu mano si no tienes ninguna, pues los espíritus de los muertos se sienten atraídos por ti.
 
-### Vástago de los Tres (biblioteca, clave `vastago-tres`)
+### Vástago de los Tres (clave `vastago-tres`)
 - Nivel 3 · Sed de Sangre [reaccion]: Cuando un enemigo que puedas ver a 30 pies o menos de ti recibe daño y queda Malherido después de recibirlo, pero no muere de inmediato, puedes usar una Reacción y teletransportarte a un espacio desocupado que puedas ver a 5 pies o menos de ese enemigo. Luego puedes hacer un ataque cuerpo a cuerpo. Puedes usar este rasgo una cantidad de veces igual a tu modificador de Inteligencia (mínimo una), y recuperas todos los usos gastados cuando terminas un Descanso Largo.
 - Nivel 3 · Lealtad Temible [pasiva]: Elige uno de los Tres Muertos: Bane, Bhaal o Myrkul. Obtienes Resistencia a un tipo de daño y la capacidad de lanzar un truco, como se detalla a continuación; Inteligencia es tu característica de lanzamiento para este truco. Cuando terminas un Descanso Largo, puedes cambiar tu elección. Bane: Resistencia a daño Psíquico y el truco Ilusión Menor. Bhaal: Resistencia a daño de Veneno y el truco Protección contra Hojas. Myrkul: Resistencia a daño Necrótico y el truco Toque Helado.
 - Nivel 13 · Aura de Malevolencia [pasiva]: Irradias un poder maligno asociado con uno de los Tres Muertos. Cuando usas Sed de Sangre y te teletransportas, cada criatura de tu elección a 10 pies o menos del espacio que dejaste o del espacio de destino (a tu elección) recibe daño igual a tu modificador de Inteligencia; el tipo de daño es el mismo que la Resistencia al daño otorgada por tu elección en el rasgo Lealtad Temible. El daño infligido por este rasgo ignora la Resistencia.
 - Nivel 17 · Encarnación del Terror [pasiva]: Obtienes los siguientes beneficios. Degollador: recuperas un uso gastado de Sed de Sangre cuando terminas un Descanso Corto. Intención Asesina: cuando tiras el daño de tu Ataque Furtivo, puedes tratar cualquier resultado de 1 o 2 en el dado como un 3.
 
-### Inquisitivo (biblioteca, clave `inquisitivo`)
+### Inquisitivo (clave `inquisitivo`)
 - Nivel 3 · Oído para el Engaño [pasiva]: Desarrollas un oído agudo para detectar mentiras. Cada vez que hagas una prueba de Sabiduría (Perspicacia) para determinar si una criatura miente, trata cualquier resultado de 7 o menos en el d20 como un 8.
 - Nivel 3 · Ojo para el Detalle [adicional]: Puedes usar una Acción Adicional para hacer una prueba de Sabiduría (Percepción) para localizar una criatura u objeto escondido, o una prueba de Inteligencia (Investigación) para descubrir o descifrar pistas.
 - Nivel 3 · Lucha Perspicaz [adicional]: Obtienes la capacidad de descifrar las tácticas de un oponente y desarrollar un contraataque. Como Acción Adicional, haces una prueba de Sabiduría (Perspicacia) contra una criatura que puedas ver y que no esté Incapacitada, contra una prueba de Carisma (Engaño) del objetivo. Si tienes éxito, puedes usar tu Ataque Furtivo contra ese objetivo incluso si no tienes ventaja en la tirada de ataque, pero no si tienes desventaja. Este beneficio dura 1 minuto o hasta que uses esta característica con éxito contra un objetivo diferente.
@@ -142,75 +138,87 @@ integradas) está mal, no lo metas en A: escribe aquí el rasgo, qué está mal 
 - Nivel 13 · Ojo Inerrante [accion]: Tus sentidos son casi imposibles de engañar. Como acción, percibes la presencia de ilusiones, cambiaformas que no están en su forma original y otra magia diseñada para engañar los sentidos a 30 pies o menos de ti, siempre que no estés Cegado ni Ensordecido. Percibes que un efecto intenta engañarte, pero no obtienes información sobre lo que está oculto ni su verdadera naturaleza. Puedes usar esta característica un número de veces igual a tu modificador de Sabiduría (mínimo una) y recuperas todos los usos gastados al terminar un Descanso Largo.
 - Nivel 17 · Ojo para las Debilidades [pasiva]: Aprendes a explotar las debilidades de una criatura estudiando cuidadosamente sus tácticas y movimientos. Mientras tu rasgo Lucha Perspicaz aplique a una criatura, tu daño de Ataque Furtivo contra esa criatura aumenta en 3d6.
 
-## Pendientes de este lote en la revisión (selectores por hacer, subclases que faltan respecto a D&D Beyond, rasgos dudosos)
-
-(Selectores)
-#### Lote 16: Pícaro
-
+### Selectores que faltan en este lote
 - [ ] **Vástago de los Tres: Lealtad Temible**: Bane, Bhaal o Myrkul: su resistencia y su truco.
 
-(Por agregar (faltan respecto a D&D Beyond))
-#### Lote 16: Pícaro
+## Texto oficial (fuente única)
 
-- [ ] **Mente Maestra** (Xanathar's Guide to Everything)
-- [ ] **Espadachín** (Xanathar's Guide to Everything)
-- [ ] **Explorador (Scout)** (Xanathar's Guide to Everything)
+### Clase Pícaro (Manual del Jugador 2024)
+- Nivel 1 · Expertise: You gain Expertise in two of your skill proficiencies of your choice. Sleight of Hand and Stealth are recommended if you have proficiency in them. At Rogue level 6, you gain Expertise in two more of your skill proficiencies of your choice.
+- Nivel 1 · Sneak Attack: You know how to strike subtly and exploit a foe's distraction. Once per turn, you can deal an extra 1d6 damage to one creature you hit with an attack roll if you have Advantage on the roll and the attack uses a Finesse or a Ranged weapon. The extra damage's type is the same as the weapon's type. You don't need Advantage on the attack roll if at least one of your allies is within 5 feet of the target, the ally doesn't have the Incapacitated condition, and you don't have Disadvantage on the attack roll. The extra damage increases as you gain Rogue levels, as shown in the Sneak Attack column of the Rogue Features table.
+- Nivel 1 · Thieves' Cant: You picked up various languages in the communities where you plied your roguish talents. You know Thieves' Cant and one other language of your choice, which you choose from the language tables in 2.
+- Nivel 1 · Weapon Mastery: Your training with weapons allows you to use the mastery properties of two kinds of weapons of your choice with which you have proficiency, such as Daggers and Shortbows. Whenever you finish a Long Rest, you can change the kinds of weapons you chose. For example, you could switch to using the mastery properties of Scimitars and Shortswords.
+- Nivel 2 · Cunning Action: Your quick thinking and agility allow you to move and act quickly. On your turn, you can take one of the following actions as a Bonus Action: Dash, Disengage, or Hide.
+- Nivel 3 · Rogue Subclass: You gain a Rogue subclass of your choice. A subclass is a specialization that grants you features at certain Rogue levels. For the rest of your career, you gain each of your subclass's features that are of your Rogue level or lower.
+- Nivel 3 · Steady Aim: As a Bonus Action, you give yourself Advantage on your next attack roll on the current turn. You can use this feature only if you haven't moved during this turn, and after you use it, your Speed is 0 until the end of the current turn.
+- Nivel 4 · Ability Score Improvement: You gain the Ability Score Improvement feat or another feat of your choice for which you qualify. You gain this feature again at Rogue levels 8, 10, 12, and 16.
+- Nivel 5 · Cunning Strike: You've developed cunning ways to use your Sneak Attack. When you deal Sneak Attack damage, you can add one of the following Cunning Strike effects. Each effect has a die cost, which is the number of Sneak Attack damage dice you must forgo to add the effect. You remove the die before rolling, and the effect occurs immediately after the attack's damage is dealt. For example, if you add the Poison effect, remove 1d6 from the Sneak Attack's damage before rolling. If a Cunning Strike effect requires a saving throw, the DC equals 8 plus your Dexterity modifier and Proficiency Bonus. [Poison (Cost: 1d6)] You add a toxin to your strike, forcing the target to make a Constitution saving throw. On a failed save, the target has the Poisoned condition for 1 minute. At the end of each of its turns, the Poisoned target repeats the save, ending the effect on itself on a success. To use this effect, you must have a Poisoner's Kit on your person. [Trip (Cost: 1d6)] If the target is Large or smaller, it must succeed on a Dexterity saving throw or have the Prone condition. [Withdraw (Cost: 1d6)] Immediately after the attack, you move up to half your Speed without provoking Opportunity Attacks.
+- Nivel 5 · Uncanny Dodge: When an attacker that you can see hits you with an attack roll, you can take a Reaction to halve the attack's damage against you (round down).
+- Nivel 6 · Expertise: You gain Expertise in two of your Skill Proficiencies of your choice.
+- Nivel 7 · Evasion: You can nimbly dodge out of the way of certain dangers. When you're subjected to an effect that allows you to make a Dexterity saving throw to take only half damage, you instead take no damage if you succeed on the saving throw and only half damage if you fail. You can't use this feature if you have the Incapacitated condition.
+- Nivel 7 · Reliable Talent: Whenever you make an ability check that uses one of your skill or tool proficiencies, you can treat a d20 roll of 9 or lower as a 10.
+- Nivel 8 · Ability Score Improvement: You gain the Ability Score Improvement feat or another feat of your choice for which you qualify.
+- Nivel 9 · Subclass Feature: You gain a feature from your Rogue Subclass.
+- Nivel 10 · Ability Score Improvement: You gain the Ability Score Improvement feat or another feat of your choice for which you qualify.
+- Nivel 11 · Improved Cunning Strike: You can use up to two Cunning Strike effects when you deal Sneak Attack damage, paying the die cost for each effect.
+- Nivel 12 · Ability Score Improvement: You gain the Ability Score Improvement feat or another feat of your choice for which you qualify.
+- Nivel 13 · Subclass Feature: You gain a feature from your Rogue Subclass.
+- Nivel 14 · Devious Strikes: You've practiced new ways to use your Sneak Attack deviously. The following effects are now among your Cunning Strike options. [Daze (Cost: 2d6)] The target must succeed on a Constitution saving throw, or on its next turn, it can do only one of the following: move or take an action or a Bonus Action. [Knock Out (Cost: 6d6)] The target must succeed on a Constitution saving throw, or it has the Unconscious condition for 1 minute or until it takes any damage. The Unconscious target repeats the save at the end of each of its turns, ending the effect on itself on a success. [Obscure (Cost: 3d6)] The target must succeed on a Dexterity saving throw, or it has the Blinded condition until the end of its next turn.
+- Nivel 15 · Slippery Mind: Your cunning mind is exceptionally difficult to control. You gain proficiency in Wisdom and Charisma saving throws.
+- Nivel 16 · Ability Score Improvement: You gain the Ability Score Improvement feat or another feat of your choice for which you qualify.
+- Nivel 17 · Subclass Feature: You gain a feature from your Rogue Subclass.
+- Nivel 18 · Elusive: You're so evasive that attackers rarely gain the upper hand against you. No attack roll can have Advantage against you unless you have the Incapacitated condition.
+- Nivel 19 · Epic Boon: You gain an Epic Boon feat or another feat of your choice for which you qualify. Boon of the Night Spirit is recommended.
+- Nivel 20 · Stroke of Luck: You have a marvelous knack for succeeding when you need to. If you fail a D20 Test, you can turn the roll into a 20. Once you use this feature, you can't use it again until you finish a Short or Long Rest.
 
-#### Lote 16: Pícaro (subclases y rasgos de nivel alto de la biblioteca)
+### Arcane Trickster — Manual del Jugador (2024)
+- Nivel 3 · Arcane Trickster: Enhance Stealth with Arcane Spells Some Rogues enhance their fine-honed skills of stealth and agility with spells, learning magical tricks to aid them in their trade. Some Arcane Tricksters use their talents as pickpockets and burglars, while others are pranksters. [Spellcasting] You have learned to cast spells. See 7 for the rules on spellcasting. The information below details how you use those rules as an Arcane Trickster. [Cantrips] You know three cantrips: Mage Hand and two other cantrips of your choice from the Wizard spell list (see that class's section for its list). Mind Sliver and Minor Illusion are recommended. Whenever you gain a Rogue level, you can replace one of your cantrips, except Mage Hand, with another Wizard cantrip of your choice. When you reach Rogue level 10, you learn another Wizard cantrip of your choice. [Spell Slots] The Arcane Trickster Spellcasting table shows how many spell slots you have to cast your level 1+ spells. You regain all expended spell slots when you finish a Long Rest. [Prepared Spells of 1st+ Level] You prepare the list of level 1+ spells that are available for you to cast with this feature. To start, choose three level 1 Wizard spells. Charm Person, Disguise Self, and Fog Cloud are recommended. The number of spells on your list increases as you gain Rogue levels, as shown in the Prepared Spells column of the Arcane Trickster Spellcasting table. Whenever that number increases, choose additional Wizard spells until the number of spells on your list matches the number in the Arcane Trickster Spellcasting table. The chosen spells must be of a level for which you have spell slots. For example, if you're a level 7 Rogue, your list of prepared spells can include five Wizard spells of level 1 or 2 in any combination. [Changing Your Prepared Spells] Whenever you gain a Rogue level, you can replace one spell on your list with another Wizard spell for which you have spell slots. [Spellcasting Ability] Intelligence is your spellcasting ability for your Wizard spells. [Spellcasting Focus] You can use an Arcane Focus as a Spellcasting Focus for your Wizard spells. [Mage Hand Legerdemain] When you cast Mage Hand, you can cast it as a Bonus Action, and you can make the spectral hand Invisible. You can control the hand as a Bonus Action, and through it, you can make Dexterity (Sleight of Hand) checks.
+- Nivel 9 · Magical Ambush: If you have the Invisible condition when you cast a spell on a creature, it has Disadvantage on any saving throw it makes against the spell on the same turn.
+- Nivel 13 · Versatile Trickster: You gain the ability to distract targets with your Mage Hand. When you use the Trip option of your Cunning Strike on a creature, you can also use that option on another creature within 5 feet of the spectral hand.
+- Nivel 17 · Spell Thief: You gain the ability to magically steal the knowledge of how to cast a spell from another spellcaster. Immediately after a creature casts a spell that targets you or includes you in its area of effect, you can take a Reaction to force the creature to make an Intelligence saving throw. The DC equals your spell save DC. On a failed save, you negate the spell's effect against you, and you steal the knowledge of the spell if it is at least level 1 and of a level you can cast (it doesn't need to be a Wizard spell). For the next 8 hours, you have the spell prepared. The creature can't cast it until the 8 hours have passed. Once you steal a spell with this feature, you can't use this feature again until you finish a Long Rest.
 
-Dudosos: 28. Con tipo claro: 8. Ya revisados: 0.
+### Assassin — Manual del Jugador (2024)
+- Nivel 3 · Assassin: Practice the Grim Art of Death An Assassin's training focuses on using stealth, poison, and disguise to eliminate foes with deadly efficiency. While some Rogues who follow this path are hired killers, spies, or bounty hunters, the capabilities of this subclass are equally useful for adventurers facing a variety of monstrous enemies. [Assassinate] You're adept at ambushing a target, granting you the following benefits. [Initiative] You have Advantage on Initiative rolls. [Surprising Strikes] During the first round of each combat, you have Advantage on attack rolls against any creature that hasn't taken a turn. If your Sneak Attack hits any target during that round, the target takes extra damage of the weapon's type equal to your Rogue level. [Assassin's Tools] You gain a Disguise Kit and a Poisoner's Kit, and you have proficiency with them.
+- Nivel 9 · Infiltration Expertise: You are expert at the following techniques that aid your infiltrations. [Masterful Mimicry] You can unerringly mimic another person's speech, handwriting, or both if you have spent at least 1 hour studying them. [Roving Aim] Your Speed isn't reduced to 0 by using Steady Aim.
+- Nivel 13 · Envenom Weapons: When you use the Poison option of your Cunning Strike, the target also takes 2d6 Poison damage whenever it fails the saving throw. This damage ignores Resistance to Poison damage.
+- Nivel 17 · Death Strike: When you hit with your Sneak Attack on the first round of a combat, the target must succeed on a Constitution saving throw (8 plus your Dexterity modifier and Proficiency Bonus), or the attack's damage is doubled against the target.
 
-#### Pícaro
+### Inquisitive — Xanathar's Guide to Everything (2017)
 
-- [ ] **Evasión** (nivel 7): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Talento Fiable** (nivel 7): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Golpe Astuto Mejorado** (nivel 11): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Golpe Astuto Taimado** (nivel 14): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Golpe de Suerte** (nivel 20): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
 
-#### Embaucador Arcano
+### Mastermind — Xanathar's Guide to Everything (2017)
 
-- [ ] **Lanzamiento de Conjuros** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Mano de Mago Legeramente** (nivel 3): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Emboscada Mágica** (nivel 9): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
 
-#### Asesino
+### Phantom — Ravenloft: The Horrors Within (2026)
+- Nivel 3 · Phantom: Embrace Death and Wield Ghostly Power Some Rogues traverse the veil between life and death, shepherding opponents to the grave and slipping through the world as undetectable as a spirit. In these pursuits, a Rogue might discover a mystical connection to death itself. Such an individual becomes immersed in negative energy, infusing their strikes with deathly energy and stealing knowledge from souls who have passed on. Thieves' guilds value Rogues of this persuasion as highly effective information gatherers and spies. [Wails from the Grave] Immediately after you deal Sneak Attack damage to a creature on your turn, you can target a second creature that you can see within 30 feet of the first creature. Roll half the number of Sneak Attack damage dice for your level (round up), and the second creature takes Necrotic damage equal to the roll's total as wails of the dead sound around it. You can use this feature a number of times equal to your Dexterity modifier (minimum of once), and you regain all expended uses when you finish a Long Rest. [Whispers of the Dead] Whenever you finish a Short or Long Rest, you can choose one skill or tool proficiency that you lack and gain it, as a ghostly presence shares its knowledge with you. You lose this proficiency when you use this benefit again to choose a different proficiency.
+- Nivel 9 · Tokens of the Departed: The spirits of the dead are drawn to you, and echoes of their past lives magically manifest as strange curios with resonant power. You gain two soul trinkets. A soul trinket is a Tiny object (the DM determines the trinket's form or has you roll on the Trinkets table in the Player's Handbook to generate it). If you move more than 30 feet from a trinket, the trinket immediately teleports to you, appearing somewhere on your person. [Using Soul Trinkets] You can use soul trinkets in the following ways: [Death's Knell] When you deal Sneak Attack damage on your turn, you can destroy one soul trinket and immediately use Wails from the Grave without expending a use of that feature. [Life Essence] While you have at least one soul trinket, you have Advantage on Death Saving Throws and Constitution saving throws. [Spirit Query] You can take a Magic action to destroy one soul trinket and immediately cast the Augury spell, requiring no spell components and using Constitution as the spellcasting modifier. If you know the creature with which the trinket is associated, you can ask the creature's spirit one question instead of casting the spell. In this case, the spirit appears to you and answers as concisely as possible in a language it knew in life. [Gaining Additional Soul Trinkets] When a creature you can see within 30 feet of you dies, you can take a Reaction to gain another soul trinket, claiming a sliver of that creature's departing spirit. The new trinket appears somewhere on your person. You can have a maximum of two soul trinkets at a time. If you try to gain a soul trinket while at your maximum, one of your existing trinkets is immediately destroyed and replaced by the new trinket. The maximum number of soul trinkets you can have increases when you reach Rogue levels 13 (three trinkets) and 17 (four trinkets). Whenever you finish a Long Rest with fewer than two soul trinkets, you gain soul trinkets until you have two.
+- Nivel 9 · Voice of Death: You can cast Speak with Dead once without a spell slot, requiring no spell components and using Dexterity as the spellcasting modifier. You regain the ability to cast it this way when you finish a Short or Long Rest. When you cast the spell, you can target one of your soul trinkets from Tokens of the Departed instead of a corpse, allowing the spirit of the creature associated with the trinket to answer.
+- Nivel 13 · Ghost Walk: As a Bonus Action, you assume a spectral form, gaining the benefits below for 10 minutes or until you end them (no action required). Once you use this feature, you can't use it again until you finish a Long Rest unless you destroy one of your soul trinkets from Tokens of the Departed (no action required) to restore your use of it. [Flight] You gain a Fly Speed of 10 feet and can hover. [Hazy Form] Attack rolls have Disadvantage against you. [Incorporeal Movement] You can move through creatures and objects as if they were Difficult Terrain, but you take 1d10 Force damage if you end your turn inside a creature or an object.
+- Nivel 17 · Death's Friend: Your association with death has become so close that you gain the following benefits. [Death's Lament] When you use Wails from the Grave, you can deal the feature's Necrotic damage to both the first and the second creature. [Draw of Death] When you roll Initiative, you gain one soul trinket for your Tokens of the Departed if you have none remaining.
 
-- [ ] **Asesinar** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Competencia en Infiltración** (nivel 3): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Maestro de la Suplantación** (nivel 9): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Golpe Mortal** (nivel 17): hoy `gratis`, no menciona tipo de acción
+### Scion of the Three — Forgotten Realms: Heroes of Faerûn (2025)
+- Nivel 3 · Scion of the Three: Become a Gruesome Agent of Malice A Scion of the Three draws power from a group of malevolent gods known as the Dead Three: FRHoF, deity of tyranny; FRHoF, deity of violence and murder; and FRHoF, deity of death. While some Rogues of this subclass pledge themselves ardently to those three macabre gods, others find themselves thrust on this path by a curse. Either way, a scion's power manifests as various occult gifts, as well as an uncanny talent for striking and terrifying foes. Scions of the Three are most common in Baldur's Gate, where the Dead Three have long competed for influence over mortal hearts. Underground cults to FRHoF, FRHoF, and FRHoF often count Scions of the Three among their most useful agents. Outside Baldur's Gate, secular thieves' guilds such as the Shadow Thieves of Amn or Xanathar's guild in Waterdeep might cautiously call on a Scion of the Three to undertake an especially violent contract. [Bloodthirst] When an enemy you can see within 30 feet of yourself takes damage and is Bloodied after taking that damage but not killed outright, you can take a Reaction and teleport to an unoccupied space you can see within 5 feet of that enemy. You can then make one melee attack. You can use this feature a number of times equal to your Intelligence modifier (minimum of once), and you regain all expended uses when you finish a Long Rest. [Dread Allegiance] Choose one of the Dead Three: FRHoF, FRHoF, or FRHoF. You gain Resistance to one type of damage and the ability to cast a cantrip, as detailed in the table below; Intelligence is your spellcasting ability for this cantrip. When you finish a Long Rest, you can change your choice. God | Damage Resistance | Cantrip / FRHoF | Psychic | Minor Illusion / FRHoF | Poison | Blade Ward / FRHoF | Necrotic | Chill Touch
+- Nivel 9 · Strike Fear: You gain the following XPHB option. [Terrify (Cost: 1d6)] The target must succeed on a Wisdom saving throw, or it has the Frightened condition for 1 minute. While the target is Frightened in this way, you have Advantage on attack rolls against the target. The Frightened target repeats the save at the end of each of its turns, ending the effect on itself on a success.
+- Nivel 13 · Aura of Malevolence: You radiate malignant power associated with one of the Dead Three. When you use XPHB and teleport, each creature of your choice within 10 feet of either the space you left or your destination space (your choice) takes damage equal to your Intelligence modifier; the damage type is the same as the damage Resistance granted by your choice in the Dread Allegiance feature. Damage dealt by this feature ignores Resistance.
+- Nivel 17 · Dread Incarnate: You gain the following benefits. [Cutthroat] You regain one expended use of XPHB when you finish a Short Rest. [Murderous Intent] When you roll for your XPHB damage, you can treat a roll of a 1 or 2 on the die as a 3.
 
-#### Cuchillo Mental
+### Scout — Xanathar's Guide to Everything (2017)
 
-- [ ] **Hojas Psiónicas** (nivel 3): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Poder Psiónico** (nivel 3): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Hojas de Rastreo** (nivel 9): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Velo Psíquico** (nivel 17): hoy `pasiva`, no menciona tipo de acción
 
-#### Ladrón
+### Soulknife — Manual del Jugador (2024)
+- Nivel 3 · Soulknife: Strike Foes with Psionic Blades A Soulknife strikes with the mind, cutting through barriers both physical and psychic. These Rogues discover psionic power within themselves and channel it to do their roguish work. As a Soulknife, your psionic abilities might have haunted you since childhood, revealing their full potential only as you experienced the stress of adventure. Or you might have sought out an order of psychic adepts and spent years learning how to manifest your power. [Psionic Power] You harbor a wellspring of psionic energy within yourself. It is represented by your Psionic Energy Dice, which fuel certain powers you have from this subclass. The Soulknife Energy Dice table shows the number of these dice you have when you reach certain Rogue levels, and the table shows the die size. Soulknife Energy Dice / Rogue Level | Die Size | Number / 3 | D6 | 4 / 5 | D8 | 6 / 9 | D8 | 8 / 11 | D10 | 8 / 13 | D10 | 10 / 17 | D12 | 12 Any features in this subclass that use a Psionic Energy Die use only the dice from this subclass. Some of your powers expend a Psionic Energy Die, as specified in a power's description, and you can't use a power if it requires you to use a die when your Psionic Energy Dice are all expended. You regain one of your expended Psionic Energy Dice when you finish a Short Rest, and you regain all of them when you finish a Long Rest. [Psi-Bolstered Knack] If you fail an ability check using a skill or tool with which you have proficiency, you can roll one Psionic Energy Die and add the number rolled to the check, potentially turning failure into success. The die is expended only if the roll then succeeds. [Psychic Whispers] You can establish telepathic communication between yourself and others. As a Magic action, choose one or more creatures you can see, up to a number of creatures equal to your Proficiency Bonus, and then roll one Psionic Energy Die. For a number of hours equal to the number rolled, the chosen creatures can speak telepathically with you, and you can speak telepathically with them. To send or receive a message (no action required), you and the other creature must be within 1 mile of each other. A creature can end the telepathic connection at any time (no action required). The first time you use this power after each Long Rest, you don't expend the Psionic Energy Die. All other times you use the power, you expend the die. [Psychic Blades] You can manifest shimmering blades of psychic energy. Whenever you take the Attack action or make an Opportunity Attack, you can manifest a Psychic Blade in your free hand and make the attack with that blade. The magic blade has the following traits: [Psychic Blade] The blade vanishes immediately after it hits or misses its target, and it leaves no mark if it deals damage. After you attack with the blade on your turn, you can make a melee or ranged attack with a second psychic blade as a Bonus Action on the same turn if your other hand is free to create it. The damage die of this bonus attack is 1d4 instead of 1d6.
+- Nivel 9 · Soul Blades: You can now use the following powers with your Psychic Blades. [Homing Strikes] If you make an attack roll with your Psychic Blade and miss the target, you can roll one Psionic Energy Die and add the number rolled to the attack roll. If this causes the attack to hit, the die is expended. [Psychic Teleportation] As a Bonus Action, you manifest a Psychic Blade, expend one Psionic Energy Die and roll it, and throw the blade at an unoccupied space you can see up to a number of feet away equal to 10 times the number rolled. You then teleport to that space, and the blade vanishes.
+- Nivel 13 · Psychic Veil: You can weave a veil of psychic static to mask yourself. As a Magic action, you gain the Invisible condition for 1 hour or until you dismiss this effect (no action required). This invisibility ends early immediately after you deal damage to a creature or you force a creature to make a saving throw. Once you use this feature, you can't do so again until you finish a Long Rest unless you expend a Psionic Energy Die (no action required) to restore your use of it.
+- Nivel 17 · Rend Mind: You can sweep your Psychic Blades through a creature's mind. When you use your Psychic Blades to deal Sneak Attack damage to a creature, you can force that target to make a Wisdom saving throw (8 plus your Dexterity modifier and Proficiency Bonus). If the save fails, the target has the Stunned condition for 1 minute. The Stunned target repeats the save at the end of each of its turns, ending the effect on itself on a success. Once you use this feature, you can't do so again until you finish a Long Rest unless you expend three Psionic Energy Dice (no action required) to restore your use of it.
 
-- [ ] **Trabajo en Segundo Piso** (nivel 3): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Usar Objeto Mágico** (nivel 13): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Reflejos de Ladrón** (nivel 17): hoy `pasiva`, no menciona tipo de acción
+### Swashbuckler — Xanathar's Guide to Everything (2017)
 
-#### Fantasma
 
-- [ ] **Susurros de los Muertos** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Lamentos de la Tumba** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Amigo de la Muerte** (nivel 17): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-
-#### Vástago de los Tres
-
-- [ ] **Lealtad Temible** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Aura de Malevolencia** (nivel 13): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Encarnación del Terror** (nivel 17): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-
-#### Inquisitivo
-
-- [ ] **Oído para el Engaño** (nivel 3): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Mirada Firme** (nivel 9): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Ojo para las Debilidades** (nivel 17): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
+### Thief — Manual del Jugador (2024)
+- Nivel 3 · Thief: Hunt for Treasure as a Classic Adventurer A mix of burglar, treasure hunter, and explorer, you are the epitome of an adventurer. In addition to improving your agility and stealth, you gain abilities useful for delving into ruins and getting maximum benefit from the magic items you find there. [Fast Hands] As a Bonus Action, you can do one of the following. [Sleight of Hand] Make a Dexterity (Sleight of Hand) check to pick a lock or disarm a trap with Thieves' Tools or to pick a pocket. [Use an Object] Take the Utilize action, or take the Magic action to use a magic item that requires that action. [Second-Story Work] You've trained to get into especially hard-to-reach places, granting you these benefits. [Climber] You gain a Climb Speed equal to your Speed. [Jumper] You can determine your jump distance using your Dexterity rather than your Strength.
+- Nivel 9 · Supreme Sneak: You gain the following Cunning Strike option. [Stealth Attack (Cost: 1d6)] If you have the Hide action's Invisible condition, this attack doesn't end that condition on you if you end the turn behind Three-Quarters Cover or Total Cover.
+- Nivel 13 · Use Magic Device: You've learned how to maximize use of magic items, granting you the following benefits. [Attunement] You can attune to up to four magic items at once. [Charges] Whenever you use a magic item property that expends charges, roll 1d6. On a roll of 6, you use the property without expending the charges. [Scrolls] You can use any Spell Scroll, using Intelligence as your spellcasting ability for the spell. If the spell is a cantrip or a level 1 spell, you can cast it reliably. If the scroll contains a higher-level spell, you must first succeed on an Intelligence (Arcana) check (10 plus the spell's level). On a successful check, you cast the spell from the scroll. On a failed check, the scroll disintegrates.
+- Nivel 17 · Thief's Reflexes: You are adept at laying ambushes and quickly escaping danger. You can take two turns during the first round of any combat. You take your first turn at your normal Initiative and your second turn at your Initiative minus 10.
 
 ## Conjuros de la app (usa estos nombres exactos)
 

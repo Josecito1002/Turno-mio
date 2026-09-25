@@ -3,7 +3,7 @@
    --solo-archivo: no toca la base.  --ver: muestra lo que cambiaría y no guarda nada.
    Solo reemplaza lo que se actualiza (esa clase, esas especies); el resto de la biblioteca no se toca. */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { crearDb } from '../src/shared/db/conectar';
 import { leerBiblioteca, reemplazarClase, reemplazarEspecie } from '../src/features/biblioteca/server/repositorio';
 import { PUGILISTA_2024, ARENA_ROYALE_EXTRA } from './datos/pugilista-2024';
@@ -51,9 +51,18 @@ const nombres = (x: any) => [
   ...Object.entries<any>(x?.subclases || {}).flatMap(([k, s]) => (s.rasgos || []).map((r: any) => `${k}: ${r.n} ${r.nombre}`)),
 ];
 
+/* Clase del manual con su archivo scripts/datos/<clase>-2024.ts (los que genera scripts/gemini/revisar.ts) */
+async function deDatos(op: string): Promise<Cambio[] | undefined> {
+  const ruta = `./datos/${op}-2024`;
+  if (!/^[a-z]+$/.test(op) || !existsSync(`scripts/datos/${op}-2024.ts`)) return undefined;
+  const datos = (await import(ruta))[`${op.toUpperCase()}_2024`];
+  return datos && [{ seccion: 'clases', id: op, nueva: actual => ({ ...actual, ...structuredClone(datos) }) }];
+}
+
 async function main() {
   const args = process.argv.slice(2);
-  const cambios = OPCIONES[args.find(a => !a.startsWith('--')) || ''];
+  const op = args.find(a => !a.startsWith('--')) || '';
+  const cambios = OPCIONES[op] || await deDatos(op);
   if (!cambios) throw new Error(`Opción desconocida. Opciones: ${Object.keys(OPCIONES).join(', ')}`);
   const archivo = JSON.parse(readFileSync(RUTA, 'utf8'));
   const soloArchivo = args.includes('--solo-archivo'), ver = args.includes('--ver');

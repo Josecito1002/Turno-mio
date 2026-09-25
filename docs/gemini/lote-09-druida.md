@@ -1,168 +1,190 @@
 # Encargo: Lote 9 (Druida) de la app "Mi turno"
 
-Eres un asistente de investigación de reglas de D&D 5.ª edición revisada (2024). "Mi turno" es una app de hojas de
-personaje en español. Tu trabajo: revisar todo lo que la app tiene de la clase **Druida** contra la versión oficial más
-reciente y devolver los datos corregidos en el formato de abajo. No escribes código de la app: otra persona revisa y
-aplica tu respuesta, así que la precisión importa más que la extensión.
+"Mi turno" es una app de hojas de personaje de D&D (reglas 2024) en español. Tu trabajo: pasar a español, en el formato
+de abajo, la clase **Druida** y todas sus subclases, usando **solo el texto oficial en inglés que viene al final** de
+este encargo. Ese texto ya es la versión más reciente de cada cosa y sus niveles ya están adaptados a 2024: no busques
+otras versiones ni cambies niveles. Otra persona revisa y aplica tu respuesta con un script, así que el formato tiene
+que ser exacto.
 
-## Reglas del encargo
+## Reglas
 
-1. **Versión más reciente siempre.** Usa el Manual del Jugador 2024 y, para lo que no esté ahí, la publicación oficial
-   más nueva (libros de 2025 y 2026 como Forgotten Realms: Heroes of Faerûn, Eberron: Forge of the Artificer, Ravenloft:
-   The Horrors Within, o Unearthed Arcana/Arcana Unleashed si es lo único que existe; dilo en ese caso). Las revisiones
-   de la comunidad no cuentan. **Nunca cambies algo por una versión más vieja**: lo que tiene la app puede venir ya de
-   un libro de 2025 o 2026. Antes de dar por buena una versión de 2014 a 2020, busca si Heroes of Faerûn (2025),
-   Ravenloft: The Horrors Within (2026) o Arcana Unleashed (2026) sacaron una versión nueva de esa subclase.
-2. **Subclases antiguas sin versión 2024** (Xanathar, Tasha, Sword Coast...): se conservan, pero sus rasgos se mueven a
-   los niveles de subclase de la clase 2024 (por ejemplo, lo de nivel 1 o 2 pasa al 3). Di en las notas qué moviste.
-3. **Textos propios en español**, cortos (1 a 3 frases), escritos por ti. Nunca copies ni traduzcas literal el texto
-   del libro. Nombres de rasgos y conjuros: la traducción oficial al español si existe, con el inglés entre paréntesis
-   la primera vez que aparezca un conjuro, por ejemplo "Paso brumoso (Misty Step)". **Los conjuros escríbelos con el
-   nombre exacto de la lista "Conjuros de la app" del final** (por ejemplo "Ayuda", no "Auxilio"); si uno no está en
-   la lista, usa la traducción oficial y márcalo con (NO ESTÁ EN LA APP).
-4. **No inventes.** Si no puedes confirmar un dato (un número, un nivel, un nombre), escríbelo igual con la marca
-   **[NO CONFIRMADO]** y di por qué.
-5. **Antes de agregar algo nuevo**, comprueba que no esté ya en la app con otro nombre (lista de abajo).
-6. Tipos de acción válidos para `t`: accion, adicional (acción adicional), reaccion, gratis (sin acción, por ejemplo
-   al acertar), pasiva, fuera (fuera de combate o ritual).
+1. **Una subclase por cada subclase del texto oficial**, ni más ni menos. Si la app ya la tiene (lista "Lo que tiene
+   hoy la app"), usa su misma clave; si es nueva, inventa una clave en minúsculas-con-guiones.
+2. **Textos propios en español**, de 1 a 3 frases por rasgo, que expliquen qué hace para quien juega. No traduzcas
+   literal: resume con tus palabras. Nombres: la traducción oficial al español si la conoces.
+3. **Conjuros con el nombre exacto de la lista "Conjuros de la app"** (por ejemplo "Ayuda", no "Auxilio"). Si uno no
+   está en la lista, pon tu traducción y detrás (NO ESTÁ EN LA APP).
+4. Tipos de acción para `t`: accion, adicional (acción adicional), reaccion, gratis (sin acción, por ejemplo al acertar),
+   pasiva, fuera (fuera de combate o ritual).
+5. Si algo no se entiende en el texto oficial, escríbelo igual con la marca [NO CONFIRMADO].
 
-## Qué devolver (en este orden, cada parte en su bloque de código)
+## Formato de la respuesta
 
-**A. Datos** (TypeScript, archivo `scripts/datos/druida-2024.ts`). Este formato exacto:
+Responde **solo** con estas cinco partes, en este orden, cada una empezando con su marcador solo en una línea
+(`=== A ===`, `=== B ===`...). Nada antes de la primera ni después de la última.
+
+=== A ===
+Código TypeScript, exactamente con esta forma:
 
 ```ts
 const r = (n: number, nombre: string, t: string, texto: string, extra: Record<string, unknown> = {}) => ({ nombre, t, texto, n, manual: true, usos: 0, reset: 'largo', ...extra });
 
 export const DRUIDA_2024 = {
-  // Rasgos de la clase de nivel 6 a 20 (los de nivel 1 a 5 ya los tiene la app)
+  // Rasgos de la clase de nivel 6 a 20 (sin "Ability Score Improvement", "Epic Boon" ni "Subclass Feature")
   rasgosAltos: [
-    r(9, 'Nombre del rasgo', 'accion', 'Texto propio.', { usos: 1, reset: 'largo' }),  // usos/reset solo si tiene usos fijos
+    r(9, 'Nombre del rasgo', 'accion', 'Texto propio.', { usos: 1, reset: 'largo' }),  // usos/reset solo si son un número fijo
   ],
-  // Rasgos de nivel 6 en adelante de las subclases que la app trae integradas (clave: ninguna)
+  // Rasgos de nivel 6 en adelante de las subclases integradas en la app (claves: ninguna)
   subAltos: {
-    clave: [ r(6, '...', 'pasiva', '...') ],
+    // ninguna
   },
-  // Todas las demás subclases, completas (nivel 3 a 20). Clave en minúsculas-con-guiones.
+  // Todas las demás subclases, completas (todos sus niveles)
   subclases: {
-    'clave-nueva': { n: 'Nombre en español', rasgos: [ r(3, '...', 'pasiva', '...') ] },
+    'clave': { n: 'Nombre en español', rasgos: [ r(3, '...', 'pasiva', '...') ] },
   },
 };
 ```
 
-Los conjuros siempre preparados de una subclase van en un rasgo llamado "Conjuros del/de la <subclase>" cuyo texto diga
-solo que se amplían en tales niveles; la lista completa va en la parte B.
+Si una subclase tiene conjuros siempre preparados, van en un rasgo llamado "Conjuros del <nombre de la subclase>" cuyo
+texto solo diga en qué niveles se amplían; la lista va en B.
 
-**B. Mecánicas** (JSON). Una entrada por cada cosa que la app debe calcular o dejar elegir. Fórmulas con estas
-variables: `nivel` (de la clase), `pb` (bonificador por competencia), `FUE DES CON INT SAB CAR` (modificadores),
-`CD` y `ataqueConjuro`.
+=== B ===
+JSON con lo que la app calcula o deja elegir. Fórmulas con: `nivel` (de la clase), `pb` (competencia),
+`FUE DES CON INT SAB CAR` (modificadores), `CD`, `ataqueConjuro`, `max(a, b)`. "donde" es "clase" o la clave de la
+subclase, y "rasgo" el nombre exacto que usaste en A.
 
 ```json
 [
-  { "donde": "clase | clave de subclase", "rasgo": "Nombre del rasgo", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo | corto | corto desde nivel X" },
-  { "donde": "...", "rasgo": "...", "tipo": "dado", "dado": "1d8; 2d8 desde nivel 10" },
-  { "donde": "...", "rasgo": "...", "tipo": "ataque", "ataque": "ataqueConjuro", "alcance": "30 pies", "daño": "1d8 + SAB frío" },
-  { "donde": "...", "rasgo": "...", "tipo": "ca | velocidad | vision | resistencia | competencia | pg", "detalle": "fórmula o valor" },
-  { "donde": "...", "rasgo": "...", "tipo": "eleccion", "id": "id-corto", "cuantas": "2; 3 desde nivel 10",
-    "opciones": [ { "key": "id-corto", "nombre": "...", "desc": "qué hace, 1 frase propia", "nivel": 1, "requiere": "key de otra opción o null" } ] },
-  { "donde": "...", "rasgo": "Conjuros del ...", "tipo": "conjuros", "por_nivel": { "3": ["Bendecir (Bless)"], "5": [], "7": [], "9": [] } }
+  { "donde": "clave", "rasgo": "Nombre", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo | corto | corto desde nivel 6" },
+  { "donde": "clave", "rasgo": "Nombre", "tipo": "conjuros", "por_nivel": { "3": ["Bendecir"], "5": [], "7": [], "9": [] } },
+  { "donde": "clave", "rasgo": "Nombre", "tipo": "eleccion", "id": "id-corto", "cuantas": "1 | 2; 3 desde nivel 10",
+    "opciones": [ { "key": "id-corto", "nombre": "...", "desc": "1 frase propia", "nivel": 1, "requiere": null } ] },
+  { "donde": "clave", "rasgo": "Nombre", "tipo": "otro", "detalle": "daños, CA, velocidad, resistencias... en una frase con su fórmula" }
 ]
 ```
 
-**C. Fuentes** (JSON): `{ "Nombre de subclase": "Libro (año)" }` para cada subclase, incluidas las integradas.
+=== C ===
+JSON `{ "clave": "Libro (año)" }` con el libro de cada subclase, copiado del texto oficial.
 
-**D. Descripciones** (JSON): `{ "clave": "1 o 2 frases propias que presenten la subclase a quien no la conoce" }`.
+=== D ===
+JSON `{ "clave": "1 o 2 frases propias que presenten la subclase a quien no la conoce" }`.
 
-**E. Notas** (lista): por cada rasgo o subclase que cambiaste, qué versión usaste y en qué difería lo que tenía la app.
-Incluye lo que no se agrega y por qué (reemplazado en 2024, duplicado con otro nombre, sin versión vigente).
-Si algo de lo integrado en la app (rasgos de clase de nivel 1 a 5, o los primeros niveles de las subclases
-integradas) está mal, no lo metas en A: escribe aquí el rasgo, qué está mal y el texto corregido.
+=== E ===
+Lista breve: qué difiere de lo que tiene hoy la app (rasgos que cambian de nivel, de tipo o de nombre, subclases
+nuevas). Si algo de lo integrado en la app (clase de nivel 1 a 5, o los primeros niveles de las subclases integradas)
+está mal según el texto oficial, di cuál y cómo debería quedar.
 
 ## Lo que tiene hoy la app
 
-### Clase Druida, niveles 1 a 5 (integrados en la app)
+### Clase Druida, niveles 1 a 5 (integrados)
 - Nivel 1 · Orden Primordial [pasiva]: Mago (un truco más y +SAB a Arcanos o Naturaleza) o Guardián (armaduras medias y armas marciales).
 - Nivel 1 · Druídico [pasiva]: Hablas druídico y siempre tienes preparado Hablar con los animales.
 - Nivel 2 · Forma Salvaje [adicional]: Te transformas en una bestia que conozcas (VD 1) durante 10 hora(s) y ganas 20 PG temporales. Volver es acción adicional.
 - Nivel 2 · Compañero Salvaje [accion]: Lanzas Encontrar familiar sin componentes materiales; dura hasta tu próximo descanso largo.
 - Nivel 5 · Resurgir Salvaje [gratis]: Una vez por turno, sin usos de Forma Salvaje, gastas un espacio para recuperar uno. Una vez por descanso largo, gastas un uso de Forma Salvaje para recuperar un espacio de nivel 1.
 
-
-### Rasgos de nivel alto de la clase (biblioteca)
+### Rasgos de nivel alto de la clase
 - Nivel 7 · Furia Elemental [pasiva]: Elige: Golpe Potente (+1d8 daño en ataques con arma/bestia) o Lanzamiento Potente (Suma SAB a trucos).
 - Nivel 20 · Archidruida [gratis]: Recuperas uso de Forma Salvaje al tirar iniciativa. Envejeces más lento. Puedes convertir usos de Forma Salvaje en espacios de conjuro.
 
-### Círculo de la Tierra (biblioteca, clave `circulo-tierra`)
+### Círculo de la Tierra (clave `circulo-tierra`)
 - Nivel 3 · Recuperación Natural [pasiva]: En descanso corto, recuperas espacios de conjuro (niveles sumados = mitad nivel druida).
 - Nivel 3 · Conjuros de Círculo [pasiva]: Aprendes conjuros temáticos según tu terreno (Desierto, Ártico, etc.).
 - Nivel 6 · Zancada de la Tierra [pasiva]: Terreno difícil no te cuesta movimiento extra.
 - Nivel 10 · Protección de la Naturaleza [pasiva]: Inmune a veneno, enfermedad y ser hechizado/asustado por elementales/hadas.
 
-### Círculo de la Luna (biblioteca, clave `circulo-luna`)
+### Círculo de la Luna (clave `circulo-luna`)
 - Nivel 3 · Forma de Combate [adicional]: Transformación como acción adicional. VR superior para tus formas.
 - Nivel 6 · Golpes Primigenios [pasiva]: Tus ataques en forma salvaje cuentan como mágicos.
 - Nivel 10 · Paso de Luz Lunar [adicional]: Como Acción Adicional, te teletransportas hasta 30 pies y obtienes Ventaja en tu próximo ataque.
 - Nivel 14 · Mil Formas [pasiva]: Puedes lanzar Alterar el Propio Cuerpo a voluntad.
 
-### Círculo del Mar (biblioteca, clave `circulo-mar`)
+### Círculo del Mar (clave `circulo-mar`)
 - Nivel 3 · Ira de la Marea [pasiva]: Tu forma salvaje emite un aura de 10 pies que inflige daño de Frío o Rayo y puede empujar enemigos.
 - Nivel 6 · Capa de Niebla [reaccion]: Reacción para ganar resistencia al daño de un ataque y teletransportarte en una nube de vapor.
 - Nivel 10 · Marea Creciente [pasiva]: Tu aura aumenta en radio y potencia de daño.
 - Nivel 14 · Unión con el Océano [pasiva]: Ganas velocidad de nado, respiración acuática y mejoras críticas en tu aura.
 
-### Círculo de las Estrellas (biblioteca, clave `circulo-estrellas`)
+### Círculo de las Estrellas (clave `circulo-estrellas`)
 - Nivel 2 · Mapa Estelar [pasiva]: Foco que te da Guía y Proyectil Mágico gratis.
 - Nivel 2 · Forma Estelar [adicional]: Gasta uso de forma para brillar. Elige: Arquero (ataque luz acción adicional), Cáliz (curación extra), Dragón (mantiene concentración).
 - Nivel 6 · Augurio Cósmico [pasiva]: Tira un dado para sumar (Bienaventuranza) o restar (Aflicción) a tiradas de otros.
 - Nivel 14 · Luminosidad Completa [pasiva]: Ganas resistencia a daño físico en forma estelar y puedes cambiar de constelación cada turno.
 
-## Pendientes de este lote en la revisión (selectores por hacer, subclases que faltan respecto a D&D Beyond, rasgos dudosos)
-
-(Selectores)
-#### Lote 9: Druida
-
+### Selectores que faltan en este lote
 - [ ] **Furia Elemental (nivel 7)**: Golpe Primigenio o Lanzamiento Potente.
 - [ ] **Círculo de la Tierra: tipo de tierra**: Árida, Polar, Templada o Tropical; decide los conjuros siempre preparados.
 
-(Por agregar (faltan respecto a D&D Beyond))
-#### Lote 9: Druida
+## Texto oficial (fuente única)
 
-- [ ] **Círculo de los Sueños** (Xanathar's Guide to Everything)
-- [ ] **Círculo del Pastor** (Xanathar's Guide to Everything)
-- [ ] **Círculo de las Esporas** (Tasha's Cauldron of Everything)
-- [ ] **Círculo del Fuego Salvaje** (Tasha's Cauldron of Everything)
+### Clase Druida (Manual del Jugador 2024)
+- Nivel 1 · Druidic: You know Druidic, the secret language of Druids. While learning this ancient tongue, you also unlocked the magic of communicating with animals; you always have the Speak with Animals spell prepared. You can use Druidic to leave hidden messages. You and others who know Druidic automatically spot such a message. Others spot the message's presence with a successful 15 Intelligence (Investigation) check but can't decipher it without magic.
+- Nivel 1 · Primal Order: You have dedicated yourself to one of the following sacred roles of your choice. [Magician] You know one extra cantrip from the Druid spell list. In addition, your mystical connection to nature gives you a bonus to your Intelligence (Arcana or Nature) checks. The bonus equals your Wisdom modifier (minimum bonus of +1). [Warden] Trained for battle, you gain proficiency with Martial weapons and training with Medium armor.
+- Nivel 1 · Spellcasting: You have learned to cast spells through studying the mystical forces of nature. See 7 for the rules on spellcasting. The information below details how you use those rules with Druid spells, which appear on the Druid spell list later in the class's description. [Cantrips] You know two cantrips of your choice from the Druid spell list. Druidcraft and Produce Flame are recommended. Whenever you gain a Druid level, you can replace one of your cantrips with another cantrip of your choice from the Druid spell list. When you reach Druid levels 4 and 10, you learn another cantrip of your choice from the Druid spell list, as shown in the Cantrips column of the Druid Features table. [Spell Slots] The Druid Features table shows how many spell slots you have to cast your level 1+ spells. You regain all expended slots when you finish a Long Rest. [Prepared Spells of Level 1+] You prepare the list of level 1+ spells that are available for you to cast with this feature. To start, choose four level 1 spells from the Druid spell list. Animal Friendship, Cure Wounds, Faerie Fire, and Thunderwave are recommended. The number of spells on your list increases as you gain Druid levels, as shown in the Prepared Spells column of the Druid Features table. Whenever that number increases, choose additional spells from the Druid spell list until the number of spells on your list matches the number on the table. The chosen spells must be of a level for which you have spell slots. For example, if you're a level 3 Druid, your list of prepared spells can include six spells of levels 1 and 2 in any combination. If another Druid feature gives you spells that you always have prepared, those spells don't count against the number of spells you can prepare with this feature, but those spells otherwise count as Druid spells for you. [Changing Your Prepared Spells] Whenever you finish a Long Rest, you can change your list of prepared spells, replacing any of the spells with other Druid spells for which you have spell slots. [Spellcasting Ability] Wisdom is your spellcasting ability for your Druid spells. [Spellcasting Focus] You can use a Druidic Focus as a Spellcasting Focus for your Druid spells.
+- Nivel 2 · Wild Companion: You can summon a nature spirit that assumes an animal form to aid you. As a Magic action, you can expend a spell slot or a use of Wild Shape to cast the Find Familiar spell without Material components. When you cast the spell in this way, the familiar is Fey and disappears when you finish a Long Rest.
+- Nivel 2 · Wild Shape: The power of nature allows you to assume the form of an animal. As a Bonus Action, you shape-shift into a Beast form that you have learned for this feature (see "Known Forms" below). You stay in that form for a number of hours equal to half your Druid level or until you use Wild Shape again, have the Incapacitated condition, or die. You can also leave the form early as a Bonus Action. [Number of Uses] You can use Wild Shape twice. You regain one expended use when you finish a Short Rest, and you regain all expended uses when you finish a Long Rest. You gain additional uses when you reach certain Druid levels, as shown in the Wild Shape column of the Druid Features table. [Known Forms] You know four Beast forms for this feature, chosen from among Beast stat blocks that have a maximum Challenge Rating of 1/4 and that lack a Fly Speed (see appendix B for stat block options). The Rat, Riding Horse, Spider, and Wolf are recommended. Whenever you finish a Long Rest, you can replace one of your known forms with another eligible form. When you reach certain Druid levels, your number of known forms and the maximum Challenge Rating for those forms increases, as shown in the Beast Shapes table. In addition, starting at level 8, you can adopt a form that has a Fly Speed. When choosing known forms, you may look in the Monster Manual or elsewhere for eligible Beasts if the Dungeon Master permits you to do so. Beast Shapes / Druid Level | Known Forms | Max CR | Fly Speed / 2 | 4 | 1/4 | No / 4 | 6 | 1/2 | No / 8 | 8 | 1 | Yes [Rules While Shape-Shifted] While in a form, you retain your personality, memories, and ability to speak, and the following rules apply: [Temporary Hit Points] When you assume a Wild Shape form, you gain a number of Temporary Hit Points equal to your Druid level. [Game Statistics] Your game statistics are replaced by the Beast's stat block, but you retain your creature type; Hit Points; Hit Point Dice; Intelligence, Wisdom, and Charisma scores; class features; languages; and feats. You also retain your skill and saving throw proficiencies and use your Proficiency Bonus for them, in addition to gaining the proficiencies of the creature. If a skill or saving throw modifier in the Beast's stat block is higher than yours, use the one in the stat block. [No Spellcasting] You can't cast spells, but shape-shifting doesn't break your Concentration or otherwise interfere with a spell you've already cast. [Objects] Your ability to handle objects is determined by the form's limbs rather than your own. In addition, you choose whether your equipment falls in your space, merges into your new form, or is worn by it. Worn equipment functions as normal, but the DM decides whether it's practical for the new form to wear a piece of equipment based on the creature's size and shape. Your equipment doesn't change size or shape to match the new form, and any equipment that the new form can't wear must either fall to the ground or merge with the form. Equipment that merges with the form has no effect while you're in that form.
+- Nivel 3 · Druid Subclass: You gain a Druid subclass of your choice. A subclass is a specialization that grants you features at certain Druid levels. For the rest of your career, you gain each of your subclass's features that are of your Druid level or lower.
+- Nivel 4 · Ability Score Improvement: You gain the Ability Score Improvement feat or another feat of your choice for which you qualify. You gain this feature again at Druid levels 8, 12, and 16.
+- Nivel 5 · Wild Resurgence: Once on each of your turns, if you have no uses of Wild Shape left, you can give yourself one use by expending a spell slot (no action required). In addition, you can expend one use of Wild Shape (no action required) to give yourself a level 1 spell slot, but you can't do so again until you finish a Long Rest.
+- Nivel 6 · Subclass Feature: You gain a feature from your Druid Subclass.
+- Nivel 7 · Elemental Fury: The might of the elements flows through you. You gain one of the following options of your choice. [Potent Spellcasting] Add your Wisdom modifier to the damage you deal with any Druid cantrip. [Primal Strike] Once on each of your turns when you hit a creature with an attack roll using a weapon or a Beast form's attack in Wild Shape, you can cause the target to take an extra 1d8 Cold, Fire, Lightning, or Thunder damage (choose when you hit).
+- Nivel 8 · Ability Score Improvement: You gain the Ability Score Improvement Feat or another feat of your choice for which you qualify.
+- Nivel 10 · Subclass Feature: You gain a feature from your Druid Subclass.
+- Nivel 12 · Ability Score Improvement: You gain the Ability Score Improvement Feat or another feat of your choice for which you qualify.
+- Nivel 14 · Subclass Feature: You gain a feature from your Druid Subclass.
+- Nivel 15 · Improved Elemental Fury: The option you chose for Elemental Fury grows more powerful, as detailed below. [Potent Spellcasting] When you cast a Druid cantrip with a range of 10 feet or greater, the spell's range increases by 300 feet. [Primal Strike] The extra damage of your Primal Strike increases to 2d8.
+- Nivel 16 · Ability Score Improvement: You gain the Ability Score Improvement Feat or another feat of your choice for which you qualify.
+- Nivel 18 · Beast Spells: While using Wild Shape, you can cast spells in Beast form, except for any spell that has a Material component with a cost specified or that consumes its Material component.
+- Nivel 19 · Epic Boon: You gain an Epic Boon feat or another feat of your choice for which you qualify. Boon of Dimensional Travel is recommended.
+- Nivel 20 · Archdruid: The vitality of nature constantly blooms within you, granting you the following benefits. [Evergreen Wild Shape] Whenever you roll Initiative and have no uses of Wild Shape left, you regain one expended use of it. [Nature Magician] You can convert uses of Wild Shape into a spell slot (no action required). Choose a number of your unexpended uses of Wild Shape and convert them into a single spell slot, with each use contributing 2 spell levels. For example, if you convert two uses of Wild Shape, you produce a level 4 spell slot. Once you use this benefit, you can't do so again until you finish a Long Rest. [Longevity] The primal magic that you wield causes you to age more slowly. For every ten years that pass, your body ages only one year.
 
-#### Lote 9: Druida (subclases y rasgos de nivel alto de la biblioteca)
+### Circle of Dreams — Xanathar's Guide to Everything (2017)
+- Nivel 3 · Circle of Dreams: 
+- Nivel 6 · Hearth of Moonlight and Shadow: At 6th level, home can be wherever you are. During a short or long rest, you can invoke the shadowy power of the Gloaming Court to help guard your respite. At the start of the rest, you touch a point in space, and an invisible, 30-foot-radius sphere of magic appears, centered on that point. 3 blocks the sphere. While within the sphere, you and your allies gain a +5 bonus to Dexterity (Stealth) and Wisdom (Perception) checks, and any light from open flames in the sphere (a campfire, torches, or the like) isn't visible outside it. The sphere vanishes at the end of the rest or when you leave the sphere.
+- Nivel 10 · Hidden Paths: Starting at 10th level, you can use the hidden, magical pathways that some fey use to traverse space in the blink of an eye. As a bonus action on your turn, you can teleport up to 60 feet to an unoccupied space you can see. Alternatively, you can use your action to teleport one willing creature you touch up to 30 feet to an unoccupied space you can see. You can use this feature a number of times equal to your Wisdom modifier (minimum of once), and you regain all expended uses of it when you finish a long rest.
+- Nivel 14 · Walker in Dreams: At 14th level, the magic of the Feywild grants you the ability to travel mentally or physically through dreamlands. When you finish a short rest, you can cast one of the following spells, without expending a spell slot or requiring material components: dream (with you as the messenger), scrying, or teleportation circle. This use of teleportation circle is special. Rather than opening a portal to a permanent teleportation circle, it opens a portal to the last location where you finished a long rest on your current plane of existence. If you haven't taken a long rest on your current plane, the spell fails but isn't wasted. Once you use this feature, you can't use it again until you finish a long rest.
 
-Dudosos: 14. Con tipo claro: 4. Ya revisados: 0.
+### Circle of Spores — Tasha's Cauldron of Everything (2020)
+- Nivel 3 · Circle of Spores: 
+- Nivel 6 · Fungal Infestation: At 6th level, your spores gain the ability to infest a corpse and animate it. If a beast or a humanoid that is Small or Medium dies within 10 feet of you, you can use your reaction to animate it, causing it to stand up immediately with 1 hit point. The creature uses the zombie stat block in the Monster Manual. It remains animate for 1 hour, after which time it collapses and dies. In combat, the zombie's turn comes immediately after yours. It obeys your mental commands, and the only action it can take is the Attack action, making one melee attack. You can use this feature a number of times equal to your Wisdom modifier (minimum of once), and you regain all expended uses of it when you finish a long rest.
+- Nivel 10 · Spreading Spores: At 10th level, you gain the ability to seed an area with deadly spores. As a bonus action while your Symbiotic Entity feature is active, you can hurl spores up to 30 feet away, where they swirl in a 10-foot cube for 1 minute. The spores disappear early if you use this feature again, if you dismiss them as a bonus action, or if your Symbiotic Entity feature is no longer active. Whenever a creature moves into the cube or starts its turn there, that creature takes your Halo of Spores damage, unless the creature succeeds on a Constitution saving throw against your spell save DC. A creature can take this damage no more than once per turn. While the cube of spores persists, you can't use your Halo of Spores reaction.
+- Nivel 14 · Fungal Body: At 14th level, the fungal spores in your body alter you: you can't be blinded, deafened, frightened, or poisoned, and any critical hit against you counts as a normal hit instead, unless you're incapacitated.
 
-#### Druida
+### Circle of the Land — Manual del Jugador (2024)
+- Nivel 3 · Circle of the Land: Celebrate Connection to the Natural World The Circle of the Land comprises mystics and sages who safeguard ancient knowledge and rites. These Druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of their communities. [Circle of the Land Spells] Whenever you finish a Long Rest, choose one type of land: arid, polar, temperate, or tropical. Consult the table below that corresponds to the chosen type; you have the spells listed for your Druid level and lower prepared. Arid Land / Druid Level | Circle Spells / 3rd | Blur, Burning Hands, Fire Bolt / 5th | Fireball / 7th | Blight / 9th | Wall of Stone Polar Land / Druid Level | Circle Spells / 3rd | Fog Cloud, Hold Person, Ray of Frost / 5th | Sleet Storm / 7th | Ice Storm / 9th | Cone of Cold Temperate Land / Druid Level | Circle Spells / 3rd | Misty Step, Shocking Grasp, Sleep / 5th | Lightning Bolt / 7th | Freedom of Movement / 9th | Tree Stride Tropical Land / Druid Level | Circle Spells / 3rd | Acid Splash, Ray of Sickness, Web / 5th | Stinking Cloud / 7th | Polymorph / 9th | Insect Plague [Land's Aid] As a Magic action, you can expend a use of your Wild Shape and choose a point within 60 feet of yourself. Vitality-giving flowers and life-draining thorns appear for a moment in a 10-foot-radius Sphere centered on that point. Each creature of your choice in the Sphere must make a Constitution saving throw against your spell save DC, taking 2d6 Necrotic damage on a failed save or half as much damage on a successful one. One creature of your choice in that area regains 2d6 Hit Points. The damage and healing increase by 1d6 when you reach Druid levels 10 (3d6) and 14 (4d6).
+- Nivel 6 · Natural Recovery: You can cast one of the level 1+ spells that you have prepared from your Circle Spells feature without expending a spell slot, and you must finish a Long Rest before you do so again. In addition, when you finish a Short Rest, you can choose expended spell slots to recover. The spell slots can have a combined level that is equal to or less than half your Druid level (round up), and none of them can be level 6+. For example, if you're a level 6 Druid, you can recover up to three levels' worth of spell slots. You can recover a level 3 spell slot, a level 2 and a level 1 spell slot, or three level 1 spell slots. Once you recover spell slots with this feature, you can't do so again until you finish a Long Rest.
+- Nivel 10 · Nature's Ward: You are immune to the Poisoned condition, and you have Resistance to a damage type associated with your current land choice in the Circle Spells feature, as shown in the Nature's Ward table. Nature's Ward / Land Type | Resistance / Arid | Fire / Polar | Cold / Temperate | Lightning / Tropical | Poison
+- Nivel 14 · Nature's Sanctuary: As a Magic action, you can expend a use of your Wild Shape and cause spectral trees and vines to appear in a 15-foot Cube on the ground within 120 feet of yourself. They last there for 1 minute or until you have the Incapacitated condition or die. You and your allies have Half Cover while in that area, and your allies gain the current Resistance of your Nature's Ward while there. As a Bonus Action, you can move the Cube up to 60 feet to ground within 120 feet of yourself.
 
-- [ ] **Furia Elemental** (nivel 7): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Archidruida** (nivel 20): hoy `gratis`, no menciona tipo de acción
+### Circle of the Moon — Manual del Jugador (2024)
+- Nivel 3 · Circle of the Moon: Adopt Animal Forms to Guard the Wilds Druids of the Circle of the Moon draw on lunar magic to transform themselves. Their order gathers under the moon to share news and perform rituals. Changeable as the moon, a Druid of this circle might prowl as a great cat one night, soar over the treetops as an eagle the next day, and then crash through undergrowth as a bear to drive off a trespassing monster. The wild is in the Druid's blood. [Circle of the Moon Spells] When you reach a Druid level specified in the Circle of the Moon Spells table, you thereafter always have the listed spells prepared. In addition, you can cast the spells from this feature while you're in a Wild Shape form. Circle of the Moon Spells / Druid Level | Prepared Spells / 3 | Cure Wounds, Moonbeam, Starry Wisp / 5 | Conjure Animals / 7 | Fount of Moonlight / 9 | Mass Cure Wounds [Circle Forms] You can channel lunar magic when you assume a Wild Shape form, granting you the benefits below. [Challenge Rating] The maximum Challenge Rating for the form equals your Druid level divided by 3 (round down). [Armor Class] Until you leave the form, your AC equals 13 plus your Wisdom modifier if that total is higher than the Beast's AC. [Temporary Hit Points] You gain a number of Temporary Hit Points equal to three times your Druid level.
+- Nivel 6 · Improved Circle Forms: While in a Wild Shape form, you gain the following benefits. [Lunar Radiance] Each of your attacks in a Wild Shape form can deal its normal damage type or Radiant damage. You make this choice each time you hit with those attacks. [Increased Toughness] You can add your Wisdom modifier to your Constitution saving throws.
+- Nivel 10 · Moonlight Step: You magically transport yourself, reappearing amid a burst of moonlight. As a Bonus Action, you teleport up to 30 feet to an unoccupied space you can see, and you have Advantage on the next attack roll you make before the end of this turn. You can use this feature a number of times equal to your Wisdom modifier (minimum of once), and you regain all expended uses when you finish a Long Rest. You can also regain uses by expending a level 2+ spell slot for each use you want to restore (no action required).
+- Nivel 14 · Lunar Form: The power of the moon suffuses you, granting you the following benefits. [Improved Lunar Radiance] Once per turn, you can deal an extra 2d10 Radiant damage to a target you hit with a Wild Shape form's attack. [Shared Moonlight] Whenever you use Moonlight Step, you can also teleport one willing creature. That creature must be within 10 feet of you, and you teleport it to an unoccupied space you can see within 10 feet of your destination space.
 
-#### Círculo de la Tierra
+### Circle of the Sea — Manual del Jugador (2024)
+- Nivel 3 · Circle of the Sea: Become One with Tides and Storms Druids of the Circle of the Sea draw on the tempestuous forces of oceans and storms. Some view themselves as embodiments of nature's wrath, seeking vengeance against those who despoil nature. Others seek mystical unity with nature by attuning themselves to the ebb and flow of the tides, following the rush of currents and waves and listening to the inscrutable whispers and roars of the winds. [Circle of the Sea Spells] When you reach a Druid level specified in the Circle of the Sea Spells table, you thereafter always have the listed spells prepared. Circle of the Sea Spells / Druid Level | Prepared Spells / 3rd | Fog Cloud, Gust of Wind, Ray of Frost, Shatter, Thunderwave / 5th | Lightning Bolt, Water Breathing / 7th | Control Water, Ice Storm / 9th | Conjure Elemental, Hold Monster [Wrath of the Sea] As a Bonus Action, you can expend a use of your Wild Shape to manifest a 5-foot Emanation that takes the form of ocean spray that surrounds you for 10 minutes. It ends early if you dismiss it (no action required), manifest it again, or have the Incapacitated condition. When you manifest the Emanation and as a Bonus Action on your subsequent turns, you can choose another creature you can see in the Emanation. The target must succeed on a Constitution saving throw against your spell save DC or take Cold damage and, if the creature is Large or smaller, be pushed up to 15 feet away from you. To determine this damage, roll a number of d6s equal to your Wisdom modifier (minimum of one die).
+- Nivel 6 · Aquatic Affinity: The size of the Emanation created by your Wrath of the Sea increases to 10 feet. In addition, you gain a Swim Speed equal to your Speed.
+- Nivel 10 · Stormborn: Your Wrath of the Sea confers two more benefits while active, as detailed below. [Flight] You gain a Fly Speed equal to your Speed. [Resistance] You have Resistance to Cold, Lightning, and Thunder damage.
+- Nivel 14 · Oceanic Gift: Instead of manifesting the Emanation of Wrath of the Sea around yourself, you can manifest it around one willing creature within 60 feet of yourself. That creature gains all the benefits of the Emanation and uses your spell save DC and Wisdom modifier for it. In addition, you can manifest the Emanation around both the other creature and yourself if you expend two uses of your Wild Shape instead of one when manifesting it.
 
-- [ ] **Recuperación Natural** (nivel 3): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Conjuros de Círculo** (nivel 3): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Zancada de la Tierra** (nivel 6): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Protección de la Naturaleza** (nivel 10): hoy `pasiva`, no menciona tipo de acción
+### Circle of the Shepherd — Xanathar's Guide to Everything (2017)
+- Nivel 3 · Circle of the Shepherd: 
+- Nivel 6 · Mighty Summoner: Starting at 6th level, beasts and fey that you conjure are more resilient than normal. Any beast or fey summoned or created by a spell that you cast gains the following benefits: The creature appears with more hit points than normal: 2 extra hit points per Hit Die it has. The damage from its natural weapons is considered magical for the purpose of overcoming immunity and resistance to nonmagical attacks and damage.
+- Nivel 10 · Guardian Spirit: Beginning at 10th level, your Spirit Totem safeguards the beasts and fey that you call forth with your magic. When a beast or fey that you summoned or created with a spell ends its turn in your Spirit Totem aura, that creature regains a number of hit points equal to half your druid level.
+- Nivel 14 · Faithful Summons: Starting at 14th level, the nature spirits you commune with protect you when you are the most defenseless. If you are reduced to 0 hit points or are incapacitated against your will, you can immediately gain the benefits of conjure animals as if it were cast using a 9th-level spell slot. It summons four beasts of your choice that are challenge rating 2 or lower. The conjured beasts appear within 20 feet of you. If they receive no commands from you, they protect you from harm and attack your foes. The spell lasts for 1 hour, requiring no concentration, or until you dismiss it (no action required). Once you use this feature, you can't use it again until you finish a long rest.
 
-#### Círculo de la Luna
+### Circle of the Stars — Manual del Jugador (2024)
+- Nivel 3 · Circle of the Stars: Harness Secrets Hidden in Constellations The Circle of the Stars has tracked heavenly patterns since time immemorial, discovering secrets hidden amid the constellations. By understanding these secrets, the Druids of this circle seek to harness the powers of the cosmos. [Star Map] You've created a star chart as part of your heavenly studies. It is a Tiny object, and you can use it as a Spellcasting Focus for your Druid spells. You determine its form by rolling on the Star Map table or by choosing one. While holding the map, you have the Guidance and Guiding Bolt spells prepared, and you can cast Guiding Bolt without expending a spell slot. You can cast it in that way a number of times equal to your Wisdom modifier (minimum of once), and you regain all expended uses when you finish a Long Rest. If you lose the map, you can perform a 1-hour ceremony to magically create a replacement. This ceremony can be performed during a Short or Long Rest, and it destroys the previous map. Star Map / 1d6 | Map Form / 1 | A scroll bearing depictions of constellations / 2 | A stone tablet with fine holes drilled through it / 3 | An owlbear hide tooled with stellar symbols / 4 | A collection of maps bound in an ebony cover / 5 | A crystal engraved with starry patterns / 6 | A glass disk etched with constellations [Starry Form] As a Bonus Action, you can expend a use of your Wild Shape feature to take on a starry form rather than shape-shifting. While in your starry form, you retain your game statistics, but your body becomes luminous, your joints glimmer like stars, and glowing lines connect them as on a star chart. This form sheds Bright Light in a 10-foot radius and Dim Light for an additional 10 feet. The form lasts for 10 minutes. It ends early if you dismiss it (no action required), have the Incapacitated condition, or use this feature again. Whenever you assume your starry form, choose which of the following constellations glimmers on your body; your choice gives you certain benefits while in the form. [Archer] A constellation of an archer appears on you. When you activate this form and as a Bonus Action on your subsequent turns while it lasts, you can make a ranged spell attack, hurling a luminous arrow that targets one creature within 60 feet of yourself. On a hit, the attack deals Radiant damage equal to 1d8 plus your Wisdom modifier. [Chalice] A constellation of a life-giving goblet appears on you. Whenever you cast a spell using a spell slot that restores Hit Points to a creature, you or another creature within 30 feet of you can regain Hit Points equal to 1d8 plus your Wisdom modifier. [Dragon] A constellation of a wise dragon appears on you. When you make an Intelligence or a Wisdom check or a Constitution saving throw to maintain Concentration, you can treat a roll of 9 or lower on the d20 as a 10.
+- Nivel 6 · Cosmic Omen: Whenever you finish a Long Rest, you can consult your Star Map for omens and roll a die. Until you finish your next Long Rest, you gain access to a special Reaction based on whether you rolled an even or an odd number on the die: [Weal (even)] Whenever a creature you can see within 30 feet of you is about to make a D20 Test, you can take a Reaction to roll 1d6 and add the number rolled to the total. [Woe (odd)] Whenever a creature you can see within 30 feet of you is about to make a D20 Test, you can take a Reaction to roll 1d6 and subtract the number rolled from the total. You can use this Reaction a number of times equal to your Wisdom modifier (minimum of once), and you regain all expended uses when you finish a Long Rest.
+- Nivel 10 · Twinkling Constellations: The constellations of your Starry Form improve. The 1d8 of the Archer and the Chalice becomes 2d8, and while the Dragon is active, you have a Fly Speed of 20 feet and can hover. Moreover, at the start of each of your turns while in your Starry Form, you can change which constellation glimmers on your body.
+- Nivel 14 · Full of Stars: While in your Starry Form, you become partially incorporeal, giving you Resistance to Bludgeoning, Piercing, and Slashing damage.
 
-- [ ] **Golpes Primigenios** (nivel 6): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Mil Formas** (nivel 14): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-
-#### Círculo del Mar
-
-- [ ] **Ira de la Marea** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Marea Creciente** (nivel 10): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Unión con el Océano** (nivel 14): hoy `pasiva`, no menciona tipo de acción
-
-#### Círculo de las Estrellas
-
-- [ ] **Mapa Estelar** (nivel 2): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Augurio Cósmico** (nivel 6): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Luminosidad Completa** (nivel 14): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
+### Circle of Wildfire — Tasha's Cauldron of Everything (2020)
+- Nivel 3 · Circle of Wildfire: 
+- Nivel 6 · Enhanced Bond: 6th-level Circle of Wildfire feature The bond with your wildfire spirit enhances your destructive and restorative spells. Whenever you cast a spell that deals fire damage or restores hit points while your wildfire spirit is summoned, roll a d8, and you gain a bonus equal to the number rolled to one damage or healing roll of the spell. In addition, when you cast a spell with a range other than self, the spell can originate from you or your wildfire spirit.
+- Nivel 10 · Cauterizing Flames: 10th-level Circle of Wildfire feature You gain the ability to turn death into magical flames that can heal or incinerate. When a Small or larger creature dies within 30 feet of you or your wildfire spirit, a harmless spectral flame springs forth in the dead creature's space and flickers there for 1 minute. When a creature you can see enters that space, you can use your reaction to extinguish the spectral flame there and either heal the creature or deal fire damage to it. The healing or damage equals 2d10 + your Wisdom modifier. You can use this reaction a number of times equal to your proficiency bonus, and you regain all expended uses when you finish a long rest.
+- Nivel 14 · Blazing Revival: 14th-level Circle of Wildfire feature The bond with your wildfire spirit can save you from death. If the spirit is within 120 feet of you when you are reduced to 0 hit points and thereby fall unconscious, you can cause the spirit to drop to 0 hit points. You then regain half your hit points and immediately rise to your feet. Once you use this feature, you can't use it again until you finish a long rest.
 
 ## Conjuros de la app (usa estos nombres exactos)
 

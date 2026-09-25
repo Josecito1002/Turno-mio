@@ -43,3 +43,6 @@ next-env.d.ts
 # base local (PGlite)
 /.data
 !.env.example
+
+# datos oficiales descargados (scripts/gemini)
+/.cache/

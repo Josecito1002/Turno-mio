@@ -1,5 +1,6 @@
 /* eslint-disable */
 // @ts-nocheck -- datos portados tal cual de index.html
+import { DESCRIPCIONES_GENERADAS } from './generadas';
 
 
 export const DESC_ESPECIES: Record<string, any> = {
@@ -199,3 +200,6 @@ export const DESC_SUBCLASES: Record<string, any> = {
   'vastago-tres':'Pícaro vinculado a un poder oscuro, con magia de sangre y terror.',
   inquisitivo:'Detective que descubre mentiras y encuentra el punto débil del rival.',
 };
+
+/* Las de los lotes hechos con Gemini (scripts/gemini/revisar.ts) reemplazan a las de arriba */
+Object.assign(DESC_SUBCLASES, DESCRIPCIONES_GENERADAS);

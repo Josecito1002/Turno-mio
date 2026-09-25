@@ -4,6 +4,7 @@ import { modStr, fmtMod, sign, norm } from '@/shared/utils/texto';
 import { ARMAS, MAESTRIAS } from './equipo';
 import { opcionesCompetencia, aplicarElegidas } from '../domain/competencias';
 import { CLASES, INVOCACIONES } from './clases';
+import { REGLAS_GENERADAS } from './generadas';
 import { todosConjuros } from '@/features/biblioteca/domain/biblioteca';
 import { conjuroDeLaLista } from '../domain/restricciones';
 const HABS_GUERRERO: string[] = CLASES.guerrero.habs;
@@ -1123,4 +1124,7 @@ export const REGLAS: any[] = [
     efecto: c => { const k = c.subeDote?.resiliente; if (k && !c.saveProf.includes(k)) { c.saveProf = [...c.saveProf, k]; c.saves[k] += c.pb; c.compFuentes.push({que:`Salvaciones de ${NOMBRE_AB[k]}`, src:'Resiliente'}); } },
     texto: c => { const k = c.subeDote?.resiliente;
       return k ? `+1 a ${NOMBRE_AB[k]} y competencia en sus salvaciones (ya sumados).` : '+1 a una característica en cuya salvación no seas competente, y ganas esa competencia. Elígela en la mejora de nivel, en el paso Características.'; }},
+
+  /* Lo generado desde las respuestas de Gemini (scripts/gemini/revisar.ts); las de arriba tienen prioridad */
+  ...REGLAS_GENERADAS,
 ];

@@ -1,121 +1,119 @@
 # Encargo: Lote 11 (Guerrero) de la app "Mi turno"
 
-Eres un asistente de investigación de reglas de D&D 5.ª edición revisada (2024). "Mi turno" es una app de hojas de
-personaje en español. Tu trabajo: revisar todo lo que la app tiene de la clase **Guerrero** contra la versión oficial más
-reciente y devolver los datos corregidos en el formato de abajo. No escribes código de la app: otra persona revisa y
-aplica tu respuesta, así que la precisión importa más que la extensión.
+"Mi turno" es una app de hojas de personaje de D&D (reglas 2024) en español. Tu trabajo: pasar a español, en el formato
+de abajo, la clase **Guerrero** y todas sus subclases, usando **solo el texto oficial en inglés que viene al final** de
+este encargo. Ese texto ya es la versión más reciente de cada cosa y sus niveles ya están adaptados a 2024: no busques
+otras versiones ni cambies niveles. Otra persona revisa y aplica tu respuesta con un script, así que el formato tiene
+que ser exacto.
 
-## Reglas del encargo
+## Reglas
 
-1. **Versión más reciente siempre.** Usa el Manual del Jugador 2024 y, para lo que no esté ahí, la publicación oficial
-   más nueva (libros de 2025 y 2026 como Forgotten Realms: Heroes of Faerûn, Eberron: Forge of the Artificer, Ravenloft:
-   The Horrors Within, o Unearthed Arcana/Arcana Unleashed si es lo único que existe; dilo en ese caso). Las revisiones
-   de la comunidad no cuentan. **Nunca cambies algo por una versión más vieja**: lo que tiene la app puede venir ya de
-   un libro de 2025 o 2026. Antes de dar por buena una versión de 2014 a 2020, busca si Heroes of Faerûn (2025),
-   Ravenloft: The Horrors Within (2026) o Arcana Unleashed (2026) sacaron una versión nueva de esa subclase.
-2. **Subclases antiguas sin versión 2024** (Xanathar, Tasha, Sword Coast...): se conservan, pero sus rasgos se mueven a
-   los niveles de subclase de la clase 2024 (por ejemplo, lo de nivel 1 o 2 pasa al 3). Di en las notas qué moviste.
-3. **Textos propios en español**, cortos (1 a 3 frases), escritos por ti. Nunca copies ni traduzcas literal el texto
-   del libro. Nombres de rasgos y conjuros: la traducción oficial al español si existe, con el inglés entre paréntesis
-   la primera vez que aparezca un conjuro, por ejemplo "Paso brumoso (Misty Step)". **Los conjuros escríbelos con el
-   nombre exacto de la lista "Conjuros de la app" del final** (por ejemplo "Ayuda", no "Auxilio"); si uno no está en
-   la lista, usa la traducción oficial y márcalo con (NO ESTÁ EN LA APP).
-4. **No inventes.** Si no puedes confirmar un dato (un número, un nivel, un nombre), escríbelo igual con la marca
-   **[NO CONFIRMADO]** y di por qué.
-5. **Antes de agregar algo nuevo**, comprueba que no esté ya en la app con otro nombre (lista de abajo).
-6. Tipos de acción válidos para `t`: accion, adicional (acción adicional), reaccion, gratis (sin acción, por ejemplo
-   al acertar), pasiva, fuera (fuera de combate o ritual).
+1. **Una subclase por cada subclase del texto oficial**, ni más ni menos. Si la app ya la tiene (lista "Lo que tiene
+   hoy la app"), usa su misma clave; si es nueva, inventa una clave en minúsculas-con-guiones.
+2. **Textos propios en español**, de 1 a 3 frases por rasgo, que expliquen qué hace para quien juega. No traduzcas
+   literal: resume con tus palabras. Nombres: la traducción oficial al español si la conoces.
+3. **Conjuros con el nombre exacto de la lista "Conjuros de la app"** (por ejemplo "Ayuda", no "Auxilio"). Si uno no
+   está en la lista, pon tu traducción y detrás (NO ESTÁ EN LA APP).
+4. Tipos de acción para `t`: accion, adicional (acción adicional), reaccion, gratis (sin acción, por ejemplo al acertar),
+   pasiva, fuera (fuera de combate o ritual).
+5. Si algo no se entiende en el texto oficial, escríbelo igual con la marca [NO CONFIRMADO].
 
-## Qué devolver (en este orden, cada parte en su bloque de código)
+## Formato de la respuesta
 
-**A. Datos** (TypeScript, archivo `scripts/datos/guerrero-2024.ts`). Este formato exacto:
+Responde **solo** con estas cinco partes, en este orden, cada una empezando con su marcador solo en una línea
+(`=== A ===`, `=== B ===`...). Nada antes de la primera ni después de la última.
+
+=== A ===
+Código TypeScript, exactamente con esta forma:
 
 ```ts
 const r = (n: number, nombre: string, t: string, texto: string, extra: Record<string, unknown> = {}) => ({ nombre, t, texto, n, manual: true, usos: 0, reset: 'largo', ...extra });
 
 export const GUERRERO_2024 = {
-  // Rasgos de la clase de nivel 6 a 20 (los de nivel 1 a 5 ya los tiene la app)
+  // Rasgos de la clase de nivel 6 a 20 (sin "Ability Score Improvement", "Epic Boon" ni "Subclass Feature")
   rasgosAltos: [
-    r(9, 'Nombre del rasgo', 'accion', 'Texto propio.', { usos: 1, reset: 'largo' }),  // usos/reset solo si tiene usos fijos
+    r(9, 'Nombre del rasgo', 'accion', 'Texto propio.', { usos: 1, reset: 'largo' }),  // usos/reset solo si son un número fijo
   ],
-  // Rasgos de nivel 6 en adelante de las subclases que la app trae integradas (clave: ninguna)
+  // Rasgos de nivel 6 en adelante de las subclases integradas en la app (claves: ninguna)
   subAltos: {
-    clave: [ r(6, '...', 'pasiva', '...') ],
+    // ninguna
   },
-  // Todas las demás subclases, completas (nivel 3 a 20). Clave en minúsculas-con-guiones.
+  // Todas las demás subclases, completas (todos sus niveles)
   subclases: {
-    'clave-nueva': { n: 'Nombre en español', rasgos: [ r(3, '...', 'pasiva', '...') ] },
+    'clave': { n: 'Nombre en español', rasgos: [ r(3, '...', 'pasiva', '...') ] },
   },
 };
 ```
 
-Los conjuros siempre preparados de una subclase van en un rasgo llamado "Conjuros del/de la <subclase>" cuyo texto diga
-solo que se amplían en tales niveles; la lista completa va en la parte B.
+Si una subclase tiene conjuros siempre preparados, van en un rasgo llamado "Conjuros del <nombre de la subclase>" cuyo
+texto solo diga en qué niveles se amplían; la lista va en B.
 
-**B. Mecánicas** (JSON). Una entrada por cada cosa que la app debe calcular o dejar elegir. Fórmulas con estas
-variables: `nivel` (de la clase), `pb` (bonificador por competencia), `FUE DES CON INT SAB CAR` (modificadores),
-`CD` y `ataqueConjuro`.
+=== B ===
+JSON con lo que la app calcula o deja elegir. Fórmulas con: `nivel` (de la clase), `pb` (competencia),
+`FUE DES CON INT SAB CAR` (modificadores), `CD`, `ataqueConjuro`, `max(a, b)`. "donde" es "clase" o la clave de la
+subclase, y "rasgo" el nombre exacto que usaste en A.
 
 ```json
 [
-  { "donde": "clase | clave de subclase", "rasgo": "Nombre del rasgo", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo | corto | corto desde nivel X" },
-  { "donde": "...", "rasgo": "...", "tipo": "dado", "dado": "1d8; 2d8 desde nivel 10" },
-  { "donde": "...", "rasgo": "...", "tipo": "ataque", "ataque": "ataqueConjuro", "alcance": "30 pies", "daño": "1d8 + SAB frío" },
-  { "donde": "...", "rasgo": "...", "tipo": "ca | velocidad | vision | resistencia | competencia | pg", "detalle": "fórmula o valor" },
-  { "donde": "...", "rasgo": "...", "tipo": "eleccion", "id": "id-corto", "cuantas": "2; 3 desde nivel 10",
-    "opciones": [ { "key": "id-corto", "nombre": "...", "desc": "qué hace, 1 frase propia", "nivel": 1, "requiere": "key de otra opción o null" } ] },
-  { "donde": "...", "rasgo": "Conjuros del ...", "tipo": "conjuros", "por_nivel": { "3": ["Bendecir (Bless)"], "5": [], "7": [], "9": [] } }
+  { "donde": "clave", "rasgo": "Nombre", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo | corto | corto desde nivel 6" },
+  { "donde": "clave", "rasgo": "Nombre", "tipo": "conjuros", "por_nivel": { "3": ["Bendecir"], "5": [], "7": [], "9": [] } },
+  { "donde": "clave", "rasgo": "Nombre", "tipo": "eleccion", "id": "id-corto", "cuantas": "1 | 2; 3 desde nivel 10",
+    "opciones": [ { "key": "id-corto", "nombre": "...", "desc": "1 frase propia", "nivel": 1, "requiere": null } ] },
+  { "donde": "clave", "rasgo": "Nombre", "tipo": "otro", "detalle": "daños, CA, velocidad, resistencias... en una frase con su fórmula" }
 ]
 ```
 
-**C. Fuentes** (JSON): `{ "Nombre de subclase": "Libro (año)" }` para cada subclase, incluidas las integradas.
+Las maniobras (maestro de batalla) del texto oficial van como una "eleccion" de "clase" con todas sus opciones (con su nivel mínimo y, en "requiere", la key de la opción que exijan).
 
-**D. Descripciones** (JSON): `{ "clave": "1 o 2 frases propias que presenten la subclase a quien no la conoce" }`.
+=== C ===
+JSON `{ "clave": "Libro (año)" }` con el libro de cada subclase, copiado del texto oficial.
 
-**E. Notas** (lista): por cada rasgo o subclase que cambiaste, qué versión usaste y en qué difería lo que tenía la app.
-Incluye lo que no se agrega y por qué (reemplazado en 2024, duplicado con otro nombre, sin versión vigente).
-Si algo de lo integrado en la app (rasgos de clase de nivel 1 a 5, o los primeros niveles de las subclases
-integradas) está mal, no lo metas en A: escribe aquí el rasgo, qué está mal y el texto corregido.
+=== D ===
+JSON `{ "clave": "1 o 2 frases propias que presenten la subclase a quien no la conoce" }`.
+
+=== E ===
+Lista breve: qué difiere de lo que tiene hoy la app (rasgos que cambian de nivel, de tipo o de nombre, subclases
+nuevas). Si algo de lo integrado en la app (clase de nivel 1 a 5, o los primeros niveles de las subclases integradas)
+está mal según el texto oficial, di cuál y cómo debería quedar.
 
 ## Lo que tiene hoy la app
 
-### Clase Guerrero, niveles 1 a 5 (integrados en la app)
+### Clase Guerrero, niveles 1 a 5 (integrados)
 - Nivel 1 · Segundo Aliento [adicional]: Recuperas 1d10 + 20 PG. Y te mueves hasta la mitad de tu velocidad sin provocar ataques de oportunidad.
 - Nivel 1 · Maestría con Armas [pasiva]: Usas la maestría de 3 tipos de armas (elígelas en Equipo). Puedes cambiarlas en cada descanso largo.
 - Nivel 2 · Oleada de Acción [gratis]: En tu turno haces una acción más, que no sea Magia.
 - Nivel 2 · Mente Táctica [gratis]: Si fallas una prueba de característica, sumas 1d10; si aun así fallas, no gastas el uso.
 - Nivel 5 · Ataque Extra [pasiva]: Cuando usas la acción Atacar, atacas dos veces.
 
-
-### Rasgos de nivel alto de la clase (biblioteca)
+### Rasgos de nivel alto de la clase
 - Nivel 9 · Indomable [pasiva]: Repite una salvación fallida sumando tu nivel de Guerrero. Si aciertas, recuperas el uso.
 - Nivel 13 · Ataques Estudiados [pasiva]: Si fallas un ataque contra una criatura, tienes Ventaja en el siguiente ataque contra ella.
 
-### Campeón (biblioteca, clave `campeon`)
+### Campeón (clave `campeon`)
 - Nivel 3 · Crítico Mejorado [pasiva]: Críticos con 19 o 20.
 - Nivel 7 · Atleta Notable [pasiva]: Suma bono a pruebas de FUE/DES/CON. Salto aumenta.
 - Nivel 10 · Estilo de Combate Adicional [pasiva]: Eliges un segundo estilo.
 - Nivel 18 · Superviviente [pasiva]: Recuperas PG cada turno si estás herido (bajo mitad).
 
-### Maestro de Batalla (biblioteca, clave `maestro-batalla`)
+### Maestro de Batalla (clave `maestro-batalla`)
 - Nivel 3 · Superioridad en Combate [pasiva]: Dados de Superioridad (d8) para ejecutar maniobras (Parar, Empujar, etc.).
 - Nivel 3 · Estudiante de la Guerra [pasiva]: Competencia con herramientas de artesano.
 - Nivel 7 · Conoce a tu Enemigo [pasiva]: Analiza a un enemigo para saber sus estadísticas relativas.
 - Nivel 15 · Implacable [gratis]: Recuperas un dado de superioridad si no tienes ninguno al tirar iniciativa.
 
-### Caballero Arcano (biblioteca, clave `caballero-arcano`)
+### Caballero Arcano (clave `caballero-arcano`)
 - Nivel 3 · Lanzamiento de Conjuros [pasiva]: Usa Inteligencia. Conjuros de Mago (Abjuración/Evocación).
 - Nivel 3 · Vínculo con el Arma [pasiva]: No te pueden desarmar y puedes invocar tu arma a tu mano.
 - Nivel 7 · Magia de Guerra [pasiva]: Cuando tomas la Acción de Atacar, puedes sustituir uno de tus ataques por el lanzamiento de un truco de Mago.
 - Nivel 18 · Magia de Guerra Mejorada [pasiva]: Cuando tomas la Acción de Atacar, puedes sustituir dos de tus ataques por el lanzamiento de un conjuro de Mago de nivel 1 o 2.
 
-### Guerrero Psiónico (biblioteca, clave `guerrero-psionico`)
+### Guerrero Psiónico (clave `guerrero-psionico`)
 - Nivel 3 · Poder Psiónico [pasiva]: Dados de Energía Psiónica para reducir daño o aumentar el tuyo.
 - Nivel 7 · Salto Telequinético [adicional]: Vuelas por un turno como acción adicional.
 - Nivel 10 · Mente Protegida [pasiva]: Resistencia a daño psíquico.
 - Nivel 18 · Maestro de la Telequinesis [pasiva]: Puedes lanzar el conjuro Telequinesis sin componentes.
 
-### Caballero del Dragón Púrpura (biblioteca, clave `caballero-dragon-purpura`)
+### Caballero del Dragón Púrpura (clave `caballero-dragon-purpura`)
 - Nivel 3 · Enviado Caballeresco [pasiva]: Sabes cómo comportarte con elegancia como embajador noble. Obtienes los siguientes beneficios. Comprensión: puedes lanzar el conjuro Comprender Idiomas, pero solo como Ritual. Carisma es tu característica de lanzamiento para él. Políglota: aprendes un idioma de las tablas de idiomas del Manual del Jugador o del capítulo 2 de este libro. Cuando terminas un Descanso Largo, puedes reemplazar un idioma aprendido con este beneficio por otro idioma que hayas escuchado, visto en señas o leído en las últimas 24 horas. Elocuencia: obtienes competencia en una de las siguientes habilidades a tu elección: Perspicacia, Intimidación, Persuasión o Interpretación.
 - Nivel 3 · Recuperación Grupal [pasiva]: Cuando usas tu Segundo Aliento para recuperar Puntos de Golpe, puedes elegir a un número de aliados dentro de una emanación de 30 pies originada en ti, hasta un número de aliados igual a tu modificador de Carisma (mínimo uno). Cada uno de esos aliados recupera Puntos de Golpe iguales a 1d4 + tu nivel de Guerrero. Una vez que usas esta habilidad, no puedes volver a usarla hasta que termines un Descanso Corto o Largo.
 - Nivel 7 · Tácticas de Equipo [pasiva]: Cuando usas Recuperación Grupal, cada aliado elegido tiene Ventaja en pruebas de d20 hasta el inicio de tu siguiente turno.
@@ -123,64 +121,120 @@ integradas) está mal, no lo metas en A: escribe aquí el rasgo, qué está mal 
 - Nivel 15 · Resistencia Compartida [reaccion]: Cuando un aliado que puedas ver a 60 pies o menos de ti falla una tirada de salvación, puedes usar una Reacción para gastar un uso de tu rasgo Indomable. El aliado puede repetir inmediatamente la tirada de salvación con un bonificador igual a tu nivel de Guerrero; debe usar la nueva tirada.
 - Nivel 18 · Comandante Inspirador [pasiva]: Obtienes los siguientes beneficios. Arenga Reforzada: el área de efecto tanto de Recuperación Grupal como de Oleada Inspiradora ahora es una emanación de 60 pies. Valentía Inquebrantable: tienes Inmunidad a los estados Hechizado y Asustado.
 
-## Pendientes de este lote en la revisión (selectores por hacer, subclases que faltan respecto a D&D Beyond, rasgos dudosos)
-
-(Selectores)
-#### Lote 11: Guerrero
-
+### Selectores que faltan en este lote
 - [ ] **Campeón: Estilo de Combate Adicional**: un segundo estilo; en 2024 es en el nivel 7 (la biblioteca dice 10).
 - [ ] **Maestro de Batalla: maniobras y Estudiante de la Guerra**: maniobras conocidas según nivel, cada una como opción con su dado de superioridad; más una herramienta y una habilidad.
 
-(Por agregar (faltan respecto a D&D Beyond))
-#### Lote 11: Guerrero
+## Texto oficial (fuente única)
 
-- [ ] **Arquero Arcano** (Xanathar's Guide to Everything)
-- [ ] **Caballero (Cavalier)** (Xanathar's Guide to Everything)
-- [ ] **Samurái** (Xanathar's Guide to Everything)
-- [ ] **Caballero Rúnico** (Tasha's Cauldron of Everything)
-- [ ] **Caballero del Eco** (Explorer's Guide to Wildemount)
+### Clase Guerrero (Manual del Jugador 2024)
+- Nivel 1 · Fighting Style: You have honed your martial prowess and gain a Fighting Style feat of your choice. Defense is recommended. Whenever you gain a Fighter level, you can replace the feat you chose with a different Fighting Style feat.
+- Nivel 1 · Second Wind: You have a limited well of physical and mental stamina that you can draw on. As a Bonus Action, you can use it to regain Hit Points equal to 1d10 plus your Fighter level. You can use this feature twice. You regain one expended use when you finish a Short Rest, and you regain all expended uses when you finish a Long Rest. When you reach certain Fighter levels, you gain more uses of this feature, as shown in the Second Wind column of the Fighter Features table.
+- Nivel 1 · Weapon Mastery: Your training with weapons allows you to use the mastery properties of three kinds of Simple or Martial weapons of your choice. Whenever you finish a Long Rest, you can practice weapon drills and change one of those weapon choices. When you reach certain Fighter levels, you gain the ability to use the mastery properties of more kinds of weapons, as shown in the Weapon Mastery column of the Fighter Features table.
+- Nivel 2 · Action Surge: You can push yourself beyond your normal limits for a moment. On your turn, you can take one additional action, except the Magic action. Once you use this feature, you can't do so again until you finish a Short or Long Rest. Starting at level 17, you can use it twice before a rest but only once on a turn.
+- Nivel 2 · Tactical Mind: You have a mind for tactics on and off the battlefield. When you fail an ability check, you can expend a use of your Second Wind to push yourself toward success. Rather than regaining Hit Points, you roll 1d10 and add the number rolled to the ability check, potentially turning it into a success. If the check still fails, this use of Second Wind isn't expended.
+- Nivel 3 · Fighter Subclass: You gain a Fighter subclass of your choice. A subclass is a specialization that grants you features at certain Fighter levels. For the rest of your career, you gain each of your subclass's features that are of your Fighter level or lower.
+- Nivel 4 · Ability Score Improvement: You gain the Ability Score Improvement feat or another feat of your choice for which you qualify. You gain this feature again at Fighter levels 6, 8, 12, 14, and 16.
+- Nivel 5 · Extra Attack: You can attack twice instead of once whenever you take the Attack action on your turn.
+- Nivel 5 · Tactical Shift: Whenever you activate your Second Wind with a Bonus Action, you can move up to half your Speed without provoking Opportunity Attacks.
+- Nivel 6 · Ability Score Improvement: You gain the Ability Score Improvement feat or another feat of your choice for which you qualify.
+- Nivel 7 · Subclass Feature: You gain a feature from your Fighter Subclass.
+- Nivel 8 · Ability Score Improvement: You gain the Ability Score Improvement feat or another feat of your choice for which you qualify.
+- Nivel 9 · Indomitable: If you fail a saving throw, you can reroll it with a bonus equal to your Fighter level. You must use the new roll, and you can't use this feature again until you finish a Long Rest. You can use this feature twice before a Long Rest starting at level 13 and three times before a Long Rest starting at level 17.
+- Nivel 9 · Tactical Master: When you attack with a weapon whose mastery property you can use, you can replace that property with the Push, Sap, or Slow property for that attack.
+- Nivel 10 · Subclass Feature: You gain a feature from your Fighter Subclass.
+- Nivel 11 · Two Extra Attacks: You can attack three times instead of once whenever you take the Attack action on your turn.
+- Nivel 12 · Ability Score Improvement: You gain the Ability Score Improvement feat or another feat of your choice for which you qualify.
+- Nivel 13 · Indomitable: If you fail a saving throw, you can reroll it with a bonus equal to your Fighter level. You must use the new roll, and you can't use this feature again until you finish a Long Rest. You can use this feature twice before a Long Rest starting at level 13 and three times before a Long Rest starting at level 17.
+- Nivel 13 · Studied Attacks: You study your opponents and learn from each attack you make. If you make an attack roll against a creature and miss, you have Advantage on your next attack roll against that creature before the end of your next turn.
+- Nivel 14 · Ability Score Improvement: You gain the Ability Score Improvement feat or another feat of your choice for which you qualify.
+- Nivel 15 · Subclass Feature: You gain a feature from your Fighter Subclass.
+- Nivel 16 · Ability Score Improvement: You gain the Ability Score Improvement feat or another feat of your choice for which you qualify.
+- Nivel 17 · Action Surge: You can push yourself beyond your normal limits for a moment. On your turn, you can take one additional action, except the Magic action. Once you use this feature, you can't do so again until you finish a Short or Long Rest. Starting at level 17, you can use it twice before a rest but only once on a turn.
+- Nivel 17 · Indomitable: If you fail a saving throw, you can reroll it with a bonus equal to your Fighter level. You must use the new roll, and you can't use this feature again until you finish a Long Rest. You can use this feature twice before a Long Rest starting at level 13 and three times before a Long Rest starting at level 17.
+- Nivel 18 · Subclass Feature: You gain a feature from your Fighter Subclass.
+- Nivel 19 · Epic Boon: You gain an Epic Boon feat or another feat of your choice for which you qualify. Boon of Combat Prowess is recommended.
+- Nivel 20 · Three Extra Attacks: You can attack four times instead of once whenever you take the Attack action on your turn.
 
-#### Lote 11: Guerrero (subclases y rasgos de nivel alto de la biblioteca)
+### Arcane Archer — Arcana Unleashed (2026)
+- Nivel 3 · Arcane Archer: Deploy Magical Effects Through Enchanted Ammunition An Arcane Archer studies a unique elven method of archery that weaves magic into attacks to produce supernatural effects. Over the centuries, other folk have learned this technique and broadened it so it applies to ranged weapons of many kinds and to aspects of adventuring life outside of combat. [Arcane Archer Lore] You learn magical theory and secrets of nature, granting you the following benefits. [Cantrip] You know either the Druidcraft or the Prestidigitation cantrip. Intelligence is your spellcasting ability for it. [Skills] You gain proficiency in the Arcana and Nature skills. If you already have one of these proficiencies, you instead gain proficiency in a different skill of your choice from the skills available to Fighters at level 1 (or in two skills available to Fighters at level 1 if you have both). [Arcane Shot] You learn to unleash special magical effects with your shots. You learn two Arcane Shot options of your choice. You learn an additional Arcane Shot option of your choice when you reach Fighter levels 7, 10, 15, and 18. Each time you learn a new Arcane Shot option, you can also replace one option you know with a different one. [Using Arcane Shot] Once per turn when you make a ranged attack using a weapon with the Ammunition property, you can apply one of your Arcane Shot options to that attack. You decide to use the option when you hit a creature and deal damage to it unless the option doesn't involve an attack roll. You can use this feature a number of times equal to your Intelligence modifier (minimum of once). You regain all expended uses when you finish a Short or Long Rest. [Arcane Shot Die] Arcane Shot options refer to your Arcane Shot Die. Your Arcane Shot Die is a d6. [Saving Throws] If an Arcane Shot option requires a saving throw, the DC equals 8 plus your Intelligence modifier and Proficiency Bonus. [At Higher Levels] Your Arcane Shot Die changes when you reach certain Fighter levels. The die becomes a d8 at level 10, a d10 at level 15, and a d12 at level 18. [Arcane Shot Options] The Arcane Shot feature lets you choose options for it at certain levels. The options are presented here in alphabetical order.
+- Nivel 7 · Curving Shot: You learn how to direct an errant shot toward a new target. If you make a ranged attack roll with a weapon with the Ammunition property and miss, you can cause the shot to ricochet toward a new target as a Bonus Action immediately after the attack misses. The new target must be a creature you can see within the weapon's range and within 60 feet of the attack's original target. Make an attack roll against the new target.
+- Nivel 7 · Magical Ammunition: You learn to imbue your ammunition with magical properties. As a Magic action, you can imbue a piece of nonmagical ammunition with one of the following magical properties and fire it at a solid surface you can see within the weapon's range. When the ammunition hits the surface, the ammunition's effect activates, and the ammunition attaches to the surface it hit for the duration of the effect; you can remove an attached piece of ammunition as a Magic action, ending the effect early. When the effect ends, the ammunition is destroyed. Once you use this feature, you can't do so again until you finish a Short or Long Rest. You can also restore your use of this feature by expending a use of your Second Wind (no action required). [Darkening Ammunition] Magical shadows fill a 15-foot Emanation originating from the ammunition for 1 minute. Nonmagical flames in the Emanation are extinguished, and creatures in the Emanation have a −5 penalty to Wisdom (Perception) checks and Passive Perception. [Unlocking Ammunition] A burst of magic fills a 15-foot Emanation originating from the ammunition. The ammunition also emits a loud knocking sound, audible up to 300 feet away. Any object in the Emanation that is held shut by a nonmagical lock or that is stuck or barred becomes unlocked, unstuck, or unbarred. If such an object has multiple locks, only one of them is unlocked. [Vine Ammunition] A 120-foot-long vine grows from the ammunition. You and other creatures can then climb it. The vine withers away after 10 minutes.
+- Nivel 10 · Ever-Ready Shot: When you roll Initiative, you can regain one expended use of Arcane Shot.
+- Nivel 15 · Indomitable Teleport: Your magical mastery lets you escape dire situations. When you use your Indomitable feature and succeed on the saving throw, you can teleport up to 60 feet to an unoccupied space you can see.
+- Nivel 18 · Masterful Shots: You employ agility in your sharpshooting. When a creature you can see misses you with an attack roll, you can take a Reaction to move up to half your Speed away from the attacker without provoking Opportunity Attacks. You can then make a ranged attack roll against the attacker as part of this Reaction if the attacker is within the weapon's range.
 
-Dudosos: 20. Con tipo claro: 3. Ya revisados: 1.
+### Banneret — Forgotten Realms: Heroes of Faerûn (2025)
+- Nivel 3 · Banneret: Rally Fellow Heroes with Inspiring Leadership Bannerets are paragons of valor and leadership who protect the innocent and rally fellow adventurers to the causes of justice and freedom. Many are knights serving in Cormyr, the Silver Marches, Damara, Chessenta, or other lands across Faerûn. They wander the realms as knights errant, taking the fight against evil beyond their kingdom's borders. A Banneret relies on judgment, bravery, and fidelity to the code of chivalry to guide them in defeating evildoers. A lone Banneret is a skilled warrior, but when leading a band of allies one of these warriors can transform even a poorly equipped militia into a ferocious war band. [Knightly Envoy] You know how to conduct yourself with grace as a noble ambassador. You gain the following benefits. [Comprehension] You can cast the Comprehend Languages spell but only as a Ritual. Charisma is your spellcasting ability for it. [Polyglot] You learn one language from the language tables in the Player's Handbook or chapter 2 of this book. When you finish a Long Rest, you can replace a language learned from this benefit with another language you have heard, seen signed, or read in the past 24 hours. [Well Spoken] You gain proficiency in one of the following skills of your choice: Insight, Intimidation, Persuasion, or Performance. [Group Recovery] When you use your Second Wind to regain Hit Points, you can choose a number of allies within a 30-foot Emanation originating from yourself, up to a number of allies equal to your Charisma modifier (minimum of one). Each of those allies regains Hit Points equal to 1d4 plus your Fighter level. Once you use this ability, you can't use it again until you finish a Short or Long Rest.
+- Nivel 7 · Team Tactics: When you use Group Recovery, each chosen ally has Advantage on D20 Tests until the start of your next turn.
+- Nivel 10 · Rallying Surge: When you use your Action Surge, you can choose allies within a 30-foot Emanation originating from yourself, up to a number of allies equal to your Charisma modifier (minimum of one). Each of those allies can immediately take a Reaction to use one of the following options. [Attack] The ally makes one attack with a weapon or an Unarmed Strike. [Move] The ally moves up to half its Speed without provoking an Opportunity Attack.
+- Nivel 15 · Shared Resilience: When an ally you can see within 60 feet of yourself fails a saving throw, you can take a Reaction to expend a use of your Indomitable feature. The ally can immediately reroll the saving throw with a bonus equal to your Fighter level; the ally must use the new roll.
+- Nivel 18 · Inspiring Commander: You gain the following benefits. [Bolstered Rally] The area of effect for both Group Recovery and Rallying Surge is now a 60-foot Emanation. [Unshakable Bravery] You have Immunity to the Charmed and Frightened conditions.
 
-#### Guerrero
+### Battle Master — Manual del Jugador (2024)
+- Nivel 3 · Battle Master: Master Sophisticated Battle Maneuvers Battle Masters are students of the art of battle, learning martial techniques passed down through generations. The most accomplished Battle Masters are well-rounded figures who combine their carefully honed combat skills with academic study in the fields of history, theory, and the arts. [Combat Superiority] Your experience on the battlefield has refined your fighting techniques. You learn maneuvers that are fueled by special dice called Superiority Dice. [Maneuvers] You learn three maneuvers of your choice from the "Maneuvers Options" section later in this subclass's description. Many maneuvers enhance an attack in some way. You can use only one maneuver per attack. You learn two additional maneuvers of your choice when you reach Fighter levels 7, 10, and 15. Each time you learn new maneuvers, you can also replace one maneuver you know with a different one. [Superiority Dice] You have four Superiority Dice, which are d8. A Superiority Die is expended when you use it. You regain all expended Superiority Dice when you finish a Short or Long Rest. You gain an additional Superiority Die when you reach Fighter levels 7 (five dice total) and 15 (six dice total). [Saving Throws] If a maneuver requires a saving throw, the DC equals 8 plus your Strength or Dexterity modifier (your choice) and Proficiency Bonus. [Student of War] You gain proficiency with one type of Artisan's Tools of your choice, and you gain proficiency in one skill of your choice from the skills available to Fighters at level 1. [Maneuver Options] The maneuvers are presented here in alphabetical order.
+- Nivel 7 · Know Your Enemy: As a Bonus Action, you can discern certain strengths and weaknesses of a creature you can see within 30 feet of yourself; you know whether that creature has any Immunities, Resistances, or Vulnerabilities, and if the creature has any, you know what they are. Once you use this feature, you can't do so again until you finish a Long Rest. You can also restore a use of the feature by expending one Superiority Die (no action required).
+- Nivel 10 · Improved Combat Superiority: Your Superiority Die becomes a d10.
+- Nivel 15 · Relentless: Once per turn, when you use a maneuver, you can roll 1d8 and use the number rolled instead of expending a Superiority Die.
+- Nivel 18 · Ultimate Combat Superiority: Your Superiority Die becomes a d12.
 
-- [ ] **Indomable** (nivel 9): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Ataques Estudiados** (nivel 13): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
+### Cavalier — Xanathar's Guide to Everything (2017)
 
-#### Campeón
 
-- [ ] **Crítico Mejorado** (nivel 3): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Atleta Notable** (nivel 7): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Estilo de Combate Adicional** (nivel 10): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Superviviente** (nivel 18): hoy `pasiva`, no menciona tipo de acción
+### Champion — Manual del Jugador (2024)
+- Nivel 3 · Champion: Pursue Physical Excellence in Combat A Champion focuses on the development of martial prowess in a relentless pursuit of victory. Champions combine rigorous training with physical excellence to deal devastating blows, withstand peril, and garner glory. Whether in athletic contests or bloody battle, Champions strive for the crown of the victor. [Improved Critical] Your attack rolls with weapons and Unarmed Strikes can score a Critical Hit on a roll of 19 or 20 on the d20. [Remarkable Athlete] Thanks to your athleticism, you have Advantage on Initiative rolls and Strength (Athletics) checks. In addition, immediately after you score a Critical Hit, you can move up to half your Speed without provoking Opportunity Attacks.
+- Nivel 7 · Additional Fighting Style: You gain another Fighting Style feat of your choice.
+- Nivel 10 · Heroic Warrior: The thrill of battle drives you toward victory. During combat, you can give yourself Heroic Inspiration whenever you start your turn without it.
+- Nivel 15 · Superior Critical: Your attack rolls with weapons and Unarmed Strikes can now score a Critical Hit on a roll of 18–20 on the d20.
+- Nivel 18 · Survivor: You attain the pinnacle of resilience in battle, giving you these benefits. [Defy Death] You have Advantage on Death Saving Throws. Moreover, when you roll 18–20 on a Death Saving Throw, you gain the benefit of rolling a 20 on it. [Heroic Rally] At the start of each of your turns, you regain Hit Points equal to 5 plus your Constitution modifier if you are Bloodied and have at least 1 Hit Point.
 
-#### Maestro de Batalla
+### Echo Knight — Explorer's Guide to Wildemount (2020)
 
-- [ ] **Superioridad en Combate** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Conoce a tu Enemigo** (nivel 7): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Implacable** (nivel 15): hoy `gratis`, no menciona tipo de acción
 
-#### Caballero Arcano
+### Eldritch Knight — Manual del Jugador (2024)
+- Nivel 3 · Eldritch Knight: Support Combat Skills with Arcane Magic Eldritch Knights combine the martial mastery common to all Fighters with a careful study of magic. Their spells both complement and extend their combat skills, providing additional protection to shore up their armor and also allowing them to engage many foes at once with explosive magic. [Spellcasting] You have learned to cast spells. See 7 for the rules on spellcasting. The information below details how you use those rules as an Eldritch Knight. [Cantrips] You know two cantrips of your choice from the Wizard spell list (see that class's section for its list). Ray of Frost and Shocking Grasp are recommended. Whenever you gain a Fighter level, you can replace one of these cantrips with another cantrip of your choice from the Wizard spell list. When you reach Fighter level 10, you learn another Wizard cantrip of your choice. [Spell Slots] The Eldritch Knight Spellcasting table shows how many spell slots you have to cast your level 1+ spells. You regain all expended slots when you finish a Long Rest. [Prepared Spells of Level 1+] You prepare the list of level 1+ spells that are available for you to cast with this feature. To start, choose three level 1 spells from the Wizard spell list. Burning Hands, Jump, and Shield are recommended. The number of spells on your list increases as you gain Fighter levels, as shown in the Prepared Spells column of the Eldritch Knight Spellcasting table. Whenever that number increases, choose additional spells from the Wizard spell list until the number of spells on your list matches the number on the table. The chosen spells must be of a level for which you have spell slots. For example, if you're a level 7 Fighter, your list of prepared spells can include five Wizard spells of levels 1 and 2 in any combination. [Changing your Prepared Spells] Whenever you gain a Fighter level, you can replace one spell on your list with another Wizard spell for which you have spell slots. [Spellcasting Ability] Intelligence is your spellcasting ability for your Wizard spells. [Spellcasting Focus] You can use an Arcane Focus as a Spellcasting Focus for your Wizard spells. [War Bond] You learn a ritual that creates a magical bond between yourself and one weapon. You perform the ritual over the course of 1 hour, which can be done during a Short Rest. The weapon must be within your reach throughout the ritual, at the conclusion of which you touch the weapon and forge the bond. The bond fails if another Fighter is bonded to the weapon or if the weapon is a magic item to which someone else is attuned. Once you have bonded a weapon to yourself, you can't be disarmed of that weapon unless you have the Incapacitated condition. If it is on the same plane of existence, you can summon that weapon as a Bonus Action, causing it to teleport instantly to your hand. You can have up to two bonded weapons, but you can summon only one at a time with a Bonus Action. If you attempt to bond with a third weapon, you must break the bond with one of the other two.
+- Nivel 7 · War Magic: When you take the Attack action on your turn, you can replace one of the attacks with a casting of one of your Wizard cantrips that has a casting time of an action.
+- Nivel 10 · Eldritch Strike: You learn how to make your weapon strikes undercut a creature's ability to withstand your spells. When you hit a creature with an attack using a weapon, that creature has Disadvantage on the next saving throw it makes against a spell you cast before the end of your next turn.
+- Nivel 15 · Arcane Charge: When you use your Action Surge, you can teleport up to 30 feet to an unoccupied space you can see. You can teleport before or after the additional action.
+- Nivel 18 · Improved War Magic: When you take the Attack action on your turn, you can replace two of the attacks with a casting of one of your level 1 or level 2 Wizard spells that has a casting time of an action.
 
-- [ ] **Lanzamiento de Conjuros** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Vínculo con el Arma** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Magia de Guerra** (nivel 7): hoy `pasiva`, queda pasiva pero parece activarse
-- [ ] **Magia de Guerra Mejorada** (nivel 18): hoy `pasiva`, queda pasiva pero parece activarse
+### Psi Warrior — Manual del Jugador (2024)
+- Nivel 3 · Psi Warrior: Augment Physical Might with Psionic Power Psi Warriors awaken the power of their minds to augment their physical might. They harness this psionic power to infuse their weapon strikes, lash out with telekinetic energy, and create barriers of mental force. [Psionic Power] You harbor a wellspring of psionic energy within yourself. It is represented by your Psionic Energy Dice, which fuel powers you have from this subclass. The Psi Warrior Energy Dice table shows the die size and number of these dice you have when you reach certain Fighter levels. Psi Warrior Energy Dice / Fighter Level | Die Size | Number / 3 | D6 | 4 / 5 | D8 | 6 / 9 | D8 | 8 / 11 | D10 | 8 / 13 | D10 | 10 / 17 | D12 | 12 Any features in this subclass that use a Psionic Energy Die use only the dice from this subclass. Some of your powers expend the Psionic Energy Die, as specified in a power's description, and you can't use a power if it requires you to use a die when all your Psionic Energy Dice are expended. You regain one of your expended Psionic Energy Dice when you finish a Short Rest, and you regain all of them when you finish a Long Rest. [Protective Field] When you or another creature you can see within 30 feet of you takes damage, you can take a Reaction to expend one Psionic Energy Die, roll the die, and reduce the damage taken by the number rolled plus your Intelligence modifier (minimum reduction of 1), as you create a momentary shield of telekinetic force. [Psionic Strike] You can propel your weapons with psionic force. Once on each of your turns, immediately after you hit a target within 30 feet of yourself with an attack and deal damage to it with a weapon, you can expend one Psionic Energy Die, rolling it and dealing Force damage to the target equal to the number rolled plus your Intelligence modifier. [Telekinetic Movement] You can move an object or a creature with your mind. As a Magic action, choose one target you can see within 30 feet of yourself; the target must be a loose object that is Large or smaller or one willing creature other than you. You transport the target up to 30 feet to an unoccupied space you can see. Alternatively, if the target is a Tiny object, you can transport it to or from your hand. Once you take this action, you can't do so again until you finish a Short or Long Rest unless you expend a Psionic Energy Die (no action required) to restore your use of it.
+- Nivel 7 · Telekinetic Adept: You have mastered new ways to use your telekinetic abilities, detailed below. [Psi-Powered Leap] As a Bonus Action, you gain a Fly Speed equal to twice your Speed until the end of the current turn. Once you take this Bonus Action, you can't do so again until you finish a Short or Long Rest unless you expend a Psionic Energy Die (no action required) to restore your use of it. [Telekinetic Thrust] When you deal damage to a target with your Psionic Strike, you can force the target to make a Strength saving throw (8 plus your Intelligence modifier and Proficiency Bonus). On a failed save, you can give the target the Prone condition or transport it up to 10 feet horizontally.
+- Nivel 10 · Guarded Mind: You have Resistance to Psychic damage. Moreover, if you start your turn with the Charmed or Frightened condition, you can expend a Psionic Energy Die (no action required) and end every effect on yourself giving you those conditions.
+- Nivel 15 · Bulwark of Force: You can shield yourself and others with telekinetic force. As a Bonus Action, you can choose creatures, including yourself, within 30 feet of yourself, up to a number of creatures equal to your Intelligence modifier (minimum of one creature). Each of the chosen creatures has Half Cover for 1 minute or until you have the Incapacitated condition. Once you use this feature, you can't do so again until you finish a Long Rest unless you expend a Psionic Energy Die (no action required) to restore your use of it.
+- Nivel 18 · Telekinetic Master: You always have the Telekinesis spell prepared. With this feature, you can cast it without a spell slot or components, and your spellcasting ability for it is Intelligence. On each of your turns while you maintain Concentration on it, including the turn when you cast it, you can make one attack with a weapon as a Bonus Action. Once you cast the spell with this feature, you can't do so in this way again until you finish a Long Rest unless you expend a Psionic Energy Die (no action required) to restore your use of it.
 
-#### Guerrero Psiónico
+### Purple Dragon Knight (Banneret) — Sword Coast Adventurer's Guide (2015)
 
-- [ ] **Poder Psiónico** (nivel 3): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Mente Protegida** (nivel 10): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Maestro de la Telequinesis** (nivel 18): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
 
-#### Caballero del Dragón Púrpura
+### Rune Knight — Tasha's Cauldron of Everything (2020)
 
-- [ ] **Enviado Caballeresco** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Recuperación Grupal** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Tácticas de Equipo** (nivel 7): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Comandante Inspirador** (nivel 18): hoy `pasiva`, no menciona tipo de acción
+
+### Samurai — Xanathar's Guide to Everything (2017)
+
+
+### Maniobras (Maestro de Batalla) (Manual del Jugador 2024)
+- Ambush: When you make a Dexterity (Stealth) check or an Initiative roll, you can expend one Superiority Die and add the die to the roll, unless you have the Incapacitated condition.
+- Bait and Switch: When you're within 5 feet of a creature on your turn, you can expend one Superiority Die and switch places with that creature, provided you spend at least 5 feet of movement and the creature is willing and doesn't have the Incapacitated condition. This movement doesn't provoke Opportunity Attacks. Roll the Superiority Die. Until the start of your next turn, you or the other creature (your choice) gains a bonus to AC equal to the number rolled.
+- Commander's Strike: When you take the Attack action on your turn, you can replace one of your attacks to direct one of your companions to strike. When you do so, choose a willing creature who can see or hear you and expend one Superiority Die. That creature can immediately use its Reaction to make one attack with a weapon or an Unarmed Strike, adding the Superiority Die to the attack's damage roll on a hit.
+- Commanding Presence: When you make a Charisma (Intimidation, Performance, or Persuasion) check, you can expend one Superiority Die and add that die to the roll.
+- Disarming Attack: When you hit a creature with an attack roll, you can expend one Superiority Die to attempt to disarm the target. Add the Superiority Die roll to the attack's damage roll. The target must succeed on a Strength saving throw or drop one object of your choice that it's holding, with the object landing in its space.
+- Distracting Strike: When you hit a creature with an attack roll, you can expend one Superiority Die to distract the target. Add the Superiority Die roll to the attack's damage roll. The next attack roll against the target by an attacker other than you has Advantage if the attack is made before the start of your next turn.
+- Evasive Footwork: As a Bonus Action, you can expend one Superiority Die and take the Disengage action. You also roll the die and add the number rolled to your AC until the start of your next turn.
+- Feinting Attack: As a Bonus Action, you can expend one Superiority Die to feint, choosing one creature within 5 feet of yourself as your target. You have Advantage on your next attack roll against that target this turn. If that attack hits, add the Superiority Die to the attack's damage roll.
+- Goading Attack: When you hit a creature with an attack roll, you can expend one Superiority Die to attempt to goad the target into attacking you. Add the Superiority Die to the attack's damage roll. The target must succeed on a Wisdom saving throw or have Disadvantage on attack rolls against targets other than you until the end of your next turn.
+- Lunging Attack: As a Bonus Action, you can expend one Superiority Die and take the Dash action. If you move at least 5 feet in a straight line immediately before hitting with a melee attack as part of the Attack action on this turn, you can add the Superiority Die to the attack's damage roll.
+- Maneuvering Attack: When you hit a creature with an attack roll, you can expend one Superiority Die to maneuver one of your comrades into another position. Add the Superiority Die roll to the attack's damage roll, and choose a willing creature who can see or hear you. That creature can use its Reaction to move up to half its Speed without provoking an Opportunity Attack from the target of your attack.
+- Menacing Attack: When you hit a creature with an attack roll, you can expend one Superiority Die to attempt to frighten the target. Add the Superiority Die to the attack's damage roll. The target must succeed on a Wisdom saving throw or have the Frightened condition until the end of your next turn.
+- Parry: When another creature damages you with a melee attack roll, you can take a Reaction and expend one Superiority Die to reduce the damage by the number you roll on your Superiority Die plus your Strength or Dexterity modifier (your choice).
+- Precision Attack: When you miss with an attack roll, you can expend one Superiority Die, roll that die, and add it to the attack roll, potentially causing the attack to hit.
+- Pushing Attack: When you hit a creature with an attack roll using a weapon or an Unarmed Strike, you can expend one Superiority Die to attempt to drive the target back. Add the Superiority Die to the attack's damage roll. If the target is Large or smaller, it must succeed on a Strength saving throw or be pushed up to 15 feet directly away from you.
+- Rally: As a Bonus Action, you can expend one Superiority Die to bolster the resolve of a companion. Choose an ally of yours within 30 feet of yourself who can see or hear you. That creature gains Temporary Hit Points equal to the Superiority Die roll plus half your Fighter level (round down).
+- Riposte: When a creature misses you with a melee attack roll, you can take a Reaction and expend one Superiority Die to make a melee attack roll with a weapon or an Unarmed Strike against the creature. If you hit, add the Superiority Die to the attack's damage.
+- Sweeping Attack: When you hit a creature with a melee attack roll using a weapon or an Unarmed Strike, you can expend one Superiority Die to attempt to damage another creature. Choose another creature within 5 feet of the original target and within your reach. If the original attack roll would hit the second creature, it takes damage equal to the number you roll on your Superiority Die. The damage is of the same type dealt by the original attack.
+- Tactical Assessment: When you make an Intelligence (History or Investigation) check or a Wisdom (Insight) check, you can expend one Superiority Die and add that die to the ability check.
+- Trip Attack: When you hit a creature with an attack roll using a weapon or an Unarmed Strike, you can expend one Superiority Die and add the die to the attack's damage roll. If the target is Large or smaller, it must succeed on a Strength saving throw or have the Prone condition.
 
 ## Conjuros de la app (usa estos nombres exactos)
 

@@ -13,6 +13,8 @@
     "typecheck": "tsc --noEmit",
     "test": "tsx --test \"src/**/*.test.ts\"",
     "auditar-reglas": "tsx scripts/auditar-reglas.ts",
+    "gemini:encargo": "tsx scripts/gemini/encargo.ts",
+    "gemini:revisar": "tsx scripts/gemini/revisar.ts",
     "db:actualizar-clase": "tsx --env-file-if-exists=.env.local scripts/actualizar-clase.ts"
   },
   "dependencies": {

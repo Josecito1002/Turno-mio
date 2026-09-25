@@ -1,85 +1,85 @@
 # Encargo: Lote 15 (Paladín) de la app "Mi turno"
 
-Eres un asistente de investigación de reglas de D&D 5.ª edición revisada (2024). "Mi turno" es una app de hojas de
-personaje en español. Tu trabajo: revisar todo lo que la app tiene de la clase **Paladín** contra la versión oficial más
-reciente y devolver los datos corregidos en el formato de abajo. No escribes código de la app: otra persona revisa y
-aplica tu respuesta, así que la precisión importa más que la extensión.
+"Mi turno" es una app de hojas de personaje de D&D (reglas 2024) en español. Tu trabajo: pasar a español, en el formato
+de abajo, la clase **Paladín** y todas sus subclases, usando **solo el texto oficial en inglés que viene al final** de
+este encargo. Ese texto ya es la versión más reciente de cada cosa y sus niveles ya están adaptados a 2024: no busques
+otras versiones ni cambies niveles. Otra persona revisa y aplica tu respuesta con un script, así que el formato tiene
+que ser exacto.
 
-## Reglas del encargo
+## Reglas
 
-1. **Versión más reciente siempre.** Usa el Manual del Jugador 2024 y, para lo que no esté ahí, la publicación oficial
-   más nueva (libros de 2025 y 2026 como Forgotten Realms: Heroes of Faerûn, Eberron: Forge of the Artificer, Ravenloft:
-   The Horrors Within, o Unearthed Arcana/Arcana Unleashed si es lo único que existe; dilo en ese caso). Las revisiones
-   de la comunidad no cuentan. **Nunca cambies algo por una versión más vieja**: lo que tiene la app puede venir ya de
-   un libro de 2025 o 2026. Antes de dar por buena una versión de 2014 a 2020, busca si Heroes of Faerûn (2025),
-   Ravenloft: The Horrors Within (2026) o Arcana Unleashed (2026) sacaron una versión nueva de esa subclase.
-2. **Subclases antiguas sin versión 2024** (Xanathar, Tasha, Sword Coast...): se conservan, pero sus rasgos se mueven a
-   los niveles de subclase de la clase 2024 (por ejemplo, lo de nivel 1 o 2 pasa al 3). Di en las notas qué moviste.
-3. **Textos propios en español**, cortos (1 a 3 frases), escritos por ti. Nunca copies ni traduzcas literal el texto
-   del libro. Nombres de rasgos y conjuros: la traducción oficial al español si existe, con el inglés entre paréntesis
-   la primera vez que aparezca un conjuro, por ejemplo "Paso brumoso (Misty Step)". **Los conjuros escríbelos con el
-   nombre exacto de la lista "Conjuros de la app" del final** (por ejemplo "Ayuda", no "Auxilio"); si uno no está en
-   la lista, usa la traducción oficial y márcalo con (NO ESTÁ EN LA APP).
-4. **No inventes.** Si no puedes confirmar un dato (un número, un nivel, un nombre), escríbelo igual con la marca
-   **[NO CONFIRMADO]** y di por qué.
-5. **Antes de agregar algo nuevo**, comprueba que no esté ya en la app con otro nombre (lista de abajo).
-6. Tipos de acción válidos para `t`: accion, adicional (acción adicional), reaccion, gratis (sin acción, por ejemplo
-   al acertar), pasiva, fuera (fuera de combate o ritual).
+1. **Una subclase por cada subclase del texto oficial**, ni más ni menos. Si la app ya la tiene (lista "Lo que tiene
+   hoy la app"), usa su misma clave; si es nueva, inventa una clave en minúsculas-con-guiones.
+2. **Textos propios en español**, de 1 a 3 frases por rasgo, que expliquen qué hace para quien juega. No traduzcas
+   literal: resume con tus palabras. Nombres: la traducción oficial al español si la conoces.
+3. **Conjuros con el nombre exacto de la lista "Conjuros de la app"** (por ejemplo "Ayuda", no "Auxilio"). Si uno no
+   está en la lista, pon tu traducción y detrás (NO ESTÁ EN LA APP).
+4. Tipos de acción para `t`: accion, adicional (acción adicional), reaccion, gratis (sin acción, por ejemplo al acertar),
+   pasiva, fuera (fuera de combate o ritual).
+5. Si algo no se entiende en el texto oficial, escríbelo igual con la marca [NO CONFIRMADO].
 
-## Qué devolver (en este orden, cada parte en su bloque de código)
+## Formato de la respuesta
 
-**A. Datos** (TypeScript, archivo `scripts/datos/paladin-2024.ts`). Este formato exacto:
+Responde **solo** con estas cinco partes, en este orden, cada una empezando con su marcador solo en una línea
+(`=== A ===`, `=== B ===`...). Nada antes de la primera ni después de la última.
+
+=== A ===
+Código TypeScript, exactamente con esta forma:
 
 ```ts
 const r = (n: number, nombre: string, t: string, texto: string, extra: Record<string, unknown> = {}) => ({ nombre, t, texto, n, manual: true, usos: 0, reset: 'largo', ...extra });
 
 export const PALADIN_2024 = {
-  // Rasgos de la clase de nivel 7 a 20 (los de nivel 1 a 6 ya los tiene la app)
+  // Rasgos de la clase de nivel 7 a 20 (sin "Ability Score Improvement", "Epic Boon" ni "Subclass Feature")
   rasgosAltos: [
-    r(9, 'Nombre del rasgo', 'accion', 'Texto propio.', { usos: 1, reset: 'largo' }),  // usos/reset solo si tiene usos fijos
+    r(9, 'Nombre del rasgo', 'accion', 'Texto propio.', { usos: 1, reset: 'largo' }),  // usos/reset solo si son un número fijo
   ],
-  // Rasgos de nivel 6 en adelante de las subclases que la app trae integradas (clave: devocion, gloria, antiguos, venganza)
+  // Rasgos de nivel 6 en adelante de las subclases integradas en la app (claves: devocion, gloria, antiguos, venganza)
   subAltos: {
-    clave: [ r(6, '...', 'pasiva', '...') ],
+    devocion: [ r(6, '...', 'pasiva', '...') ],
+    gloria: [ r(6, '...', 'pasiva', '...') ],
+    antiguos: [ r(6, '...', 'pasiva', '...') ],
+    venganza: [ r(6, '...', 'pasiva', '...') ],
   },
-  // Todas las demás subclases, completas (nivel 3 a 20). Clave en minúsculas-con-guiones.
+  // Todas las demás subclases, completas (todos sus niveles)
   subclases: {
-    'clave-nueva': { n: 'Nombre en español', rasgos: [ r(3, '...', 'pasiva', '...') ] },
+    'clave': { n: 'Nombre en español', rasgos: [ r(3, '...', 'pasiva', '...') ] },
   },
 };
 ```
 
-Los conjuros siempre preparados de una subclase van en un rasgo llamado "Conjuros del/de la <subclase>" cuyo texto diga
-solo que se amplían en tales niveles; la lista completa va en la parte B.
+Si una subclase tiene conjuros siempre preparados, van en un rasgo llamado "Conjuros del <nombre de la subclase>" cuyo
+texto solo diga en qué niveles se amplían; la lista va en B.
 
-**B. Mecánicas** (JSON). Una entrada por cada cosa que la app debe calcular o dejar elegir. Fórmulas con estas
-variables: `nivel` (de la clase), `pb` (bonificador por competencia), `FUE DES CON INT SAB CAR` (modificadores),
-`CD` y `ataqueConjuro`.
+=== B ===
+JSON con lo que la app calcula o deja elegir. Fórmulas con: `nivel` (de la clase), `pb` (competencia),
+`FUE DES CON INT SAB CAR` (modificadores), `CD`, `ataqueConjuro`, `max(a, b)`. "donde" es "clase" o la clave de la
+subclase, y "rasgo" el nombre exacto que usaste en A.
 
 ```json
 [
-  { "donde": "clase | clave de subclase", "rasgo": "Nombre del rasgo", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo | corto | corto desde nivel X" },
-  { "donde": "...", "rasgo": "...", "tipo": "dado", "dado": "1d8; 2d8 desde nivel 10" },
-  { "donde": "...", "rasgo": "...", "tipo": "ataque", "ataque": "ataqueConjuro", "alcance": "30 pies", "daño": "1d8 + SAB frío" },
-  { "donde": "...", "rasgo": "...", "tipo": "ca | velocidad | vision | resistencia | competencia | pg", "detalle": "fórmula o valor" },
-  { "donde": "...", "rasgo": "...", "tipo": "eleccion", "id": "id-corto", "cuantas": "2; 3 desde nivel 10",
-    "opciones": [ { "key": "id-corto", "nombre": "...", "desc": "qué hace, 1 frase propia", "nivel": 1, "requiere": "key de otra opción o null" } ] },
-  { "donde": "...", "rasgo": "Conjuros del ...", "tipo": "conjuros", "por_nivel": { "3": ["Bendecir (Bless)"], "5": [], "7": [], "9": [] } }
+  { "donde": "clave", "rasgo": "Nombre", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo | corto | corto desde nivel 6" },
+  { "donde": "clave", "rasgo": "Nombre", "tipo": "conjuros", "por_nivel": { "3": ["Bendecir"], "5": [], "7": [], "9": [] } },
+  { "donde": "clave", "rasgo": "Nombre", "tipo": "eleccion", "id": "id-corto", "cuantas": "1 | 2; 3 desde nivel 10",
+    "opciones": [ { "key": "id-corto", "nombre": "...", "desc": "1 frase propia", "nivel": 1, "requiere": null } ] },
+  { "donde": "clave", "rasgo": "Nombre", "tipo": "otro", "detalle": "daños, CA, velocidad, resistencias... en una frase con su fórmula" }
 ]
 ```
 
-**C. Fuentes** (JSON): `{ "Nombre de subclase": "Libro (año)" }` para cada subclase, incluidas las integradas.
+=== C ===
+JSON `{ "clave": "Libro (año)" }` con el libro de cada subclase, copiado del texto oficial.
 
-**D. Descripciones** (JSON): `{ "clave": "1 o 2 frases propias que presenten la subclase a quien no la conoce" }`.
+=== D ===
+JSON `{ "clave": "1 o 2 frases propias que presenten la subclase a quien no la conoce" }`.
 
-**E. Notas** (lista): por cada rasgo o subclase que cambiaste, qué versión usaste y en qué difería lo que tenía la app.
-Incluye lo que no se agrega y por qué (reemplazado en 2024, duplicado con otro nombre, sin versión vigente).
-Si algo de lo integrado en la app (rasgos de clase de nivel 1 a 6, o los primeros niveles de las subclases
-integradas) está mal, no lo metas en A: escribe aquí el rasgo, qué está mal y el texto corregido.
+=== E ===
+Lista breve: qué difiere de lo que tiene hoy la app (rasgos que cambian de nivel, de tipo o de nombre, subclases
+nuevas). Si algo de lo integrado en la app (clase de nivel 1 a 6, o los primeros niveles de las subclases integradas)
+está mal según el texto oficial, di cuál y cómo debería quedar.
 
 ## Lo que tiene hoy la app
 
-### Clase Paladín, niveles 1 a 6 (integrados en la app)
+### Clase Paladín, niveles 1 a 6 (integrados)
 - Nivel 1 · Imposición de Manos [adicional]: Tocas a una criatura y le devuelves PG de tu reserva (100 por descanso largo), o gastas 5 para quitarle Envenenado.
 - Nivel 1 · Maestría con Armas [pasiva]: Usas la maestría de 2 tipos de armas (elígelas en Equipo). Puedes cambiarlas en cada descanso largo.
 - Nivel 2 · Castigo Divino [adicional]: Justo después de golpear con un arma cuerpo a cuerpo o sin armas: +2d8 radiante, +1d8 por nivel de espacio por encima de 1, +1d8 contra infernales y muertos vivientes.
@@ -90,8 +90,7 @@ integradas) está mal, no lo metas en A: escribe aquí el rasgo, qué está mal 
 - Nivel 5 · Montura Fiel [accion]: Siempre tienes preparado Encontrar corcel.
 - Nivel 6 · Aura de Protección [pasiva]: Tú y aliados a 10 pies sumáis +3 a las salvaciones mientras no estés Incapacitado.
 
-
-### Rasgos de nivel alto de la clase (biblioteca)
+### Rasgos de nivel alto de la clase
 - Nivel 11 · Castigo Radiante [pasiva]: Todos tus ataques con arma infligen 1d8 radiante extra permanentemente.
 - Nivel 9 · Ahuyentar Enemigos [accion]: Acción Mágica. Gasta Canalizar Divinidad para asustar enemigos a 60 pies (Salvación SAB).
 - Nivel 14 · Toque Restaurador [pasiva]: Cuando usas Imposición de Manos, puedes eliminar condiciones: Cegado, Encantado, Ensordecido, Asustado, Paralizado o Aturdido (Coste 5 PG).
@@ -125,57 +124,83 @@ integradas) está mal, no lo metas en A: escribe aquí el rasgo, qué está mal 
 - Nivel 15 · Alma de Venganza [reaccion]: Cuando tu objetivo de Voto te ataca, puedes contraatacar como reacción.
 - Nivel 20 · Ángel Vengador [pasiva]: Vuelo y aura de miedo que inmoviliza a los enemigos.
 
-### Juramento de los Genios Nobles (biblioteca, clave `genios-nobles`)
+### Juramento de los Genios Nobles (clave `genios-nobles`)
 - Nivel 3 · Castigo Elemental [pasiva]: Inmediatamente después de lanzar Castigo Divino, puedes gastar un uso de tu Canalizar Divinidad e invocar uno de los siguientes efectos. Aplastamiento del Dao: la tierra se alza alrededor del objetivo de tu Castigo Divino. El objetivo queda Agarrado (CD para escapar igual a tu CD de salvación de conjuros). Mientras está Agarrado, el objetivo queda Apresado. Escape del Djinn: te teletransportas a un espacio desocupado que puedas ver a 30 pies o menos de ti y adoptas una forma semi-incorpórea, que dura hasta el final de tu siguiente turno. Mientras estás en esta forma, tienes Resistencia al daño contundente, perforante y cortante, y tienes Inmunidad a los estados Agarrado, Derribado y Apresado. Furia del Efreeti: el objetivo de tu Castigo Divino recibe 2d4 de daño de Fuego adicional, y el fuego salta del objetivo a otra criatura que puedas ver a 30 pies o menos de ti. La segunda criatura también recibe 2d4 de daño de Fuego. Oleada de la Marid: el objetivo de tu Castigo Divino y cada criatura de tu elección en una emanación de 10 pies originada en ti hacen una tirada de salvación de Fuerza contra tu CD de salvación de conjuros. Si falla, la criatura es empujada 15 pies en línea recta alejándose de ti y queda Derribada.
 - Nivel 3 · Conjuros del Genio [pasiva]: Cuando alcanzas un nivel de Paladín indicado en la tabla Conjuros del Genio, a partir de ese momento siempre tienes preparados los conjuros indicados. Nivel 3: Orbe Cromático, Elementalismo, Castigo Atronador. Nivel 5: Imagen Espejo, Fuerza Fantasmal. Nivel 9: Volar, Forma Gaseosa. Nivel 13: Conjurar Elementales Menores, Invocar Elemental. Nivel 17: Castigo Desterrador, Contactar con Otro Plano. Al inicio de cada uno de tus turnos, puedes cambiar el tipo de daño afectado por este rasgo a una de las otras opciones indicadas (sin requerir acción).
 - Nivel 15 · Reprimenda Elemental [reaccion]: Cuando recibes el impacto de una tirada de ataque, puedes usar una Reacción para reducir a la mitad (redondeando hacia abajo) el daño del ataque contra ti y forzar al atacante a hacer una tirada de salvación de Destreza contra tu CD de salvación de conjuros. Si falla, el atacante recibe daño igual a 2d10 + tu modificador de Carisma de uno de los siguientes tipos (a tu elección): Ácido, Frío, Fuego, Relámpago o Trueno. Si la supera, el atacante recibe la mitad de ese daño. Puedes usar este rasgo una cantidad de veces igual a tu modificador de Carisma (mínimo una), y recuperas todos los usos gastados cuando terminas un Descanso Largo.
 - Nivel 20 · Vástago Noble [adicional]: Como Acción Adicional, obtienes los beneficios indicados a continuación durante 10 minutos o hasta que los termines (sin requerir acción). Una vez que uses este rasgo, no puedes volver a usarlo hasta que termines un Descanso Largo. También puedes restaurar su uso gastando un espacio de conjuro de nivel 5 (sin requerir acción). Vuelo: tienes velocidad de vuelo de 60 pies y puedes flotar. Deseo Menor: cuando tú o un aliado en tu Aura de Protección falla una prueba de d20, puedes usar una Reacción para que tú o ese aliado tengáis éxito en su lugar.
 
-## Pendientes de este lote en la revisión (selectores por hacer, subclases que faltan respecto a D&D Beyond, rasgos dudosos)
+## Texto oficial (fuente única)
 
-(Por agregar (faltan respecto a D&D Beyond))
-#### Lote 15: Paladín
+### Clase Paladín (Manual del Jugador 2024)
+- Nivel 1 · Lay on Hands: Your blessed touch can heal wounds. You have a pool of healing power that replenishes when you finish a Long Rest. With that pool, you can restore a total number of Hit Points equal to five times your Paladin level. As a Bonus Action, you can touch a creature (which could be yourself) and draw power from the pool of healing to restore a number of Hit Points to that creature, up to the maximum amount remaining in the pool. You can also expend 5 Hit Points from the pool of healing power to remove the Poisoned condition from the creature; those points don't also restore Hit Points to the creature.
+- Nivel 1 · Spellcasting: You have learned to cast spells through prayer and meditation. See 7 for the rules on spellcasting. The information below details how you use those rules with Paladin spells, which appear in the Paladin spell list later in the class's description. [Spell Slots] The Paladin Features table shows how many spell slots you have to cast your level 1+ spells. You regain all expended slots when you finish a Long Rest. [Prepared Spells of Level 1+] You prepare the list of level 1+ spells that are available for you to cast with this feature. To start, choose two level 1 Paladin spells. Heroism and Searing Smite are recommended. The number of spells on your list increases as you gain Paladin levels, as shown in the Prepared Spells column of the Paladin Features table. Whenever that number increases, choose additional Paladin spells until the number of spells on your list matches the number in the Paladin Features table. The chosen spells must be of a level for which you have spell slots. For example, if you're a level 5 Paladin, your list of prepared spells can include six Paladin spells of level 1 or 2 in any combination. If another Paladin feature gives you spells that you always have prepared, those spells don't count against the number of spells you can prepare with this feature, but those spells otherwise count as Paladin spells for you. [Changing Your Prepared Spells] Whenever you finish a Long Rest, you can replace one spell on your list with another Paladin spell for which you have spell slots. [Spellcasting Ability] Charisma is your spellcasting ability for your Paladin spells. [Spellcasting Focus] You can use a Holy Symbol as a Spellcasting Focus for your Paladin spells.
+- Nivel 1 · Weapon Mastery: Your training with weapons allows you to use the mastery properties of two kinds of weapons of your choice with which you have proficiency, such as Longswords and Javelins. Whenever you finish a Long Rest, you can change the kinds of weapons you chose. For example, you could switch to using the mastery properties of Halberds and Flails.
+- Nivel 2 · Fighting Style: You gain a Fighting Style feat of your choice. Instead of choosing one of those feats, you can choose the option below.
+- Nivel 2 · Paladin's Smite: You always have the Divine Smite spell prepared. In addition, you can cast it without expending a spell slot, but you must finish a Long Rest before you can cast it in this way again.
+- Nivel 3 · Channel Divinity: You can channel divine energy directly from the Outer Planes, using it to fuel magical effects. You start with one such effect: Divine Sense, which is described below. Other Paladin features give additional Channel Divinity effect options. Each time you use this class's Channel Divinity, you choose which effect from this class to create. You can use this class's Channel Divinity twice. You regain one of its expended uses when you finish a Short Rest, and you regain all expended uses when you finish a Long Rest. You gain an additional use when you reach Paladin level 11. If a Channel Divinity effect requires a saving throw, the DC equals the spell save DC from this class's Spellcasting feature. [Divine Sense] As a Bonus Action, you can open your awareness to detect Celestials, Fiends, and Undead. For the next 10 minutes or until you have the Incapacitated condition, you know the location of any creature of those types within 60 feet of yourself, and you know its creature type. Within the same radius, you also detect the presence of any place or object that has been consecrated or desecrated, as with the Hallow spell.
+- Nivel 3 · Paladin Subclass: You gain a Paladin subclass of your choice. A subclass is a specialization that grants you features at certain Paladin levels. For the rest of your career, you gain each of your subclass's features that are of your Paladin level or lower. [Breaking Your Oath] A Paladin tries to hold to the highest standards of conduct, but even the most dedicated are fallible. Sometimes a Paladin transgresses their oath. A Paladin who has broken a vow typically seeks absolution, spending an all-night vigil as a sign of penitence or undertaking a fast. After a rite of forgiveness, the Paladin starts fresh. If your Paladin unrepentantly violates their oath, talk to your DM. Your Paladin should probably take a more appropriate subclass or even abandon the class and adopt another one.
+- Nivel 4 · Ability Score Improvement: You gain the Ability Score Improvement feat or another feat of your choice for which you qualify. You gain this feature again at Paladin levels 8, 12, and 16.
+- Nivel 5 · Extra Attack: You can attack twice instead of once whenever you take the Attack action on your turn.
+- Nivel 5 · Faithful Steed: You can call on the aid of an otherworldly steed. You always have the Find Steed spell prepared. You can also cast the spell once without expending a spell slot, and you regain the ability to do so when you finish a Long Rest.
+- Nivel 6 · Aura of Protection: You radiate a protective, unseeable aura in a 10-foot Emanation that originates from you. The aura is inactive while you have the Incapacitated condition. You and your allies in the aura gain a bonus to saving throws equal to your Charisma modifier (minimum bonus of +1). If another Paladin is present, a creature can benefit from only one Aura of Protection at a time; the creature chooses which aura while in them.
+- Nivel 7 · Subclass Feature: You gain a feature from your Paladin Subclass.
+- Nivel 8 · Ability Score Improvement: You gain the Ability Score Improvement Feat or another feat of your choice for which you qualify.
+- Nivel 9 · Abjure Foes: As a Magic action, you can expend one use of this class's Channel Divinity to overwhelm foes with awe. As you present your Holy Symbol or weapon, you can target a number of creatures equal to your Charisma modifier (minimum of one creature) that you can see within 60 feet of yourself. Each target must succeed on a Wisdom saving throw or have the Frightened condition for 1 minute or until it takes any damage. While Frightened in this way, a target can do only one of the following on its turns: move, take an action, or take a Bonus Action.
+- Nivel 10 · Aura of Courage: You and your allies have Immunity to the Frightened condition while in your Aura of Protection. If a Frightened ally enters the aura, that condition has no effect on that ally while there.
+- Nivel 11 · Radiant Strikes: Your strikes now carry supernatural power. When you hit a target with an attack roll using a Melee weapon or an Unarmed Strike, the target takes an extra 1d8 Radiant damage.
+- Nivel 12 · Ability Score Improvement: You gain the Ability Score Improvement Feat or another feat of your choice for which you qualify.
+- Nivel 14 · Restoring Touch: When you use Lay On Hands on a creature, you can also remove one or more of the following conditions from the creature: Blinded, Charmed, Deafened, Frightened, Paralyzed, or Stunned. You must expend 5 Hit Points from the healing pool of Lay On Hands for each of these conditions you remove; those points don't also restore Hit Points to the creature.
+- Nivel 15 · Subclass Feature: You gain a feature from your Paladin Subclass.
+- Nivel 16 · Ability Score Improvement: You gain the Ability Score Improvement Feat or another feat of your choice for which you qualify.
+- Nivel 18 · Aura Expansion: Your Aura of Protection is now a 30-foot Emanation.
+- Nivel 19 · Epic Boon: You gain an Epic Boon feat or another feat of your choice for which you qualify. Boon of Truesight is recommended.
+- Nivel 20 · Subclass Feature: You gain a feature from your Paladin Subclass.
 
-- [ ] **Juramento de Conquista** (Xanathar's Guide to Everything)
-- [ ] **Juramento de Redención** (Xanathar's Guide to Everything)
-- [ ] **Juramento de los Vigilantes** (Tasha's Cauldron of Everything)
-- [ ] **Juramento de la Corona** (Sword Coast Adventurer's Guide)
-- [ ] **Rompejuramentos** (Guía del Dungeon Master 2014)
+### Oath of Conquest — Xanathar's Guide to Everything (2017)
 
-#### Lote 15: Paladín (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 13. Con tipo claro: 6. Ya revisados: 0.
+### Oath of Devotion — Manual del Jugador (2024)
+- Nivel 3 · Oath of Devotion: Uphold the Ideals of Justice and Order The Oath of Devotion binds Paladins to the ideals of justice and order. These Paladins meet the archetype of the knight in shining armor. They hold themselves to the highest standards of conduct, and some—for better or worse—hold the rest of the world to the same standards. Many who swear this oath are devoted to gods of law and good and use their gods' tenets as the measure of personal devotion. Others hold angels as their ideals and incorporate images of angelic wings into their helmets or coats of arms. These paladins share the following tenets: Let your word be your promise. Protect the weak and never fear to act. Let your honorable deeds be an example. [Oath of Devotion Spells] The magic of your oath ensures you always have certain spells ready; when you reach a Paladin level specified in the Oath of Devotion Spells table, you thereafter always have the listed spells prepared. Oath of Devotion Spells / Paladin Level | Spells / 3rd | Protection from Evil and Good, Shield of Faith / 5th | Aid, Zone of Truth / 9th | Beacon of Hope, Dispel Magic / 13th | Freedom of Movement, Guardian of Faith / 17th | Commune, Flame Strike [Sacred Weapon] When you take the Attack action, you can expend one use of your Channel Divinity to imbue one Melee weapon that you are holding with positive energy. For 10 minutes or until you use this feature again, you add your Charisma modifier to attack rolls you make with that weapon (minimum bonus of +1), and each time you hit with it, you cause it to deal its normal damage type or Radiant damage. The weapon also emits Bright Light in a 20-foot radius and Dim Light 20 feet beyond that. You can end this effect early (no action required). This effect also ends if you aren't carrying the weapon.
+- Nivel 7 · Aura of Devotion: You and your allies have Immunity to the Charmed condition while in your Aura of Protection. If a Charmed ally enters the aura, that condition has no effect on that ally while there.
+- Nivel 15 · Smite of Protection: Your magical smite now radiates protective energy. Whenever you cast Divine Smite, you and your allies have Half Cover while in your Aura of Protection. The aura has this benefit until the start of your next turn.
+- Nivel 20 · Holy Nimbus: As a Bonus Action, you can imbue your Aura of Protection with holy power, granting the benefits below for 10 minutes or until you end them (no action required). Once you use this feature, you can't use it again until you finish a Long Rest. You can also restore your use of it by expending a level 5 spell slot (no action required). [Holy Ward] You have Advantage on any saving throw you are forced to make by a Fiend or an Undead. [Radiant Damage] Whenever an enemy starts its turn in the aura, that creature takes Radiant damage equal to your Charisma modifier plus your Proficiency Bonus. [Sunlight] The aura is filled with Bright Light that is sunlight.
 
-#### Paladín
+### Oath of Glory — Manual del Jugador (2024)
+- Nivel 3 · Oath of Glory: Strive for the Heights of Heroism Paladins who take the Oath of Glory believe they and their companions are destined to achieve glory through deeds of heroism. They train diligently and encourage their companions, so they're all ready when destiny calls. These paladins share the following tenets: Endeavor to be known by your deeds. Face hardships with courage. Inspire others to strive for glory. [Oath of Glory Spells] The magic of your oath ensures you always have certain spells ready; when you reach a Paladin level specified in the Oath of Glory Spells table, you thereafter always have the listed spells prepared. Oath of Glory Spells / Paladin Level | Spells / 3rd | Guiding Bolt, Heroism / 5th | Enhance Ability, Magic Weapon / 9th | Haste, Protection from Energy / 13th | Compulsion, Freedom of Movement / 17th | Legend Lore, Yolande's Regal Presence [Inspiring Smite] Immediately after you cast Divine Smite, you can expend one use of your Channel Divinity and distribute Temporary Hit Points to creatures of your choice within 30 feet of yourself, which can include you. The total number of Temporary Hit Points equals 2d8 plus your Paladin level, divided among the chosen creatures however you like. [Peerless Athlete] As a Bonus Action, you can expend one use of your Channel Divinity to augment your athleticism. For 1 hour, you have Advantage on Strength (Athletics) and Dexterity (Acrobatics) checks, and the distance of your Long and High Jumps increases by 10 feet (this extra distance costs movement as normal).
+- Nivel 7 · Aura of Alacrity: Your Speed increases by 10 feet. In addition, whenever an ally enters your Aura of Protection for the first time on a turn or starts their turn there, the ally's Speed increases by 10 feet until the end of their next turn.
+- Nivel 15 · Glorious Defense: You can turn defense into a sudden strike. When you or another creature you can see within 10 feet of you is hit by an attack roll, you can take a Reaction to grant a bonus to the target's AC against that attack, potentially causing it to miss. The bonus equals your Charisma modifier (minimum of +1). If the attack misses, you can make one attack with a weapon against the attacker as part of this Reaction if the attacker is within your weapon's range. You can use this feature a number of times equal to your Charisma modifier (minimum of once), and you regain all expended uses when you finish a Long Rest.
+- Nivel 20 · Living Legend: You can empower yourself with the legends—whether true or exaggerated—of your great deeds. As a Bonus Action, you gain the benefits below for 10 minutes. Once you use this feature, you can't use it again until you finish a Long Rest. You can also restore your use of it by expending a level 5 spell slot (no action required). [Charismatic] You are blessed with an otherworldly presence and have Advantage on all Charisma checks. [Saving Throw Reroll] If you fail a saving throw, you can take a Reaction to reroll it. You must use this new roll. [Unerring Strike] Once on each of your turns when you make an attack roll with a weapon and miss, you can cause that attack to hit instead.
 
-- [ ] **Castigo Radiante** (nivel 11): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
-- [ ] **Toque Restaurador** (nivel 14): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
+### Oath of Redemption — Xanathar's Guide to Everything (2017)
 
-#### Juramento de los Genios Nobles
 
-- [ ] **Castigo Elemental** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse
-- [ ] **Conjuros del Genio** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse
+### Oath of the Ancients — Manual del Jugador (2024)
+- Nivel 3 · Oath of the Ancients: Preserve Life and Light in the World The Oath of the Ancients is as old as the first elves. Paladins who swear this oath cherish the light; they love the beautiful and life-giving things of the world more than any principles of honor, courage, and justice. They often adorn their armor and clothing with images of growing things—leaves, antlers, or flowers—to reflect their commitment to preserving life and light. These paladins share the following tenets: Kindle the light of hope. Shelter life. Delight in art and laughter. [Oath of the Ancients Spells] The magic of your oath ensures you always have certain spells ready; when you reach a Paladin level specified in the Oath of the Ancients Spells table, you thereafter always have the listed spells prepared. Oath of the Ancients Spells / Paladin Level | Spells / 3rd | Ensnaring Strike, Speak with Animals / 5th | Misty Step, Moonbeam / 9th | Plant Growth, Protection from Energy / 13th | Ice Storm, Stoneskin / 17th | Commune with Nature, Tree Stride [Nature's Wrath] As a Magic action, you can expend one use of your Channel Divinity to conjure spectral vines around nearby creatures. Each creature of your choice that you can see within 15 feet of yourself must succeed on a Strength saving throw or have the Restrained condition for 1 minute. A Restrained creature repeats the save at the end of each of its turns, ending the effect on itself on a success.
+- Nivel 7 · Aura of Warding: Ancient magic lies so heavily upon you that it forms an eldritch ward, blunting energy from beyond the Material Plane; you and your allies have Resistance to Necrotic, Psychic, and Radiant damage while in your Aura of Protection.
+- Nivel 15 · Undying Sentinel: When you are reduced to 0 Hit Points and not killed outright, you can drop to 1 Hit Point instead, and you regain a number of Hit Points equal to three times your Paladin level. Once you use this feature, you can't do so again until you finish a Long Rest. Additionally, you can't be aged magically, and you cease visibly aging.
+- Nivel 20 · Elder Champion: As a Bonus Action, you can imbue your Aura of Protection with primal power, granting the benefits below for 1 minute or until you end them (no action required). Once you use this feature, you can't use it again until you finish a Long Rest. You can also restore your use of it by expending a level 5 spell slot (no action required). [Diminish Defiance] Enemies in the aura have Disadvantage on saving throws against your spells and Channel Divinity options. [Regeneration] At the start of each of your turns, you regain 10 Hit Points. [Swift Spells] Whenever you cast a spell that has a casting time of an action, you can cast it using a Bonus Action instead.
 
-#### Juramento de Devoción
+### Oath of the Crown — Sword Coast Adventurer's Guide (2015)
 
-- [ ] **Aura de Devoción** (nivel 7): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Pureza de Espíritu** (nivel 15): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Halo Sagrado** (nivel 20): hoy `pasiva`, no menciona tipo de acción
 
-#### Juramento de la Gloria
+### Oath of the Noble Genies — Forgotten Realms: Heroes of Faerûn (2025)
+- Nivel 3 · Oath of the Noble Genies: Brandish the Elemental Splendor of Genies Paladins sworn to the Oath of the Noble Genies revere the forces of the Elemental Planes. Through taking this oath, Paladins draw power from the four different types of genies—dao, masters of earth; djinn, masters of air; efreet, masters of fire; and marids, masters of water. In Faerûn, many Paladins who swear this oath hail from Calimshan, a land teeming with genies. Paladins who swear this oath often undertake quests that take them all over the Realms and across the multiverse—including the Elemental Planes. These paladins share the following tenets: Sow the seeds of creation amid the ashes of destruction. Lead with splendor and grace. Respect the elements, and fear their wrath. [Elemental Smite] Immediately after you cast Divine Smite, you can expend one use of your XPHB and invoke one of the following effects. [Dao's Crush] Earth rises up around the target of your Divine Smite. The target has the Grappled condition (escape DC equal to your spell save DC). While Grappled, the target has the Restrained condition. [Djinni's Escape] You teleport to an unoccupied space you can see within 30 feet of yourself and take on a semi-incorporeal form, which lasts until the end of your next turn. While in this form, you have Resistance to Bludgeoning, Piercing, and Slashing damage, and you have Immunity to the Grappled, Prone, and Restrained conditions. [Efreeti's Fury] The target of your Divine Smite takes an extra 2d4 Fire damage, and fire jumps from the target to another creature you can see within 30 feet of yourself. The second creature also takes 2d4 Fire damage. [Marid's Surge] The target of your Divine Smite and each creature of your choice in a 10-foot Emanation originating from you make a Strength saving throw against your spell save DC. On a failed save, a creature is pushed 15 feet straight away from you and has the Prone condition. [Genie Spells] When you reach a Paladin level specified in the Genie Spells table, you thereafter always have the listed spells prepared. Paladin Level | Spells / 3 | Chromatic Orb, Elementalism, Thunderous Smite / 5 | Mirror Image, Phantasmal Force / 9 | Fly, Gaseous Form / 13 | Conjure Minor Elementals, Summon Elemental / 17 | Banishing Smite, Contact Other Plane [Genie's Splendor] When you aren't wearing any armor, your base Armor Class equals 10 plus your Dexterity and Charisma modifiers. You can use a Shield and still gain this benefit. You also gain proficiency in one of the following skills of your choice: Acrobatics, Intimidation, Performance, or Persuasion.
+- Nivel 7 · Aura of Elemental Shielding: Choose one of the following damage types: Acid, Cold, Fire, Lightning, or Thunder. You and your allies have Resistance to that damage type while in your Aura of Protection. At the start of each of your turns, you can change the damage type affected by this feature to one of the other listed options (no action required).
+- Nivel 15 · Elemental Rebuke: When you are hit by an attack roll, you can take a Reaction to halve the attack's damage against yourself (round down) and force the attacker to make a Dexterity saving throw against your spell save DC. On a failed save, the attacker takes damage equal to 2d10 plus your Charisma modifier of one of the following types (your choice): Acid, Cold, Fire, Lightning, or Thunder. On a successful save, the attacker takes half as much damage. You can use this feature a number of times equal to your Charisma modifier (minimum of once), and you regain all expended uses when you finish a Long Rest.
+- Nivel 20 · Noble Scion: As a Bonus Action, you gain the benefits below for 10 minutes or until you end them (no action required). Once you use this feature, you can't use it again until you finish a Long Rest. You can also restore your use of it by expending a level 5 spell slot (no action required). [Flight] You have a Fly Speed of 60 feet and can hover. [Minor Wish] When you or an ally in your XPHB fails a D20 Test, you can take a Reaction to make the D20 Test succeed instead.
 
-- [ ] **Aura de Alacridad** (nivel 7): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Leyenda Viva** (nivel 20): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción
+### Oath of the Watchers — Tasha's Cauldron of Everything (2020)
 
-#### Juramento de los Antiguos
 
-- [ ] **Aura de Resistencia** (nivel 7): hoy `pasiva`, no menciona tipo de acción
-- [ ] **Centinela Inmortal** (nivel 15): hoy `pasiva`, no menciona tipo de acción
+### Oath of Vengeance — Manual del Jugador (2024)
+- Nivel 3 · Oath of Vengeance: Punish Evildoers at Any Cost The Oath of Vengeance is a solemn commitment to punish those who have committed grievously evil acts. When evil armies slaughter helpless villagers, when a tyrant defies the will of the gods, when a thieves' guild grows too violent, when a dragon rampages through the countryside—at times like these, paladins arise and swear an Oath of Vengeance to set right what has gone wrong. These paladins share the following tenets: Show the wicked no mercy. Fight injustice and its causes. Aid those harmed by injustice. [Oath of Vengeance Spells] The magic of your oath ensures you always have certain spells ready; when you reach a Paladin level specified in the Oath of Vengeance Spells table, you thereafter always have the listed spells prepared. Oath of Vengeance Spells / Paladin Level | Spells / 3rd | Bane, Hunter's Mark / 5th | Hold Person, Misty Step / 9th | Haste, Protection from Energy / 13th | Banishment, Dimension Door / 17th | Hold Monster, Scrying [Vow of Enmity] When you take the Attack action, you can expend one use of your Channel Divinity to utter a vow of enmity against a creature you can see within 30 feet of yourself. You have Advantage on attack rolls against the creature for 1 minute or until you use this feature again. If the creature drops to 0 Hit Points before the vow ends, you can transfer the vow to a different creature within 30 feet of yourself (no action required).
+- Nivel 7 · Relentless Avenger: Your supernatural focus helps you close off a foe's retreat. When you hit a creature with an Opportunity Attack, you can reduce the creature's Speed to 0 until the end of the current turn. You can then move up to half your Speed as part of the same Reaction. This movement doesn't provoke Opportunity Attacks.
+- Nivel 15 · Soul of Vengeance: Immediately after a creature under the effect of your Vow of Enmity hits or misses with an attack roll, you can take a Reaction to make a melee attack against that creature if it's within range.
+- Nivel 20 · Avenging Angel: As a Bonus Action, you gain the benefits below for 10 minutes or until you end them (no action required). Once you use this feature, you can't use it again until you finish a Long Rest. You can also restore your use of it by expending a level 5 spell slot (no action required). [Flight] You sprout spectral wings on your back, have a Fly Speed of 60 feet, and can hover. [Frightful Aura] Whenever an enemy starts its turn in your Aura of Protection, that creature must succeed on a Wisdom saving throw or have the Frightened condition for 1 minute or until it takes any damage. Attack rolls against the Frightened creature have Advantage.
 
-#### Juramento de Venganza
+### Oathbreaker — Guía del Dungeon Master (2014)
 
-- [ ] **Vengador Implacable** (nivel 7): hoy `gratis`, no menciona tipo de acción
-- [ ] **Ángel Vengador** (nivel 20): hoy `pasiva`, no menciona tipo de acción
 
 ## Conjuros de la app (usa estos nombres exactos)
 

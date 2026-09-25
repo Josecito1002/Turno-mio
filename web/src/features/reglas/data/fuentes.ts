@@ -10,6 +10,7 @@ import { norm } from '@/shared/utils/texto';
 import { CLASES } from './clases';
 import { ESPECIES } from './especies';
 import { TRASFONDOS } from './trasfondos';
+import { FUENTES_GENERADAS } from './generadas';
 
 export type TipoFuente = 'basicas' | 'dndbeyond' | 'homebrew';
 export type Fuente = { tipo: TipoFuente; libro?: string };
@@ -84,6 +85,8 @@ export function fuenteSubclase(s: { n: string; lib?: boolean }, clase: string): 
   if (deClase.tipo !== 'basicas') return deClase; // las de Artífice, Cazador de Sangre y Pugilista van con su clase
   if (!s.lib) return PHB;
   const n = norm(s.n);
+  const g = FUENTES_GENERADAS[n]; // de los lotes hechos con Gemini
+  if (g) return /Manual del Jugador.*2024/.test(g) ? PHB : dndb(g);
   if (SUBCLASES_DNDB[n]) return dndb(SUBCLASES_DNDB[n]);
   return SUBCLASES_PHB.has(n) ? PHB : HOMEBREW;
 }
