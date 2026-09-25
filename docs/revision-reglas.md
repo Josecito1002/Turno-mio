@@ -949,7 +949,7 @@ Respuesta de Gemini revisada el 2026-09-25. Versiones: Manual del Jugador 2024 (
 - [x] **Sombras**: la biblioteca tenía la de Van Richten (Ojos de la Oscuridad, Vitalidad de Sombra, Sabueso); queda la de 2026 (Poder de las Sombras, Bestias de Mal Agüero con Invocar bestia, Paso Sombrío, Forma Umbría).
 - [x] **Dracónica (integrada)**: sus conjuros llegan hasta el nivel 9 (Ojo arcano y Hechizar monstruo en el 7; Conocer las leyendas e Invocar dragón en el 9). Alas de Dragón dura 1 hora (1 uso o 3 puntos) y Compañero Dragón reemplaza a Presencia Dracónica.
 - [x] **Metamagia**: selector con las 10 opciones de 2024; 2, 4 y 6 opciones en los niveles 2, 10 y 17.
-- ⚠ **Hechicería Lunar**: la tabla de conjuros por fase se escribió de memoria (el texto oficial del encargo no la traía); conviene confirmarla con el libro.
+- [x] **Hechicería Lunar**: la tabla de conjuros por fase y los rasgos de nivel 1 de Alma Divina, Tormenta y Lunar se confirmaron con el texto oficial (Dragonlance 2022 y Xanathar 2017). El encargo no los traía porque las copias adaptadas a la clase 2024 no tienen texto propio; `scripts/gemini/oficial.ts` ya toma el del original.
 
 ### Hechicero
 
