@@ -140,6 +140,31 @@
       "clase": "picaro",
       "subclase": "embaucador",
       "nivel": 10
+    },
+    {
+      "clase": "barbaro",
+      "subclase": "guardian-espiritual",
+      "nivel": 14
+    },
+    {
+      "clase": "barbaro",
+      "subclase": "heraldo-tormenta",
+      "nivel": 14
+    },
+    {
+      "clase": "guerrero",
+      "subclase": "caballero-playtest",
+      "nivel": 15
+    },
+    {
+      "clase": "monje",
+      "subclase": "embriaguez",
+      "nivel": 11
+    },
+    {
+      "clase": "paladin",
+      "subclase": "rompejuramentos",
+      "nivel": 20
     }
   ]
 }

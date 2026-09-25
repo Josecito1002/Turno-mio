@@ -25,6 +25,8 @@ import { GUERRERO_2024 } from '../../../../scripts/datos/guerrero-2024';
 import { HECHICERO_2024 } from '../../../../scripts/datos/hechicero-2024';
 import { MAGO_2024 } from '../../../../scripts/datos/mago-2024';
 import { MONJE_2024 } from '../../../../scripts/datos/monje-2024';
+import { PLAYTEST_2025 } from '../../../../scripts/datos/playtest-2025';
+import { fuenteSubclase } from '@/features/reglas/data/fuentes';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
 import { ARMAS } from '@/features/reglas/data/equipo';
 import { EQUIPO_TRASFONDOS, kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
@@ -961,5 +963,31 @@ describe('Monje 2024 (Lote 14)', () => {
     assert.ok(entrada(c, 'Superviviente Disciplinado'));
     assert.equal(entrada(c, 'Alma Diamantina'), undefined);
     assert.equal(entrada(c, 'Desafiar a la Muerte'), undefined);
+  });
+});
+
+describe('Playtest: Unearthed Arcana 2025', () => {
+  const ua = (clase: string, nivel: number, sub: string, stats: Record<string, number> = {}) => {
+    setLib({ clases: Object.fromEntries(Object.entries(PLAYTEST_2025).map(([k, subclases]) => [k, { subclases }])) });
+    return pj(clase, nivel, 'lib:' + sub, stats);
+  };
+  test('las cinco subclases llevan la etiqueta Playtest', () => {
+    for (const [clase, subs] of Object.entries(PLAYTEST_2025)) for (const s of Object.values(subs))
+      assert.equal(fuenteSubclase({ n: s.n, lib: true }, clase).tipo, 'playtest', s.n);
+    assert.notEqual(fuenteSubclase({ n: 'Caballero', lib: true }, 'guerrero').tipo, 'playtest');
+  });
+  test('Heraldo de la Tormenta: dados según el daño de Furia y CD con CON', () => {
+    const c = ua('barbaro', 9, 'heraldo-tormenta', { con: 16 });
+    assert.match(entrada(c, 'Aura de Tormenta').texto, new RegExp(`CD ${8 + c.pb + 3}\\).*3d4 de fuego`));
+  });
+  test('Caballero (Playtest): Maniobra de Protección con usos = CON', () => {
+    assert.equal(recurso(ua('guerrero', 7, 'caballero-playtest', { con: 16 }), 'Maniobra de Protección')?.max, 3);
+  });
+  test('Rompejuramentos: conjuros siempre preparados y Golpe Sombrío en el nivel 20', () => {
+    const c9 = ua('paladin', 9, 'rompejuramentos', { car: 16 });
+    assert.ok(c9.conjurosRasgo.some((s: any) => s.nombre === 'Miedo'));
+    assert.ok(!c9.conjurosRasgo.some((s: any) => s.nombre === 'Contagio'));
+    const c20 = ua('paladin', 20, 'rompejuramentos', { car: 16 });
+    assert.ok(c20.naturales.some((a: any) => a.nombre.startsWith('Golpe Sombrío')));
   });
 });
