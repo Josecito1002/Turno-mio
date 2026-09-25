@@ -667,6 +667,13 @@ describe('Guerrero 2024 (Lote 11)', () => {
     assert.equal(c.trucosMax, 3);
     assert.equal(gue(3, 'lib:caballero-arcano').slots[0].n, 2);
   });
+  test('Disparos Arcanos: se ofrecen al acertar con un arco, gastando un uso', () => {
+    const c = gue(7, 'lib:arquero-arcano', { des: 16, int: 14 }, { elecciones: { 'disparo-arcano': ['sombra', 'perforante'] }, armas: [['arco_largo', 1]] });
+    const arco = c.armas.find((x: any) => x.w?.n === 'Arco largo');
+    const ex = extrasAtaque(c, arco);
+    assert.ok(ex.some((x: any) => x.nombre === 'Disparo de Sombra' && x.gasta && /1d(6|8)/.test(x.expr)));
+    assert.ok(!ex.some((x: any) => x.nombre === 'Disparo Perforante'));
+  });
   test('Maestro de Batalla: dados 4/5/6, d8 a d12, y las maniobras elegidas salen con su tipo', () => {
     const c = gue(7, 'lib:maestro-batalla', { fue: 16 }, { elecciones: { maniobra: ['parada', 'finta'] } });
     assert.equal(usos(c, 'Superioridad en Combate'), 5);

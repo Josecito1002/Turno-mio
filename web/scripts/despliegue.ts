@@ -66,7 +66,7 @@ async function main() {
     const lista = leerLista();
     if (!ver) {
       const r = await sincronizarPrueba(db, lista.correo, lista.personajes, archivo);
-      console.log(`[despliegue] Personajes de prueba en ${lista.correo}: ${r.creados.length} creados, ${r.borrados.length} borrados.`);
+      console.log(`[despliegue] Personajes de prueba en ${lista.correo}: ${r.creados.length} creados, ${r.rehechos.length} rehechos, ${r.borrados.length} borrados.`);
     } else console.log(`[despliegue] Personajes de prueba pedidos: ${lista.personajes.length}.`);
   } catch (e: any) {
     console.error('[despliegue] ERROR (la compilación sigue):', e?.message || e);
