@@ -56,16 +56,22 @@ export function Entrada({ e }: { e: any }) {
   const color = COLOR_TIPO[e.t] || COLOR_TIPO.pasiva;
   return (
     <article className={cx('my-2 rounded-2xl border-l-4 bg-surface px-4 py-3 shadow-sm ring-1 ring-rule/50 break-inside-avoid', color.borde)}>
-      <header className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
-        <h3 className="m-0 font-serif text-lg font-bold leading-snug">{e.nombre}</h3>
-        {e.coste && <span className={cx('text-sm font-bold', color.texto)}>{e.coste}</span>}
-      </header>
-      <TextoConDados html={body} label={e.nombre} className="mb-0 mt-1" />
-      {e.roll && (
-        <p className="mb-0 mt-2">
-          <BotonTirada expr={e.roll[0]} label={`${e.nombre}: ataque`} dmg={e.roll[1]} dmgLabel={`${e.nombre}: daño`}>Tirar ataque</BotonTirada>
-        </p>
-      )}
+      <div className={cx(e.roll && 'grid grid-cols-[1fr_auto] gap-x-3')}>
+        <div>
+          <header className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+            <h3 className="m-0 font-serif text-lg font-bold leading-snug">{e.nombre}</h3>
+            {e.coste && <span className={cx('text-sm font-bold', color.texto)}>{e.coste}</span>}
+          </header>
+          <TextoConDados html={body} label={e.nombre} className="mb-0 mt-1" />
+        </div>
+        {/* El mismo botón grande que en Ataques: el bono al ataque, y el daño se tira desde la bandeja */}
+        {e.roll && (() => { const b = e.roll[0].replace(/^1d20\s*/, '') || '+0'; return (
+          <div className="flex flex-col items-center justify-center">
+            <BotonTirada expr={e.roll[0]} label={`${e.nombre}: ataque`} dmg={e.roll[1]} dmgLabel={`${e.nombre}: daño`} estilo="grande"
+              ariaLabel={`Tirar ataque de ${e.nombre}, ${b}`}>{b}</BotonTirada>
+            <small className="mt-0.5 text-xs text-muted" aria-hidden="true">al ataque</small>
+          </div>); })()}
+      </div>
       {e.recurso && S.view === 'ficha' && <RecursoInline id={e.recurso} />}
       <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
         <p className="m-0 text-xs text-muted">{e.src || ''}{e.revisada && <span className="ml-2 font-bold text-pas">Regla revisada</span>}</p>
