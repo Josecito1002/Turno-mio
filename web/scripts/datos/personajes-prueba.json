@@ -1,4 +1,10 @@
 {
   "correo": "1@1.com",
-  "personajes": []
+  "personajes": [
+    {
+      "clase": "clerigo",
+      "subclase": "",
+      "nivel": 3
+    }
+  ]
 }
