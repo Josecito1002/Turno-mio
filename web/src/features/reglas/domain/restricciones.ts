@@ -31,7 +31,7 @@ export function competenciaArmadura(C: any): CompArmadura {
 /* Armas: la competencia real del personaje (clase + rasgos) está en competencias.ts */
 
 /* ---------- Conjuros ---------- */
-/** Clase base de la que deriva una clase de biblioteca por su nombre ("Arcanista (Artífice)" -> artifice), o null. */
+/** Clase base de la que deriva una clase de biblioteca por su nombre ("Artífice" -> artifice), o null. */
 export function claseBase(claseKey: string, C: any): string | null {
   if (CLASES[claseKey]) return claseKey;
   const n = norm(C?.n);

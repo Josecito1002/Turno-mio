@@ -6,14 +6,13 @@ import { norm } from '@/shared/utils/texto';
 import { Boton, Campo, Nota, Plegable, Seccion } from '@/shared/ui/kit';
 import { ALL_AB, SKILLS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { ESPECIES } from '@/features/reglas/data/especies';
-import { CLASES } from '@/features/reglas/data/clases';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
 import { ESTILOS } from '@/features/reglas/data/estilos';
 import { ARMAS } from '@/features/reglas/data/equipo';
 import { kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
 import { esDoteOrigen } from '@/features/reglas/domain/restricciones';
 import { fuenteClase, fuenteEspecie, fuenteSubclase, fuenteTrasfondo } from '@/features/reglas/data/fuentes';
-import { getLib, getSubs, getT, allDotes, descEspecie, descClase, descSubclase, sinRepetidas } from '@/features/biblioteca/domain/biblioteca';
+import { getLib, getSubs, getT, allDotes, descEspecie, descClase, descSubclase, sinRepetidas, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
 import { PanelMedia } from '@/features/biblioteca/components/PanelMedia';
 import { Entrada } from '../piezas';
 import { quitarEquipoTrasfondo, savePj, setVal, tomarEquipoTrasfondo } from '../../acciones';
@@ -122,7 +121,7 @@ export function ElegirEstilo({ pj, c }: { pj: any; c: any }) {
 export function PasoClase({ pj, c }: { pj: any; c: any }) {
   const C = c.C, LIB = getLib();
   const elegir = (k: string) => elegirClase(k);
-  const lista: [string, any][] = [...Object.entries(CLASES), ...sinRepetidas(LIB.clases, CLASES, pj.clase).filter(([, x]) => x.dado)];
+  const lista = clasesParaElegir(pj.clase);
   const items = lista.map(([k, x]) => {
     const sub = `d${x.dado}, ${x.lanz ? 'conjuros con ' + abInfo(x.lanz)[2] : 'sin conjuros'}`;
     return { key: k, q: norm(x.n + ' ' + descClase(k)), node: <Tarjeta on={pj.clase === k} onClick={() => elegir(k)} img={LIB.img?.['c:' + k]} titulo={x.n} sub={sub} fuente={fuenteClase(k)} /> };

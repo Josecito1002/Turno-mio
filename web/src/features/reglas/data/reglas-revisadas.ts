@@ -597,15 +597,15 @@ export const REGLAS: any[] = [
     texto: c => `Maldición extra que no cuenta entre las que conoces. Cuando una criatura que no sea constructo ni muerto viviente cae a 0 PG a 30 pies de ti, hasta el final de tu siguiente turno atacas con ventaja y tienes resistencia a todo el daño. ${amplificar(c)}: además recuperas un espacio de pacto; no puedes volver a amplificarla hasta un descanso largo.`},
 
   /* ---------- Arcanista (Artífice de Eberron: Forge of the Artificer, 2025) ----------
-     La clase base de la biblioteca se llama "Arcanista (Artífice)"; las subclases valen también para el Artífice de las reglas. */
-  {de:/arcanista/, n:/^lanzamiento de conjuros/, t:'pasiva',
+     La clase de la biblioteca (clave lib:arcanista) se llamó "Arcanista (Artífice)" y ahora "Artífice"; las subclases valen también para el Artífice de las reglas. */
+  {de:/arcanista|artifice/, n:/^lanzamiento de conjuros/, t:'pasiva',
     efecto: c => { c.trucosReglas = trucosArt(c); c.prepReglas = preparadosArt(c); },
     texto: c => `Lanzas conjuros de artífice con INT (CD ${8 + c.pb + c.m.int}, ${sign(c.pb + c.m.int)} al ataque) usando como foco herramientas de ladrón, de manitas o de artesano con las que seas competente: necesitas una en la mano. Conoces ${trucosArt(c)} trucos y preparas ${preparadosArt(c)} conjuros; al terminar un descanso largo puedes cambiar un truco y los conjuros preparados.`},
-  {de:/arcanista/, n:/^magia de manitas/, t:'accion', usos: modInt, reset:'largo',
+  {de:/arcanista|artifice/, n:/^magia de manitas/, t:'accion', usos: modInt, reset:'largo',
     texto: () => 'Conoces el truco Reparar. Con acción mágica y herramientas de manitas en la mano, creas a 5 pies un objeto de aventura sencillo (cuerda, antorcha, palanca, abrojos, red, aceite, bolsa, pala, cadenas...). Dura hasta tu siguiente descanso largo.'},
-  {de:/arcanista/, n:/^replicar objeto magico/, t:'fuera',
+  {de:/arcanista|artifice/, n:/^replicar objeto magico/, t:'fuera',
     texto: c => `Conoces ${planesArt(c)} planos de objetos mágicos${c.lvl >= 9 && /armero/.test(norm(c.SD?.n || '')) ? ' (+1 de armadura por Armero Mejorado)' : ''}; al subir de nivel puedes cambiar uno. Al terminar un descanso largo, con herramientas de manitas, creas uno o dos objetos de planos distintos, hasta tener ${objetosArt(c)} a la vez (si te pasas, el más viejo desaparece). Puedes sintonizarte al crearlos. Varitas y armas creadas así te sirven de foco. Si mueres, desaparecen en 1d4 días.`},
-  {de:/arcanista/, n:/^manitas de objetos magicos/, t:'pasiva',
+  {de:/arcanista|artifice/, n:/^manitas de objetos magicos/, t:'pasiva',
     texto: () => 'Tres formas de manejar los objetos que creaste con Replicar Objeto Mágico; salen aparte.',
     opciones: [
       {nombre:'Cargar objeto mágico', t:'adicional', coste:'1 espacio de conjuro',
@@ -615,21 +615,21 @@ export const REGLAS: any[] = [
       {nombre:'Transmutar objeto mágico', t:'accion', usos:1, reset:'largo',
         texto: () => 'Con acción mágica tocas a 5 pies un objeto que creaste y lo conviertes en otro de un plano que conozcas.'},
     ]},
-  {de:/arcanista/, n:/^destello de genio/, t:'reaccion', usos: modInt, reset:'largo',
+  {de:/arcanista|artifice/, n:/^destello de genio/, t:'reaccion', usos: modInt, reset:'largo',
     texto: c => `Cuando tú o una criatura que veas a 30 pies falla una prueba de característica o una salvación, sumas ${sign(modInt(c))} a la tirada.${c.lvl >= 20 ? ' Al terminar un descanso corto recuperas todos los usos si estás sintonizado con algún objeto mágico.' : c.lvl >= 14 ? ' Al terminar un descanso corto recuperas un uso.' : ''}`},
-  {de:/arcanista/, n:/^adepto a objetos magicos/, t:'pasiva',
+  {de:/arcanista|artifice/, n:/^adepto a objetos magicos/, t:'pasiva',
     texto: () => 'Puedes sintonizarte con hasta cuatro objetos mágicos a la vez.'},
-  {de:/arcanista/, n:/^objeto almacenador de conjuros/, t:'fuera',
+  {de:/arcanista|artifice/, n:/^objeto almacenador de conjuros/, t:'fuera',
     texto: c => `Al terminar un descanso largo tocas un arma sencilla o marcial, o un foco, y guardas en él un conjuro de artífice de nivel 1 a 3 que se lance con una acción y no gaste componentes materiales (no hace falta tenerlo preparado). Aguanta ${Math.max(2, 2 * c.m.int)} usos, o hasta que guardes otro.`,
     opciones: [
       {nombre:'Usar el objeto almacenador', t:'accion',
         texto: c => `Quien lo sostiene usa una acción mágica y produce el conjuro con tu característica de conjuros (CD ${8 + c.pb + c.m.int}); si pide concentración, se concentra quien lo usa. Una vez por turno de esa criatura.`},
     ]},
-  {de:/arcanista/, n:/^artificio avanzado/, t:'pasiva',
+  {de:/arcanista|artifice/, n:/^artificio avanzado/, t:'pasiva',
     texto: () => 'Puedes sintonizarte con hasta cinco objetos mágicos a la vez. Al terminar un descanso corto recuperas un uso de Destello de Genio.'},
-  {de:/arcanista/, n:/^maestro de objetos magicos/, t:'pasiva',
+  {de:/arcanista|artifice/, n:/^maestro de objetos magicos/, t:'pasiva',
     texto: () => 'Puedes sintonizarte con hasta seis objetos mágicos a la vez.'},
-  {de:/arcanista/, n:/^alma del artificio/, t:'gratis',
+  {de:/arcanista|artifice/, n:/^alma del artificio/, t:'gratis',
     texto: () => 'Engañar a la muerte: si caes a 0 PG sin morir en el acto, puedes desintegrar objetos mágicos poco comunes o raros que creaste con Replicar Objeto Mágico; tus PG pasan a 20 por cada objeto. Guía mágica: al terminar un descanso corto recuperas todos los usos de Destello de Genio si estás sintonizado con algún objeto mágico.'},
 
   /* Alquimista */
