@@ -1,22 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { useEffect, useRef, type ReactNode, type InputHTMLAttributes } from 'react';
+import { useCallback, useEffect, useRef, type ReactNode, type InputHTMLAttributes } from 'react';
 import { claseCampo, cx, Casilla as CasillaKit } from '@/shared/ui/kit';
 import { Desplegable } from '@/shared/ui/desplegable';
 import { abInfo } from '@/features/reglas/data/caracteristicas';
 import { setVal } from '../../acciones';
 
-/** Guarda con el evento `change` nativo (al salir del campo o con Enter), sin redibujar en cada tecla. */
+/** Guarda con el evento `change` nativo (al salir del campo, con Enter o con las flechas), sin redibujar en cada tecla.
+    Es una ref de función porque el campo se vuelve a crear cuando cambia su valor (key): así el nuevo también escucha. */
 function useCambio<T extends HTMLInputElement | HTMLTextAreaElement>(fn: (el: T) => void) {
-  const ref = useRef<T>(null), f = useRef(fn);
+  const f = useRef(fn);
   useEffect(() => { f.current = fn; });
-  useEffect(() => {
-    const el = ref.current; if (!el) return;
+  return useCallback((el: T | null) => {
+    if (!el) return;
     const h = () => f.current(el);
     el.addEventListener('change', h);
     return () => el.removeEventListener('change', h);
   }, []);
-  return ref;
 }
 
 type Base = Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'defaultValue' | 'onChange'>;

@@ -199,6 +199,8 @@ export function aplicarTextos(c){
     if (mejor) { dadoClase = mejor; const uMod = m.fue; c.unarmed = {atk: c.pb + uMod, expr: `${mejor}${modStr(uMod)}`, dmg: `${mejor}${fmtMod(uMod)} contundente`}; }
   }
   // Armas naturales (garras, cuernos, mordisco): en las reglas actuales son golpes sin armas con otro daño
+  // Las filas de reglas que gastan un recurso lo nombran (los recursos se arman después de las reglas)
+  (c.ataquesReglas || []).forEach(a => { if (a.gastaNombre) a.gasta = c.recursos.find(r => norm(r.nombre) === a.gastaNombre)?.id; });
   c.naturales = [...(c.ataquesReglas || [])];
   c.entries.filter(e => e.grupo === 'especie' || e.grupo === 'extra').forEach(e => {
     const frases = String(e.texto).split(/(?<=[.;])\s+/);

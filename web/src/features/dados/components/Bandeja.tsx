@@ -24,7 +24,8 @@ function Dado({ sides, cls, valor }: { sides: number; cls: string; valor: number
   );
 }
 
-const EXTRA_T: Record<string, string> = { adicional: 'acción adicional', gratis: 'sin acción', reaccion: 'reacción' };
+/* Lo que sigue a un ataque sin gastar acción no lleva etiqueta: solo se avisa cuando cuesta la adicional o la reacción */
+const EXTRA_T: Record<string, string> = { adicional: 'acción adicional', reaccion: 'reacción' };
 
 type Estado = { r: Resultado; rolling: boolean; caras: number[]; seq: number };
 

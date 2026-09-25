@@ -52,6 +52,8 @@ export function extrasAtaque(c: any, a?: any): Extra[] {
       if (libre && (w?.p || []).includes('munición') && !/^no tiras ataque/.test(norm(e.texto || ''))) out.push({ nombre: e.nombre, t: 'gratis', expr: dado(e.texto), gasta: libre.id });
       continue;
     }
+    // El rasgo Disparo Arcano solo explica los disparos: cada uno sale por separado arriba
+    if (/^disparo arcano$/.test(n)) continue;
     if (!['gratis', 'adicional', 'pasiva'].includes(e.t) || /^ataque extra/.test(n) || !AL_ACERTAR.test(norm(e.texto || ''))) continue;
     // Ataque Furtivo: con un arma sutil o a distancia, y con ventaja
     if (/^ataque furtivo/.test(n)) { if (sutilODist) out.push({ nombre: e.nombre, t: e.t, expr: dado(e.texto), requiere: 'ventaja' }); continue; }
