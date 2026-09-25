@@ -2,6 +2,7 @@
 
 App de hojas de personaje de D&D 2024 en español. El código está en `web/` (Next.js 16, React 19, GraphQL Yoga, Drizzle,
 Postgres en Supabase). Todos los comandos `npm` se corren desde `web/`. Responde al usuario en español.
+Si no existe `web/node_modules` (sesión nueva en la nube), empieza con `cd web && npm install`.
 
 ## Git y publicación
 
