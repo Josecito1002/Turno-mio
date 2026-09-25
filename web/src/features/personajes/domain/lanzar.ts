@@ -29,13 +29,47 @@ export function espaciosPara(c: any, nivel: number) {
 
 const AL_ACERTAR = /(al|cuando|si|tras|cada vez que|despues de) (aciert|acertar|impact|golpe)|al atacar|accion atacar|un ataque (adicional|extra)|otro ataque/;
 
-/** Lo que puede seguir a un ataque: rasgos que se activan al acertar y acciones adicionales que atacan, con sus dados. */
-export function extrasAtaque(c: any): { nombre: string; t: string; expr: string }[] {
+export type Extra = { nombre: string; t: string; expr: string; atk?: string; gasta?: string; requiere?: 'ventaja' };
+
+/** Lo que puede seguir a un ataque con `a` (fila de Atacar): rasgos que se activan al acertar, acciones adicionales
+    que atacan (con la otra arma ligera) y conjuros como Castigo divino, uno por nivel de espacio que te quede. */
+export function extrasAtaque(c: any, a?: any): Extra[] {
   const dado = (txt: string) => /(\d+d\d+(?:\s*[+-]\s*\d+)?)/.exec(txt || '')?.[1]?.replace(/\s/g, '') || '';
-  const ents = (c.entries || []).filter((e: any) => ['gratis', 'adicional', 'pasiva'].includes(e.t) && !/^ataque extra/.test(norm(e.nombre))
-    && AL_ACERTAR.test(norm(e.texto || '')))
-    .map((e: any) => ({ nombre: e.nombre, t: e.t, expr: e.dado || dado(e.texto) }));
-  const sps = (c.conjuros || []).filter((s: any) => s.tiempo === 'adicional' && AL_ACERTAR.test(norm(s.desc || '')))
-    .map((s: any) => ({ nombre: s.nombre, t: 'adicional', expr: s.dados || '' }));
-  return [...ents, ...sps];
+  const w = a?.w, sutilODist = !!w && (w.dist || (w.p || []).includes('sutil'));
+  const out: Extra[] = [];
+  for (const e of c.entries || []) {
+    const n = norm(e.nombre);
+    if (!['gratis', 'adicional', 'pasiva'].includes(e.t) || /^ataque extra/.test(n) || !AL_ACERTAR.test(norm(e.texto || ''))) continue;
+    // Ataque Furtivo: con un arma sutil o a distancia, y con ventaja
+    if (/^ataque furtivo/.test(n)) { if (sutilODist) out.push({ nombre: e.nombre, t: e.t, expr: dado(e.texto), requiere: 'ventaja' }); continue; }
+    out.push({ nombre: e.nombre, t: e.t, expr: dado(e.texto) });
+  }
+  // Con un arma ligera en la mano principal, el ataque con la otra (acción adicional)
+  const otra = (c.entries || []).find((e: any) => e.nombre === 'Ataque con la otra arma ligera');
+  if (otra?.roll && a?.mano === 'principal' && (w?.p || []).includes('ligera'))
+    out.push({ nombre: `Ataque con ${otra.roll[2] || 'la otra arma'}`, t: 'adicional', atk: otra.roll[0], expr: otra.roll[1] });
+  for (const s of c.conjuros || []) {
+    if (s.tiempo !== 'adicional' || !AL_ACERTAR.test(norm(s.desc || ''))) continue;
+    const nv = +s.nivel || 0;
+    if (!nv) { out.push({ nombre: s.nombre, t: 'adicional', expr: s.dados || '' }); continue; }
+    for (const e of espaciosPara(c, nv).filter((x: any) => x.quedan > 0))
+      out.push({ nombre: `${s.nombre} (espacio de nivel ${e.nivel})`, t: 'adicional', expr: dadosAlLanzar(s.dados || '', nv, e.nivel, s.desc), gasta: 'slot' + e.nivel });
+  }
+  return out;
 }
+
+/** Conjuros de Evocación de la app (Manual del Jugador 2024 y los de otros libros), para bonos como Evocación Potenciada. */
+export const EVOCACION = new Set([
+  'Agarre electrizante', 'Arma espiritual', 'Bola de fuego', 'Bola de fuego de explosión retardada', 'Castigo abrasador', 'Castigo atronador',
+  'Castigo brillante', 'Castigo cegador', 'Castigo divino', 'Cono de frío', 'Descarga de fuego', 'Descarga sobrenatural', 'Explosión sobrenatural',
+  'Escudo de fuego', 'Esfera congelante de Otiluke', 'Esfera Vitriólica', 'Espada de mordenkainen', 'Explosión Solar', 'Flecha Ácida de Melf',
+  'Fuego feérico', 'Golpe Flamígero', 'Hacer añicos', 'Hoja de fuego', 'Llama sagrada', 'Luz', 'Luz del día', 'Mano de Bigby', 'Manos ardientes',
+  'Muro de fuego', 'Muro de fuerza', 'Muro de hielo', 'Muro de piedra', 'Muro de viento', 'Ola atronadora', 'Onda atronadora', 'Orbe cromático',
+  'Oscuridad', 'Palabra de resplandor', 'Proyectil mágico', 'Rayo abrasador', 'Rayo de escarcha', 'Rayo de fuego', 'Rayo de hechicería', 'Rayo de luna',
+  'Rayo guía', 'Saeta guía', 'Rayo solar', 'Relámpago', 'Relámpago en cadena', 'Rociada prismática', 'Ráfaga de viento', 'Tormenta de hielo',
+  'Tormenta de meteoritos', 'Tormenta resplandeciente de Jallarzi', 'Tronar', 'Voluta estelar',
+].map(norm));
+export const esEvocacion = (s: any) => EVOCACION.has(norm(s?.nombre || ''));
+
+/** Bonos de rasgos que se suman solos al daño del conjuro (c.bonosConjuro: {nombre, valor, si(s)}). */
+export const bonosPara = (c: any, s: any) => (c.bonosConjuro || []).filter((b: any) => !b.si || b.si(s));

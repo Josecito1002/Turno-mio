@@ -8,6 +8,7 @@ import { BandejaDados } from '@/features/dados/components/Bandeja';
 import { DialogoConfirmar } from '@/shared/ui/confirmar';
 import { compute } from '@/features/personajes/domain/calculo';
 import { reparar } from '@/features/personajes/domain/modelo';
+import { gastarRecurso } from '@/features/personajes/acciones';
 import { Ficha } from '@/features/personajes/components/ficha/Ficha';
 import { SubidaNivel } from '@/features/personajes/components/ficha/SubidaNivel';
 import { Editor } from '@/features/personajes/components/editor/Editor';
@@ -128,7 +129,7 @@ export function MiTurnoApp({ invitado = false }: { invitado?: boolean }) {
   const rol = S.usuario?.rol === 'admin' ? 'Admin' : S.usuario?.rol === 'dm' ? 'DM' : 'Jugador';
 
   return (
-    <BandejaDados>
+    <BandejaDados gastar={gastarRecurso}>
       <a href="#contenido" className={cx('sr-only rounded-xl bg-ink px-4 py-3 font-bold text-bg focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50', foco)}>Saltar al contenido</a>
       <Cabecera>
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-2">

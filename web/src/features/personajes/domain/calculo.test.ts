@@ -6,7 +6,7 @@ import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { setLib, getSubs, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
 import { compute } from './calculo';
-import { dadosAlLanzar, espaciosPara, extrasAtaque } from './lanzar';
+import { bonosPara, dadosAlLanzar, espaciosPara, extrasAtaque } from './lanzar';
 import { sinDuplicado } from '@/features/biblioteca/domain/mapeo';
 import { nuevoPj } from './modelo';
 import { pendientes, pendientesAlSubir } from './pendientes';
@@ -874,6 +874,12 @@ describe('Lanzar conjuros y seguir un ataque', () => {
     assert.equal(dadosAlLanzar('1d10', 1, 2, 'El daño de frío aumenta en 1d6 por cada nivel por encima de 1.'), '1d10+1d6');
     assert.equal(dadosAlLanzar('3d6', 2, 2, '', 3), '3d6+3');
   });
+  test('Evocación Potenciada solo en conjuros de Evocación', () => {
+    setLib({ clases: { mago: MAGO_2024 } });
+    const e = pj('mago', 10, 'lib:evocacion');
+    assert.equal(bonosPara(e, { nombre: 'Bola de fuego' }).length, 1);
+    assert.equal(bonosPara(e, { nombre: 'Toque helado' }).length, 0);
+  });
   test('Descripción duplicada en pies y metros: queda la primera', () => {
     const a = 'Una onda surge de tu cuerpo a 5 pies.';
     assert.equal(sinDuplicado(`${a},Una onda surge de tu cuerpo a 1,5 m.`), a);
@@ -882,7 +888,11 @@ describe('Lanzar conjuros y seguir un ataque', () => {
   test('Espacios para lanzar y extras del ataque', () => {
     const c = pj('mago', 5);
     assert.deepEqual(espaciosPara(c, 2).map((e: any) => e.nivel), [2, 3]);
-    const p = pj('picaro', 5);
-    assert.ok(extrasAtaque(p).some((x: any) => /Ataque Furtivo/.test(x.nombre)));
+    const p = pj('picaro', 5, '', {}, { armas: [['daga', 1], ['espada-corta', 1]] });
+    const daga = p.armas.find((a: any) => a.k === 'daga') || { w: ARMAS.daga, mano: 'principal' };
+    const furtivo = extrasAtaque(p, daga).find((x: any) => /Ataque Furtivo/.test(x.nombre));
+    assert.equal(furtivo?.requiere, 'ventaja');
+    // Con un arma que no es sutil ni a distancia no se ofrece
+    assert.ok(!extrasAtaque(p, { w: ARMAS.garrote || { p: [] }, mano: 'principal' }).some((x: any) => /Ataque Furtivo/.test(x.nombre)));
   });
 });

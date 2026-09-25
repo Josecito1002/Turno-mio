@@ -29,7 +29,8 @@ const EXTRA_T: Record<string, string> = { adicional: 'acción adicional', gratis
 type Estado = { r: Resultado; rolling: boolean; caras: number[]; seq: number };
 
 /** Bandeja de dados. Cualquier botón con data-roll en la página tira al tocarlo. */
-export function BandejaDados({ children }: { children: ReactNode }) {
+/** `gastar(id)`: gasta un recurso del personaje (un espacio de conjuro) antes de tirar un extra que lo pide; false si no queda. */
+export function BandejaDados({ children, gastar }: { children: ReactNode; gastar?: (id: string) => boolean }) {
   const [st, setSt] = useState<Estado | null>(null);
   const [abierta, setAbierta] = useState(false);
   const [hist, setHist] = useState<Resultado[]>([]);
@@ -69,19 +70,24 @@ export function BandejaDados({ children }: { children: ReactNode }) {
       const b = (e.target as HTMLElement).closest?.('[data-roll]') as HTMLElement | null;
       if (!b) return;
       const ds = b.dataset;
+      if (ds.gasta && gastar && !gastar(ds.gasta)) return;
       let extras;
       try { extras = ds.extras ? JSON.parse(ds.extras) : undefined; } catch { extras = undefined; }
       tirar(ds.roll!, ds.label || 'Tirada', ds.dmg ? { dmg: ds.dmg, dmgLabel: ds.dmglabel, dmgMin3: !!ds.min3, extras } : { min3: !!ds.min3, crit: ds.crit === '1' });
     };
     document.addEventListener('click', onClick);
     return () => document.removeEventListener('click', onClick);
-  }, [tirar]);
+  }, [tirar, gastar]);
 
   const r = st?.r, o = r?.o || {};
   const kind = r ? (r.groups.some(g => g.d === 20) ? 'd20' : o.neutral ? 'neu' : 'dmg') : '';
   const nDice = r ? r.groups.reduce((s, g) => s + g.vals.length, 0) : 0;
   const listo = r && !st!.rolling;
   const critico = !!r && (r.nat === 20 || !!o.crit);
+  // Lo que pide ventaja (Ataque Furtivo) solo se ofrece si la tirada de ataque fue con ventaja; en el daño, si lo fue el ataque
+  const conVentaja = (o.adv || 0) > 0 || !!o.conVentaja;
+  const extrasVis = (o.extras || []).filter(x => x.requiere !== 'ventaja' || conVentaja);
+  const sinVentaja = o.dmg && (o.adv || 0) >= 0 && !conVentaja ? (o.extras || []).filter(x => x.requiere === 'ventaja') : [];
   const botones: [string, string][] = [];
   let desc = '';
   if (listo) {
@@ -98,7 +104,7 @@ export function BandejaDados({ children }: { children: ReactNode }) {
     if (!r) return;
     if (a === 'adv' || a === 'dis') tirar(r.expr, r.label!, { ...o, adv: a === 'adv' ? 1 : -1 });
     if (a === 'again') tirar(r.expr, r.label!, o);
-    if (a === 'dmg' || a === 'crit') tirar(o.dmg!, o.dmgLabel || 'Daño', { min3: o.dmgMin3, crit: a === 'crit', extras: o.extras });
+    if (a === 'dmg' || a === 'crit') tirar(o.dmg!, o.dmgLabel || 'Daño', { min3: o.dmgMin3, crit: a === 'crit', extras: o.extras, conVentaja: (o.adv || 0) > 0 });
   };
   const titulo = r ? r.label + (o.adv! > 0 ? ' (con ventaja)' : o.adv! < 0 ? ' (con desventaja)' : '') + (o.crit ? ' (crítico)' : '') : 'Tirada';
 
@@ -134,16 +140,24 @@ export function BandejaDados({ children }: { children: ReactNode }) {
             <Boton variante="fantasma" onClick={cerrar}>Cerrar</Boton>
           </div>
         )}
-        {listo && !!o.extras?.length && (
+        {listo && extrasVis.length > 0 && (
           <div className="mt-4 border-t border-soft pt-3 text-center">
             <p className="m-0 text-sm text-muted">{critico ? 'Es crítico: si usas alguno, sus dados también se duplican.' : 'Si aciertas, puedes seguir con:'}</p>
             <div className="mt-2 flex flex-wrap justify-center gap-2">
-              {o.extras.map(x => x.expr
-                ? <button key={x.nombre} type="button" data-roll={x.expr} data-label={x.nombre + (critico ? ' (crítico)' : '')} data-crit={critico ? '1' : undefined}
-                    className="min-h-11 cursor-pointer rounded-lg bg-soft px-2.5 text-sm font-bold hover:bg-rule/70">{x.nombre}: {x.expr}{EXTRA_T[x.t] ? ` (${EXTRA_T[x.t]})` : ''}</button>
-                : <span key={x.nombre} className="inline-flex min-h-11 items-center rounded-lg px-2.5 text-sm font-bold ring-1 ring-inset ring-rule">{x.nombre}{EXTRA_T[x.t] ? ` (${EXTRA_T[x.t]})` : ''}</span>)}
+              {extrasVis.map(x => {
+                const txt = `${x.nombre}${x.atk ? ` (${x.atk.replace('1d20', '')} al ataque)` : x.expr ? `: ${x.expr}` : ''}${EXTRA_T[x.t] ? `, ${EXTRA_T[x.t]}` : ''}`;
+                return x.atk || x.expr
+                  ? <button key={x.nombre} type="button" data-roll={x.atk || x.expr} data-label={x.nombre + (critico && !x.atk ? ' (crítico)' : '')}
+                      data-dmg={x.atk ? x.expr : undefined} data-dmglabel={x.atk ? `${x.nombre}: daño` : undefined}
+                      data-crit={critico && !x.atk ? '1' : undefined} data-gasta={x.gasta}
+                      className="min-h-11 cursor-pointer rounded-lg bg-soft px-2.5 text-sm font-bold hover:bg-rule/70">{txt}</button>
+                  : <span key={x.nombre} className="inline-flex min-h-11 items-center rounded-lg px-2.5 text-sm font-bold ring-1 ring-inset ring-rule">{txt}</span>;
+              })}
             </div>
           </div>
+        )}
+        {listo && sinVentaja.length > 0 && (
+          <p className="mb-0 mt-3 text-center text-sm text-muted">Con ventaja podrías sumar {sinVentaja.map(x => x.nombre).join(' y ')}: vuelve a tirar con ventaja.</p>
         )}
         {hist.length > 1 && (
           <details className="mt-3 text-sm">
