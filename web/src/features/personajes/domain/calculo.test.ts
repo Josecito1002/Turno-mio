@@ -616,6 +616,13 @@ describe('Explorador 2024 (Lote 10)', () => {
     assert.match(entrada(exp(19), 'Marca del Cazador').texto, /\+1d6 de fuerza/);
     assert.match(entrada(exp(20), 'Marca del Cazador').texto, /\+1d10 de fuerza/);
   });
+  test('Marca del Cazador gasta los usos de Enemigo Predilecto, y solo ella', () => {
+    const c = exp(20);
+    assert.equal(c.recursos.find((x: any) => x.id === 'enemigo').nombre, 'Enemigo Predilecto');
+    assert.equal(entrada(c, 'Marca del Cazador').recurso, 'enemigo');
+    assert.notEqual(entrada(c, 'Cazador de Enemigos').recurso, 'enemigo');
+    assert.notEqual(entrada(c, 'Cazador Preciso').recurso, 'enemigo');
+  });
   test('Acechador de las Sombras: Golpe Temible 2d6 (2d8 desde 11), usos de SAB y 60 pies de visión en la oscuridad', () => {
     const c = exp(3, 'lib:sombras', { sab: 14 });
     assert.match(entrada(c, 'Emboscador Temible').texto, /2d6 de daño psíquico/);

@@ -376,7 +376,7 @@ export function buildAvisos(c){
 
 
 /* Campos de una regla revisada (t, coste y usos pueden ser funciones de c):
-   nombre (el oficial, si la biblioteca usa otro), t, texto, coste, usos ('pb', número, o función; 0 = sin límite), reset, dado (dado sin armas de la clase),
+   nombre (el oficial, si la biblioteca usa otro), t, texto, coste, recurso (id del recurso de la clase que gasta), usos ('pb', número, o función; 0 = sin límite), reset, dado (dado sin armas de la clase),
    efecto(c) (cambia números ya calculados: velocidad, salvaciones, espacios...), ataques(c) (filas extra en Ataques),
    opciones (entradas propias que salen del rasgo, con los mismos campos, `si(c)` para mostrarlas solo cuando aplican
    y `elegida: [id, key]` para ordenarlas de la última elegida a la primera),
@@ -409,6 +409,7 @@ export function aplicarReglas(c){
     if (R.t) e.t = e.tAuto = valor(R.t, c);
     if (R.texto) { e.textoF = R.texto; e.texto = R.texto(c); e.raw = false; }
     if (R.coste) e.coste = valor(R.coste, c);
+    if (R.recurso) e.recurso = R.recurso;
     if (R.dado) c.dadoReglas = R.dado(c);
     if (R.usos) { e.coste = R.coste ? e.coste : ''; conUsos(e, R, 'rg-' + slug(e.nombre)); }
     if (R.efecto) R.efecto(c);

@@ -1099,7 +1099,7 @@ export const REGLAS: any[] = [
 
   /* ---------- Explorador (Lote 10: Manual del Jugador 2024; Guardián Hueco de Ravenloft 2026, Caminante del Invierno de Heroes of Faerûn 2025) ----------
      Lo demás (textos, usos, selectores, conjuros de subclase) está en generadas/explorador.ts */
-  {de:/^explorador$/, n:/^marca del cazador$/, t:'adicional', coste:'1 espacio o 1 uso gratis',
+  {de:/^explorador$/, n:/^marca del cazador$/, t:'adicional', coste:'1 uso de Enemigo Predilecto o 1 espacio', recurso:'enemigo',
     texto: c => `Siempre preparada (concentración, 1 hora): +${dadoMarca(c)} de fuerza al golpear a la criatura marcada, y ventaja en Percepción o Supervivencia para encontrarla.`},
   {de:/^explorador$/, n:/^incansable$/, t:'accion', usos: c => Math.max(1, c.m.sab), reset:'largo',
     texto: c => `Con una acción mágica ganas 1d8${fmtMod(Math.max(1, c.m.sab))} PG temporales. Además, al terminar un descanso corto tu agotamiento, si tienes, baja 1 nivel.`},
