@@ -672,7 +672,13 @@ describe('Guerrero 2024 (Lote 11)', () => {
     const arco = c.armas.find((x: any) => x.w?.n === 'Arco largo');
     const ex = extrasAtaque(c, arco);
     assert.ok(ex.some((x: any) => x.nombre === 'Disparo de Sombra' && x.gasta && /1d(6|8)/.test(x.expr)));
-    assert.ok(!ex.some((x: any) => x.nombre === 'Disparo Perforante'));
+    assert.ok(!ex.some((x: any) => x.nombre === 'Disparo Perforante' || x.nombre === 'Disparo Arcano'));
+    // Perforante sale en Ataques: salvación de DES contra la CD, daño del arco + 2d6, y gasta un uso
+    const perf = c.naturales.find((x: any) => x.nombre === 'Disparo Perforante (Arco largo)');
+    assert.equal(perf.cd, 8 + c.pb + c.m.int);
+    assert.equal(perf.salv, 'DES');
+    assert.match(perf.expr, /^1d8\+3\+2d6$/);
+    assert.ok(perf.gasta);
   });
   test('Maestro de Batalla: dados 4/5/6, d8 a d12, y las maniobras elegidas salen con su tipo', () => {
     const c = gue(7, 'lib:maestro-batalla', { fue: 16 }, { elecciones: { maniobra: ['parada', 'finta'] } });

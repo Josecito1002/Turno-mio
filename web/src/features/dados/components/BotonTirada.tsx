@@ -15,14 +15,15 @@ type Props = {
   expr: string; label: string; children: ReactNode; estilo?: Estilo; className?: string;
   dmg?: string; dmgLabel?: string; min3?: boolean; ariaLabel?: string;
   extras?: OpcionesTirada['extras'];
+  gasta?: string; // recurso que se gasta al tirar (si no queda, no tira)
 };
 
 /** Botón que tira dados al tocarlo (lo atiende la bandeja de dados por delegación de eventos). */
-export function BotonTirada({ expr, label, children, estilo = 'chip', className, dmg, dmgLabel, min3, ariaLabel, extras }: Props) {
+export function BotonTirada({ expr, label, children, estilo = 'chip', className, dmg, dmgLabel, min3, ariaLabel, extras, gasta }: Props) {
   return (
     <button type="button" data-roll={expr} data-label={label} aria-label={ariaLabel ?? `Tirar ${label}: ${expr.replace('1d20', 'd20 ')}`}
       data-dmg={dmg || undefined} data-dmglabel={dmg ? dmgLabel : undefined} data-min3={min3 ? '1' : undefined}
-      data-extras={extras?.length ? JSON.stringify(extras) : undefined}
+      data-extras={extras?.length ? JSON.stringify(extras) : undefined} data-gasta={gasta}
       className={cx('cursor-pointer transition-colors', ESTILO[estilo], foco, className)}>
       {children}
     </button>

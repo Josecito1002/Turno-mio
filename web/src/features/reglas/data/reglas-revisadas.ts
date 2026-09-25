@@ -261,6 +261,11 @@ const MANIOBRAS: [string, string, string, (c: any) => string][] = [
   ['ataque-derribo', 'Ataque de Derribo', 'gratis', c => `Al acertar, sumas 1${dadoSup(c)} al daño y, si es Grande o menor, el objetivo hace una salvación de FUE (CD ${cdManiobra(c)}) o queda Derribado.`],
 ];
 
+/* Los dos Disparos Arcanos que no tiran ataque: [clave, nombre, tipo de daño extra, nota para Ataques] */
+const DISPARO_SIN_ATAQUE: [string, string, string, string][] = [
+  ['perforante', 'Disparo Perforante', 'perforante', 'Línea de 30 pies por 1 de ancho desde ti, atravesando cobertura: salvación de DES de cada criatura en ella'],
+  ['buscador', 'Disparo Buscador', 'fuerza', 'Contra una criatura que viste en el último minuto y está en tu alcance largo, ignorando cobertura media y de tres cuartos: salvación de DES. Si falla, sabes dónde está'],
+];
 /* Disparos Arcanos (Arcana Unleashed 2026): [clave, nombre, tipo, texto] */
 const cdArcano = c => 8 + c.pb + c.m.int;
 const DISPAROS_ARCANOS: [string, string, string, (c: any) => string][] = [
@@ -1214,6 +1219,11 @@ export const REGLAS: any[] = [
       opciones: c => (c.C?.estilos || []).filter(k => k !== c.estilo && ESTILOS[k]).map(k => ({key:k, nombre:ESTILOS[k][0], desc:ESTILOS[k][2]}))}},
   /* Arquero Arcano */
   {de:/^arquero arcano$/, n:/^disparo arcano$/, t:'pasiva', usos: c => Math.max(1, c.m.int), reset:'corto',
+    // Perforante y Buscador no siguen a un ataque: salen en Ataques, con cada arma con munición que llevas
+    ataques: c => DISPARO_SIN_ATAQUE.filter(([k]) => [].concat(c.pj?.elecciones?.['disparo-arcano'] || []).includes(k)).flatMap(([, nombre, tipo, nota]) =>
+      (c.armas || []).filter(a => (a.w?.p || []).includes('munición')).map(a => ({nombre: `${nombre} (${a.w.n})`, cd: cdArcano(c), salv: 'DES',
+        expr: `${a.expr}+2${dadoArcano(c)}`, dmg: `${a.dmg.replace(/ \S+$/, '')} + 2${dadoArcano(c)} ${tipo}`, gastaNombre: 'disparo arcano',
+        notas: [nota, 'Si la supera, la mitad del daño. Gasta 1 uso de Disparo Arcano al tirar el daño']}))),
     texto: c => `Una vez por turno, al acertar y dañar con un ataque a distancia con un arma con munición, aplicas uno de tus Disparos Arcanos (gasta un uso). Tu dado de Disparo Arcano es 1${dadoArcano(c)} y la CD es ${cdArcano(c)} (INT). Elige tus disparos en el paso Clase.`,
     eleccion: {id:'disparo-arcano', titulo:'Disparos Arcanos', max: c => c.lvl >= 18 ? 6 : c.lvl >= 15 ? 5 : c.lvl >= 10 ? 4 : c.lvl >= 7 ? 3 : 2,
       opciones: DISPAROS_ARCANOS.map(([key, nombre]) => ({key, nombre}))},
