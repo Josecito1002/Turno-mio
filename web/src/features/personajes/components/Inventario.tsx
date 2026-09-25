@@ -2,7 +2,8 @@
 'use client';
 import { useState, type ReactNode } from 'react';
 import { S } from '@/app-shell/estado';
-import { Boton, Campo, Lista, Nota, Seccion, Segmentado, claseCampo, cx } from '@/shared/ui/kit';
+import { Boton, Campo, Lista, Nota, Seccion, Segmentado, claseCampo } from '@/shared/ui/kit';
+import { Desplegable } from '@/shared/ui/desplegable';
 import { ARMAS, ARMADURAS } from '@/features/reglas/data/equipo';
 import { ElegirManos } from './Manos';
 import { CampoArea } from './editor/campos';
@@ -33,9 +34,9 @@ function Monedas({ pj }: { pj: any }) {
       </ul>
       <div className="mt-3 flex flex-wrap items-end gap-2">
         <Campo etiqueta="Moneda" className="min-w-32">
-          <select value={den} onChange={e => setDen(e.target.value)} className={cx(claseCampo, 'cursor-pointer')}>
+          <Desplegable value={den} onChange={e => setDen(e.target.value)}>
             {MONEDAS.map(([k, nom]) => <option key={k} value={k}>{nom}</option>)}
-          </select>
+          </Desplegable>
         </Campo>
         <Campo etiqueta="Cantidad" className="w-28">
           <input type="number" inputMode="numeric" min={1} value={n} onChange={e => setN(e.target.value)} className={claseCampo} />
@@ -83,30 +84,30 @@ function AgregarMagico() {
     <div className="flex flex-col gap-3">
       <Campo etiqueta="Buscar"><input type="search" value={buscar} onChange={e => setBuscar(e.target.value)} placeholder="Anillo, varita, capa…" className={claseCampo} /></Campo>
       <Campo etiqueta="Objeto mágico">
-        <select value={sel} onChange={e => { setSel(e.target.value); setBase(''); }} className={cx(claseCampo, 'cursor-pointer')}>
+        <Desplegable value={sel} onChange={e => { setSel(e.target.value); setBase(''); }}>
           <option value="">Elige…</option>
           {RAREZAS.map(r => { const xs = claves.filter(k => OBJETOS_MAGICOS[k].rareza === r); return xs.length ? (
             <optgroup key={r} label={Mayus(r)}>{xs.map(k => <option key={k} value={k}>{OBJETOS_MAGICOS[k].n}</option>)}</optgroup>) : null; })}
           <option value="propio">Personalizado…</option>
-        </select>
+        </Desplegable>
       </Campo>
       {sel === 'propio' && (
         <div className="grid gap-3 sm:grid-cols-2">
           {campo('n', 'Nombre')}
           <Campo etiqueta="Tipo">
-            <select value={f.tipo} onChange={e => cambiar('tipo', e.target.value)} className={cx(claseCampo, 'cursor-pointer')}>
+            <Desplegable value={f.tipo} onChange={e => cambiar('tipo', e.target.value)}>
               {TIPOS_OBJETO.map(t => <option key={t} value={t}>{Mayus(t)}</option>)}
-            </select>
+            </Desplegable>
           </Campo>
           <Campo etiqueta="Rareza">
-            <select value={f.rareza || 'poco común'} onChange={e => cambiar('rareza', e.target.value)} className={cx(claseCampo, 'cursor-pointer')}>
+            <Desplegable value={f.rareza || 'poco común'} onChange={e => cambiar('rareza', e.target.value)}>
               {RAREZAS.map(r => <option key={r} value={r}>{Mayus(r)}</option>)}
-            </select>
+            </Desplegable>
           </Campo>
           <Campo etiqueta="Cómo se usa">
-            <select value={f.t} onChange={e => cambiar('t', e.target.value)} className={cx(claseCampo, 'cursor-pointer')}>
+            <Desplegable value={f.t} onChange={e => cambiar('t', e.target.value)}>
               {ORDEN_TIPOS.map(t => <option key={t} value={t}>{TIPOS[t][0]}</option>)}
-            </select>
+            </Desplegable>
           </Campo>
           {['arma', 'armadura', 'escudo'].includes(f.tipo)
             ? campo('bono', f.tipo === 'arma' ? 'Bono al ataque y al daño' : 'Bono a la CA', { type: 'number', inputMode: 'numeric', placeholder: '1' })
@@ -115,9 +116,9 @@ function AgregarMagico() {
           {campo('cargas', 'Cargas (opcional)', { type: 'number', inputMode: 'numeric' })}
           {+f.cargas > 0 && (
             <Campo etiqueta="Se recargan con">
-              <select value={f.reset} onChange={e => cambiar('reset', e.target.value)} className={cx(claseCampo, 'cursor-pointer')}>
+              <Desplegable value={f.reset} onChange={e => cambiar('reset', e.target.value)}>
                 <option value="largo">Descanso largo (o al amanecer)</option><option value="corto">Descanso corto</option>
-              </select>
+              </Desplegable>
             </Campo>
           )}
           <div className="sm:col-span-2">{campo('conjuros', 'Conjuros que da (opcional)', { placeholder: 'Bola de fuego: 1 carga; Luz: a voluntad' })}</div>
@@ -136,12 +137,12 @@ function AgregarMagico() {
       )}
       {pideBase && (
         <Campo etiqueta={d!.base === 'arma' ? 'Qué arma es' : 'Qué armadura es'}>
-          <select value={base} onChange={e => setBase(e.target.value)} className={cx(claseCampo, 'cursor-pointer')}>
+          <Desplegable value={base} onChange={e => setBase(e.target.value)}>
             <option value="">Elige…</option>
             {d!.base === 'arma'
               ? Object.keys(ARMAS).filter(k => !esPropia(k)).map(k => <option key={k} value={k}>{ARMAS[k].n}</option>)
               : Object.keys(ARMADURAS).filter(k => !esPropia(k)).map(k => <option key={k} value={k}>{ARMADURAS[k].n}</option>)}
-          </select>
+          </Desplegable>
         </Campo>
       )}
       <div><Boton variante="primario" disabled={!d || (!!pideBase && !base)} onClick={agregar}>Añadir objeto mágico</Boton></div>
@@ -224,11 +225,11 @@ function Agregar() {
       {tipo === 'arma' && (
         <>
           <Campo etiqueta="Arma">
-            <select value={sel} onChange={e => setSel(e.target.value)} className={cx(claseCampo, 'cursor-pointer')}>
+            <Desplegable value={sel} onChange={e => setSel(e.target.value)}>
               <option value="">Elige…</option>
               {Object.keys(ARMAS).filter(k => !esPropia(k)).map(k => <option key={k} value={k}>{ARMAS[k].n} ({ARMAS[k].d} {ARMAS[k].tipo})</option>)}
               <option value="propia">Personalizada…</option>
-            </select>
+            </Desplegable>
           </Campo>
           {sel === 'propia' ? (
             <div className="grid gap-3 sm:grid-cols-2">
@@ -236,9 +237,9 @@ function Agregar() {
               {campo('d', 'Dado de daño', { placeholder: '1d8' })}
               {campo('tipo', 'Tipo de daño', { placeholder: 'cortante' })}
               <Campo etiqueta="Categoría">
-                <select value={f.cat || 'sencilla'} onChange={e => cambiar('cat', e.target.value)} className={cx(claseCampo, 'cursor-pointer')}>
+                <Desplegable value={f.cat || 'sencilla'} onChange={e => cambiar('cat', e.target.value)}>
                   <option value="sencilla">Sencilla</option><option value="marcial">Marcial</option>
-                </select>
+                </Desplegable>
               </Campo>
               <fieldset className="m-0 border-0 p-0 sm:col-span-2"><legend className="mb-1.5 font-bold">Propiedades</legend>
                 <div className="flex flex-wrap gap-x-4 gap-y-1">
@@ -260,21 +261,21 @@ function Agregar() {
       {tipo === 'armadura' && (
         <>
           <Campo etiqueta="Armadura">
-            <select value={sel} onChange={e => setSel(e.target.value)} className={cx(claseCampo, 'cursor-pointer')}>
+            <Desplegable value={sel} onChange={e => setSel(e.target.value)}>
               <option value="">Elige…</option>
               {Object.keys(ARMADURAS).filter(k => !esPropia(k)).map(k => <option key={k} value={k}>{ARMADURAS[k].n} ({ARMADURAS[k].cat}, CA {ARMADURAS[k].base})</option>)}
               <option value="escudo">Escudo (+2 CA)</option>
               <option value="propia">Personalizada…</option>
-            </select>
+            </Desplegable>
           </Campo>
           {sel === 'propia' ? (
             <div className="grid gap-3 sm:grid-cols-2">
               {campo('n', 'Nombre')}
               {campo('base', 'CA base', { type: 'number', inputMode: 'numeric', placeholder: '14' })}
               <Campo etiqueta="Tipo" ayuda="Ligera suma toda tu DES; media, hasta +2; pesada, nada.">
-                <select value={f.cat || 'ligera'} onChange={e => cambiar('cat', e.target.value)} className={cx(claseCampo, 'cursor-pointer')}>
+                <Desplegable value={f.cat || 'ligera'} onChange={e => cambiar('cat', e.target.value)}>
                   <option value="ligera">Ligera</option><option value="media">Media</option><option value="pesada">Pesada</option>
-                </select>
+                </Desplegable>
               </Campo>
               {campo('fue', 'Fuerza mínima (opcional)', { type: 'number', inputMode: 'numeric' })}
               <label className="flex min-h-11 items-center gap-2 sm:col-span-2"><input type="checkbox" checked={!!f.sigilo} onChange={e => cambiar('sigilo', e.target.checked)} className="size-5" />Desventaja en Sigilo</label>
@@ -305,10 +306,10 @@ export function Inventario({ c }: { c: any }) {
       </Seccion>
       <Seccion titulo="Armadura puesta">
         <Campo etiqueta="Armadura" className="max-w-sm">
-          <select value={c.armorKey || ''} onChange={e => ponerArmadura(e.target.value)} className={cx(claseCampo, 'cursor-pointer')}>
+          <Desplegable value={c.armorKey || ''} onChange={e => ponerArmadura(e.target.value)}>
             <option value="">Sin armadura</option>
             {cuerpo.map(k => <option key={k} value={k}>{nombreArmadura(k)}{!c.compArm?.[ARMADURAS[k].cat] ? ' — sin competencia' : ''}</option>)}
-          </select>
+          </Desplegable>
         </Campo>
         <p className="mb-0 mt-2">CA <b className="font-serif text-xl">{c.ac}</b>{c.armor?.sigilo ? '. Desventaja en Sigilo.' : '.'}</p>
       </Seccion>

@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react';
 import { S } from '@/app-shell/estado';
 import { avisar } from '@/shared/ui/avisos';
-import { Aviso, Boton, EncabezadoPagina, Fila, Lista, Nota, Seccion, claseCampo, cx } from '@/shared/ui/kit';
+import { Aviso, Boton, EncabezadoPagina, Fila, Lista, Nota, Seccion } from '@/shared/ui/kit';
+import { Desplegable } from '@/shared/ui/desplegable';
 import { confirmar } from '@/shared/ui/confirmar';
 import { cambiarRol, listarCuentas, restablecerContrasena, type Cuenta } from '../api';
 
@@ -64,9 +65,9 @@ export function CuentasVista() {
                   <span className="flex flex-wrap items-center justify-end gap-2">
                     <label className="flex items-center gap-2 text-sm font-bold">
                       <span className="sr-only">Rol de {c.nombre}</span>
-                      <select value={c.rol} disabled={guardando === c.id} onChange={e => cambiar(c, e.target.value)} className={cx(claseCampo, 'w-44! cursor-pointer')}>
+                      <Desplegable value={c.rol} disabled={guardando === c.id} onChange={e => cambiar(c, e.target.value)} className="w-44!">
                         {ROLES.map(([k, n]) => <option key={k} value={k}>{n}</option>)}
-                      </select>
+                      </Desplegable>
                     </label>
                     {c.id !== S.usuario?.id && <Boton tamano="sm" variante="fantasma" disabled={guardando === c.id} onClick={() => restablecer(c)}>Restablecer contraseña</Boton>}
                   </span>

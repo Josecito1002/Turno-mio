@@ -2,6 +2,7 @@
 'use client';
 import { useEffect, useRef, type ReactNode, type InputHTMLAttributes } from 'react';
 import { claseCampo, cx, Casilla as CasillaKit } from '@/shared/ui/kit';
+import { Desplegable } from '@/shared/ui/desplegable';
 import { abInfo } from '@/features/reglas/data/caracteristicas';
 import { setVal } from '../../acciones';
 
@@ -36,7 +37,7 @@ export function CampoArea({ path, value, rows = 3, placeholder, ...rest }: { pat
 }
 
 export function Selector({ path, value, num, children, className, ...rest }: { path: string; value: any; num?: boolean; children: ReactNode; className?: string; id?: string; disabled?: boolean; 'aria-label'?: string; 'aria-describedby'?: string }) {
-  return <select value={value ?? ''} onChange={e => setVal(path, num ? +e.target.value : e.target.value)} className={cx(claseCampo, 'cursor-pointer', className)} {...rest}>{children}</select>;
+  return <Desplegable value={value ?? ''} onChange={e => setVal(path, num ? +e.target.value : e.target.value)} className={className} {...rest}>{children}</Desplegable>;
 }
 
 export function Casilla({ path, checked, children }: { path: string; checked: boolean; children: ReactNode }) {

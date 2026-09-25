@@ -5,6 +5,7 @@ import { S, render } from '@/app-shell/estado';
 import { avisar } from '@/shared/ui/avisos';
 import { norm, richT, sign } from '@/shared/utils/texto';
 import { Aviso, Boton, Campo, Fila, Lista, Nota, Plegable, Seccion, claseCampo, cx, foco } from '@/shared/ui/kit';
+import { Desplegable } from '@/shared/ui/desplegable';
 import { AB, ALIN_OPC, TIPOS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { TIEMPO_N } from '@/features/reglas/data/conjuros';
 import { conjuroDeLaLista, listaDeConjuros } from '@/features/reglas/domain/restricciones';
@@ -62,9 +63,9 @@ function ConjuroPropio({ pj }: { pj: any }) {
     <div className="grid gap-3" key={pj.conjuros.length}>
       <Campo etiqueta="Nombre"><input id={f('N')} type="text" className={claseCampo} /></Campo>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Campo etiqueta="Nivel"><select id={f('Nv')} className={claseCampo}>{Array.from({ length: 10 }, (_, i) => <option key={i} value={i}>{i === 0 ? 'Truco' : i}</option>)}</select></Campo>
-        <Campo etiqueta="Se lanza con"><select id={f('T')} className={claseCampo}>{Object.entries(TIEMPO_N).map(([k, n]) => <option key={k} value={k}>{n}</option>)}</select></Campo>
-        <Campo etiqueta="Salvación"><select id={f('S')} className={claseCampo}><option value="">Ninguna</option>{AB.map(a => <option key={a[0]}>{a[2]}</option>)}</select></Campo>
+        <Campo etiqueta="Nivel"><Desplegable id={f('Nv')}>{Array.from({ length: 10 }, (_, i) => <option key={i} value={i}>{i === 0 ? 'Truco' : i}</option>)}</Desplegable></Campo>
+        <Campo etiqueta="Se lanza con"><Desplegable id={f('T')}>{Object.entries(TIEMPO_N).map(([k, n]) => <option key={k} value={k}>{n}</option>)}</Desplegable></Campo>
+        <Campo etiqueta="Salvación"><Desplegable id={f('S')}><option value="">Ninguna</option>{AB.map(a => <option key={a[0]}>{a[2]}</option>)}</Desplegable></Campo>
         <Campo etiqueta="Dados" ayuda="Por ejemplo 2d6"><input id={f('D')} type="text" className={claseCampo} /></Campo>
       </div>
       <div>
@@ -172,10 +173,10 @@ export function RasgoForm({ p }: { p: string }) {
     <div className="grid gap-3">
       <Campo etiqueta="Nombre del rasgo"><input type="text" id={`${p}N`} className={claseCampo} /></Campo>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Campo etiqueta="Se usa como"><select id={`${p}T`} className={claseCampo}>{Object.entries(TIPOS).map(([k, [n]]) => <option key={k} value={k}>{n}</option>)}</select></Campo>
+        <Campo etiqueta="Se usa como"><Desplegable id={`${p}T`}>{Object.entries(TIPOS).map(([k, [n]]) => <option key={k} value={k}>{n}</option>)}</Desplegable></Campo>
         <Campo etiqueta="Desde nivel"><input type="number" id={`${p}Nv`} defaultValue={1} min={1} max={20} className={claseCampo} /></Campo>
-        <Campo etiqueta="Usos"><select id={`${p}U`} className={claseCampo}><option value="0">Sin límite</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="pb">Igual a la competencia</option></select></Campo>
-        <Campo etiqueta="Se recupera con"><select id={`${p}R`} className={claseCampo}><option value="largo">Descanso largo</option><option value="corto">Descanso corto</option></select></Campo>
+        <Campo etiqueta="Usos"><Desplegable id={`${p}U`}><option value="0">Sin límite</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="pb">Igual a la competencia</option></Desplegable></Campo>
+        <Campo etiqueta="Se recupera con"><Desplegable id={`${p}R`}><option value="largo">Descanso largo</option><option value="corto">Descanso corto</option></Desplegable></Campo>
       </div>
       <Campo etiqueta="Qué hace" ayuda="Si escribes dados, como 1d8 + 2, se podrán tirar desde la hoja.">
         <textarea id={`${p}X`} rows={3} placeholder="Ejemplo: Recuperas 1d8 + 2 PG." className={cx(claseCampo, 'py-2')} />

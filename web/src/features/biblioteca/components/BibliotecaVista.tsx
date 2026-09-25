@@ -7,6 +7,7 @@ import { avisar } from '@/shared/ui/avisos';
 import { confirmar } from '@/shared/ui/confirmar';
 import { setPath, slug } from '@/shared/utils/texto';
 import { Aviso, Boton, Campo, EncabezadoPagina, Fila, Lista, Nota, Plegable, Seccion, Tarjeta, claseCampo } from '@/shared/ui/kit';
+import { Desplegable } from '@/shared/ui/desplegable';
 import { CLASES } from '@/features/reglas/data/clases';
 import { esDote } from '@/features/reglas/domain/restricciones';
 import { FormaTipo } from '@/features/reglas/components/TipoAccion';
@@ -121,9 +122,9 @@ export function BibliotecaVista({ elegirArchivos }: { elegirArchivos: () => void
           <Plegable titulo="Nueva subclase" abierto={d.abierto === 'sub'}>
             <div className="grid gap-3" key={`${d.id}-${d.sub.rasgos.length}`}>
               <Campo etiqueta="Clase">
-                <select defaultValue={d.sub.clase} className={claseCampo} onChange={e => setPath(S.draft, 'sub.clase', e.target.value)}>
+                <Desplegable defaultValue={d.sub.clase} onChange={e => setPath(S.draft, 'sub.clase', e.target.value)}>
                   <option value="">Elige…</option>{clasesTodas.map(([k, x]) => <option key={k} value={k}>{x.n}</option>)}
-                </select>
+                </Desplegable>
               </Campo>
               <Campo etiqueta="Nombre"><Borrador path="sub.n" value={d.sub.n} /></Campo>
               <h3 className="m-0 font-serif text-lg font-bold">Rasgos</h3>
