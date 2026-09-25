@@ -3,7 +3,8 @@
 import { S, render } from '@/app-shell/estado';
 import { avisar } from '@/shared/ui/avisos';
 import { norm, sign } from '@/shared/utils/texto';
-import { Aviso, Boton, Campo, Casilla as CasillaKit, Fila, Lista, Nota, Plegable, Seccion, Segmentado, Tarjeta, claseCampo, cx, foco } from '@/shared/ui/kit';
+import { Aviso, Boton, Campo, Casilla as CasillaKit, Fila, Lista, Nota, Plegable, Seccion, Segmentado, Tarjeta, cx, foco } from '@/shared/ui/kit';
+import { Desplegable } from '@/shared/ui/desplegable';
 import { AB, ALL_AB, COMPRA, ESTANDAR, SKILLS, TIPOS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { ARMAS, ARMADURAS, MAESTRIAS } from '@/features/reglas/data/equipo';
 import { periciaN } from '@/features/reglas/data/clases';
@@ -369,9 +370,9 @@ export function PasoEquipo({ pj, c }: { pj: any; c: any }) {
         </Lista>
         <div className="mt-3 flex flex-wrap items-end gap-2">
           <label className="flex min-w-60 flex-1 flex-col gap-1.5 font-bold" htmlFor="addW">Agregar arma
-            <select id="addW" className={cx(claseCampo, 'cursor-pointer')}>
+            <Desplegable id="addW">
               {armasOk.map(k => { const w = ARMAS[k]; return <option key={k} value={k}>{w.n} ({w.d} {w.tipo})</option>; })}
-            </select>
+            </Desplegable>
           </label>
           <Boton variante="primario" onClick={agregar}>Agregar</Boton>
         </div>

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { Campo, Nota, claseCampo, cx } from '@/shared/ui/kit';
+import { Campo, Nota } from '@/shared/ui/kit';
+import { Desplegable } from '@/shared/ui/desplegable';
 import { ARMAS } from '@/features/reglas/data/equipo';
 import { aDosManos, puedeIrEnLaOtra } from '../domain/manos';
 import { armadurasDe } from '../domain/inventario';
@@ -17,17 +18,17 @@ export function ElegirManos({ pj, c }: { pj: any; c: any }) {
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       <Campo etiqueta="Mano principal">
-        <select value={a} onChange={e => setMano('a', e.target.value)} className={cx(claseCampo, 'cursor-pointer')}>
+        <Desplegable value={a} onChange={e => setMano('a', e.target.value)}>
           <option value="">Nada</option>
           {ks.map(k => <option key={k} value={k}>{ARMAS[k].n}{aDosManos(k) ? ' (a dos manos)' : ''}</option>)}
-        </select>
+        </Desplegable>
       </Campo>
       <Campo etiqueta="Otra mano">
-        <select value={dos ? '' : otra} onChange={e => setMano('b', e.target.value)} disabled={dos} className={cx(claseCampo, 'cursor-pointer disabled:cursor-not-allowed disabled:opacity-60')}>
+        <Desplegable value={dos ? '' : otra} onChange={e => setMano('b', e.target.value)} disabled={dos}>
           <option value="">Nada</option>
           {escudo && <option value="escudo">Escudo (+2 CA){!c.compArm?.escudo ? ' — sin competencia' : ''}</option>}
           {otras.map(k => <option key={k} value={k}>{ARMAS[k].n}</option>)}
-        </select>
+        </Desplegable>
       </Campo>
       <Nota className="sm:col-span-2">
         {dos ? `${ARMAS[a].n} se usa a dos manos: la otra mano queda ocupada.`
