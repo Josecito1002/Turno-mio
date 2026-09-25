@@ -5026,148 +5026,50 @@
   "mago": {
    "subclases": {
     "abjuracion": {
-     "n": "Escuela de Abjuración",
+     "n": "Abjurador",
      "rasgos": [
       {
-       "nombre": "Capa Arcana",
+       "nombre": "Erudito de la Abjuración",
        "t": "pasiva",
-       "texto": "Escudo de energía que absorbe daño cuando lanzas conjuros de abjuración.",
+       "texto": "Añades gratis dos conjuros de Abjuración (máx. nivel 2) a tu libro. Además, cada vez que desbloqueas un nuevo nivel de conjuro, añades gratis otro conjuro de Abjuración.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Capa Proyectada",
+       "nombre": "Capa Arcana",
        "t": "pasiva",
-       "texto": "Usa tu escudo para proteger a aliados.",
+       "texto": "Al lanzar un conjuro de Abjuración, te creas un escudo mágico con PG igual al doble de tu nivel + tu Inteligencia, que recibe daño en tu lugar. Recarga 2 PG por nivel de cada abjuración que lances. Máximo una creación por Descanso Largo.",
+       "n": 3,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Capa Proyectada",
+       "t": "reaccion",
+       "texto": "Cuando un aliado a 30 pies recibe daño, puedes usar tu Reacción para que tu Capa Arcana absorba el daño en lugar del aliado.",
        "n": 6,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Rompeconjuros",
        "t": "adicional",
-       "texto": "Siempre tienes preparados Disipar Magia y Contrarechizo. Puedes lanzar Disipar Magia como Acción Adicional.",
+       "texto": "Siempre tienes preparados Contrahechizo y Disipar Magia, puedes lanzar Disipar Magia como Acción Adicional, y sumas tu Bono de Competencia a ambas tiradas. Si fallas en detener la magia, no gastas el espacio de conjuro.",
        "n": 10,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Resistencia a Conjuros",
        "t": "pasiva",
-       "texto": "Ventaja contra salvaciones de conjuros y resistencia a su daño.",
+       "texto": "Tienes Ventaja en las tiradas de salvación contra todos los conjuros y tienes Resistencia contra el daño provocado por cualquier conjuro.",
        "n": 14,
-       "usos": 0,
-       "reset": "largo"
-      }
-     ]
-    },
-    "adivinacion": {
-     "n": "Escuela de Adivinación",
-     "rasgos": [
-      {
-       "nombre": "Portento",
-       "t": "pasiva",
-       "texto": "Tira 2 dados tras descanso largo; puedes sustituir cualquier tirada por estos resultados.",
-       "n": 3,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Adivino Experto",
-       "t": "pasiva",
-       "texto": "Recuperas espacios de nivel inferior al lanzar conjuros de adivinación.",
-       "n": 6,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "El Tercer Ojo",
-       "t": "pasiva",
-       "texto": "Ganas visión en oscuridad, ver lo invisible o leer cualquier idioma.",
-       "n": 10,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Portento Mayor",
-       "t": "pasiva",
-       "texto": "Tiras 3 dados de portento en lugar de 2.",
-       "n": 14,
-       "usos": 0,
-       "reset": "largo"
-      }
-     ]
-    },
-    "evocacion": {
-     "n": "Escuela de Evocación",
-     "rasgos": [
-      {
-       "nombre": "Esculpir Conjuros",
-       "t": "pasiva",
-       "texto": "Aliados pasan salvaciones automáticamente y no reciben daño de tus áreas.",
-       "n": 3,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Truco Potente",
-       "t": "pasiva",
-       "texto": "Enemigos que pasan la salvación de tus trucos reciben medio daño.",
-       "n": 6,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Evocación Potenciada",
-       "t": "pasiva",
-       "texto": "Suma mod. INT al daño de tus conjuros.",
-       "n": 10,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Sobrecarga",
-       "t": "pasiva",
-       "texto": "Maximiza el daño de un conjuro de nivel 1-5 (recibes daño necrótico si repites).",
-       "n": 14,
-       "usos": 0,
-       "reset": "largo"
-      }
-     ]
-    },
-    "ilusion": {
-     "n": "Escuela de Ilusión",
-     "rasgos": [
-      {
-       "nombre": "Ilusión Menor Mejorada",
-       "t": "pasiva",
-       "texto": "Truco gratis; crea sonido e imagen a la vez.",
-       "n": 3,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Ilusiones Maleables",
-       "t": "pasiva",
-       "texto": "Cambias la naturaleza de una ilusión activa sin lanzarla de nuevo.",
-       "n": 6,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Yo Ilusorio",
-       "t": "reaccion",
-       "texto": "Reacción para crear copia que hace que un ataque falle automáticamente.",
-       "n": 10,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Realidad Ilusoria",
-       "t": "pasiva",
-       "texto": "Conviertes parte de una ilusión en un objeto real físico por 1 min.",
-       "n": 14,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
@@ -5179,220 +5081,631 @@
       {
        "nombre": "Canto de la Hoja",
        "t": "adicional",
-       "texto": "Como Acción Adicional, puedes invocar el Canto de la Hoja, una magia élfica que te otorga velocidad, agilidad y concentración sobrenaturales, siempre que no vistas armadura media o pesada ni uses un escudo. Dura 1 minuto y termina antes si quedas Incapacitado, si te pones armadura o escudo, o si usas dos manos para hacer un ataque con un arma. Puedes descartarlo en cualquier momento (sin requerir acción). Mientras el Canto de la Hoja esté activo, obtienes los siguientes beneficios. Agilidad: obtienes un bonificador a tu CA igual a tu modificador de Inteligencia (mínimo +1), y tu velocidad aumenta en 10 pies. Además, tienes Ventaja en pruebas de Destreza (Acrobacias). Manejo de la Hoja: siempre que ataques con un arma con la que tengas competencia, puedes usar tu modificador de Inteligencia para las tiradas de ataque y de daño en lugar de usar Fuerza o Destreza. Concentración: cuando haces una tirada de salvación de Constitución para mantener la Concentración, puedes sumar tu modificador de Inteligencia al total. Puedes invocar el Canto de la Hoja una cantidad de veces igual a tu modificador de Inteligencia (mínimo una) y recuperas todos los usos gastados cuando terminas un Descanso Largo. Recuperas un uso gastado cuando usas Recuperación Arcana.",
+       "texto": "Como Acción Adicional, entras en trance de batalla por 1 min (sin armadura media/pesada, escudos ni armas a 2 manos). Ganas CA igual a tu Inteligencia, +10 pies de velocidad, Ventaja en Acrobacias y usas Inteligencia en daño/ataque marcial y para mantener concentración.",
        "n": 3,
-       "usos": 0,
+       "manual": true,
+       "usos": "max(1, INT)",
        "reset": "largo"
       },
       {
        "nombre": "Formación en Guerra y Canto",
        "t": "pasiva",
-       "texto": "Obtienes competencia con todas las armas marciales cuerpo a cuerpo que no tengan las propiedades A dos Manos o Pesada. Puedes usar un arma cuerpo a cuerpo con la que tengas competencia como foco para lanzar conjuros de Mago. También obtienes competencia en una de las siguientes habilidades a tu elección: Acrobacias, Atletismo, Interpretación o Persuasión.",
+       "texto": "Competencia con todas las armas marciales de una mano (las puedes usar como foco arcano). Competencia en Acrobacias, Atletismo, Interpretación o Persuasión.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Ataque Extra",
        "t": "accion",
-       "texto": "Puedes atacar dos veces, en lugar de una, cada vez que usas la acción de Atacar en tu turno. Además, puedes lanzar uno de tus trucos de Mago que tenga un tiempo de lanzamiento de una acción en lugar de uno de esos ataques.",
+       "texto": "Puedes atacar dos veces al usar la acción de Atacar en tu turno. Puedes sustituir uno de esos ataques por el lanzamiento de un truco de Mago (de 1 Acción).",
        "n": 6,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Canción de Defensa",
        "t": "reaccion",
-       "texto": "Cuando recibes daño mientras tu Canto de la Hoja está activo, puedes usar una Reacción para gastar un espacio de conjuro y reducir el daño recibido en una cantidad igual a cinco veces el nivel del espacio de conjuro.",
+       "texto": "Mientras Canto de la Hoja está activo, al recibir daño puedes usar tu Reacción para gastar un espacio de conjuro y reducir el daño en (5 × nivel del espacio).",
        "n": 10,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Canción de Victoria",
        "t": "adicional",
-       "texto": "Después de lanzar un conjuro que tenga un tiempo de lanzamiento de una acción, puedes hacer un ataque con un arma como Acción Adicional.",
+       "texto": "Después de lanzar un conjuro que cueste 1 Acción, puedes usar tu Acción Adicional para realizar un ataque con un arma cuerpo a cuerpo.",
        "n": 14,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
      ]
     },
     "conjuracion": {
-     "n": "Escuela de Conjuración",
+     "n": "Conjurador",
      "rasgos": [
       {
        "nombre": "Erudito de la Conjuración",
        "t": "pasiva",
-       "texto": "El oro y el tiempo que debes gastar para copiar un conjuro de Conjuración en tu libro de conjuros se reducen a la mitad.",
+       "texto": "Añades gratis dos conjuros de Conjuración (máx. nivel 2) a tu libro. Además, cada vez que desbloqueas un nuevo nivel de conjuro, añades gratis otro conjuro de Conjuración.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Conjuración Menor",
-       "t": "pasiva",
-       "texto": "Puedes usar tu acción para conjurar un objeto inanimado en tu mano o en el suelo, en un espacio desocupado que puedas ver a 10 pies o menos de ti. El objeto no puede ser mayor de 3 pies por lado ni pesar más de 10 libras, y su forma debe ser la de un objeto no mágico que hayas visto. El objeto es visiblemente mágico y irradia luz tenue en un radio de 5 pies. Desaparece después de 1 hora, cuando usas esta característica de nuevo, o si recibe o inflige cualquier daño.",
+       "nombre": "Transposición Benigna",
+       "t": "adicional",
+       "texto": "Como Acción Adicional, puedes teletransportarte 30 pies. Alternativamente, puedes intercambiar lugares con un aliado voluntario a esa distancia.",
        "n": 3,
-       "usos": 0,
+       "manual": true,
+       "usos": "max(1, INT)",
        "reset": "largo"
       },
       {
-       "nombre": "Transporte Benigno",
+       "nombre": "Transposición Distante",
        "t": "pasiva",
-       "texto": "Puedes usar tu acción para teletransportarte hasta 30 pies a un espacio desocupado que puedas ver. Alternativamente, puedes elegir un espacio dentro del alcance que esté ocupado por una criatura Mediana o Pequeña. Si esa criatura es voluntaria, ambos os teletransportáis intercambiando posiciones. Una vez que uses esta característica, no puedes volver a usarla hasta que termines un Descanso Largo o lances un conjuro de Conjuración de nivel 1 o superior.",
+       "texto": "Tu Transposición Benigna ahora tiene 60 pies de alcance. Además, puedes recuperar usos de este rasgo gastando espacios de conjuro de nivel 3 o mayor.",
        "n": 6,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Conjuración Concentrada",
-       "t": "pasiva",
-       "texto": "Mientras te concentras en un conjuro de Conjuración, tu concentración no puede romperse como resultado de recibir daño.",
-       "n": 10,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Invocaciones Duraderas",
        "t": "pasiva",
-       "texto": "Cualquier criatura que invoques o crees con un conjuro de Conjuración obtiene 30 Puntos de Golpe temporales.",
+       "texto": "Cuando conjuras a una criatura, aparece con Puntos de Golpe temporales iguales al doble de tu nivel de Mago. Mientras los tenga, tiene Resistencia a casi todos los daños (salvo Fuerza, Necrótico, Psíquico y Radiante).",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Conjuración Concentrada",
+       "t": "pasiva",
+       "texto": "Recibir daño no puede romper tu concentración en ningún conjuro de Conjuración.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Invocación Astillada",
+       "t": "pasiva",
+       "texto": "Al lanzar conjuros como Invocar aberración, puedes modificarlo para invocar dos criaturas en lugar de una, aunque aparecen con la mitad de sus Puntos de Golpe (máximos y actuales).",
        "n": 14,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "adivinacion": {
+     "n": "Adivino",
+     "rasgos": [
+      {
+       "nombre": "Erudito de la Adivinación",
+       "t": "pasiva",
+       "texto": "Añades gratis dos conjuros de Adivinación (máx. nivel 2) a tu libro. Además, cada vez que desbloqueas un nuevo nivel de conjuro, añades gratis otro conjuro de Adivinación.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Portento",
+       "t": "pasiva",
+       "texto": "Tras un Descanso Largo, tiras dos d20 y guardas los resultados. Puedes usar uno de esos resultados para reemplazar la tirada de un aliado o enemigo que puedas ver (antes de que lancen el dado).",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Adivino Experto",
+       "t": "pasiva",
+       "texto": "Cuando lanzas un conjuro de Adivinación gastando un espacio de nivel 2 o superior, recuperas automáticamente un espacio de conjuro gastado (de un nivel inferior al que usaste, máximo de nivel 5).",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "El Tercer Ojo",
+       "t": "adicional",
+       "texto": "Como Acción Adicional hasta que descanses, obtienes un beneficio: Visión en la oscuridad a 120 pies, leer cualquier idioma, o puedes lanzar Ver invisibilidad gratis una vez.",
+       "n": 10,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
+      },
+      {
+       "nombre": "Portento Mayor",
+       "t": "pasiva",
+       "texto": "Ahora lanzas y guardas tres d20 de Portento al terminar un Descanso Largo en lugar de dos.",
+       "n": 14,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
      ]
     },
     "encantamiento": {
-     "n": "Escuela de Encantamiento",
+     "n": "Encantador",
      "rasgos": [
       {
        "nombre": "Erudito del Encantamiento",
        "t": "pasiva",
-       "texto": "El oro y el tiempo que debes gastar para copiar un conjuro de Encantamiento en tu libro de conjuros se reducen a la mitad.",
+       "texto": "Añades gratis dos conjuros de Encantamiento (máx. nivel 2) a tu libro. Además, cada vez que desbloqueas un nuevo nivel de conjuro, añades gratis otro conjuro de Encantamiento.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Mirada Hipnótica",
+       "nombre": "Conversador Encantador",
+       "t": "pasiva",
+       "texto": "Obtienes competencia en Engaño, Intimidación o Persuasión, y sumas tu Inteligencia (mínimo +1) a la habilidad que hayas elegido.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Presencia Hipnótica",
        "t": "accion",
-       "texto": "Tus suaves palabras y tu mirada encantadora pueden embelesar mágicamente a otra criatura. Como acción, elige una criatura que puedas ver a 5 pies o menos de ti. Si el objetivo puede verte u oírte, debe superar una tirada de salvación de Sabiduría contra tu CD de salvación de conjuros o queda Hechizado por ti hasta el final de tu siguiente turno. La velocidad de la criatura hechizada se reduce a 0, y la criatura queda Incapacitada y visiblemente aturdida. En turnos posteriores, puedes usar tu acción para mantener este efecto, extendiendo su duración hasta el final de tu siguiente turno. Sin embargo, el efecto termina si te alejas más de 5 pies de la criatura, si esta no puede verte ni oírte, o si recibe daño. Una vez que el efecto termine, o si la criatura supera la salvación inicial, no puedes volver a usar esta característica contra esa criatura hasta que termines un Descanso Largo.",
+       "texto": "Como Acción Mágica, embelesas a una criatura a 10 pies (salvación SAB); si falla, queda Hechizada, incapacitada y con velocidad 0 por 1 min, o hasta que reciba daño.",
        "n": 3,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Encanto Instintivo",
-       "t": "reaccion",
-       "texto": "Cuando una criatura que puedas ver a 30 pies o menos de ti hace una tirada de ataque contra ti, puedes usar tu reacción para desviar el ataque, siempre que haya otra criatura dentro del alcance del ataque. El atacante debe superar una tirada de salvación de Sabiduría contra tu CD de salvación de conjuros. Si falla, debe atacar a la criatura más cercana a él, excluyéndote a ti y a sí mismo. Si varias criaturas están igual de cerca, el atacante elige a cuál atacar. Si supera la salvación, no puedes volver a usar esta característica contra ese atacante hasta que termines un Descanso Largo. Debes decidir usar esta característica antes de saber si el ataque impacta o falla. Las criaturas que no pueden ser Hechizadas son inmunes a este efecto.",
-       "n": 6,
-       "usos": 0,
+       "manual": true,
+       "usos": "max(1, INT)",
        "reset": "largo"
       },
       {
        "nombre": "Encantamiento Dividido",
        "t": "pasiva",
-       "texto": "Cuando lanzas un conjuro de Encantamiento de nivel 1 o superior que afecta solo a una criatura, puedes hacer que afecte a una segunda criatura.",
+       "texto": "Cuando gastas un espacio para lanzar un conjuro de Encantamiento que afecta a 1 criatura (como Hechizar persona) y lo usas de nivel superior, puedes sumar +1 al nivel efectivo (para afectar a otro).",
+       "n": 6,
+       "manual": true,
+       "usos": "max(1, INT)",
+       "reset": "largo"
+      },
+      {
+       "nombre": "Encanto Instintivo",
+       "t": "reaccion",
+       "texto": "Cuando un enemigo te ataque a 30 pies, usas tu Reacción para forzar una salvación SAB. Si falla, el ataque falla y en su lugar ataca a otra criatura elegida por ti.",
        "n": 10,
-       "usos": 0,
+       "manual": true,
+       "usos": 1,
        "reset": "largo"
       },
       {
        "nombre": "Alterar Recuerdos",
-       "t": "pasiva",
-       "texto": "Ganas la capacidad de hacer que una criatura no sea consciente de tu influencia mágica sobre ella. Cuando lanzas un conjuro de Encantamiento para hechizar a una o más criaturas, puedes alterar el entendimiento de una de ellas para que no sea consciente de estar Hechizada. Además, una vez antes de que el conjuro expire, puedes usar tu acción para intentar hacer que la criatura elegida olvide parte del tiempo que pasó Hechizada. La criatura debe superar una tirada de salvación de Inteligencia contra tu CD de salvación de conjuros o pierde un número de horas de sus recuerdos igual a 1 + tu modificador de Carisma (mínimo 1). Puedes hacer que la criatura olvide menos tiempo, y la cantidad de tiempo no puede exceder la duración de tu conjuro de Encantamiento.",
+       "t": "accion",
+       "texto": "Cuando hechizas a una criatura, esta no es consciente de que lo hiciste. Antes de que el efecto termine, puedes usar tu Acción Mágica para borrar (1 + INT) horas de memoria de la criatura (salvación INT).",
        "n": 14,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "evocacion": {
+     "n": "Evocador",
+     "rasgos": [
+      {
+       "nombre": "Erudito de la Evocación",
+       "t": "pasiva",
+       "texto": "Añades gratis dos conjuros de Evocación (máx. nivel 2) a tu libro. Además, cada vez que desbloqueas un nuevo nivel de conjuro, añades gratis otro conjuro de Evocación.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Truco Potente",
+       "t": "pasiva",
+       "texto": "Cuando fallas el ataque con un truco, o si el enemigo pasa la tirada de salvación, el enemigo aún recibe la mitad del daño del truco, pero ignora cualquier efecto secundario.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Esculpir Conjuros",
+       "t": "pasiva",
+       "texto": "Cuando lanzas un conjuro de Evocación de área, puedes elegir un número de aliados (1 + nivel del conjuro). Éstos superan la salvación automáticamente y no reciben ningún daño del conjuro.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Evocación Potenciada",
+       "t": "pasiva",
+       "texto": "Siempre que lances un conjuro de Evocación, sumas tu Inteligencia a una tirada de daño del conjuro.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Sobrecarga",
+       "t": "pasiva",
+       "texto": "Cuando lanzas un conjuro de nivel 1 a 5, en lugar de tirar dados de daño, usas el daño máximo. El primer uso es gratis. Si repites esto antes de un descanso largo, recibes daño necrótico por cada nivel de conjuro (aumenta cada vez).",
+       "n": 14,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "ilusion": {
+     "n": "Ilusionista",
+     "rasgos": [
+      {
+       "nombre": "Erudito de la Ilusión",
+       "t": "pasiva",
+       "texto": "Añades gratis dos conjuros de Ilusión (máx. nivel 2) a tu libro. Además, cada vez que desbloqueas un nuevo nivel de conjuro, añades gratis otro conjuro de Ilusión.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Ilusiones Mejoradas",
+       "t": "pasiva",
+       "texto": "Lanzas ilusiones sin componentes verbales, y si su alcance es de más de 10 pies, este aumenta en 60 pies. Obtienes el truco Ilusión menor, puedes hacer que tenga sonido e imagen juntos, y lanzarlo como Acción Adicional.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Criaturas Fantasmales",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados Invocar bestia e Invocar feérico. Puedes lanzarlos como ilusiones espectrales gratis, pero la criatura tendrá la mitad de sus PG.",
+       "n": 6,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Yo Ilusorio",
+       "t": "reaccion",
+       "texto": "Cuando te vayan a golpear, usas tu Reacción para interponer un doble ilusorio. El ataque falla automáticamente y el doble se desvanece. Recuperas el uso tras un descanso o gastando un espacio de nivel 2 o superior.",
+       "n": 10,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
+      },
+      {
+       "nombre": "Realidad Ilusoria",
+       "t": "adicional",
+       "texto": "Cuando lanzas un conjuro de Ilusión, puedes usar tu Acción Adicional para elegir un objeto inanimado creado por la ilusión y hacerlo físico/real por 1 minuto (no puede causar daño).",
+       "n": 14,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
      ]
     },
     "necromancia": {
-     "n": "Escuela de Necromancia",
+     "n": "Nigromante",
      "rasgos": [
       {
        "nombre": "Erudito de la Necromancia",
        "t": "pasiva",
-       "texto": "El oro y el tiempo que debes gastar para copiar un conjuro de Necromancia en tu libro de conjuros se reducen a la mitad.",
+       "texto": "Añades gratis dos conjuros de Necromancia (máx. nivel 2) a tu libro. Además, cada vez que desbloqueas un nuevo nivel de conjuro, añades gratis otro conjuro de Necromancia.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Cosecha Mortal",
+       "nombre": "Libro de Necromancia",
        "t": "pasiva",
-       "texto": "Obtienes la capacidad de arrebatar energía vital a las criaturas que matas con tus conjuros. Una vez por turno, cuando matas a una o más criaturas con un conjuro de nivel 1 o superior, recuperas Puntos de Golpe iguales al doble del nivel del conjuro, o al triple si el conjuro pertenece a la escuela de Necromancia. No obtienes este beneficio por matar constructos o muertos vivientes.",
+       "texto": "Tienes Resistencia al daño necrótico. Puedes lanzar Encontrar familiar para que sea un Esqueleto o Zombi tipo Muerto Viviente y usar tu ataque para que golpee él. Puedes curar muertos vivientes con la magia de tus conjuros gastados.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Séquito de Muertos",
+       "nombre": "Poder de la Tumba",
        "t": "pasiva",
-       "texto": "Añades el conjuro Animar Muertos a tu libro de conjuros si no está ya. Cuando lanzas Animar Muertos, puedes elegir un cadáver o pila de huesos adicional, creando otro zombi o esqueleto, según corresponda. Además, siempre que crees un muerto viviente usando un conjuro de Necromancia, este obtiene los siguientes beneficios: el máximo de Puntos de Golpe de la criatura aumenta en una cantidad igual a tu nivel de Mago, y la criatura añade tu bonificador de competencia a sus tiradas de daño de arma.",
+       "texto": "Al usar Recuperación Arcana, reduces en 1 tu nivel de Agotamiento. Todo el daño de tus conjuros ignora la Resistencia al daño necrótico.",
        "n": 6,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Acostumbrado a la Muerte",
+       "nombre": "Siervos Muertos Vivientes",
        "t": "pasiva",
-       "texto": "Tienes resistencia al daño necrótico y tu máximo de Puntos de Golpe no puede reducirse. Has pasado tanto tiempo tratando con muertos vivientes y las fuerzas que los animan que te has vuelto inmune a algunos de sus peores efectos.",
+       "texto": "Siempre preparas Animar a los muertos. Una vez gratis por día, al lanzarlo aumentas el nivel del conjuro en 1. Tus muertos vivientes ganan PG máximos (INT + mitad nivel) y daño adicional igual a tu INT.",
+       "n": 6,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Cosechar a los Muertos",
+       "t": "reaccion",
+       "texto": "Al quedar Ensangrentado, puedes destruir (a 0 PG) con una Reacción a uno de tus muertos vivientes para curarte Puntos de Golpe iguales a tu nivel de Mago.",
        "n": 10,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Dominar Muertos",
-       "t": "accion",
-       "texto": "Puedes usar magia para someter a los muertos vivientes a tu control, incluso los creados por otros magos. Como acción, puedes elegir un muerto viviente que puedas ver a 60 pies o menos de ti. Esa criatura debe superar una tirada de salvación de Carisma contra tu CD de salvación de conjuros. Si la supera, no puedes volver a usar esta característica sobre ella. Si falla, se vuelve amistosa contigo y obedece tus órdenes hasta que uses esta característica de nuevo. Los muertos vivientes inteligentes son más difíciles de controlar de esta manera: si el objetivo tiene una Inteligencia de 8 o superior, tiene ventaja en la tirada de salvación. Si falla la salvación y tiene una Inteligencia de 12 o superior, puede repetir la salvación al final de cada hora hasta que la supere y quede libre.",
+       "nombre": "Amo de la Muerte",
+       "t": "adicional",
+       "texto": "Como Acción Adicional, todos los muertos vivientes que hayas invocado obtienen PG temporales iguales a tu nivel de Mago (1/día). Además, puedes hacer estallar a un muerto viviente cuando muere causando daño de área (1d6 x mitad dados de golpe de criatura).",
        "n": 14,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
      ]
     },
     "transmutacion": {
-     "n": "Escuela de Transmutación",
+     "n": "Transmutador",
      "rasgos": [
       {
        "nombre": "Erudito de la Transmutación",
        "t": "pasiva",
-       "texto": "El oro y el tiempo que debes gastar para copiar un conjuro de Transmutación en tu libro de conjuros se reducen a la mitad.",
+       "texto": "Añades gratis dos conjuros de Transmutación (máx. nivel 2) a tu libro. Además, cada vez que desbloqueas un nuevo nivel de conjuro, añades gratis otro conjuro de Transmutación.",
        "n": 3,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Alquimia Menor",
-       "t": "pasiva",
-       "texto": "Puedes alterar temporalmente las propiedades físicas de un objeto no mágico, transformándolo de una sustancia en otra. Realizas un procedimiento alquímico especial sobre un objeto compuesto enteramente de madera, piedra (pero no una gema), hierro, cobre o plata, transformándolo en un material diferente de esos mismos. Por cada 10 minutos que pases realizando el procedimiento, puedes transformar hasta 1 pie cúbico de material. Después de 1 hora, o hasta que pierdas la concentración (como si te concentraras en un conjuro), el material vuelve a su sustancia original.",
-       "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Piedra del Transmutador",
        "t": "pasiva",
-       "texto": "Puedes pasar 8 horas creando una piedra del transmutador que almacena magia de transmutación. Puedes beneficiarte tú mismo de la piedra o dársela a otra criatura. Una criatura obtiene un beneficio de tu elección mientras la piedra esté en su posesión. Cuando creas la piedra, elige el beneficio entre: visión en la oscuridad con un alcance de 60 pies; un aumento de velocidad de 10 pies mientras la criatura no esté cargada; competencia en tiradas de salvación de Constitución; o resistencia al daño de ácido, frío, fuego, relámpago o trueno (a tu elección cada vez que elijas este beneficio). Cada vez que lanzas un conjuro de Transmutación de nivel 1 o superior, puedes cambiar el efecto de tu piedra si la llevas encima. Si creas una nueva piedra del transmutador, la anterior deja de funcionar.",
+       "texto": "Al descansar, creas una Piedra que da competencia en salvaciones de Constitución y un beneficio: Visión nocturna 60 pies, Resistencia elemental, o +10 Velocidad. Cambias el beneficio al lanzar Transmutación.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Alteración Maravillosa",
+       "t": "pasiva",
+       "texto": "Siempre tienes Alterar el propio aspecto y puedes lanzarlo gratis 1 vez por día. Al usarlo, eres más ágil bajo el agua, tienes ventaja en Engaño y mejoras el daño y concentración (salvaciones CON) con armas naturales.",
+       "n": 3,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Transmutación Potenciada",
+       "t": "pasiva",
+       "texto": "Al lanzar un hechizo pasivo de Transmutación que no requiera salvación o ataque (como Volar), puedes aumentar su nivel efectivo en 1.",
        "n": 6,
+       "manual": true,
+       "usos": "max(1, INT)",
+       "reset": "largo"
+      },
+      {
+       "nombre": "Piedra Potente",
+       "t": "pasiva",
+       "texto": "Tu Piedra del Transmutador ahora puede otorgar dos beneficios en lugar de uno (y opciones nuevas: Ventaja FUE / Percepción de vibración a 30 pies).",
+       "n": 10,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Cambiaformas",
        "t": "pasiva",
-       "texto": "Añades el conjuro Polimorfia a tu libro de conjuros, si no está ya. Puedes lanzar Polimorfia sin gastar un espacio de conjuro. Cuando lo haces así, solo puedes elegirte como objetivo y transformarte en una bestia cuyo nivel de desafío sea 1 o inferior. Una vez que lances Polimorfia de esta manera, no puedes volver a hacerlo hasta que termines un Descanso Corto o Largo, aunque puedes lanzarlo normalmente usando un espacio de conjuro disponible.",
+       "texto": "Siempre tienes Polimorfar y puedes lanzarlo en ti mismo gratis 1 vez por día. Al hacerlo mantienes tus características de Mago, inteligencia e identidad, y puedes lanzar hechizos de transmutación puros.",
        "n": 10,
-       "usos": 0,
-       "reset": "corto"
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
       },
       {
        "nombre": "Maestro Transmutador",
-       "t": "pasiva",
-       "texto": "Puedes usar tu acción para consumir la reserva de magia de transmutación almacenada en tu piedra del transmutador en un solo estallido. Cuando lo haces, elige uno de los siguientes efectos. Tu piedra del transmutador queda destruida y no puede recrearse hasta que termines un Descanso Largo. Transformación Mayor: transmutas un objeto no mágico, de tamaño no mayor a un cubo de 5 pies, en otro objeto no mágico de tamaño y masa similares y de valor igual o inferior (10 minutos manipulando el objeto). Panacea: eliminas todas las maldiciones, enfermedades y venenos que afecten a una criatura que toques con la piedra; la criatura también recupera todos sus Puntos de Golpe. Restaurar Vida: lanzas el conjuro Revivir sobre una criatura que toques con la piedra, sin gastar espacio de conjuro ni necesitar tenerlo en tu libro. Restaurar Juventud: tocas a una criatura voluntaria con la piedra y la edad aparente de la criatura se reduce en 3d10 años, hasta un mínimo de 13 años. Este efecto no extiende la vida de la criatura.",
+       "t": "accion",
+       "texto": "Como Acción Mágica, destruyes la Piedra para: transformar algo permanentemente, curar todas las enfermedades y devolver PG (Panacea), revivir a un muerto (Restaurar Vida), o rejuvenecer mágicamente 3d10 años (Restaurar Juventud).",
        "n": 14,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "magia-cronurgia": {
+     "n": "Magia de Cronurgia",
+     "rasgos": [
+      {
+       "nombre": "Cambio Crónico",
+       "t": "reaccion",
+       "texto": "Justo después de que tú o una criatura que veas a 30 pies haga una tirada de ataque, una prueba de característica o una tirada de salvación, usas tu Reacción para obligarla a repetir la tirada; se queda con el nuevo resultado. Lo decides tras ver la tirada, pero antes de saber si sale bien o mal.",
+       "n": 3,
+       "manual": true,
+       "usos": 2,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Conciencia Temporal",
+       "t": "pasiva",
+       "texto": "Sumas tu modificador de Inteligencia a tus tiradas de iniciativa.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Estasis Momentánea",
+       "t": "accion",
+       "texto": "Como Acción, congelas temporalmente a una criatura Grande o menor a 60 pies (salvación CON). Queda incapacitada con velocidad 0 hasta el fin de tu próximo turno o hasta sufrir daño.",
+       "n": 6,
+       "manual": true,
+       "usos": "max(1, INT)",
+       "reset": "largo"
+      },
+      {
+       "nombre": "Suspensión Arcana",
+       "t": "pasiva",
+       "texto": "Lanzas un conjuro de nivel 4 o inferior y lo congelas en una perla por 1 hora. Cualquier criatura que la sostenga puede usar su acción para liberar el conjuro, usando tus estadísticas mágicas.",
+       "n": 10,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
+      },
+      {
+       "nombre": "Futuro Convergente",
+       "t": "reaccion",
+       "texto": "Ignoras los dados mágicamente. Como reacción ante cualquier tirada a 60 pies, puedes dictaminar que el resultado es el mínimo para tener éxito, o que falla por 1 punto. Sufres 1 nivel de Agotamiento al usarlo.",
+       "n": 14,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "magia-graviturgia": {
+     "n": "Magia de Graviturgia",
+     "rasgos": [
+      {
+       "nombre": "Ajustar Densidad",
+       "t": "accion",
+       "texto": "Como Acción, cambias el peso de un objeto o una criatura Grande o menor que veas a 30 pies: lo reduces a la mitad o lo duplicas durante 1 minuto (con Concentración, como un conjuro). A la mitad: +10 pies de Velocidad, salta el doble y tiene Desventaja en pruebas y salvaciones de Fuerza. Al doble: −10 pies de Velocidad y Ventaja en pruebas y salvaciones de Fuerza. Una criatura que no quiera puede evitarlo con una salvación de Fuerza. Desde el nivel 10 sirve para objetivos Enormes.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Pozo Gravitatorio",
+       "t": "pasiva",
+       "texto": "Cuando lanzas un conjuro sobre una criatura, puedes moverla 5 pies a una posición desocupada si pasa voluntariamente, si le aciertas con el ataque, o si falla la salvación.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Atracción Violenta",
+       "t": "reaccion",
+       "texto": "Cuando alguien a 60 pies acierta un ataque con arma, o sufre daño por caída, usas tu Reacción para aumentar la velocidad gravitatoria, infiriendo 1d10 o 2d10 de daño extra respectivamente.",
+       "n": 10,
+       "manual": true,
+       "usos": "max(1, INT)",
+       "reset": "largo"
+      },
+      {
+       "nombre": "Horizonte de Sucesos",
+       "t": "accion",
+       "texto": "Como Acción, emites un campo gravitacional por 1 min (concentración). Enemigos que inician su turno a 30 pies hacen salvación de FUE: sufren 2d10 Fuerza y velocidad 0. Si pasan, cuesta el doble moverse.",
+       "n": 14,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "escribas": {
+     "n": "Orden de Escribas",
+     "rasgos": [
+      {
+       "nombre": "Pluma de Mago",
+       "t": "adicional",
+       "texto": "Como Acción Adicional creas una pluma mágica Diminuta en tu mano, del aspecto que quieras. Escribe sin tinta y en el color que elijas, borra lo que escribió con ella si la pasas encima (a 5 pies), y con ella copiar un conjuro a tu libro solo te toma 2 minutos por nivel del conjuro. Desaparece si creas otra o si mueres.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Libro de Conjuros Despierto",
+       "t": "pasiva",
+       "texto": "Tu libro de conjuros tiene conciencia propia. Te sirve de foco arcano. Al lanzar un conjuro de mago con un espacio, puedes cambiar su tipo de daño por el de otro conjuro de tu libro del mismo nivel. Además, una vez por Descanso Largo puedes lanzar como ritual un conjuro de tu libro con su tiempo de lanzamiento normal, en vez de sumarle los 10 minutos.",
+       "n": 3,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Mente Manifiesta",
+       "t": "adicional",
+       "texto": "Manifiestas el intelecto de tu libro como un espectro flotante a 60 pies. Escucha y ve telepáticamente para ti, y puedes originar hechizos desde su posición.",
+       "n": 6,
+       "manual": true,
+       "usos": "pb",
+       "reset": "largo"
+      },
+      {
+       "nombre": "Maestro Copista",
+       "t": "fuera",
+       "texto": "Al descansar, fabricas gratis un pergamino de 1 Acción (niveles 1-2) desde tu libro; al lanzarlo funciona a un nivel superior. También reduces el costo para fabricar pergaminos normales a la mitad.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Uno con la Palabra",
+       "t": "pasiva",
+       "texto": "Ventaja en Arcanos. Si recibes daño mientras tu libro espectral está manifestado, puedes anular TODO el daño usando tu Reacción. Sacrificas temporalmente hechizos de tu libro según una tirada de 3d6 (recuperados 1d6 días después).",
+       "n": 14,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "magia-guerra": {
+     "n": "Magia de Guerra",
+     "rasgos": [
+      {
+       "nombre": "Desvío Arcano",
+       "t": "reaccion",
+       "texto": "Cuando te aciertan con un ataque o fallas una tirada de salvación, usas tu Reacción para sumar +2 a tu CA contra ese ataque o +4 a esa salvación. Después, hasta el final de tu siguiente turno, solo puedes lanzar trucos.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Ingenio Táctico",
+       "t": "pasiva",
+       "texto": "Sumas tu modificador de Inteligencia a tus tiradas de iniciativa.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Oleada de Poder",
+       "t": "pasiva",
+       "texto": "Almacenas energía. Ganas una \"carga\" al disipar o contrarrestar hechizos. Una vez por turno, gastas una carga para añadir la mitad de tu nivel de Mago al daño por Fuerza a un hechizo.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Magia Duradera",
+       "t": "pasiva",
+       "texto": "Mientras mantengas concentración en un conjuro, obtienes un bonificador de +2 a la CA y un +2 a todas las tiradas de salvación.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Manto Desviador",
+       "t": "pasiva",
+       "texto": "Al usar tu rasgo base de Defensa Arcana (reacción), emites relámpagos arcanos a 3 objetivos cercanos; reciben daño de Fuerza igual a la mitad de tu nivel.",
+       "n": 14,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
@@ -5403,20 +5716,23 @@
     {
      "nombre": "Dominio de Conjuros",
      "t": "pasiva",
-     "texto": "Eliges un conjuro de nivel 1 y otro de nivel 2 para lanzarlos a voluntad.",
+     "texto": "Eliges un conjuro de nivel 1 y otro de nivel 2 de tu libro de conjuros que requieran 1 Acción. Siempre los tienes preparados y puedes lanzarlos sin gastar espacio (al nivel más bajo). Cambias tu elección al descansar.",
      "n": 18,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
      "nombre": "Conjuros de Firma",
      "t": "pasiva",
-     "texto": "Dos conjuros de nivel 3 que siempre tienes preparados y puedes lanzar una vez sin gastar espacio.",
+     "texto": "Eliges dos conjuros de nivel 3 de tu libro de conjuros. Siempre los tienes preparados y puedes lanzar cada uno una vez gratis al nivel 3 (recuperas los usos gratis tras un Descanso Corto o Largo).",
      "n": 20,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     }
-   ]
+   ],
+   "subAltos": {}
   },
   "monje": {
    "subclases": {

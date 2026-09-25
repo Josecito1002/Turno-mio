@@ -20,6 +20,7 @@ import { DRUIDA_2024 } from '../../../../scripts/datos/druida-2024';
 import { EXPLORADOR_2024 } from '../../../../scripts/datos/explorador-2024';
 import { GUERRERO_2024 } from '../../../../scripts/datos/guerrero-2024';
 import { HECHICERO_2024 } from '../../../../scripts/datos/hechicero-2024';
+import { MAGO_2024 } from '../../../../scripts/datos/mago-2024';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
 import { ARMAS } from '@/features/reglas/data/equipo';
 import { EQUIPO_TRASFONDOS, kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
@@ -839,5 +840,27 @@ describe('Hechicero 2024 (Lote 12)', () => {
   test('Usos: Restaurar el Equilibrio = CAR y Favorecido por los Dioses se recupera en descanso corto', () => {
     assert.equal(recurso(hec(3, 'lib:reloj'), 'Restaurar el Equilibrio')?.max, 3);
     assert.equal(recurso(hec(3, 'lib:alma-divina'), 'Favorecido por los Dioses')?.reset, 'corto');
+  });
+});
+
+describe('Mago 2024 (Lote 13)', () => {
+  const mag = (nivel: number, sub = '', extra: Record<string, any> = {}) => { setLib({ clases: { mago: MAGO_2024 } }); return pj('mago', nivel, sub, { int: 16, des: 14 }, extra); };
+  test('Capa Arcana: reserva de 2 × nivel + INT', () => {
+    const r = recurso(mag(6, 'lib:abjuracion'), 'Capa Arcana');
+    assert.equal(r?.max, 15);
+    assert.equal(r?.tipo, 'pool');
+  });
+  test('Iniciativa: Ingenio Táctico y Conciencia Temporal suman INT', () => {
+    assert.equal(mag(3, 'lib:magia-guerra').init, mag(3).init + 3);
+    assert.equal(mag(3, 'lib:magia-cronurgia').init, mag(3).init + 3);
+  });
+  test('Conversador Encantador: competencia y INT en la habilidad elegida', () => {
+    const base = mag(3, 'lib:encantamiento'), c = mag(3, 'lib:encantamiento', { elecciones: { 'encantamiento-habilidades': 'persuasion' } });
+    assert.ok(base.elecciones.some((e: any) => e.id === 'encantamiento-habilidades'));
+    assert.equal(c.skill.persuasion, base.skill.persuasion + c.pb + 3);
+  });
+  test('Usos: Canto de la Hoja = INT y Cambio Crónico 2 por descanso largo', () => {
+    assert.equal(recurso(mag(3, 'lib:cantor-hoja'), 'Canto de la Hoja')?.max, 3);
+    assert.equal(recurso(mag(3, 'lib:magia-cronurgia'), 'Cambio Crónico')?.max, 2);
   });
 });

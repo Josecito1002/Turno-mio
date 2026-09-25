@@ -1352,6 +1352,37 @@ export const REGLAS: any[] = [
     texto: c => { const k = c.subeDote?.resiliente;
       return k ? `+1 a ${NOMBRE_AB[k]} y competencia en sus salvaciones (ya sumados).` : '+1 a una característica en cuya salvación no seas competente, y ganas esa competencia. Elígela en la mejora de nivel, en el paso Características.'; }},
 
+  /* ---------- Mago (lote 13): lo que el motor calcula; el resto sale de generadas/mago.ts ---------- */
+  {de:/^abjurador$/, n:/^capa arcana$/, t:'pasiva', usos: c => 2 * c.lvl + c.m.int, pool: true, reset:'largo',
+    texto: c => `La primera vez que lances un conjuro de Abjuración con un espacio después de un descanso largo, creas a tu alrededor una capa con ${2 * c.lvl + c.m.int} PG (el doble de tu nivel + INT), que dura hasta tu siguiente descanso largo. El daño que recibes lo absorbe la capa primero (aplica antes tus resistencias); lo que sobre te llega a ti. Cada conjuro de Abjuración que lances con un espacio le devuelve 2 PG por nivel del espacio, y con una acción adicional puedes gastar un espacio para lo mismo. Aunque llegue a 0, no desaparece.`},
+  {de:/^cantor de la hoja$/, n:/^canto de la hoja$/, t:'adicional', usos: c => Math.max(1, c.m.int), reset:'largo',
+    texto: c => `Con una acción adicional, sin armadura ni escudo, entras en el Canto de la Hoja durante 1 minuto (termina antes si quedas Incapacitado, te pones armadura o escudo, o atacas con un arma a dos manos). Mientras dura: +${Math.max(1, c.m.int)} a la CA (tu INT, mínimo +1; no está sumado a la CA de la hoja), +10 pies de velocidad y Ventaja en Acrobacias; puedes atacar y hacer daño con INT en vez de FUE o DES con armas con las que seas competente; y sumas tu INT a las salvaciones de CON para mantener la Concentración. Recuperas un uso con Recuperación Arcana.`},
+  {de:/^cantor de la hoja$/, n:/^formacion en guerra y canto$/, t:'pasiva',
+    eleccion: {id:'cantor-hab', titulo:'Habilidad (Formación en Guerra y Canto)', opciones: ['Acrobacias', 'Atletismo', 'Interpretación', 'Persuasión'].map(h => ({key: norm(h), nombre: h, desc: `Competencia en ${h}.`}))},
+    efecto: c => { const k = elegido(c, 'cantor-hab'); if (k && !c.skillProf[k]) { c.skill[k] += c.pb; c.skillProf[k] = true; } },
+    texto: c => { const h = ['Acrobacias', 'Atletismo', 'Interpretación', 'Persuasión'].find(x => norm(x) === elegido(c, 'cantor-hab'));
+      return `Competencia con las armas marciales cuerpo a cuerpo que no sean pesadas ni a dos manos, y puedes usar como foco de tus conjuros de mago un arma cuerpo a cuerpo con la que seas competente. Además, competencia en ${h ? `${h} (ya sumada)` : 'Acrobacias, Atletismo, Interpretación o Persuasión (elígela en la subclase)'}.`; }},
+  {de:/^encantador$/, n:/^conversador encantador$/, t:'pasiva',
+    eleccion: {id:'encantamiento-habilidades', titulo:'Habilidad (Conversador Encantador)', opciones: ['Engaño', 'Intimidación', 'Persuasión'].map(h => ({key: norm(h), nombre: h, desc: `Competencia en ${h} y sumas tu INT (mínimo +1).`}))},
+    efecto: c => { const k = elegido(c, 'encantamiento-habilidades'); if (!k || !(k in c.skill)) return;
+      if (!c.skillProf[k]) { c.skill[k] += c.pb; c.skillProf[k] = true; }
+      c.skill[k] += Math.max(1, c.m.int); },
+    texto: c => { const h = ['Engaño', 'Intimidación', 'Persuasión'].find(x => norm(x) === elegido(c, 'encantamiento-habilidades'));
+      return h ? `Competencia en ${h}, y sumas tu INT (${sign(Math.max(1, c.m.int))}) a sus pruebas (ya sumado).` : 'Competencia en Engaño, Intimidación o Persuasión, a tu elección (elígela en la subclase), y sumas tu INT (mínimo +1) a las pruebas de esa habilidad.'; }},
+  {de:/^evocador$/, n:/^evocacion potenciada$/, t:'pasiva',
+    texto: c => `Al lanzar un conjuro de mago de Evocación, sumas tu INT (${sign(c.m.int)}) a una de sus tiradas de daño.`},
+  {de:/^nigromante$/, n:/^siervos muertos vivientes$/, t:'pasiva', usos:1, reset:'largo',
+    conjuros: [{nombre:'Animar a los muertos', nota:'Siempre preparado; una vez por descanso largo sin gastar espacio'}],
+    texto: c => `Siempre tienes preparado Animar a los muertos y puedes lanzarlo una vez sin gastar espacio (se recupera con un descanso largo). Siempre que lo lanzas, puedes contarlo como de un nivel más. Con tu libro de conjuros en la mano, los muertos vivientes que creas o invocas con conjuros de Necromancia ganan ${c.m.int + Math.floor(c.lvl / 2)} PG máximos y actuales (INT + la mitad de tu nivel), y cuando uno a 60 pies acierta un ataque hace ${Math.max(1, c.m.int)} de daño necrótico extra.`},
+  {de:/^nigromante$/, n:/^amo de la muerte$/, t:'adicional', usos:1, reset:'largo',
+    texto: c => `Con tu libro de conjuros en la mano: con una acción adicional, los muertos vivientes que creaste o invocaste con Necromancia a 60 pies ganan ${c.lvl} PG temporales (tu nivel de mago); una vez por descanso largo. Además, cuando un muerto viviente que ves cae a 0 PG, puedes hacerlo estallar: tiras 1d6 por cada dos dados de golpe que le queden (mínimo 1d6), y cada criatura a 10 pies hace una salvación de DES (CD ${c.dcSpell}): si falla, recibe ese daño necrótico y no puede usar reacciones hasta su siguiente turno; si la pasa, la mitad. Si el muerto viviente no es tuyo, te cuesta tu reacción y un espacio de nivel 5 o más.`},
+  {de:/^magia de guerra$/, n:/^manto desviador$/, t:'pasiva',
+    texto: c => `Al usar Desvío Arcano, hasta tres criaturas que elijas y veas a 60 pies reciben ${Math.floor(c.lvl / 2)} de daño de fuerza (la mitad de tu nivel de mago).`},
+  {de:/^magia de guerra$/, n:/^ingenio tactico$/, t:'pasiva', efecto: c => { c.init += c.m.int; },
+    texto: c => `Sumas tu INT (${sign(c.m.int)}) a la iniciativa (ya sumado).`},
+  {de:/^magia de cronurgia$/, n:/^conciencia temporal$/, t:'pasiva', efecto: c => { c.init += c.m.int; },
+    texto: c => `Sumas tu INT (${sign(c.m.int)}) a la iniciativa (ya sumado).`},
+
   /* Lo generado desde las respuestas de Gemini (scripts/gemini/revisar.ts); las de arriba tienen prioridad */
   ...REGLAS_GENERADAS,
 ];
