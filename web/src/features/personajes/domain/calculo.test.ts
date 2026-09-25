@@ -19,6 +19,7 @@ import { BRUJO_2024 } from '../../../../scripts/datos/brujo-2024';
 import { DRUIDA_2024 } from '../../../../scripts/datos/druida-2024';
 import { EXPLORADOR_2024 } from '../../../../scripts/datos/explorador-2024';
 import { GUERRERO_2024 } from '../../../../scripts/datos/guerrero-2024';
+import { HECHICERO_2024 } from '../../../../scripts/datos/hechicero-2024';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
 import { ARMAS } from '@/features/reglas/data/equipo';
 import { EQUIPO_TRASFONDOS, kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
@@ -811,5 +812,32 @@ describe('Juntar monedas', () => {
   test('10 de cobre son 1 de plata y 10 de plata, 1 de oro; el oro no pasa a platino', () => {
     assert.deepEqual(juntar({ pt: 1, po: 25, pp: 14, pc: 27 }), { pt: 1, po: 26, pp: 6, pc: 7 });
     assert.deepEqual(juntar({ pt: 0, po: 0, pp: 9, pc: 10 }), { pt: 0, po: 1, pp: 0, pc: 0 });
+  });
+});
+
+describe('Hechicero 2024 (Lote 12)', () => {
+  const hec = (nivel: number, sub = '', extra: Record<string, any> = {}) => { setLib({ clases: { hechicero: HECHICERO_2024 } }); return pj('hechicero', nivel, sub, { car: 16 }, extra); };
+  const nombres = (c: any) => c.conjuros.map((s: any) => s.nombre);
+  test('Metamagia: 2, 4 y 6 opciones, y solo salen las elegidas', () => {
+    const c = hec(10, '', { elecciones: { 'metamagia-opciones': ['met-sutil', 'met-acelerado'] } });
+    assert.equal(c.elecciones.find((e: any) => e.id === 'metamagia-opciones').max, 4);
+    assert.equal(hec(2).elecciones.find((e: any) => e.id === 'metamagia-opciones').max, 2);
+    assert.equal(hec(17).elecciones.find((e: any) => e.id === 'metamagia-opciones').max, 6);
+    assert.ok(entrada(c, 'Conjuro Sutil'));
+    assert.equal(c.entries.some((e: any) => e.nombre === 'Conjuro Cuidadoso'), false);
+  });
+  // El catálogo de estas pruebas no trae los conjuros de la biblioteca, así que se mira el texto del rasgo
+  test('Conjuros siempre preparados de las subclases, según el nivel', () => {
+    const lista = (c: any, rasgo: string) => entrada(c, rasgo).texto;
+    assert.match(lista(hec(9, 'draconico'), 'Conjuros dracónicos'), /Invocar dragón/);
+    assert.doesNotMatch(lista(hec(5, 'draconico'), 'Conjuros dracónicos'), /Ojo arcano/);
+    assert.match(lista(hec(5, 'lib:aberrante'), 'Conjuros Psiónicos'), /Recado/);
+    assert.match(lista(hec(5, 'lib:hechiceria-sombras'), 'Conjuros de las Sombras'), /Indetectable/);
+    assert.ok(nombres(hec(6, 'lib:fuego-conjuro')).includes('Contrahechizo'));
+    assert.ok(nombres(hec(3, 'lib:lunar')).includes('Llama sagrada'));
+  });
+  test('Usos: Restaurar el Equilibrio = CAR y Favorecido por los Dioses se recupera en descanso corto', () => {
+    assert.equal(recurso(hec(3, 'lib:reloj'), 'Restaurar el Equilibrio')?.max, 3);
+    assert.equal(recurso(hec(3, 'lib:alma-divina'), 'Favorecido por los Dioses')?.reset, 'corto');
   });
 });

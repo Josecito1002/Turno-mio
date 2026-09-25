@@ -33,7 +33,7 @@ Las que se deciden al usar el rasgo (a quién, qué efecto) no llevan selector: 
 - [ ] **Clérigo: Orden Divina**: Protector (armadura pesada y armas marciales) o Taumaturgo (un truco más y SAB a Arcanos o Religión); cambia competencias y trucos. <!-- selector|orden-divina -->
 - [ ] **Druida: Orden Primordial**: Mago (un truco más y SAB a Arcanos o Naturaleza) o Guardián (armadura media y armas marciales). <!-- selector|orden-primordial -->
 - [ ] **Druida: formas de Forma Salvaje**: 4, 6 y 8 bestias conocidas en los niveles 2, 4 y 8. <!-- selector|formas-salvajes -->
-- [ ] **Hechicero: Metamagia**: 2, 4 y 6 opciones en los niveles 2, 10 y 17; cada una saldría con su coste en puntos. <!-- selector|metamagia -->
+- [x] **Hechicero: Metamagia**: 2, 4 y 6 opciones en los niveles 2, 10 y 17; cada una saldría con su coste en puntos. <!-- selector|metamagia --> Lote 12: se eligen en el paso Clase.
 - [ ] **Hechicería Dracónica: Afinidad Elemental**: tipo de daño (ácido, frío, fuego, relámpago o veneno): resistencia y CAR al daño de ese tipo. <!-- selector|afinidad-draconica -->
 - [ ] **Mago: Dominio de Conjuros y Conjuros Distintivos**: conjuros de nivel 1 y 2 a voluntad (nivel 18) y dos de nivel 3 (nivel 20). <!-- selector|dominio-conjuros -->
 - [ ] **Artífice y Arcanista: planos de Replicar Objeto Mágico**: 4 a 8 planos según nivel, de las tablas de 2025. <!-- selector|planos-artifice -->
@@ -133,9 +133,9 @@ Se agregan en el lote de su clase, con su versión oficial más reciente. Las ma
 
 ### Lote 12: Hechicero
 
-- [ ] **Alma Divina** (Xanathar's Guide to Everything) <!-- agregar|alma divina -->
-- [ ] **Hechicería de la Tormenta** (Xanathar's Guide to Everything) <!-- agregar|hechiceria de la tormenta -->
-- [ ] **Hechicería Lunar** (Dragonlance: Shadow of the Dragon Queen) <!-- agregar|hechiceria lunar -->
+- [x] **Alma Divina** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). <!-- agregar|alma divina -->
+- [x] **Hechicería de la Tormenta** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). <!-- agregar|hechiceria de la tormenta -->
+- [x] **Hechicería Lunar** (Dragonlance: Shadow of the Dragon Queen): agregado, versión de Dragonlance: Shadow of the Dragon Queen (2022). <!-- agregar|hechiceria lunar -->
 
 ### Lote 13: Mago
 
@@ -942,46 +942,92 @@ Dudosos: 0. Con tipo claro: 0. Ya revisados: 46.
 
 ## Lote 12: Hechicero (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 18. Con tipo claro: 5. Ya revisados: 0.
+Respuesta de Gemini revisada el 2026-09-25. Versiones: Manual del Jugador 2024 (clase, Dracónica, Magia Salvaje, Aberrante y Reloj), Ravenloft: The Horrors Within 2026 (Sombras), Heroes of Faerûn 2025 (Fuego de Conjuro); Alma Divina y Tormenta (Xanathar 2017) y Lunar (Dragonlance 2022) no tienen versión 2024 y se agregan con sus rasgos de nivel 1 pasados al 3.
+
+- [x] **Corregido de la respuesta**: la clave de las Sombras (`hechiceria-sombras`); el libro de cada subclase; Recado e Indetectable (Gemini no los encontró en la app); Invocar bestia sí está. El texto oficial no traía los rasgos de nivel 1 de Alma Divina, Tormenta y Lunar: se escribieron a mano (Magia Divina y Favorecido por los Dioses; Hablante del Viento y Magia Tempestuosa; Encarnación Lunar, Conjuros Lunares y Fuego Lunar).
+- [x] **Aberrante y Reloj**: la biblioteca tenía la versión de Tasha (Defensa Psíquica en el 14, Transformación Reveladora en el 18); quedan con la de 2024 (Defensas Psíquicas en el 6, Revelación Carnal en el 14, Implosión Deformadora en el 18) y sus conjuros siempre preparados.
+- [x] **Sombras**: la biblioteca tenía la de Van Richten (Ojos de la Oscuridad, Vitalidad de Sombra, Sabueso); queda la de 2026 (Poder de las Sombras, Bestias de Mal Agüero con Invocar bestia, Paso Sombrío, Forma Umbría).
+- [x] **Dracónica (integrada)**: sus conjuros llegan hasta el nivel 9 (Ojo arcano y Hechizar monstruo en el 7; Conocer las leyendas e Invocar dragón en el 9). Alas de Dragón dura 1 hora (1 uso o 3 puntos) y Compañero Dragón reemplaza a Presencia Dracónica.
+- [x] **Metamagia**: selector con las 10 opciones de 2024; 2, 4 y 6 opciones en los niveles 2, 10 y 17.
+- ⚠ **Hechicería Lunar**: la tabla de conjuros por fase se escribió de memoria (el texto oficial del encargo no la traía); conviene confirmarla con el libro.
 
 ### Hechicero
 
-- [ ] **Hechicería Encarnada** (nivel 7): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- hechicero|hechiceria encarnada -->
-- [ ] **Apoteosis Arcana** (nivel 20): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- hechicero|apoteosis arcana -->
-
-### Hechicería Aberrante
-
-- [ ] **Habla Telepática** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- hechiceria aberrante|habla telepatica -->
-- [ ] **Hechicería Psiónica** (nivel 6): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- hechiceria aberrante|hechiceria psionica -->
-- [ ] **Defensa Psíquica** (nivel 14): hoy `pasiva`, no menciona tipo de acción <!-- hechiceria aberrante|defensa psiquica -->
-- [ ] **Transformación Reveladora** (nivel 18): hoy `pasiva`, no menciona tipo de acción <!-- hechiceria aberrante|transformacion reveladora -->
-
-### Alma del Reloj
-
-- [ ] **Restaurar Equilibrio** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- alma del reloj|restaurar equilibrio -->
-- [ ] **Baluarte de la Ley** (nivel 6): hoy `pasiva`, no menciona tipo de acción <!-- alma del reloj|baluarte de la ley -->
-- [ ] **Trance de Orden** (nivel 14): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- alma del reloj|trance de orden -->
-- [ ] **Cavatina del Reloj** (nivel 18): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- alma del reloj|cavatina del reloj -->
-
-### Hechicería de Fuego de Conjuro
-
-- [ ] **Conjuros de Fuego de Conjuro** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- hechiceria de fuego de conjuro|conjuros de fuego de conjuro -->
-- [ ] **Absorber Conjuros** (nivel 6): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- hechiceria de fuego de conjuro|absorber conjuros -->
-- [ ] **Fuego de Conjuro Refinado** (nivel 14): hoy `pasiva`, no menciona tipo de acción <!-- hechiceria de fuego de conjuro|fuego de conjuro refinado -->
-- [ ] **Corona de Fuego de Conjuro** (nivel 18): hoy `pasiva`, queda pasiva pero parece activarse <!-- hechiceria de fuego de conjuro|corona de fuego de conjuro -->
-
-### Hechicería de las Sombras
-
-- [ ] **Ojos de la Oscuridad** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- hechiceria de las sombras|ojos de la oscuridad -->
-- [ ] **Vitalidad de Sombra** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- hechiceria de las sombras|vitalidad de sombra -->
+- [x] **Hechicería Encarnada** (nivel 7): `gratis`. Manual del Jugador (2024). <!-- hechicero|hechiceria encarnada -->
+- [x] **Apoteosis Arcana** (nivel 20): `pasiva`. Manual del Jugador (2024). <!-- hechicero|apoteosis arcana -->
+- [x] **Metamagia adicional** (nivel 17): `pasiva`. Manual del Jugador (2024). <!-- hechicero|metamagia adicional -->
 
 ### Hechicería Dracónica
 
-- [ ] **Presencia Dracónica** (nivel 18): hoy `pasiva`, no menciona tipo de acción <!-- hechiceria draconica|presencia draconica -->
+- [x] **Afinidad Elemental** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- hechiceria draconica|afinidad elemental -->
+- [x] **Alas de Dragón** (nivel 14): `adicional`. Manual del Jugador (2024). <!-- hechiceria draconica|alas de dragon -->
+- [x] **Compañero Dragón** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- hechiceria draconica|companero dragon -->
 
 ### Magia Salvaje
 
-- [ ] **Caos Controlado** (nivel 14): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- magia salvaje|caos controlado -->
+- [x] **Caos Controlado** (nivel 14): `pasiva`. Manual del Jugador (2024). <!-- magia salvaje|caos controlado -->
+- [x] **Doblegar la Suerte** (nivel 6): `reaccion`. Manual del Jugador (2024). <!-- magia salvaje|doblegar la suerte -->
+- [x] **Oleada Domada** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- magia salvaje|oleada domada -->
+
+### Hechicería Aberrante
+
+- [x] **Habla Telepática** (nivel 3): `adicional`. Manual del Jugador (2024). <!-- hechiceria aberrante|habla telepatica -->
+- [x] **Hechicería Psiónica** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- hechiceria aberrante|hechiceria psionica -->
+- [x] **Conjuros Psiónicos** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- hechiceria aberrante|conjuros psionicos -->
+- [x] **Defensas Psíquicas** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- hechiceria aberrante|defensas psiquicas -->
+- [x] **Revelación Carnal** (nivel 14): `adicional`. Manual del Jugador (2024). <!-- hechiceria aberrante|revelacion carnal -->
+- [x] **Implosión Deformadora** (nivel 18): `accion`. Manual del Jugador (2024). <!-- hechiceria aberrante|implosion deformadora -->
+
+### Hechicería del Reloj (antes Alma del Reloj)
+
+- [x] **Conjuros del Reloj** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- hechiceria del reloj|conjuros del reloj -->
+- [x] **Restaurar el Equilibrio** (nivel 3): `reaccion`. Manual del Jugador (2024). <!-- hechiceria del reloj|restaurar el equilibrio -->
+- [x] **Baluarte de la Ley** (nivel 6): `accion`. Manual del Jugador (2024). <!-- hechiceria del reloj|baluarte de la ley -->
+- [x] **Trance de Orden** (nivel 14): `adicional`. Manual del Jugador (2024). <!-- hechiceria del reloj|trance de orden -->
+- [x] **Cavatina del Reloj** (nivel 18): `accion`. Manual del Jugador (2024). <!-- hechiceria del reloj|cavatina del reloj -->
+
+### Alma Divina
+
+- [x] **Magia Divina** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- alma divina|magia divina -->
+- [x] **Favorecido por los Dioses** (nivel 3): `gratis`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- alma divina|favorecido por los dioses -->
+- [x] **Curación Potenciada** (nivel 6): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- alma divina|curacion potenciada -->
+- [x] **Alas de Otro Mundo** (nivel 14): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- alma divina|alas de otro mundo -->
+- [x] **Recuperación Sobrenatural** (nivel 18): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- alma divina|recuperacion sobrenatural -->
+
+### Hechicería Lunar
+
+- [x] **Encarnación Lunar** (nivel 3): `fuera`. subclase nueva; Dragonlance: Shadow of the Dragon Queen (2022). <!-- hechiceria lunar|encarnacion lunar -->
+- [x] **Conjuros Lunares** (nivel 3): `pasiva`. subclase nueva; Dragonlance: Shadow of the Dragon Queen (2022). <!-- hechiceria lunar|conjuros lunares -->
+- [x] **Fuego Lunar** (nivel 3): `pasiva`. subclase nueva; Dragonlance: Shadow of the Dragon Queen (2022). <!-- hechiceria lunar|fuego lunar -->
+- [x] **Favores Lunares** (nivel 6): `pasiva`. subclase nueva; Dragonlance: Shadow of the Dragon Queen (2022). <!-- hechiceria lunar|favores lunares -->
+- [x] **Fases Menguantes** (nivel 6): `adicional`. subclase nueva; Dragonlance: Shadow of the Dragon Queen (2022). <!-- hechiceria lunar|fases menguantes -->
+- [x] **Empoderamiento Lunar** (nivel 14): `pasiva`. subclase nueva; Dragonlance: Shadow of the Dragon Queen (2022). <!-- hechiceria lunar|empoderamiento lunar -->
+- [x] **Fenómeno Lunar** (nivel 18): `adicional`. subclase nueva; Dragonlance: Shadow of the Dragon Queen (2022). <!-- hechiceria lunar|fenomeno lunar -->
+
+### Hechicería de las Sombras
+
+- [x] **Conjuros de las Sombras** (nivel 3): `pasiva`. Ravenloft: The Horrors Within (2026). <!-- hechiceria de las sombras|conjuros de las sombras -->
+- [x] **Poder de las Sombras** (nivel 3): `pasiva`. Ravenloft: The Horrors Within (2026). <!-- hechiceria de las sombras|poder de las sombras -->
+- [x] **Bestias de Mal Agüero** (nivel 6): `adicional`. Ravenloft: The Horrors Within (2026). <!-- hechiceria de las sombras|bestias de mal aguero -->
+- [x] **Paso Sombrío** (nivel 14): `adicional`. Ravenloft: The Horrors Within (2026). <!-- hechiceria de las sombras|paso sombrio -->
+- [x] **Forma Umbría** (nivel 18): `pasiva`. Ravenloft: The Horrors Within (2026). <!-- hechiceria de las sombras|forma umbria -->
+
+### Fuego de Conjuro
+
+- [x] **Conjuros de Fuego de Conjuro** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- fuego de conjuro|conjuros de fuego de conjuro -->
+- [x] **Estallido de Fuego de Conjuro** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- fuego de conjuro|estallido de fuego de conjuro -->
+- [x] **Absorber Conjuros** (nivel 6): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- fuego de conjuro|absorber conjuros -->
+- [x] **Fuego de Conjuro Perfeccionado** (nivel 14): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- fuego de conjuro|fuego de conjuro perfeccionado -->
+- [x] **Corona de Fuego de Conjuro** (nivel 18): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- fuego de conjuro|corona de fuego de conjuro -->
+
+### Hechicería de la Tormenta
+
+- [x] **Hablante del Viento** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- hechiceria de la tormenta|hablante del viento -->
+- [x] **Magia Tempestuosa** (nivel 3): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- hechiceria de la tormenta|magia tempestuosa -->
+- [x] **Corazón de la Tormenta** (nivel 6): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- hechiceria de la tormenta|corazon de la tormenta -->
+- [x] **Guía de la Tormenta** (nivel 6): `accion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- hechiceria de la tormenta|guia de la tormenta -->
+- [x] **Furia de la Tormenta** (nivel 14): `reaccion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- hechiceria de la tormenta|furia de la tormenta -->
+- [x] **Alma del Viento** (nivel 18): `accion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- hechiceria de la tormenta|alma del viento -->
 
 ## Lote 13: Mago (subclases y rasgos de nivel alto de la biblioteca)
 

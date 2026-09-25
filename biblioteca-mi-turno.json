@@ -4541,117 +4541,225 @@
      "n": "Hechicería Aberrante",
      "rasgos": [
       {
-       "nombre": "Habla Telepática",
+       "nombre": "Conjuros Psiónicos",
        "t": "pasiva",
-       "texto": "Telepatía con una criatura a 30 pies.",
+       "texto": "El contacto con fuerzas alienígenas te otorga conjuros preparados adicionales en los niveles 3, 5, 7 y 9.",
        "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Habla Telepática",
+       "t": "adicional",
+       "texto": "Como Acción Adicional, conectas tu mente a la de una criatura a 30 pies. Pueden hablar mentalmente mientras estén a una distancia en millas igual a tu CAR. Dura minutos igual a tu nivel de Hechicero.",
+       "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Hechicería Psiónica",
        "t": "pasiva",
-       "texto": "Lanzas conjuros específicos usando puntos de hechicería sin componentes.",
+       "texto": "Puedes lanzar tus Conjuros Psiónicos usando puntos de hechicería iguales al nivel del conjuro en lugar de espacios. Si lo haces, el conjuro no requerirá componentes verbales, somáticos ni materiales (salvo que se consuman o tengan coste).",
        "n": 6,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Defensa Psíquica",
+       "nombre": "Defensas Psíquicas",
        "t": "pasiva",
-       "texto": "Resistencia a daño psíquico y ventaja contra ser hechizado/asustado.",
+       "texto": "Obtienes resistencia al daño Psíquico y ventaja en salvaciones contra ser Hechizado o Asustado.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Revelación Carnal",
+       "t": "adicional",
+       "texto": "Como Acción Adicional, gastas 1 punto de hechicería por cada mutación que quieras adoptar por 10 minutos: respiración acuática/nado, vuelo, visión de lo invisible, o cuerpo viscoso para pasar por huecos diminutos sin ser apresado.",
        "n": 14,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Transformación Reveladora",
-       "t": "pasiva",
-       "texto": "Te vuelves una entidad viscosa que vuela y atraviesa espacios pequeños.",
+       "nombre": "Implosión Deformadora",
+       "t": "accion",
+       "texto": "Como Acción Mágica, te teletransportas 120 pies. Donde estabas, estalla una anomalía (30 pies de radio) que fuerza salvación de FUE: atrae al centro e inflige 3d10 daño de Fuerza (mitad si salvan). Gratis 1 vez por descanso largo o pagando 5 puntos.",
        "n": 18,
-       "usos": 0,
+       "manual": true,
+       "usos": 1,
        "reset": "largo"
       }
      ]
     },
     "reloj": {
-     "n": "Alma del Reloj",
+     "n": "Hechicería del Reloj",
      "rasgos": [
       {
-       "nombre": "Restaurar Equilibrio",
+       "nombre": "Conjuros del Reloj",
        "t": "pasiva",
-       "texto": "Anulas ventaja o desventaja de una criatura cercana.",
+       "texto": "El orden de Mechanus te otorga conjuros preparados de protección e invocación matemática en los niveles 3, 5, 7 y 9.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
+       "nombre": "Restaurar el Equilibrio",
+       "t": "reaccion",
+       "texto": "Cuando una criatura a 60 pies o menos va a tirar un d20 con Ventaja o Desventaja, usas tu Reacción para anular ambas. Puedes hacerlo una cantidad de veces igual a tu Carisma.",
+       "n": 3,
+       "manual": true,
+       "usos": "max(1, CAR)",
+       "reset": "largo"
+      },
+      {
        "nombre": "Baluarte de la Ley",
-       "t": "pasiva",
-       "texto": "Escudo de puntos de hechicería que reduce daño.",
+       "t": "accion",
+       "texto": "Como Acción Mágica, gastas 1 a 5 puntos de hechicería para dar a alguien a 30 pies un escudo (1d8 por cada punto gastado). Al recibir daño, puede gastar esos d8s para reducir el golpe. Dura hasta que descanses o lo uses de nuevo.",
        "n": 6,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Trance de Orden",
-       "t": "pasiva",
-       "texto": "Tus tiradas de ataque/salvación no pueden ser menores a 10.",
+       "t": "adicional",
+       "texto": "Como Acción Adicional, entras en trance por 1 minuto. Los ataques en tu contra no tienen Ventaja y tratas cualquier tirada de 9 o menos en el d20 como un 10. Gratis 1 vez por descanso o pagando 5 puntos.",
        "n": 14,
-       "usos": 0,
+       "manual": true,
+       "usos": 1,
        "reset": "largo"
       },
       {
        "nombre": "Cavatina del Reloj",
-       "t": "pasiva",
-       "texto": "Invocas espíritus que curan aliados y reparan objetos en área.",
+       "t": "accion",
+       "texto": "Como Acción Mágica, invocas espíritus en un cubo de 30 pies. Reparten hasta 100 PG, reparan objetos y disipan conjuros de nivel 6 o inferior. Gratis 1 vez por descanso largo o pagando 7 puntos.",
        "n": 18,
-       "usos": 0,
+       "manual": true,
+       "usos": 1,
        "reset": "largo"
       }
      ]
     },
-    "fuego-conjuro": {
-     "n": "Hechicería de Fuego de Conjuro",
+    "alma-divina": {
+     "n": "Alma Divina",
      "rasgos": [
       {
-       "nombre": "Estallido de Fuego de Conjuro",
-       "t": "adicional",
-       "texto": "Cuando gastas al menos 1 Punto de Hechicería como parte de una acción Mágica o una Acción Adicional en tu turno, puedes desatar uno de los siguientes efectos mágicos a tu elección. Solo puedes hacerlo una vez por turno. Llamas Fortalecedoras: tú o una criatura que puedas ver a 30 pies o menos de ti obtiene Puntos de Golpe temporales iguales a 1d4 + tu modificador de Carisma. Fuego Radiante: una criatura que puedas ver a 30 pies o menos de ti recibe 1d4 de daño de Fuego o Radiante (a tu elección).",
+       "nombre": "Magia Divina",
+       "t": "pasiva",
+       "texto": "Cuando aprendes o cambias un truco o conjuro de hechicero, puedes tomarlo también de la lista de clérigo. Eliges una afinidad y aprendes un conjuro extra: bien, Curar heridas; mal, Infligir heridas; ley, Bendecir; caos, Perdición; neutralidad, Protección contra el bien y el mal.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Conjuros de Fuego de Conjuro",
-       "t": "pasiva",
-       "texto": "Cuando alcanzas un nivel de Hechicero indicado en la tabla Conjuros de Fuego de Conjuro, a partir de ese momento siempre tienes preparados los conjuros indicados. Nivel 3: Curar Heridas, Rayo Guiado, Restauración Menor, Rayo Abrasador. Nivel 5: Aura de Vitalidad, Disipar Magia. Nivel 7: Escudo de Fuego, Muro de Fuego. Nivel 9: Restauración Mayor, Golpe Flamígero.",
+       "nombre": "Favorecido por los Dioses",
+       "t": "gratis",
+       "texto": "Si fallas una salvación o una tirada de ataque, tiras 2d4 y lo sumas al resultado, lo que puede cambiarlo. Una vez por descanso corto o largo.",
        "n": 3,
-       "usos": 0,
-       "reset": "largo"
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
       },
       {
-       "nombre": "Absorber Conjuros",
+       "nombre": "Curación Potenciada",
        "t": "pasiva",
-       "texto": "Siempre tienes preparado el conjuro Contrarechizo. Además, cada vez que un objetivo falla la tirada de salvación contra un Contrarechizo que lanzas, recuperas 1d4 Puntos de Hechicería.",
+       "texto": "Si tú o un aliado a 5 pies tiran dados para curarse con un conjuro, puedes gastar 1 punto de hechicería para repetir cualquier cantidad de esos dados. (Una vez por turno)",
        "n": 6,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Fuego de Conjuro Refinado",
-       "t": "pasiva",
-       "texto": "Tu Estallido de Fuego de Conjuro mejora. Añades tu nivel de Hechicero a los Puntos de Golpe temporales obtenidos con Llamas Fortalecedoras, y el daño de tu Fuego Radiante aumenta a 1d8.",
+       "nombre": "Alas de Otro Mundo",
+       "t": "adicional",
+       "texto": "Como Acción Adicional, invocas alas espectrales de tu espalda (según tu afinidad divina) que te dan una velocidad de vuelo de 30 pies. Duran hasta que las desestimes o caigas incapacitado.",
        "n": 14,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Corona de Fuego de Conjuro",
-       "t": "pasiva",
-       "texto": "Cuando usas Hechicería Innata, puedes alterarla para infundirte con la esencia del Fuego de Conjuro, obteniendo los siguientes beneficios mientras este uso de Hechicería Innata esté activo. Una vez que uses este rasgo para alterar Hechicería Innata, no puedes volver a usarlo hasta que termines un Descanso Largo, a menos que gastes 5 Puntos de Hechicería (sin requerir acción) para restaurar su uso. Fuerza Vital Ardiente: una vez por turno, cuando recibes el impacto de una tirada de ataque, puedes gastar un número de Dados de Puntos de Golpe, hasta un máximo igual a tu modificador de Carisma (mínimo uno). Tira los dados gastados y reduce la cantidad de daño de ese ataque en el total obtenido.",
+       "nombre": "Recuperación Sobrenatural",
+       "t": "adicional",
+       "texto": "Como Acción Adicional, si tienes menos de la mitad de tus Puntos de Golpe, puedes curarte una cantidad igual a la mitad de tus PG máximos.",
        "n": 18,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "lunar": {
+     "n": "Hechicería Lunar",
+     "rasgos": [
+      {
+       "nombre": "Encarnación Lunar",
+       "t": "fuera",
+       "texto": "Al terminar un descanso largo eliges la fase de tu magia: luna llena, luna nueva o luna creciente. Mientras estés en esa fase, puedes lanzar una vez su conjuro de nivel 1 sin gastar espacio; vuelve con un descanso largo.",
+       "n": 3,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Conjuros Lunares",
+       "t": "pasiva",
+       "texto": "Aprendes los conjuros de las tres fases lunares en los niveles 3, 5, 7 y 9; no cuentan en tu límite.",
+       "n": 3,
+       "manual": true,
        "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Fuego Lunar",
+       "t": "pasiva",
+       "texto": "Aprendes el truco Llama sagrada, que no cuenta en tu límite. Al lanzarlo puedes elegir un objetivo, o dos que estén a 5 pies o menos uno del otro.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Favores Lunares",
+       "t": "pasiva",
+       "texto": "Al usar Metamagia en escuelas afines a tu fase lunar actual, su coste se reduce en 1 punto (mínimo 0) un número de veces igual a tu competencia por descanso largo.",
+       "n": 6,
+       "manual": true,
+       "usos": "pb",
+       "reset": "largo"
+      },
+      {
+       "nombre": "Fases Menguantes",
+       "t": "adicional",
+       "texto": "Puedes cambiar de fase lunar gastando 1 punto de hechicería como Acción Adicional. Puedes lanzar el conjuro de nivel 1 asociado a tu fase actual gratis una vez al día.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Empoderamiento Lunar",
+       "t": "pasiva",
+       "texto": "Recibes bonificaciones basadas en tu fase actual: Luna Llena (Luz brillante, Ventaja en Investigar y Percibir), Luna Nueva (Ventaja en Sigilo, oponentes tienen Desventaja si estás a oscuras) y Cuarto Creciente (Resistencia necrótica y radiante).",
+       "n": 14,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Fenómeno Lunar",
+       "t": "adicional",
+       "texto": "Como Acción Adicional o cuando cambias de fase usando Fases Menguantes, puedes usar una poderosa habilidad explosiva para deslumbrar y curar (Llena), inmovilizar y hacerte invisible (Nueva) o teletransportarte con resistencia al daño (Creciente).",
+       "n": 18,
+       "manual": true,
+       "usos": 1,
        "reset": "largo"
       }
      ]
@@ -4660,62 +4768,196 @@
      "n": "Hechicería de las Sombras",
      "rasgos": [
       {
-       "nombre": "Ojos de la Oscuridad",
+       "nombre": "Conjuros de las Sombras",
        "t": "pasiva",
-       "texto": "Tienes visión en la oscuridad con un alcance de 120 pies. Cuando alcanzas el nivel 3 en esta clase, aprendes el conjuro Oscuridad, que no cuenta para tu número de conjuros de Hechicero conocidos. Además, puedes lanzarlo gastando 2 Puntos de Hechicería o consumiendo un espacio de conjuro. Si lo lanzas con Puntos de Hechicería, puedes ver a través de la oscuridad creada por el conjuro.",
+       "texto": "El Páramo Sombrío te otorga conjuros preparados para el sigilo, la ceguera y los horrores en los niveles 3, 5, 7 y 9.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Vitalidad de Sombra",
+       "nombre": "Poder de las Sombras",
        "t": "pasiva",
-       "texto": "Tu existencia en un estado crepuscular entre la vida y la muerte te hace difícil de derrotar. Cuando el daño te reduce a 0 Puntos de Golpe, puedes hacer una tirada de salvación de Carisma (CD 5 + el daño recibido). Si la superas, en su lugar te quedas con 1 Punto de Golpe. No puedes usar este rasgo si te reducen a 0 Puntos de Golpe por daño radiante o por un golpe crítico. Después de que la tirada de salvación tenga éxito, no puedes volver a usar este rasgo hasta que termines un Descanso Largo.",
+       "texto": "Tienes visión en la oscuridad a 120 pies y vista ciega a 10 pies, y ves con normalidad dentro de la Oscuridad que crean tus conjuros. Si fueras a caer a 0 PG sin morir en el acto, puedes hacer una salvación de Carisma (CD 5 + el daño recibido): si la superas, tus PG quedan en tu modificador de Carisma + tu nivel de hechicero. Una vez por descanso largo.",
        "n": 3,
-       "usos": 0,
+       "manual": true,
+       "usos": 1,
        "reset": "largo"
       },
       {
-       "nombre": "Sabueso del Presagio Maligno",
+       "nombre": "Bestias de Mal Agüero",
        "t": "adicional",
-       "texto": "Obtienes la capacidad de invocar a una criatura aullante de oscuridad para acosar a tus enemigos. Como Acción Adicional, puedes gastar 3 Puntos de Hechicería para invocar un sabueso del presagio maligno que señala a una criatura que puedas ver a 120 pies o menos de ti. El sabueso usa las estadísticas del lobo terrible, con los siguientes cambios: es de tamaño Mediano, no Grande, y cuenta como monstruosidad, no como bestia; aparece con un número de Puntos de Golpe temporales igual a la mitad de tu nivel de Hechicero; puede moverse a través de criaturas y objetos como si fueran terreno difícil; y recibe 5 de daño de Fuerza si termina su turno dentro de un objeto. Al inicio de su turno, el sabueso conoce automáticamente la ubicación de su objetivo. Si el objetivo estaba escondido, deja de estarlo para el sabueso. El sabueso aparece en un espacio desocupado de tu elección a 30 pies o menos del objetivo. Tira iniciativa para el sabueso. En su turno, solo puede moverse hacia su objetivo por la ruta más directa, y solo puede usar su acción para atacar a su objetivo. El sabueso puede hacer ataques de oportunidad, pero solo contra su objetivo. Además, mientras el sabueso esté a 5 pies o menos del objetivo, este tiene desventaja en tiradas de salvación contra cualquier conjuro que lances. El sabueso desaparece si sus Puntos de Golpe se reducen a 0, si su objetivo se reduce a 0 Puntos de Golpe, o después de 5 minutos.",
+       "texto": "Gastas 3 puntos de hechicería para lanzar Invocar bestia como acción adicional, sin espacio, sin tenerlo preparado y sin componentes materiales. La bestia es de sombra, y los enemigos a 5 pies de ella tienen desventaja en las salvaciones contra tus conjuros. Puedes lanzarlo sin concentración: entonces dura 1 minuto y termina si lo vuelves a lanzar.",
        "n": 6,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Caminar por las Sombras",
+       "nombre": "Paso Sombrío",
        "t": "adicional",
-       "texto": "Obtienes la capacidad de pasar de una sombra a otra. Cuando estás en luz tenue u oscuridad, como Acción Adicional, puedes teletransportarte hasta 120 pies a un espacio desocupado que puedas ver que también esté en luz tenue u oscuridad.",
+       "texto": "Mientras estás en luz tenue u oscuridad, puedes usar una Acción Adicional para teletransportarte 120 pies a otro espacio que también esté poco iluminado o a oscuras.",
        "n": 14,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Forma Umbría",
-       "t": "adicional",
-       "texto": "Puedes gastar 6 Puntos de Hechicería como Acción Adicional para transformarte en una forma sombría. En esta forma, tienes resistencia a todo el daño excepto el de Fuerza y el Radiante, y puedes moverte a través de criaturas y objetos como si fueran terreno difícil. Recibes 5 de daño de Fuerza si terminas tu turno dentro de un objeto. Permaneces en esta forma durante 1 minuto. Termina antes si quedas Incapacitado, si mueres o si la descartas como Acción Adicional.",
+       "t": "pasiva",
+       "texto": "Cuando activas Hechicería Innata, puedes volverte una sombra viviente. Tienes resistencia a todo el daño (excepto Radiante y Fuerza) y puedes atravesar materia (recibiendo daño si terminas dentro). Gratis una vez, o gastando 6 puntos.",
        "n": 18,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "fuego-conjuro": {
+     "n": "Fuego de Conjuro",
+     "rasgos": [
+      {
+       "nombre": "Conjuros de Fuego de Conjuro",
+       "t": "pasiva",
+       "texto": "El acceso a la Urdimbre te otorga conjuros de fuego y restauración curativa en los niveles 3, 5, 7 y 9.",
+       "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
+      },
+      {
+       "nombre": "Estallido de Fuego de Conjuro",
+       "t": "pasiva",
+       "texto": "Una vez por turno, cuando gastas Puntos de Hechicería en tu turno, desencadenas un efecto: tú o un aliado a 30 pies ganan 1d4 + CAR de Puntos de Golpe temporales, o un enemigo a 30 pies recibe 1d4 daño Fuego/Radiante.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Absorber Conjuros",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparado Contrahechizo. Cada vez que alguien falla su tirada para resistir tu Contrahechizo, recuperas 1d4 puntos de hechicería.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Fuego de Conjuro Perfeccionado",
+       "t": "pasiva",
+       "texto": "Sumas tu nivel de Hechicero a los PG temporales que das con el Estallido, y su daño aumenta a 1d8.",
+       "n": 14,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Corona de Fuego de Conjuro",
+       "t": "pasiva",
+       "texto": "Al usar Hechicería Innata, puedes potenciarla. Ganas vuelo de 60 pies, esquivas totalmente hechizos al pasar su tirada (o recibes solo mitad si fallas), y puedes gastar Dados de Golpe para bloquear daño recibido. Gratis una vez, o pagando 5 puntos.",
+       "n": 18,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "tormenta": {
+     "n": "Hechicería de la Tormenta",
+     "rasgos": [
+      {
+       "nombre": "Hablante del Viento",
+       "t": "pasiva",
+       "texto": "Hablas, lees y escribes primordial, y entiendes sus dialectos: acuano, aurano, ígneo y terrano.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Magia Tempestuosa",
+       "t": "adicional",
+       "texto": "Justo antes o después de lanzar un conjuro de nivel 1 o más, puedes usar una acción adicional para volar hasta 10 pies rodeado de ráfagas, sin provocar ataques de oportunidad.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Corazón de la Tormenta",
+       "t": "pasiva",
+       "texto": "Ganas resistencia al daño de relámpago y trueno. Cuando lanzas un conjuro de relámpago o trueno de nivel 1 o más, infliges daño de ese tipo (mitad de tu nivel) a enemigos a 10 pies.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Guía de la Tormenta",
+       "t": "accion",
+       "texto": "Puedes detener la lluvia a 20 pies de ti como acción y redirigir el viento a 100 pies como Acción Adicional.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Furia de la Tormenta",
+       "t": "reaccion",
+       "texto": "Como reacción al ser atacado cuerpo a cuerpo, infliges daño de relámpago igual a tu nivel al agresor e intentas empujarlo 20 pies (salvación FUE).",
+       "n": 14,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Alma del Viento",
+       "t": "accion",
+       "texto": "Obtienes inmunidad al daño por relámpago y trueno. Tienes velocidad de vuelo 60 pies. Una vez por descanso corto/largo, puedes reducir tu vuelo a 30 pies para dar 30 pies de vuelo a todo tu equipo por 1 hora.",
+       "n": 18,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
       }
      ]
     }
    },
    "rasgosAltos": [
     {
-     "nombre": "Hechicería Encarnada",
+     "nombre": "Metamagia adicional",
      "t": "pasiva",
-     "texto": "Mientras usas Hechicería Innata, puedes usar hasta 2 opciones de Metamagia en un mismo conjuro. Además recuperas usos de Hechicería Innata gastando 2 puntos.",
+     "texto": "Aprendes dos opciones de Metamagia más (el selector de Metamagia ya las cuenta).",
+     "n": 10,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Metamagia adicional",
+     "t": "pasiva",
+     "texto": "Aprendes otras dos opciones de Metamagia (el selector de Metamagia ya las cuenta).",
+     "n": 17,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Hechicería Encarnada",
+     "t": "gratis",
+     "texto": "Si te quedas sin usos de Hechicería Innata, puedes activarla gastando 2 puntos de hechicería. Además, mientras esté activa, puedes aplicar hasta dos opciones de Metamagia en cada conjuro que lances.",
      "n": 7,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
      "nombre": "Apoteosis Arcana",
      "t": "pasiva",
-     "texto": "Mientras usas Hechicería Innata, puedes usar una opción de Metamagia en cada turno sin gastar Puntos de Hechicería.",
+     "texto": "Mientras tu Hechicería Innata esté activa, puedes usar una opción de Metamagia en cada uno de tus turnos sin gastar puntos de hechicería.",
      "n": 20,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     }
@@ -4723,29 +4965,59 @@
    "subAltos": {
     "draconico": [
      {
-      "nombre": "Alas de Dragón",
-      "t": "adicional",
-      "texto": "Vuelo permanente como acción adicional.",
-      "n": 14,
+      "nombre": "Afinidad Elemental",
+      "t": "pasiva",
+      "texto": "Tu magia se sintoniza con el tipo de daño asociado a los dragones que elegiste. Obtienes resistencia a ese daño, y sumas tu modificador de Carisma al daño de un conjuro que cause daño de ese tipo.",
+      "n": 6,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
-      "nombre": "Presencia Dracónica",
+      "nombre": "Alas de Dragón",
+      "t": "adicional",
+      "texto": "Como Acción Adicional, te brotan alas de dragón que duran 1 hora y te otorgan 60 pies de velocidad de vuelo. Una vez gratis por descanso largo, o pagando 3 puntos de hechicería.",
+      "n": 14,
+      "manual": true,
+      "usos": 1,
+      "reset": "largo"
+     },
+     {
+      "nombre": "Compañero Dragón",
       "t": "pasiva",
-      "texto": "Aura de miedo o encanto por 1 min.",
+      "texto": "Siempre puedes lanzar Invocar dragón sin componentes materiales. Tienes un lanzamiento gratis al día y puedes quitarle el requerimiento de concentración para que dure 1 minuto.",
       "n": 18,
-      "usos": 0,
+      "manual": true,
+      "usos": 1,
       "reset": "largo"
      }
     ],
     "salvaje": [
      {
+      "nombre": "Doblegar la Suerte",
+      "t": "reaccion",
+      "texto": "Usando tu magia salvaje, puedes torcer el destino. Cuando veas a otra criatura lanzar un d20 para una prueba, puedes gastar 1 punto de hechicería y usar tu reacción para sumarle o restarle 1d4 a su tirada.",
+      "n": 6,
+      "manual": true,
+      "usos": 0,
+      "reset": "largo"
+     },
+     {
       "nombre": "Caos Controlado",
       "t": "pasiva",
-      "texto": "Tiras dos veces en la tabla salvaje y eliges el resultado.",
+      "texto": "Ganas un poco de control sobre tus oleadas de magia salvaje. Siempre que tengas que tirar en la tabla de Oleada de Magia Salvaje, tiras dos veces y eliges el resultado que prefieras.",
       "n": 14,
+      "manual": true,
       "usos": 0,
+      "reset": "largo"
+     },
+     {
+      "nombre": "Oleada Domada",
+      "t": "pasiva",
+      "texto": "Justo después de lanzar un conjuro con espacio, en lugar de tirar dados, puedes simplemente elegir qué efecto de la tabla de Magia Salvaje quieres que ocurra (salvo el 97-00).",
+      "n": 18,
+      "manual": true,
+      "usos": 1,
       "reset": "largo"
      }
     ]
