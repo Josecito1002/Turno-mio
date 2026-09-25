@@ -228,6 +228,35 @@ const dadoHalo = c => c.lvl >= 14 ? '1d10' : c.lvl >= 10 ? '1d8' : c.lvl >= 6 ? 
 /* Explorador: la Marca del cazador hace 1d10 con Cazador de Enemigos (nivel 20) */
 const dadoMarca = c => c.lvl >= 20 ? '1d10' : '1d6';
 
+/* Guerrero: dados del Maestro de Batalla, del Guerrero Psiónico y del Arquero Arcano, y la CD de las maniobras (FUE o DES) */
+const dadoSup = c => c.lvl >= 18 ? 'd12' : c.lvl >= 10 ? 'd10' : 'd8';
+const cdManiobra = c => 8 + c.pb + Math.max(c.m.fue, c.m.des);
+const dadoPsi = c => c.lvl >= 17 ? 'd12' : c.lvl >= 11 ? 'd10' : c.lvl >= 5 ? 'd8' : 'd6';
+const dadoArcano = c => c.lvl >= 18 ? 'd12' : c.lvl >= 15 ? 'd10' : c.lvl >= 10 ? 'd8' : 'd6';
+/* Maniobras 2024: [clave, nombre, tipo, texto] */
+const MANIOBRAS: [string, string, string, (c: any) => string][] = [
+  ['emboscada', 'Emboscada', 'gratis', c => `Al hacer una prueba de Sigilo o tirar iniciativa, sumas 1${dadoSup(c)} (si no estás Incapacitado).`],
+  ['cbo-posiciones', 'Cambio de Posiciones', 'gratis', c => `En tu turno, gastando 5 pies de movimiento, intercambias tu lugar con una criatura voluntaria a 5 pies sin provocar ataques de oportunidad; tú o ella sumáis 1${dadoSup(c)} a la CA hasta el inicio de tu próximo turno.`],
+  ['golpe-comandante', 'Golpe del Comandante', 'gratis', c => `Al usar la acción Atacar, cambias uno de tus ataques para que un aliado que te vea u oiga ataque con su reacción, sumando 1${dadoSup(c)} al daño.`],
+  ['presencia-imp', 'Presencia Imponente', 'gratis', c => `Sumas 1${dadoSup(c)} a una prueba de Intimidación, Interpretación o Persuasión.`],
+  ['ataque-desarmar', 'Ataque para Desarmar', 'gratis', c => `Al acertar, sumas 1${dadoSup(c)} al daño y el objetivo hace una salvación de FUE (CD ${cdManiobra(c)}) o suelta un objeto que elijas.`],
+  ['ataque-distraccion', 'Ataque de Distracción', 'gratis', c => `Al acertar, sumas 1${dadoSup(c)} al daño y el próximo ataque de otro contra el objetivo tiene ventaja (antes de tu próximo turno).`],
+  ['juego-piernas', 'Juego de Piernas Evasivo', 'adicional', c => `Te Destrabas y sumas 1${dadoSup(c)} a tu CA hasta el inicio de tu próximo turno.`],
+  ['finta', 'Ataque de Finta', 'adicional', c => `Eliges una criatura a 5 pies: tienes ventaja en tu próximo ataque contra ella este turno, y si aciertas sumas 1${dadoSup(c)} al daño.`],
+  ['ataque-provocar', 'Ataque para Provocar', 'gratis', c => `Al acertar, sumas 1${dadoSup(c)} al daño y el objetivo hace una salvación de SAB (CD ${cdManiobra(c)}) o tiene desventaja al atacar a otros que no seas tú hasta el final de tu próximo turno.`],
+  ['ataque-arremetida', 'Ataque de Arremetida', 'adicional', c => `Corres; si te mueves al menos 5 pies en línea recta justo antes de acertar un ataque cuerpo a cuerpo este turno, sumas 1${dadoSup(c)} a su daño.`],
+  ['ataque-maniobra', 'Ataque de Maniobra', 'gratis', c => `Al acertar, sumas 1${dadoSup(c)} al daño y un aliado que te vea u oiga puede moverse con su reacción la mitad de su velocidad sin provocar ataques de oportunidad del objetivo.`],
+  ['ataque-amenaza', 'Ataque Amenazante', 'gratis', c => `Al acertar, sumas 1${dadoSup(c)} al daño y el objetivo hace una salvación de SAB (CD ${cdManiobra(c)}) o queda Asustado hasta el final de tu próximo turno.`],
+  ['parada', 'Parada', 'reaccion', c => `Cuando un ataque cuerpo a cuerpo te daña, reduces el daño en 1${dadoSup(c)} ${Math.max(c.m.fue, c.m.des) >= 0 ? '+' : '-'} ${Math.abs(Math.max(c.m.fue, c.m.des))} (FUE o DES).`],
+  ['ataque-precision', 'Ataque de Precisión', 'gratis', c => `Al fallar un ataque, sumas 1${dadoSup(c)} a la tirada, y puede que acierte.`],
+  ['ataque-empuje', 'Ataque de Empuje', 'gratis', c => `Al acertar, sumas 1${dadoSup(c)} al daño y, si es Grande o menor, el objetivo hace una salvación de FUE (CD ${cdManiobra(c)}) o lo empujas hasta 15 pies.`],
+  ['reagrupar', 'Reagrupar', 'adicional', c => `Un aliado a 30 pies que te vea u oiga gana 1${dadoSup(c)} + ${Math.floor(c.lvl / 2)} PG temporales.`],
+  ['respuesta', 'Respuesta', 'reaccion', c => `Cuando una criatura te falla un ataque cuerpo a cuerpo, le haces un ataque cuerpo a cuerpo y, si aciertas, sumas 1${dadoSup(c)} al daño.`],
+  ['ataque-barrido', 'Ataque de Barrido', 'gratis', c => `Al acertar cuerpo a cuerpo, otra criatura a 5 pies del objetivo y a tu alcance recibe 1${dadoSup(c)} de daño del mismo tipo si tu tirada también la habría acertado.`],
+  ['eval-tactica', 'Evaluación Táctica', 'gratis', c => `Sumas 1${dadoSup(c)} a una prueba de Historia, Investigación o Perspicacia.`],
+  ['ataque-derribo', 'Ataque de Derribo', 'gratis', c => `Al acertar, sumas 1${dadoSup(c)} al daño y, si es Grande o menor, el objetivo hace una salvación de FUE (CD ${cdManiobra(c)}) o queda Derribado.`],
+];
+
 export const REGLAS: any[] = [
   /* ---------- Pugilista (The Pugilist Class 2024, Benjamin Huffman) ----------
      La biblioteca ya trae la versión 2024 (scripts/datos/pugilista-2024.ts). Arena Royale y Matones Sabuesos
@@ -1118,6 +1147,36 @@ export const REGLAS: any[] = [
     texto: c => `Tienes resistencia al frío, y el daño de tus ataques con arma, conjuros y rasgos de explorador ignora la resistencia al frío. Una vez por turno por criatura, al acertar con un arma haces ${c.lvl >= 11 ? '1d6' : '1d4'} de daño de frío extra.`},
   {de:/^caminante del invierno$/, n:/^escarcha del cazador$/, t:'pasiva',
     texto: c => `Al lanzar Marca del cazador ganas 1d10 + ${c.lvl} PG temporales, y mientras dure la criatura marcada no puede Destrabarse.`},
+
+  /* ---------- Guerrero (Lote 11: Manual del Jugador 2024; Abanderado de Heroes of Faerûn 2025, Arquero Arcano de Arcana Unleashed 2026) ----------
+     Lo demás (textos y usos simples) está en generadas/guerrero.ts */
+  {de:/^guerrero$/, n:/^indomable$/, t:'gratis', usos: c => c.lvl >= 17 ? 3 : c.lvl >= 13 ? 2 : 1, reset:'largo',
+    texto: c => `Si fallas una salvación, la repites sumando +${c.lvl} (tu nivel de guerrero) y te quedas con la nueva tirada.`},
+  /* Maestro de Batalla: dados de superioridad y maniobras conocidas (3, 5 en nivel 7, 7 en 10 y 9 en 15) */
+  {de:/^maestro de batalla$/, n:/^superioridad en combate$/, t:'pasiva', usos: c => c.lvl >= 15 ? 6 : c.lvl >= 7 ? 5 : 4, reset:'corto',
+    texto: c => `Tus dados de superioridad son ${dadoSup(c)}; se gastan al usar una maniobra (solo una por ataque) y vuelven con un descanso corto o largo. La CD de tus maniobras es ${cdManiobra(c)} (FUE o DES). Elige tus maniobras en el paso Clase.`,
+    eleccion: {id:'maniobra', titulo:'Maniobras', max: c => c.lvl >= 15 ? 9 : c.lvl >= 10 ? 7 : c.lvl >= 7 ? 5 : 3,
+      opciones: MANIOBRAS.map(([key, nombre]) => ({key, nombre}))},
+    opciones: MANIOBRAS.map(([key, nombre, t, texto]) => ({nombre, t, coste:'1 dado de superioridad', elegida:['maniobra', key],
+      si: c => [].concat(c.pj?.elecciones?.maniobra || []).includes(key), texto}))},
+  {de:/^maestro de batalla$/, n:/^implacable$/, t:'pasiva',
+    texto: () => 'Una vez por turno, al usar una maniobra, puedes tirar 1d8 y usar ese resultado en vez de gastar un dado de superioridad.'},
+  /* Campeón */
+  {de:/^campeon$/, n:/^superviviente$/, t:'pasiva',
+    texto: c => `Tienes ventaja en las salvaciones de muerte, y un 18 o 19 cuenta como 20. Al empezar tu turno Maltrecho y con al menos 1 PG, recuperas ${Math.max(0, 5 + c.m.con)} PG (5 + CON).`},
+  /* Arquero Arcano */
+  {de:/^arquero arcano$/, n:/^disparo arcano$/, t:'gratis', usos: c => Math.max(1, c.m.int), reset:'corto',
+    texto: c => `Una vez por turno, al atacar a distancia con un arma con munición, aplicas una de tus opciones de Disparo Arcano (2, y una más en los niveles 7, 10, 15 y 18). Tu dado de Disparo Arcano es 1${dadoArcano(c)} y la CD es ${8 + c.pb + c.m.int} (INT).`},
+  /* Abanderado (antes Caballero del Dragón Púrpura) */
+  {de:/^abanderado$/, n:/^recuperacion grupal$/, t:'gratis', usos:1, reset:'corto',
+    texto: c => `Al usar Segundo Aliento para curarte, hasta ${Math.max(1, c.m.car)} aliado(s) a ${c.lvl >= 18 ? 60 : 30} pies recuperan 1d4 + ${c.lvl} PG cada uno.`},
+  /* Guerrero Psiónico: dados de energía psiónica (recuperas 1 con descanso corto y todos con uno largo) */
+  {de:/^guerrero psionico$/, n:/^poder psionico$/, t:'pasiva', usos: c => c.lvl >= 17 ? 12 : c.lvl >= 13 ? 10 : c.lvl >= 9 ? 8 : c.lvl >= 5 ? 6 : 4, reset:'corto1', coste:'1 vuelve con descanso corto, todos con uno largo',
+    texto: c => `Tus dados de energía psiónica son ${dadoPsi(c)}. Recuperas uno al terminar un descanso corto y todos al terminar uno largo.`},
+  {de:/^guerrero psionico$/, n:/^campo protector$/, t:'reaccion', coste:'1 dado psiónico',
+    texto: c => `Cuando tú u otra criatura que veas a 30 pies recibe daño, reduces ese daño en 1${dadoPsi(c)}${fmtMod(c.m.int)} (mínimo 1).`},
+  {de:/^guerrero psionico$/, n:/^golpe psionico$/, t:'gratis', coste:'1 dado psiónico',
+    texto: c => `Una vez por turno, justo después de acertar y dañar con un arma a un objetivo a 30 pies, le haces 1${dadoPsi(c)}${fmtMod(c.m.int)} de daño de fuerza extra.`},
 
   /* ---------- Especies (Lote 4) ----------
      Sus tipos, usos y textos están en la biblioteca (scripts/datos/especies-2025.ts, rasgos con `manual`).

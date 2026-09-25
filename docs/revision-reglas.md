@@ -3,7 +3,7 @@
 Rasgos de la biblioteca sin regla revisada en `web/src/features/reglas/data/reglas-revisadas.ts` cuyo tipo es dudoso:
 el clasificador los deja como pasiva aunque su texto sugiere que se activan, o su texto no menciona ningún tipo de acción.
 
-Generado con `npx tsx scripts/auditar-reglas.ts` (desde `web/`). Pendientes al generar: 197.
+Generado con `npx tsx scripts/auditar-reglas.ts` (desde `web/`). Pendientes al generar: 177.
 Al marcar una casilla, agrega al final una nota corta con la fuente si hubo que investigar.
 
 ## Selectores
@@ -55,12 +55,12 @@ Las que se deciden al usar el rasgo (a quién, qué efecto) no llevan selector: 
 ### Lote 10: Explorador
 
 - [x] **Cazador: Presa del Cazador y Tácticas Defensivas**: Asesino de Colosos o Rompehordas (nivel 3) y su defensa (nivel 7); se cambian en un descanso; en el paso Clase. <!-- selector|presa-cazador -->
-- [ ] **Maestro de Bestias: bestia primigenia**: de tierra, de mar o del cielo; cambia sus estadísticas y su ataque. Lote 10: ya se elige en el paso Clase; faltan sus estadísticas y su ataque en la hoja. <!-- selector|bestia-primigenia -->
+- [ ] **Maestro de Bestias: bestia primigenia**: de tierra, de mar o del cielo; cambia sus estadísticas y su ataque. <!-- selector|bestia-primigenia -->
 
 ### Lote 11: Guerrero
 
 - [ ] **Campeón: Estilo de Combate Adicional**: un segundo estilo; en 2024 es en el nivel 7 (la biblioteca dice 10). <!-- selector|estilo-campeon -->
-- [ ] **Maestro de Batalla: maniobras y Estudiante de la Guerra**: maniobras conocidas según nivel, cada una como opción con su dado de superioridad; más una herramienta y una habilidad. <!-- selector|maniobras -->
+- [x] **Maestro de Batalla: maniobras y Estudiante de la Guerra**: maniobras conocidas según nivel, cada una como opción con su dado de superioridad; más una herramienta y una habilidad. Lote 11: las 20 maniobras de 2024 se eligen en el paso Clase y salen en tu turno con su tipo, su dado y su CD. <!-- selector|maniobras -->
 
 ### Lote 16: Pícaro
 
@@ -121,7 +121,7 @@ Se agregan en el lote de su clase, con su versión oficial más reciente. Las ma
 
 ### Lote 11: Guerrero
 
-- [ ] **Arquero Arcano** (Xanathar's Guide to Everything) <!-- agregar|arquero arcano -->
+- [x] **Arquero Arcano** (Xanathar's Guide to Everything): agregado, versión de Arcana Unleashed (2026). <!-- agregar|arquero arcano -->
 - [ ] **Caballero (Cavalier)** (Xanathar's Guide to Everything) <!-- agregar|caballero (cavalier) -->
 - [ ] **Samurái** (Xanathar's Guide to Everything) <!-- agregar|samurai -->
 - [ ] **Caballero Rúnico** (Tasha's Cauldron of Everything) <!-- agregar|caballero runico -->
@@ -836,95 +836,97 @@ Dudosos: 0. Con tipo claro: 0. Ya revisados: 44.
 
 ## Lote 10: Explorador (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 18. Con tipo claro: 1. Ya revisados: 7.
+Dudosos: 0. Con tipo claro: 0. Ya revisados: 40.
 
-### Explorador
-
-- [x] **Errante** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- explorador|errante -->
-- [x] **Ocultarse a Plena Vista** (nivel 10): quitado: no existe en 2024 (el nivel 10 es Incansable); Manual del Jugador (2024). <!-- explorador|ocultarse a plena vista -->
-- [x] **Cazador de Enemigos** (nivel 20): `pasiva`. Manual del Jugador (2024). <!-- explorador|cazador de enemigos -->
-
-### Cazador
-
-- [x] **Multiataque del Cazador** (nivel 11): sustituido por Presa del Cazador Superior (el daño de Marca del cazador salta a otra criatura a 30 pies); Manual del Jugador (2024). <!-- cazador|multiataque del cazador -->
-- [x] **Defensa Superior** (nivel 15): pasa a llamarse Defensa Superior del Cazador: reacción, resistencia al tipo de daño recibido; Manual del Jugador (2024). <!-- cazador|defensa superior -->
-
-### Maestro de Bestias
-
-- [x] **Compañero del Explorador** (nivel 3): pasa a llamarse Compañero Primigenio (acción adicional para darle órdenes) con selector de bestia; Manual del Jugador (2024). <!-- maestro de bestias|companero del explorador -->
-- [x] **Entrenamiento Excepcional** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- maestro de bestias|entrenamiento excepcional -->
-- [x] **Furia de Bestia** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- maestro de bestias|furia de bestia -->
-- [x] **Compartir Conjuros** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- maestro de bestias|compartir conjuros -->
-
-### Caminante de las Hadas
-
-- [x] **Ataque Pavoroso** (nivel 3): pasa a llamarse Golpes Pavorosos: 1d4 psíquico, 1d6 desde nivel 11, en el cálculo; Manual del Jugador (2024). <!-- caminante de las hadas|ataque pavoroso -->
-- [x] **Magia Feérica** (nivel 3): sustituido por Conjuros del Caminante de las Hadas y Glamour de Otro Mundo (con selector de habilidad); Manual del Jugador (2024). <!-- caminante de las hadas|magia feerica -->
-- [x] **Giro Etéreo** (nivel 7): pasa a llamarse Giro Engañoso (reacción); Manual del Jugador (2024). <!-- caminante de las hadas|giro etereo -->
-- [x] **Paso Nebuloso** (nivel 15): pasa a llamarse Caminante Nebuloso (SAB usos por descanso largo); Manual del Jugador (2024). <!-- caminante de las hadas|paso nebuloso -->
-
-### Acechador de las Sombras
-
-- [x] **Vista Umbría** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- acechador de las sombras|vista umbria -->
-- [x] **Mente de Hierro** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- acechador de las sombras|mente de hierro -->
-- [x] **Ráfaga del Acechador** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- acechador de las sombras|rafaga del acechador -->
-
-### Caminante del Invierno
-
-- [x] **Escarcha del Cazador** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|escarcha del cazador -->
-- [x] **Alma Congelada** (nivel 11): quitado: el nivel 11 es Retribución Helada y la forma helada pasa al 15 (Aparición Congelada); Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|alma congelada -->
 
 ### Revisados
 
+- [x] **Errante** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- explorador|errante -->
+- [x] **Pericia** (nivel 9): `pasiva`. Manual del Jugador (2024). <!-- explorador|pericia -->
 - [x] **Incansable** (nivel 10): `accion`. Manual del Jugador (2024). <!-- explorador|incansable -->
+- [x] **Cazador Implacable** (nivel 13): `pasiva`. Manual del Jugador (2024). <!-- explorador|cazador implacable -->
 - [x] **Velo de la Naturaleza** (nivel 14): `adicional`. Manual del Jugador (2024). <!-- explorador|velo de la naturaleza -->
-- [x] **Presa del Cazador** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- cazador|presa del cazador -->
-- [x] **Tácticas Defensivas** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- cazador|tacticas defensivas -->
+- [x] **Cazador Preciso** (nivel 17): `pasiva`. Manual del Jugador (2024). <!-- explorador|cazador preciso -->
+- [x] **Sentidos Salvajes** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- explorador|sentidos salvajes -->
+- [x] **Cazador de Enemigos** (nivel 20): `pasiva`. Manual del Jugador (2024). <!-- explorador|cazador de enemigos -->
+- [x] **Compañero Primigenio** (nivel 3): `adicional`. Manual del Jugador (2024). <!-- maestro de bestias|companero primigenio -->
+- [x] **Entrenamiento Excepcional** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- maestro de bestias|entrenamiento excepcional -->
+- [x] **Furia de Bestia** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- maestro de bestias|furia de bestia -->
+- [x] **Compartir Conjuros** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- maestro de bestias|compartir conjuros -->
+- [x] **Conjuros del Caminante de las Hadas** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- caminante de las hadas|conjuros del caminante de las hadas -->
+- [x] **Golpes Pavorosos** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- caminante de las hadas|golpes pavorosos -->
+- [x] **Glamour de Otro Mundo** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- caminante de las hadas|glamour de otro mundo -->
+- [x] **Giro Engañoso** (nivel 7): `reaccion`. Manual del Jugador (2024). <!-- caminante de las hadas|giro enganoso -->
+- [x] **Refuerzos Feéricos** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- caminante de las hadas|refuerzos feericos -->
+- [x] **Caminante Nebuloso** (nivel 15): `adicional`. Manual del Jugador (2024). <!-- caminante de las hadas|caminante nebuloso -->
+- [x] **Conjuros del Acechador de las Sombras** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- acechador de las sombras|conjuros del acechador de las sombras -->
 - [x] **Emboscador Temible** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- acechador de las sombras|emboscador temible -->
+- [x] **Vista Umbría** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- acechador de las sombras|vista umbria -->
+- [x] **Mente de Hierro** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- acechador de las sombras|mente de hierro -->
+- [x] **Ráfaga del Acechador** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- acechador de las sombras|rafaga del acechador -->
+- [x] **Evasión Sombría** (nivel 15): `reaccion`. Manual del Jugador (2024). <!-- acechador de las sombras|evasion sombria -->
+- [x] **Conjuros del Guardián Hueco** (nivel 3): `pasiva`. subclase nueva; Ravenloft: The Horrors Within (2026). <!-- guardian hueco|conjuros del guardian hueco -->
+- [x] **Ira de lo Salvaje** (nivel 3): `adicional`. subclase nueva; Ravenloft: The Horrors Within (2026). <!-- guardian hueco|ira de lo salvaje -->
+- [x] **Poder Hambriento** (nivel 7): `pasiva`. subclase nueva; Ravenloft: The Horrors Within (2026). <!-- guardian hueco|poder hambriento -->
+- [x] **Putrefacción y Violencia** (nivel 11): `pasiva`. subclase nueva; Ravenloft: The Horrors Within (2026). <!-- guardian hueco|putrefaccion y violencia -->
+- [x] **Poder Antiguo** (nivel 15): `pasiva`. subclase nueva; Ravenloft: The Horrors Within (2026). <!-- guardian hueco|poder antiguo -->
+- [x] **Presa del Cazador** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- cazador|presa del cazador -->
+- [x] **Saber del Cazador** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- cazador|saber del cazador -->
+- [x] **Tácticas Defensivas** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- cazador|tacticas defensivas -->
+- [x] **Presa del Cazador Superior** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- cazador|presa del cazador superior -->
+- [x] **Defensa Superior del Cazador** (nivel 15): `reaccion`. Manual del Jugador (2024). <!-- cazador|defensa superior del cazador -->
 - [x] **Conjuros del Caminante del Invierno** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|conjuros del caminante del invierno -->
+- [x] **Explorador Gélido** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|explorador gelido -->
+- [x] **Escarcha del Cazador** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|escarcha del cazador -->
 - [x] **Alma Fortalecedora** (nivel 7): `accion`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|alma fortalecedora -->
+- [x] **Retribución Helada** (nivel 11): `reaccion`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|retribucion helada -->
+- [x] **Aparición Congelada** (nivel 15): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|aparicion congelada -->
 
 ## Lote 11: Guerrero (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 20. Con tipo claro: 3. Ya revisados: 1.
+Dudosos: 18. Con tipo claro: 3. Ya revisados: 3.
 
 ### Guerrero
 
-- [ ] **Indomable** (nivel 9): hoy `pasiva`, no menciona tipo de acción <!-- guerrero|indomable -->
-- [ ] **Ataques Estudiados** (nivel 13): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- guerrero|ataques estudiados -->
+- [x] **Indomable** (nivel 9): `gratis`. Manual del Jugador (2024). <!-- guerrero|indomable -->
+- [x] **Ataques Estudiados** (nivel 13): `pasiva`. Manual del Jugador (2024). <!-- guerrero|ataques estudiados -->
 
 ### Campeón
 
-- [ ] **Crítico Mejorado** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- campeon|critico mejorado -->
-- [ ] **Atleta Notable** (nivel 7): hoy `pasiva`, no menciona tipo de acción <!-- campeon|atleta notable -->
-- [ ] **Estilo de Combate Adicional** (nivel 10): hoy `pasiva`, no menciona tipo de acción <!-- campeon|estilo de combate adicional -->
-- [ ] **Superviviente** (nivel 18): hoy `pasiva`, no menciona tipo de acción <!-- campeon|superviviente -->
+- [x] **Crítico Mejorado** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- campeon|critico mejorado -->
+- [x] **Atleta Notable** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- campeon|atleta notable -->
+- [x] **Estilo de Combate Adicional** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- campeon|estilo de combate adicional -->
+- [x] **Superviviente** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- campeon|superviviente -->
 
 ### Maestro de Batalla
 
-- [ ] **Superioridad en Combate** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- maestro de batalla|superioridad en combate -->
-- [ ] **Conoce a tu Enemigo** (nivel 7): hoy `pasiva`, no menciona tipo de acción <!-- maestro de batalla|conoce a tu enemigo -->
-- [ ] **Implacable** (nivel 15): hoy `gratis`, no menciona tipo de acción <!-- maestro de batalla|implacable -->
+- [x] **Implacable** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- maestro de batalla|implacable -->
 
 ### Caballero Arcano
 
-- [ ] **Lanzamiento de Conjuros** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- caballero arcano|lanzamiento de conjuros -->
-- [ ] **Vínculo con el Arma** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- caballero arcano|vinculo con el arma -->
-- [ ] **Magia de Guerra** (nivel 7): hoy `pasiva`, queda pasiva pero parece activarse <!-- caballero arcano|magia de guerra -->
-- [ ] **Magia de Guerra Mejorada** (nivel 18): hoy `pasiva`, queda pasiva pero parece activarse <!-- caballero arcano|magia de guerra mejorada -->
+- [x] **Lanzamiento de Conjuros** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- caballero arcano|lanzamiento de conjuros -->
+- [x] **Vínculo con el Arma** (nivel 3): pasa a llamarse Vínculo de Guerra (ritual, hasta dos armas); Manual del Jugador (2024). <!-- caballero arcano|vinculo con el arma -->
+- [x] **Magia de Guerra** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- caballero arcano|magia de guerra -->
+- [x] **Magia de Guerra Mejorada** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- caballero arcano|magia de guerra mejorada -->
 
 ### Guerrero Psiónico
 
-- [ ] **Poder Psiónico** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- guerrero psionico|poder psionico -->
-- [ ] **Mente Protegida** (nivel 10): hoy `pasiva`, no menciona tipo de acción <!-- guerrero psionico|mente protegida -->
-- [ ] **Maestro de la Telequinesis** (nivel 18): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- guerrero psionico|maestro de la telequinesis -->
+- [x] **Poder Psiónico** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- guerrero psionico|poder psionico -->
+- [x] **Mente Protegida** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- guerrero psionico|mente protegida -->
+- [x] **Maestro de la Telequinesis** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- guerrero psionico|maestro de la telequinesis -->
 
 ### Caballero del Dragón Púrpura
 
-- [ ] **Enviado Caballeresco** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- caballero del dragon purpura|enviado caballeresco -->
-- [ ] **Recuperación Grupal** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- caballero del dragon purpura|recuperacion grupal -->
-- [ ] **Tácticas de Equipo** (nivel 7): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- caballero del dragon purpura|tacticas de equipo -->
-- [ ] **Comandante Inspirador** (nivel 18): hoy `pasiva`, no menciona tipo de acción <!-- caballero del dragon purpura|comandante inspirador -->
+- [x] **Enviado Caballeresco** (nivel 3): `pasiva`; la subclase pasa a llamarse Abanderado (Banneret); Forgotten Realms: Heroes of Faerûn (2025). <!-- caballero del dragon purpura|enviado caballeresco -->
+- [x] **Recuperación Grupal** (nivel 3): `gratis`, al usar Segundo Aliento; 1 uso por descanso corto, en el cálculo; Forgotten Realms: Heroes of Faerûn (2025). <!-- caballero del dragon purpura|recuperacion grupal -->
+- [x] **Tácticas de Equipo** (nivel 7): `pasiva` (acompaña a Recuperación Grupal); Forgotten Realms: Heroes of Faerûn (2025). <!-- caballero del dragon purpura|tacticas de equipo -->
+- [x] **Comandante Inspirador** (nivel 18): `pasiva`; Forgotten Realms: Heroes of Faerûn (2025). <!-- caballero del dragon purpura|comandante inspirador -->
+
+### Revisados
+
+- [x] **Superioridad en Combate** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- maestro de batalla|superioridad en combate -->
+- [x] **Estudiante de la Guerra** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- maestro de batalla|estudiante de la guerra -->
+- [x] **Conoce a tu Enemigo** (nivel 7): `adicional`. Manual del Jugador (2024). <!-- maestro de batalla|conoce a tu enemigo -->
 
 ## Lote 12: Hechicero (subclases y rasgos de nivel alto de la biblioteca)
 
@@ -1236,30 +1238,45 @@ Dudosos: 12. Con tipo claro: 1. Ya revisados: 0.
 
 ## Revisados en pasadas anteriores
 
-- [x] **Pericia** (nivel 9): `pasiva`. Manual del Jugador (2024). <!-- explorador|pericia -->
-- [x] **Cazador Implacable** (nivel 13): `pasiva`. Manual del Jugador (2024). <!-- explorador|cazador implacable -->
-- [x] **Cazador Preciso** (nivel 17): `pasiva`. Manual del Jugador (2024). <!-- explorador|cazador preciso -->
-- [x] **Sentidos Salvajes** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- explorador|sentidos salvajes -->
-- [x] **Compañero Primigenio** (nivel 3): `adicional`. Manual del Jugador (2024). <!-- maestro de bestias|companero primigenio -->
-- [x] **Conjuros del Caminante de las Hadas** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- caminante de las hadas|conjuros del caminante de las hadas -->
-- [x] **Golpes Pavorosos** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- caminante de las hadas|golpes pavorosos -->
-- [x] **Glamour de Otro Mundo** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- caminante de las hadas|glamour de otro mundo -->
-- [x] **Giro Engañoso** (nivel 7): `reaccion`. Manual del Jugador (2024). <!-- caminante de las hadas|giro enganoso -->
-- [x] **Refuerzos Feéricos** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- caminante de las hadas|refuerzos feericos -->
-- [x] **Caminante Nebuloso** (nivel 15): `adicional`. Manual del Jugador (2024). <!-- caminante de las hadas|caminante nebuloso -->
-- [x] **Conjuros del Acechador de las Sombras** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- acechador de las sombras|conjuros del acechador de las sombras -->
-- [x] **Evasión Sombría** (nivel 15): `reaccion`. Manual del Jugador (2024). <!-- acechador de las sombras|evasion sombria -->
-- [x] **Conjuros del Guardián Hueco** (nivel 3): `pasiva`. subclase nueva; Ravenloft: The Horrors Within (2026). <!-- guardian hueco|conjuros del guardian hueco -->
-- [x] **Ira de lo Salvaje** (nivel 3): `adicional`. subclase nueva; Ravenloft: The Horrors Within (2026). <!-- guardian hueco|ira de lo salvaje -->
-- [x] **Poder Hambriento** (nivel 7): `pasiva`. subclase nueva; Ravenloft: The Horrors Within (2026). <!-- guardian hueco|poder hambriento -->
-- [x] **Putrefacción y Violencia** (nivel 11): `pasiva`. subclase nueva; Ravenloft: The Horrors Within (2026). <!-- guardian hueco|putrefaccion y violencia -->
-- [x] **Poder Antiguo** (nivel 15): `pasiva`. subclase nueva; Ravenloft: The Horrors Within (2026). <!-- guardian hueco|poder antiguo -->
-- [x] **Saber del Cazador** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- cazador|saber del cazador -->
-- [x] **Presa del Cazador Superior** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- cazador|presa del cazador superior -->
-- [x] **Defensa Superior del Cazador** (nivel 15): `reaccion`. Manual del Jugador (2024). <!-- cazador|defensa superior del cazador -->
-- [x] **Explorador Gélido** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|explorador gelido -->
-- [x] **Retribución Helada** (nivel 11): `reaccion`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|retribucion helada -->
-- [x] **Aparición Congelada** (nivel 15): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|aparicion congelada -->
+- [x] **Maestro Táctico** (nivel 9): `pasiva`. Manual del Jugador (2024). <!-- guerrero|maestro tactico -->
+- [x] **Dos Ataques Extras** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- guerrero|dos ataques extras -->
+- [x] **Oleada de Acción (Dos Usos)** (nivel 17): `gratis`. Manual del Jugador (2024). <!-- guerrero|oleada de accion (dos usos) -->
+- [x] **Tres Ataques Extras** (nivel 20): `pasiva`. Manual del Jugador (2024). <!-- guerrero|tres ataques extras -->
+- [x] **Saber del Arquero Arcano** (nivel 3): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|saber del arquero arcano -->
+- [x] **Disparo Arcano** (nivel 3): `gratis`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|disparo arcano -->
+- [x] **Disparo Curvo** (nivel 7): `adicional`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|disparo curvo -->
+- [x] **Munición Mágica** (nivel 7): `accion`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|municion magica -->
+- [x] **Disparo Siempre Listo** (nivel 10): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|disparo siempre listo -->
+- [x] **Teletransporte Indomable** (nivel 15): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|teletransporte indomable -->
+- [x] **Tirador Magistral** (nivel 18): `reaccion`. subclase nueva; Arcana Unleashed (2026). <!-- arquero arcano|tirador magistral -->
+- [x] **Enviado Caballeresco** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|enviado caballeresco -->
+- [x] **Recuperación Grupal** (nivel 3): `gratis`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|recuperacion grupal -->
+- [x] **Tácticas de Equipo** (nivel 7): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|tacticas de equipo -->
+- [x] **Oleada Inspiradora** (nivel 10): `gratis`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|oleada inspiradora -->
+- [x] **Resistencia Compartida** (nivel 15): `reaccion`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|resistencia compartida -->
+- [x] **Comandante Inspirador** (nivel 18): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- abanderado|comandante inspirador -->
+- [x] **Superioridad en Combate Mejorada** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- maestro de batalla|superioridad en combate mejorada -->
+- [x] **Superioridad en Combate Definitiva** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- maestro de batalla|superioridad en combate definitiva -->
+- [x] **Guerrero Heroico** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- campeon|guerrero heroico -->
+- [x] **Crítico Superior** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- campeon|critico superior -->
+- [x] **Vínculo de Guerra** (nivel 3): `fuera`. Manual del Jugador (2024). <!-- caballero arcano|vinculo de guerra -->
+- [x] **Golpe Sobrenatural** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- caballero arcano|golpe sobrenatural -->
+- [x] **Carga Arcana** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- caballero arcano|carga arcana -->
+- [x] **Campo Protector** (nivel 3): `reaccion`. Manual del Jugador (2024). <!-- guerrero psionico|campo protector -->
+- [x] **Golpe Psiónico** (nivel 3): `gratis`. Manual del Jugador (2024). <!-- guerrero psionico|golpe psionico -->
+- [x] **Movimiento Telequinético** (nivel 3): `accion`. Manual del Jugador (2024). <!-- guerrero psionico|movimiento telequinetico -->
+- [x] **Salto Potenciado por Psi** (nivel 7): `adicional`. Manual del Jugador (2024). <!-- guerrero psionico|salto potenciado por psi -->
+- [x] **Empujón Telequinético** (nivel 7): `gratis`. Manual del Jugador (2024). <!-- guerrero psionico|empujon telequinetico -->
+- [x] **Baluarte de Fuerza** (nivel 15): `adicional`. Manual del Jugador (2024). <!-- guerrero psionico|baluarte de fuerza -->
+- [x] **Ocultarse a Plena Vista** (nivel 10): quitado: no existe en 2024 (el nivel 10 es Incansable); Manual del Jugador (2024). <!-- explorador|ocultarse a plena vista -->
+- [x] **Multiataque del Cazador** (nivel 11): sustituido por Presa del Cazador Superior (el daño de Marca del cazador salta a otra criatura a 30 pies); Manual del Jugador (2024). <!-- cazador|multiataque del cazador -->
+- [x] **Defensa Superior** (nivel 15): pasa a llamarse Defensa Superior del Cazador: reacción, resistencia al tipo de daño recibido; Manual del Jugador (2024). <!-- cazador|defensa superior -->
+- [x] **Compañero del Explorador** (nivel 3): pasa a llamarse Compañero Primigenio (acción adicional para darle órdenes) con selector de bestia; Manual del Jugador (2024). <!-- maestro de bestias|companero del explorador -->
+- [x] **Ataque Pavoroso** (nivel 3): pasa a llamarse Golpes Pavorosos: 1d4 psíquico, 1d6 desde nivel 11, en el cálculo; Manual del Jugador (2024). <!-- caminante de las hadas|ataque pavoroso -->
+- [x] **Magia Feérica** (nivel 3): sustituido por Conjuros del Caminante de las Hadas y Glamour de Otro Mundo (con selector de habilidad); Manual del Jugador (2024). <!-- caminante de las hadas|magia feerica -->
+- [x] **Giro Etéreo** (nivel 7): pasa a llamarse Giro Engañoso (reacción); Manual del Jugador (2024). <!-- caminante de las hadas|giro etereo -->
+- [x] **Paso Nebuloso** (nivel 15): pasa a llamarse Caminante Nebuloso (SAB usos por descanso largo); Manual del Jugador (2024). <!-- caminante de las hadas|paso nebuloso -->
+- [x] **Alma Congelada** (nivel 11): quitado: el nivel 11 es Retribución Helada y la forma helada pasa al 15 (Aparición Congelada); Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|alma congelada -->
 - [x] **Conjuros de Círculo** (nivel 3): pasa a llamarse Conjuros del Círculo de la Tierra, con los cuatro tipos de tierra 2024 y su selector; Manual del Jugador (2024). <!-- circulo de la tierra|conjuros de circulo -->
 - [x] **Zancada de la Tierra** (nivel 6): quitado: en 2024 el nivel 6 es Recuperación Natural; Manual del Jugador (2024). <!-- circulo de la tierra|zancada de la tierra -->
 - [x] **Golpes Primigenios** (nivel 6): sustituido por Formas del Círculo Mejoradas (daño radiante y SAB a las salvaciones de CON); Manual del Jugador (2024). <!-- circulo de la luna|golpes primigenios -->

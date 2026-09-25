@@ -1,6 +1,7 @@
-=== A ===
+/* Guerrero de la biblioteca puesto al día con su versión oficial más reciente (texto oficial de 5etools, redactado por
+   Gemini y revisado con scripts/gemini/revisar.ts). Libros: Arcana Unleashed (2026); Forgotten Realms: Heroes of Faerûn (2025); Manual del Jugador (2024).
+   Lo aplica scripts/actualizar-clase.ts (opción "guerrero"). */
 
-```ts
 const r = (n: number, nombre: string, t: string, texto: string, extra: Record<string, unknown> = {}) => ({ nombre, t, texto, n, manual: true, usos: 0, reset: 'largo', ...extra });
 
 export const GUERRERO_2024 = {
@@ -86,91 +87,3 @@ export const GUERRERO_2024 = {
     }
   }
 };
-
-```
-
-=== B ===
-
-```json
-[
-  { "donde": "clase", "rasgo": "Indomable", "tipo": "otro", "detalle": "Suma tu nivel de clase a la tirada" },
-  { "donde": "maestro-batalla", "rasgo": "Superioridad en Combate", "tipo": "eleccion", "id": "maniobra", "cuantas": "3; 5 desde nivel 7; 7 desde nivel 10; 9 desde nivel 15",
-    "opciones": [
-      { "key": "emboscada", "nombre": "Emboscada", "desc": "Suma el dado a tiradas de Sigilo o Iniciativa.", "nivel": 3, "requiere": null },
-      { "key": "cbo-posiciones", "nombre": "Cambio de Posiciones", "desc": "Te mueves e intercambias sitio con aliado; sumas dado a la CA de uno de los dos.", "nivel": 3, "requiere": null },
-      { "key": "golpe-comandante", "nombre": "Golpe del Comandante", "desc": "Sustituyes un ataque para que un aliado use su reacción y ataque, sumando el dado al daño.", "nivel": 3, "requiere": null },
-      { "key": "presencia-imp", "nombre": "Presencia Imponente", "desc": "Suma el dado a Intimidación, Persuasión o Interpretación.", "nivel": 3, "requiere": null },
-      { "key": "ataque-desarmar", "nombre": "Ataque para Desarmar", "desc": "Suma daño y fuerza a soltar el arma (salvación FUE).", "nivel": 3, "requiere": null },
-      { "key": "ataque-distraccion", "nombre": "Ataque de Distracción", "desc": "Suma daño y da ventaja al siguiente ataque de un aliado.", "nivel": 3, "requiere": null },
-      { "key": "juego-piernas", "nombre": "Juego de Piernas Evasivo", "desc": "Acción adicional para Destrabarse y sumar dado a tu CA este turno.", "nivel": 3, "requiere": null },
-      { "key": "finta", "nombre": "Ataque de Finta", "desc": "Acción adicional para tener ventaja y sumar daño en tu próximo ataque.", "nivel": 3, "requiere": null },
-      { "key": "ataque-provocar", "nombre": "Ataque para Provocar", "desc": "Suma daño e impone desventaja contra aliados (salvación SAB).", "nivel": 3, "requiere": null },
-      { "key": "ataque-arremetida", "nombre": "Ataque de Arremetida", "desc": "Acción adicional para Correr. Si te mueves, sumas daño al golpear.", "nivel": 3, "requiere": null },
-      { "key": "ataque-maniobra", "nombre": "Ataque de Maniobra", "desc": "Suma daño y permite a un aliado moverse gratis (sin oportunidad) como reacción.", "nivel": 3, "requiere": null },
-      { "key": "ataque-amenaza", "nombre": "Ataque Amenazante", "desc": "Suma daño e intenta Asustar al objetivo (salvación SAB).", "nivel": 3, "requiere": null },
-      { "key": "parada", "nombre": "Parada", "desc": "Reacción al recibir daño cuerpo a cuerpo para reducirlo en dado + FUE/DES.", "nivel": 3, "requiere": null },
-      { "key": "ataque-precision", "nombre": "Ataque de Precisión", "desc": "Suma el dado a una tirada de ataque que haya fallado.", "nivel": 3, "requiere": null },
-      { "key": "ataque-empuje", "nombre": "Ataque de Empuje", "desc": "Suma daño y empuja 15 pies (salvación FUE).", "nivel": 3, "requiere": null },
-      { "key": "reagrupar", "nombre": "Reagrupar", "desc": "Acción adicional para dar a un aliado PG Temporales (dado + mitad de tu nivel).", "nivel": 3, "requiere": null },
-      { "key": "respuesta", "nombre": "Respuesta", "desc": "Reacción para atacar cuando te fallan en cuerpo a cuerpo; sumas el dado al daño.", "nivel": 3, "requiere": null },
-      { "key": "ataque-barrido", "nombre": "Ataque de Barrido", "desc": "Al golpear, aplicas el daño del dado a un segundo enemigo adyacente.", "nivel": 3, "requiere": null },
-      { "key": "eval-tactica", "nombre": "Evaluación Táctica", "desc": "Suma el dado a Historia, Investigación o Perspicacia.", "nivel": 3, "requiere": null },
-      { "key": "ataque-derribo", "nombre": "Ataque de Derribo", "desc": "Suma daño y tira al objetivo al suelo (salvación FUE).", "nivel": 3, "requiere": null }
-    ]
-  },
-  { "donde": "arquero-arcano", "rasgo": "Disparo Arcano", "tipo": "usos", "usos": "max(1, INT)", "reset": "corto" },
-  { "donde": "arquero-arcano", "rasgo": "Disparo Arcano", "tipo": "dado", "dado": "1d6; 1d8 desde nivel 10; 1d10 desde nivel 15; 1d12 desde nivel 18" },
-  { "donde": "arquero-arcano", "rasgo": "Munición Mágica", "tipo": "usos", "usos": "1", "reset": "corto" },
-  { "donde": "caballero-dragon-purpura", "rasgo": "Recuperación Grupal", "tipo": "usos", "usos": "1", "reset": "corto" },
-  { "donde": "caballero-dragon-purpura", "rasgo": "Recuperación Grupal", "tipo": "pg", "detalle": "1d4 + nivel" },
-  { "donde": "maestro-batalla", "rasgo": "Superioridad en Combate", "tipo": "dado", "dado": "1d8; 1d10 desde nivel 10; 1d12 desde nivel 18" },
-  { "donde": "maestro-batalla", "rasgo": "Conoce a tu Enemigo", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "campeon", "rasgo": "Superviviente", "tipo": "pg", "detalle": "5 + CON" },
-  { "donde": "guerrero-psionico", "rasgo": "Poder Psiónico", "tipo": "dado", "dado": "1d6; 1d8 desde nivel 5; 1d10 desde nivel 11; 1d12 desde nivel 17" },
-  { "donde": "guerrero-psionico", "rasgo": "Campo Protector", "tipo": "otro", "detalle": "Reduce el daño en dado + INT" },
-  { "donde": "guerrero-psionico", "rasgo": "Golpe Psiónico", "tipo": "daño", "daño": "dado + INT Fuerza" }
-]
-
-```
-
-=== C ===
-
-```json
-{
-  "arquero-arcano": "Arcana Unleashed (2026)",
-  "caballero-dragon-purpura": "Forgotten Realms: Heroes of Faerûn (2025)",
-  "maestro-batalla": "Manual del Jugador (2024)",
-  "campeon": "Manual del Jugador (2024)",
-  "caballero-arcano": "Manual del Jugador (2024)",
-  "guerrero-psionico": "Manual del Jugador (2024)"
-}
-
-```
-
-=== D ===
-
-```json
-{
-  "arquero-arcano": "Tiradores de élite que imbuyen sus flechas con efectos mágicos, usando secretos élficos para alterar el campo de batalla a distancia.",
-  "caballero-dragon-purpura": "Líderes carismáticos y caballeros nobles que inspiran a sus aliados a luchar más duro y resistir los golpes mortales.",
-  "maestro-batalla": "Estudiantes del arte de la guerra que usan maniobras precisas y dados de superioridad para desarmar, empujar o burlar al enemigo.",
-  "campeon": "Guerreros centrados en la excelencia física: críticos más frecuentes, atletismo notable y una resistencia que los mantiene en pie.",
-  "caballero-arcano": "Combatientes que estudian la magia de mago para completar sus armas: escudos arcanos, explosiones y teletransporte en plena batalla.",
-  "guerrero-psionico": "Guerreros que han despertado el poder de su mente, usando telequinesis para volar, lanzar enemigos y proyectar barreras de fuerza."
-}
-
-```
-
-=== E ===
-
-* **Indomable (Nivel 9):** Ha cambiado dramáticamente en 2024. Ya no tiras un d20 nuevo, sino que ahora repites la tirada pero *sumando tu nivel de Guerrero* como bono estático. Además, gana un uso a nivel 13 y otro al 17.
-* **Ataques Estudiados (Nivel 13):** Es un rasgo nuevo de la clase base introducido en 2024.
-* **Maestro Táctico (Nivel 9):** Rasgo nuevo de la clase base.
-* **Campeón:** El rasgo Atleta Notable (7) ahora incluye Ventaja en Iniciativa y movimiento gratuito tras un crítico. Guerrero Heroico (10) es un rasgo totalmente nuevo, reemplaza a Estilo de Combate Adicional, el cual ahora se obtiene en el Nivel 7. En la app actual, el estilo extra estaba en el nivel 10, lo cual es incorrecto en las reglas de 2024.
-* **Maestro de Batalla:** "Conoce a tu Enemigo" (7) ahora funciona como Acción Adicional (antes requería 1 minuto). "Implacable" (15) ahora te permite tirar 1d8 gratuito por turno en lugar de gastar un dado, en lugar de darte uno solo al tirar iniciativa.
-* **Caballero Arcano:** "Magia de Guerra" (7 y 18) fue muy mejorado en 2024; ahora reemplazas un ataque físico por un truco de forma directa durante la acción Atacar, en lugar de castear un truco y luego atacar como Acción Adicional.
-* **Caballero del Dragón Púrpura:** La subclase fue republicada como **Banneret** en 2025. Cambié el nombre en la interfaz de español ("Estandarte" para no arrastrar un nombre regional) y se modernizaron todas sus mecánicas.
-* **Guerrero Psiónico:** Su tabla de progresión de dados y tamaños se actualizó según el bloque oficial, e incluí todos sus rasgos integrándolos en las mecánicas JSON.
-* **Subclases no incluidas:** "Cavalier", "Echo Knight" y "Samurai" aparecieron en los títulos del documento original pero carecían de texto de reglas, por lo que no se generó código para ellas, acatando la regla 1.
-* **Falta un selector en el Lote:** El texto de la app indicaba que *Caballero Arcano* restringe a Abjuración/Evocación. En 2024, el texto oficial eliminó la restricción de escuelas. Puedes elegir cualquier conjuro de la lista de Mago.
-* **Truco listado:** Añadí `Saber druídico` porque estaba listado tal cual en "Conjuros de la app" a pesar de pedir "Druidcraft" el Arquero Arcano.

@@ -2,8 +2,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as druida from './druida';
 import * as explorador from './explorador';
+import * as guerrero from './guerrero';
 
-const todas = [druida, explorador];
+const todas: any[] = [druida, explorador, guerrero];
 export const REGLAS_GENERADAS: any[] = todas.flatMap(x => x.reglas);
 export const FUENTES_GENERADAS: Record<string, string> = Object.assign({}, ...todas.map(x => x.fuentes));
 export const DESCRIPCIONES_GENERADAS: Record<string, string> = Object.assign({}, ...todas.map(x => x.descripciones));

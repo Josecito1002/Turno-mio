@@ -3832,38 +3832,128 @@
   },
   "guerrero": {
    "subclases": {
-    "campeon": {
-     "n": "Campeón",
+    "arquero-arcano": {
+     "n": "Arquero Arcano",
      "rasgos": [
       {
-       "nombre": "Crítico Mejorado",
+       "nombre": "Saber del Arquero Arcano",
        "t": "pasiva",
-       "texto": "Críticos con 19 o 20.",
+       "texto": "Obtienes competencia en las habilidades de Arcanos y Naturaleza. También aprendes el truco Saber druídico (Druidcraft) o Prestidigitación (Prestidigitation), usando Inteligencia.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Atleta Notable",
-       "t": "pasiva",
-       "texto": "Suma bono a pruebas de FUE/DES/CON. Salto aumenta.",
+       "nombre": "Disparo Arcano",
+       "t": "gratis",
+       "texto": "Una vez por turno, cuando impactas con un arma a distancia que use munición, puedes aplicar uno de tus Disparos Arcanos aprendidos al ataque. La CD de salvación depende de tu Inteligencia.",
+       "n": 3,
+       "manual": true,
+       "usos": "max(1, INT)",
+       "reset": "corto"
+      },
+      {
+       "nombre": "Disparo Curvo",
+       "t": "adicional",
+       "texto": "Cuando fallas una tirada de ataque a distancia con un arma con munición, puedes usar tu Acción Adicional para que la flecha rebote hacia un nuevo objetivo a 60 pies o menos del original.",
        "n": 7,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Estilo de Combate Adicional",
+       "nombre": "Munición Mágica",
+       "t": "accion",
+       "texto": "Como Acción Mágica, encantas una flecha y la disparas a una superficie para oscurecer el área, abrir cerraduras no mágicas o crear una enredadera trepadora.",
+       "n": 7,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
+      },
+      {
+       "nombre": "Disparo Siempre Listo",
        "t": "pasiva",
-       "texto": "Eliges un segundo estilo.",
+       "texto": "Cuando tiras Iniciativa, recuperas un uso gastado de tu Disparo Arcano.",
        "n": 10,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Superviviente",
+       "nombre": "Teletransporte Indomable",
        "t": "pasiva",
-       "texto": "Recuperas PG cada turno si estás herido (bajo mitad).",
+       "texto": "Cuando usas tu rasgo Indomable y superas la tirada de salvación, puedes teletransportarte hasta 60 pies a un espacio desocupado que puedas ver.",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Tirador Magistral",
+       "t": "reaccion",
+       "texto": "Cuando un enemigo falla un ataque contra ti, puedes usar tu Reacción para moverte la mitad de tu velocidad sin provocar oportunidad y devolverle un ataque a distancia.",
        "n": 18,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "caballero-dragon-purpura": {
+     "n": "Abanderado",
+     "rasgos": [
+      {
+       "nombre": "Enviado Caballeresco",
+       "t": "pasiva",
+       "texto": "Sabes cómo comportarte como embajador. Puedes lanzar Comprender idiomas como ritual usando Carisma, aprendes un idioma que puedes rotar cada descanso largo, y obtienes competencia en Perspicacia, Intimidación, Persuasión o Interpretación.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Recuperación Grupal",
+       "t": "gratis",
+       "texto": "Cuando usas tu Segundo Aliento, puedes elegir a aliados a 30 pies (hasta tu bono de Carisma). Cada uno recupera 1d4 + tu nivel de Guerrero en PG.",
+       "n": 3,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
+      },
+      {
+       "nombre": "Tácticas de Equipo",
+       "t": "pasiva",
+       "texto": "Cuando usas Recuperación Grupal, los aliados sanados obtienen Ventaja en pruebas del dado d20 (D20 Tests) hasta el inicio de tu siguiente turno.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Oleada Inspiradora",
+       "t": "gratis",
+       "texto": "Cuando usas Oleada de Acción, aliados a 30 pies (hasta tu mod de Carisma) pueden usar su Reacción para moverse la mitad de su velocidad sin provocar ataques de oportunidad o hacer un ataque.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Resistencia Compartida",
+       "t": "reaccion",
+       "texto": "Cuando un aliado a 60 pies falla una salvación, puedes usar tu Reacción para gastar uno de tus usos de Indomable en él. El aliado repite la tirada sumando tu nivel de Guerrero.",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Comandante Inspirador",
+       "t": "pasiva",
+       "texto": "El rango de Recuperación Grupal y Oleada Inspiradora aumenta a 60 pies. Eres inmune a estar Hechizado o Asustado.",
+       "n": 18,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
@@ -3875,32 +3965,113 @@
       {
        "nombre": "Superioridad en Combate",
        "t": "pasiva",
-       "texto": "Dados de Superioridad (d8) para ejecutar maniobras (Parar, Empujar, etc.).",
+       "texto": "Aprendes maniobras marciales que potencian tus ataques. Tienes 4 Dados de Superioridad (d8) que gastas para usarlas. La CD depende de Fuerza o Destreza (a tu elección).",
        "n": 3,
-       "usos": 0,
-       "reset": "largo"
+       "manual": true,
+       "usos": 4,
+       "reset": "corto"
       },
       {
        "nombre": "Estudiante de la Guerra",
        "t": "pasiva",
-       "texto": "Competencia con herramientas de artesano.",
+       "texto": "Obtienes competencia con un tipo de Herramientas de Artesano y competencia en una habilidad de la lista inicial de Guerrero.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Conoce a tu Enemigo",
-       "t": "pasiva",
-       "texto": "Analiza a un enemigo para saber sus estadísticas relativas.",
+       "t": "adicional",
+       "texto": "Como Acción Adicional, analizas a un enemigo a 30 pies para conocer sus Inmunidades, Resistencias y Vulnerabilidades. Puedes recuperar el uso gastando un Dado de Superioridad.",
        "n": 7,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Superioridad en Combate Mejorada",
+       "t": "pasiva",
+       "texto": "Tus Dados de Superioridad pasan de ser d8 a d10.",
+       "n": 10,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Implacable",
-       "t": "gratis",
-       "texto": "Recuperas un dado de superioridad si no tienes ninguno al tirar iniciativa.",
+       "t": "pasiva",
+       "texto": "Una vez por turno, cuando usas una maniobra, puedes tirar 1d8 y usar ese resultado en lugar de gastar un Dado de Superioridad físico.",
        "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Superioridad en Combate Definitiva",
+       "t": "pasiva",
+       "texto": "Tus Dados de Superioridad pasan de ser d10 a d12.",
+       "n": 18,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "campeon": {
+     "n": "Campeón",
+     "rasgos": [
+      {
+       "nombre": "Crítico Mejorado",
+       "t": "pasiva",
+       "texto": "Tus ataques con arma y golpes desarmados logran un Impacto Crítico con un resultado de 19 o 20 en el d20.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Atleta Notable",
+       "t": "pasiva",
+       "texto": "Tienes Ventaja en tus tiradas de Iniciativa y en pruebas de Fuerza (Atletismo). Tras un crítico, puedes moverte la mitad de tu velocidad sin provocar oportunidad.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Estilo de Combate Adicional",
+       "t": "pasiva",
+       "texto": "Obtienes una dote de Estilo de Combate adicional de tu elección.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Guerrero Heroico",
+       "t": "pasiva",
+       "texto": "Si empiezas tu turno en combate sin Inspiración Heroica, te la otorgas a ti mismo automáticamente.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Crítico Superior",
+       "t": "pasiva",
+       "texto": "Tus ataques con arma y golpes desarmados ahora logran un Impacto Crítico con un resultado de 18, 19 o 20 en el d20.",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Superviviente",
+       "t": "pasiva",
+       "texto": "Tienes Ventaja en salvaciones de muerte (y un 18-20 cuenta como un 20). Si empiezas el turno Ensangrentado y con al menos 1 PG, te curas 5 + mod de Constitución.",
+       "n": 18,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
@@ -3912,32 +4083,54 @@
       {
        "nombre": "Lanzamiento de Conjuros",
        "t": "pasiva",
-       "texto": "Usa Inteligencia. Conjuros de Mago (Abjuración/Evocación).",
+       "texto": "Aprendes conjuros de la lista de Mago. Usas Inteligencia para el lanzamiento y puedes usar un Foco Arcano.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Vínculo con el Arma",
-       "t": "pasiva",
-       "texto": "No te pueden desarmar y puedes invocar tu arma a tu mano.",
+       "nombre": "Vínculo de Guerra",
+       "t": "fuera",
+       "texto": "Te vinculas mágicamente con hasta dos armas a la vez. No pueden desarmarte, y como Acción Adicional puedes teletransportar una a tu mano si está en el mismo plano.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Magia de Guerra",
        "t": "pasiva",
-       "texto": "Cuando tomas la Acción de Atacar, puedes sustituir uno de tus ataques por el lanzamiento de un truco de Mago.",
+       "texto": "Cuando tomas la Acción de Atacar en tu turno, puedes reemplazar uno de esos ataques por el lanzamiento de un truco de Mago.",
        "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Golpe Sobrenatural",
+       "t": "pasiva",
+       "texto": "Cuando golpeas a una criatura con un ataque de arma, esta tiene Desventaja en la siguiente tirada de salvación que haga contra uno de tus conjuros antes del fin de tu próximo turno.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Carga Arcana",
+       "t": "pasiva",
+       "texto": "Cuando usas Oleada de Acción, puedes teletransportarte hasta 30 pies a un espacio desocupado que puedas ver.",
+       "n": 15,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Magia de Guerra Mejorada",
        "t": "pasiva",
-       "texto": "Cuando tomas la Acción de Atacar, puedes sustituir dos de tus ataques por el lanzamiento de un conjuro de Mago de nivel 1 o 2.",
+       "texto": "Cuando tomas la Acción de Atacar, puedes reemplazar dos de esos ataques por el lanzamiento de un conjuro de Mago de nivel 1 o 2 (que cueste 1 acción).",
        "n": 18,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
@@ -3949,86 +4142,82 @@
       {
        "nombre": "Poder Psiónico",
        "t": "pasiva",
-       "texto": "Dados de Energía Psiónica para reducir daño o aumentar el tuyo.",
+       "texto": "Tienes una reserva de Dados de Energía Psiónica. Los usas para golpear más fuerte, proteger a aliados o mover objetos mágicamente.",
        "n": 3,
+       "manual": true,
+       "usos": 4,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Campo Protector",
+       "t": "reaccion",
+       "texto": "Cuando tú u otra criatura que veas a 30 pies recibe daño, gastas un dado como Reacción para reducir el daño en el dado + INT (mínimo 1).",
+       "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Salto Telequinético",
+       "nombre": "Golpe Psiónico",
+       "t": "gratis",
+       "texto": "Una vez por turno, al acertar y dañar con un arma a un objetivo a 30 pies, gastas un dado para hacerle daño de fuerza extra igual al dado + INT.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Movimiento Telequinético",
+       "t": "accion",
+       "texto": "Como acción mágica mueves un objeto suelto Grande o menor, o a una criatura voluntaria, hasta 30 pies. Gratis una vez por descanso corto o largo, o gastando un dado psiónico.",
+       "n": 3,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
+      },
+      {
+       "nombre": "Salto Potenciado por Psi",
        "t": "adicional",
-       "texto": "Vuelas por un turno como acción adicional.",
+       "texto": "Como Acción Adicional, ganas velocidad de Vuelo igual al doble de tu velocidad este turno. Gratis una vez por descanso o gastando un dado psiónico.",
        "n": 7,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
+      },
+      {
+       "nombre": "Empujón Telequinético",
+       "t": "gratis",
+       "texto": "Cuando haces daño con Golpe Psiónico, puedes forzar al objetivo a una salvación de FUE o derribarlo/empujarlo 10 pies.",
+       "n": 7,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Mente Protegida",
        "t": "pasiva",
-       "texto": "Resistencia a daño psíquico.",
+       "texto": "Tienes resistencia al daño Psíquico. Si inicias tu turno Hechizado o Asustado, puedes gastar un dado psiónico (sin acción) para curarte el estado.",
        "n": 10,
+       "manual": true,
        "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Baluarte de Fuerza",
+       "t": "adicional",
+       "texto": "Como Acción Adicional, das Cobertura Media por 1 minuto a varias criaturas a 30 pies (hasta mod. Inteligencia). Gratis 1 vez al día o gastando un dado psiónico.",
+       "n": 15,
+       "manual": true,
+       "usos": 1,
        "reset": "largo"
       },
       {
        "nombre": "Maestro de la Telequinesis",
        "t": "pasiva",
-       "texto": "Puedes lanzar el conjuro Telequinesis sin componentes.",
+       "texto": "Siempre tienes Telequinesis. La lanzas sin componentes gratis una vez al día o gastando un dado psiónico. Mientras te concentras, puedes atacar como acción adicional.",
        "n": 18,
-       "usos": 0,
-       "reset": "largo"
-      }
-     ]
-    },
-    "caballero-dragon-purpura": {
-     "n": "Caballero del Dragón Púrpura",
-     "rasgos": [
-      {
-       "nombre": "Enviado Caballeresco",
-       "t": "pasiva",
-       "texto": "Sabes cómo comportarte con elegancia como embajador noble. Obtienes los siguientes beneficios. Comprensión: puedes lanzar el conjuro Comprender Idiomas, pero solo como Ritual. Carisma es tu característica de lanzamiento para él. Políglota: aprendes un idioma de las tablas de idiomas del Manual del Jugador o del capítulo 2 de este libro. Cuando terminas un Descanso Largo, puedes reemplazar un idioma aprendido con este beneficio por otro idioma que hayas escuchado, visto en señas o leído en las últimas 24 horas. Elocuencia: obtienes competencia en una de las siguientes habilidades a tu elección: Perspicacia, Intimidación, Persuasión o Interpretación.",
-       "n": 3,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Recuperación Grupal",
-       "t": "pasiva",
-       "texto": "Cuando usas tu Segundo Aliento para recuperar Puntos de Golpe, puedes elegir a un número de aliados dentro de una emanación de 30 pies originada en ti, hasta un número de aliados igual a tu modificador de Carisma (mínimo uno). Cada uno de esos aliados recupera Puntos de Golpe iguales a 1d4 + tu nivel de Guerrero. Una vez que usas esta habilidad, no puedes volver a usarla hasta que termines un Descanso Corto o Largo.",
-       "n": 3,
-       "usos": 0,
-       "reset": "corto"
-      },
-      {
-       "nombre": "Tácticas de Equipo",
-       "t": "pasiva",
-       "texto": "Cuando usas Recuperación Grupal, cada aliado elegido tiene Ventaja en pruebas de d20 hasta el inicio de tu siguiente turno.",
-       "n": 7,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Oleada Inspiradora",
-       "t": "reaccion",
-       "texto": "Cuando usas tu Acción Súbita, puedes elegir a aliados dentro de una emanación de 30 pies originada en ti, hasta un número de aliados igual a tu modificador de Carisma (mínimo uno). Cada uno de esos aliados puede usar inmediatamente una Reacción para escoger una de las siguientes opciones. Atacar: el aliado hace un ataque con un arma o un Golpe Desarmado. Moverse: el aliado se mueve hasta la mitad de su velocidad sin provocar ataques de oportunidad.",
-       "n": 10,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Resistencia Compartida",
-       "t": "reaccion",
-       "texto": "Cuando un aliado que puedas ver a 60 pies o menos de ti falla una tirada de salvación, puedes usar una Reacción para gastar un uso de tu rasgo Indomable. El aliado puede repetir inmediatamente la tirada de salvación con un bonificador igual a tu nivel de Guerrero; debe usar la nueva tirada.",
-       "n": 15,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Comandante Inspirador",
-       "t": "pasiva",
-       "texto": "Obtienes los siguientes beneficios. Arenga Reforzada: el área de efecto tanto de Recuperación Grupal como de Oleada Inspiradora ahora es una emanación de 60 pies. Valentía Inquebrantable: tienes Inmunidad a los estados Hechizado y Asustado.",
-       "n": 18,
-       "usos": 0,
+       "manual": true,
+       "usos": 1,
        "reset": "largo"
       }
      ]
@@ -4037,21 +4226,60 @@
    "rasgosAltos": [
     {
      "nombre": "Indomable",
-     "t": "pasiva",
-     "texto": "Repite una salvación fallida sumando tu nivel de Guerrero. Si aciertas, recuperas el uso.",
+     "t": "gratis",
+     "texto": "Si fallas una tirada de salvación, puedes repetirla sumando tu nivel de Guerrero al resultado. Debes usar la nueva tirada.",
      "n": 9,
+     "manual": true,
+     "usos": 1,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Maestro Táctico",
+     "t": "pasiva",
+     "texto": "Cuando atacas con un arma cuya maestría puedes usar, puedes sustituir esa propiedad por Empujar, Mermar o Ralentizar para ese ataque.",
+     "n": 9,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Dos Ataques Extras",
+     "t": "pasiva",
+     "texto": "Puedes atacar tres veces en lugar de una cuando usas la acción de Atacar en tu turno.",
+     "n": 11,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
      "nombre": "Ataques Estudiados",
      "t": "pasiva",
-     "texto": "Si fallas un ataque contra una criatura, tienes Ventaja en el siguiente ataque contra ella.",
+     "texto": "Si haces una tirada de ataque contra una criatura y fallas, tienes Ventaja en tu siguiente tirada de ataque contra esa misma criatura antes de que termine tu siguiente turno.",
      "n": 13,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Oleada de Acción (Dos Usos)",
+     "t": "gratis",
+     "texto": "Puedes usar tu Oleada de Acción dos veces entre descansos, pero solo una vez por turno.",
+     "n": 17,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Tres Ataques Extras",
+     "t": "pasiva",
+     "texto": "Puedes atacar cuatro veces en lugar de una cuando usas la acción de Atacar en tu turno.",
+     "n": 20,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     }
-   ]
+   ],
+   "subAltos": {}
   },
   "hechicero": {
    "subclases": {
