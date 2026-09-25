@@ -105,7 +105,7 @@ export const DESC_SUBCLASES: Record<string, any> = {
   licantropo:'Portan la licantropía bajo control: se transforman en una bestia híbrida con garras y regeneración.',
   mutante:'Alquimistas de su propia sangre: beben mutágenos que los mejoran a cambio de una merma.',
   'alma-profana':'Pactan con un patrón como los brujos: ganan magia de pacto y un beneficio según con quién pactaron.',
-  // Arcanista (Artífice)
+  // Artífice (lib:arcanista)
   alquimista:'Prepara elixires mágicos que curan y potencian, y mejora sus conjuros de ácido, fuego y veneno.',
   armero:'Convierte su armadura en una armadura arcana con armas propias: un gigante, un defensor o un infiltrador.',
   artillero:'Crea cañones mágicos que lanzan fuego, disparan fuerza o protegen, y usa un arma de fuego arcana.',

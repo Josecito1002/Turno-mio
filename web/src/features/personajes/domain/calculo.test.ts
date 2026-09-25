@@ -49,7 +49,7 @@ const pugilista = { n: 'Pugilista', lib: true, dado: 10, sv: ['fue', 'con'], hab
   } };
 
 const arcanista = {
-  n: 'Arcanista (Artífice)', lib: true, dado: 8, sv: ['con', 'int'], habN: 2, habs: 'todas', w: { simple: 1, martial: 0, light: 0, finesseLight: 0 },
+  n: 'Artífice', lib: true, dado: 8, sv: ['con', 'int'], habN: 2, habs: 'todas', w: { simple: 1, martial: 0, light: 0, finesseLight: 0 },
   lanz: 'int', caster: 'tabla', slotsTabla: Array.from({ length: 20 }, () => [2]), asi: [4, 8, 12, 16], hasta: 0,
   recursosTabla: Array.from({ length: 20 }, (_, i) => ({ infusiones_conocidas: 4, items_infundidos: 2, cantrips: i >= 13 ? 4 : i >= 9 ? 3 : 2 })),
   rasgos: [r(1, 'Lanzamiento de Conjuros'), r(1, 'Magia de Manitas'), r(7, 'Destello de Genio')],
