@@ -368,7 +368,7 @@ export function buildAvisos(c){
     if (C.estilo && c.lvl >= C.estilo && !pj.estilo) falta('Estilo de combate', 'Elige tu estilo de combate.', 'clase');
     (c.elecciones || []).filter(e => e.multi ? e.valor.length < e.max : !e.valor).forEach(e =>
       falta(`Falta elegir: ${e.titulo.toLowerCase()}`, e.multi ? `${e.src} te deja elegir ${e.max}; llevas ${e.valor.length}.` : `${e.src} te pide elegir ${e.titulo.toLowerCase()}.`, e.grupo === 'especie' ? 'especie' : 'clase'));
-    if (C.maestrias && (pj.maestrias || []).length < C.maestrias) falta('Maestría con armas', `Elige ${C.maestrias} tipos de armas.`, 'equipo');
+    if (C.maestrias && (pj.maestrias || []).length < C.maestrias) falta('Maestría con armas', `Elige ${C.maestrias} tipos de armas.`, 'habs');
     if (C.hasta && c.lvl > C.hasta && !getAltos(pj, pj.clase)) A.push({nivel:'info', t:'Rasgos de nivel alto', txt:`Los rasgos de ${C.n.toLowerCase()} están cargados hasta nivel ${C.hasta}. Agrega los de niveles superiores en Rasgos propios.`, paso:'rasgos'});
     if (c.lvl >= c.subNivel && pj.subclase === 'otra') A.push({nivel:'info', t:'Subclase propia', txt:'Sus rasgos van en Rasgos propios, con su tipo de acción.', paso:'rasgos'});
     else if (c.SD && c.SD.hasta && c.lvl > c.SD.hasta && !getSubAltos(pj, pj.clase, c.SD.key)) A.push({nivel:'info', t:'Rasgos de subclase', txt:`${c.SD.n} está cargada hasta nivel ${c.SD.hasta}.`, paso:'rasgos'});

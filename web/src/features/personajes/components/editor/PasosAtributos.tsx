@@ -291,6 +291,11 @@ export function PasoHabs({ pj, c }: { pj: any; c: any }) {
           <ElegirPericia pj={pj} c={c} />
         </Seccion>
       )}
+      {C?.maestrias > 0 && (
+        <Seccion titulo={`Maestría con armas (${pj.maestrias.length} de ${C.maestrias})`} descripcion={pj.clase === 'barbaro' ? 'Solo armas cuerpo a cuerpo con las que eres competente.' : 'Puedes usar la maestría de estos tipos de arma. Solo armas con las que eres competente; se pueden cambiar tras un descanso largo.'}>
+          <ElegirMaestrias pj={pj} c={c} />
+        </Seccion>
+      )}
     </>
   );
 }
@@ -373,11 +378,6 @@ export function PasoEquipo({ pj, c }: { pj: any; c: any }) {
         <h3 className="mb-2 mt-5 font-serif text-lg font-bold">En las manos</h3>
         <ElegirManos pj={pj} c={c} />
       </Seccion>
-      {C?.maestrias > 0 && (
-        <Seccion titulo={`Maestría con armas (${pj.maestrias.length} de ${C.maestrias})`} descripcion={pj.clase === 'barbaro' ? 'Solo armas cuerpo a cuerpo con las que eres competente.' : 'Solo armas con las que eres competente.'}>
-          <ElegirMaestrias pj={pj} c={c} />
-        </Seccion>
-      )}
       {C && <Seccion titulo="Equipo de la clase"><EquipoClase pj={pj} /></Seccion>}
       {c.T && <Seccion titulo="Equipo del trasfondo"><EquipoTrasfondo pj={pj} /></Seccion>}
       <Seccion titulo="Lo demás">
