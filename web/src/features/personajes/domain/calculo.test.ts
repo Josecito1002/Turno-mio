@@ -516,7 +516,8 @@ describe('Brujo 2024 (Lote 7)', () => {
     assert.ok(!bru(10).elecciones.some((e: any) => e.id === 'arcano-6'));
     assert.equal(bru(11).elecciones.find((e: any) => e.id === 'arcano-6').opciones[0].nombre, 'Círculo de muerte');
     const c = bru(11, '', {}, { elecciones: { 'arcano-6': 'circulo de muerte' } });
-    assert.equal(recurso(c, 'Arcano Místico de nivel 6')?.max, 1);
+    assert.equal(recurso(c, 'Círculo de muerte (Arcano Místico)')?.max, 1);
+    assert.ok(c.conjuros.some((s: any) => s.nombre === 'Círculo de muerte' && s.rasgo === 'Arcano Místico'));
   });
   test('Gran Antiguo: conjuros del patrón hasta nivel 9', () => {
     assert.equal(bru(9, 'primigenio').esExtra({ nombre: 'Telequinesis' }), true);
@@ -532,5 +533,33 @@ describe('Brujo 2024 (Lote 7)', () => {
     const c = bru(3, 'lib:filo-maldito', { fue: 10 }, { armas: [['espada_larga', 1]] });
     assert.equal(c.armas[0].atk, c.pb + 3);
     assert.equal(c.armas[0].notas.includes('Sin competencia'), false);
+  });
+});
+
+describe('Conjuros que dan los rasgos', () => {
+  const nombres = (c: any) => c.conjuros.map((s: any) => s.nombre);
+  test('especie: el legado del tiefling da sus conjuros según el nivel, con usos y la característica más alta', () => {
+    setLib({});
+    const t1 = pj('guerrero', 1, '', {}, { especie: { key: 'tiefling', sub: 'abisal' } });
+    assert.deepEqual(nombres(t1), ['Rociada venenosa', 'Taumaturgia']);
+    const t5 = pj('guerrero', 5, '', {}, { especie: { key: 'tiefling', sub: 'abisal' } });
+    assert.ok(nombres(t5).includes('Rayo nauseabundo') && nombres(t5).includes('Inmovilizar persona'));
+    assert.equal(recurso(t5, 'Rayo nauseabundo (Legado Infernal)')?.max, 1);
+    assert.equal(t5.conjuros.find((s: any) => s.nombre === 'Rociada venenosa').cd, 8 + t5.pb + 3); // INT 16
+  });
+  test('dote: Marca de Escritura da Mensaje, Comprender idiomas y desde el nivel 3 Boca mágica', () => {
+    setLib({ dotes: { 'lib:marca-escritura': { n: 'Marca de Escritura', t: 'pasiva', texto: 'Conoces Mensaje.', cat: 'Marca de Dragón' } } });
+    const c = pj('mago', 1, '', {}, { dotesExtra: [{ key: 'lib:marca-escritura' }] });
+    assert.deepEqual(nombres(c), ['Mensaje', 'Comprender idiomas']);
+    assert.ok(nombres(pj('mago', 3, '', {}, { dotesExtra: [{ key: 'lib:marca-escritura' }] })).includes('Boca mágica'));
+    assert.equal(c.esExtra({ nombre: 'Mensaje' }), true);
+  });
+  test('subclase e invocación: salen en la hoja sin contar en el límite, y no se repiten si también se eligieron', () => {
+    setLib({});
+    const c = pj('brujo', 3, 'infernal', {}, { elecciones: { invocaciones: ['armadura-sombras'] }, conjuros: [{ nombre: 'Manos ardientes', nivel: 1 }] });
+    assert.ok(nombres(c).includes('Armadura de mago'));
+    assert.equal(c.conjuros.filter((s: any) => s.nombre === 'Manos ardientes').length, 1);
+    assert.equal(c.conjuros.find((s: any) => s.nombre === 'Manos ardientes').rasgo, 'Patrón Infernal');
+    assert.equal(c.prepUsados, 0);
   });
 });

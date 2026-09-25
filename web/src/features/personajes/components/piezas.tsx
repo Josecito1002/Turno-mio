@@ -100,26 +100,30 @@ export function ConjuroFila({ s, c }: { s: any; c: any }) {
   const nv = +s.nivel || 0, bits = [nv === 0 ? 'Truco' : `Nivel ${nv}`];
   let dados = s.dados || '';
   if (nv === 0 && dados && !s.noEscala && /^1d\d+$/.test(dados)) dados = dados.replace(/^1d/, (c.lvl >= 17 ? 4 : c.lvl >= 11 ? 3 : c.lvl >= 5 ? 2 : 1) + 'd');
-  const dexpr = dados ? dados + (s.mod && c.mSpell ? modStr(c.mSpell) : '') : '';
+  // Los conjuros de un rasgo pueden usar otra característica (s.cd la trae calculada)
+  const mSpell = s.cd != null ? s.cd - 8 - c.pb : c.mSpell;
+  const dexpr = dados ? dados + (s.mod && mSpell ? modStr(mSpell) : '') : '';
   if (s.conc) bits.push('Concentración'); if (s.ritual) bits.push('Ritual');
   const meta = [s.alcance && `Alcance: ${s.alcance}`, s.dur].filter(Boolean).join('. ');
-  const hayBotones = (s.ataque && c.atkSpell != null) || s.salv || dexpr;
+  const atk = s.atk ?? c.atkSpell, cd = s.cd ?? c.dcSpell;
+  const hayBotones = (s.ataque && atk != null) || s.salv || dexpr;
   return (
     <li className="py-1">
       <details className="group">
         <summary className={cx('flex min-h-12 cursor-pointer list-none items-baseline justify-between gap-3 rounded-lg py-2 [&::-webkit-details-marker]:hidden', foco)}>
           <span className="font-serif text-[1.05rem] font-bold"><span aria-hidden="true" className="mr-1 inline-block text-muted transition-transform group-open:rotate-90">▸</span>{s.nombre}</span>
-          <span className="text-right text-sm text-muted">{bits.join(', ')}</span>
+          <span className="text-right text-sm text-muted">{bits.join(', ')}{s.rasgo && <span className="block">De {s.rasgo}</span>}</span>
         </summary>
         <div className="pb-2 pl-4 text-[0.96rem]">
+          {s.rasgo && <p className="m-0 text-sm text-muted">De {s.rasgo}{s.nota ? `. ${s.nota}` : ''}{s.abNota ? `. Usa ${s.abNota}` : ''}.</p>}
           {meta && <p className="m-0 text-sm text-muted">{meta}</p>}
           <TextoConDados html={richT(s.desc || '')} label={s.nombre} className="mb-0 mt-1" />
         </div>
       </details>
       {hayBotones && (
         <div className="flex flex-wrap items-center gap-2 pb-2">
-          {s.ataque && c.atkSpell != null && <BotonTirada expr={`1d20${modStr(c.atkSpell)}`} label={`${s.nombre}: ataque`} dmg={dexpr} dmgLabel={s.nombre}>{sign(c.atkSpell)} al ataque</BotonTirada>}
-          {s.salv && <span className="rounded-lg px-2 py-1 text-sm font-bold ring-1 ring-inset ring-rule">Salvación de {s.salv} CD {c.dcSpell ?? '?'}</span>}
+          {s.ataque && atk != null && <BotonTirada expr={`1d20${modStr(atk)}`} label={`${s.nombre}: ataque`} dmg={dexpr} dmgLabel={s.nombre}>{sign(atk)} al ataque</BotonTirada>}
+          {s.salv && <span className="rounded-lg px-2 py-1 text-sm font-bold ring-1 ring-inset ring-rule">Salvación de {s.salv} CD {cd ?? '?'}</span>}
           {dexpr && <BotonTirada expr={dexpr} label={s.nombre}>{dexpr.replace(/([+-])/g, ' $1 ')}{s.tipo ? ' ' + s.tipo : ''}</BotonTirada>}
         </div>
       )}

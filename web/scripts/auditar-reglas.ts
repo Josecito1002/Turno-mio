@@ -33,6 +33,7 @@ const SELECTORES: { id: string; donde: string; que: string; detalle: string; hec
   { id: 'descubrimientos-magicos', donde: 'Hechos', que: 'Bardo: Secretos Mágicos y Descubrimientos Mágicos', detalle: 'el paso Conjuros ofrece también las listas de clérigo, druida y mago.', hecho: true },
   { id: 'invocaciones', donde: 'Hechos', que: 'Brujo: Invocaciones Sobrenaturales', detalle: '1 a 10 según nivel, las 28 del Manual 2024 con su nivel y su requisito; los pactos son invocaciones y reemplazan la casilla "Pacto de la Cadena". Armadura de Sombras, Visión del Diablo, Pacto del Filo y Filo Sediento en el cálculo.', hecho: true },
   { id: 'arcano-mistico', donde: 'Hechos', que: 'Brujo: Arcano Místico', detalle: 'un conjuro de brujo de nivel 6, 7, 8 y 9 en los niveles 11, 13, 15 y 17; cada uno sale con 1 uso por descanso largo.', hecho: true },
+  { id: 'conjuros-rasgos', donde: 'Hechos', que: 'Conjuros que dan los rasgos', detalle: 'los de subclase, Arcano Místico, las invocaciones que lanzan un conjuro, las especies (elfo, gnomo, tiefling, aasimar, genasí, githyanki, githzerai, fata, firbolg, tritón, yuan-ti, sangre bruja, elfo astral con su truco a elegir) y las dotes (Marcas de Dragón, Toque Feérico, Toque de las Sombras) salen solos en la hoja, con sus usos y sin contar en el límite. Detectar veneno y enfermedad, Amistad con los animales, Custodia de la hoja y el truco de la Marca de la Tormenta no están en el catálogo: salen sin descripción.', hecho: true },
   { id: 'genio-tipo', donde: 'Hechos', que: 'El Genio: tipo de genio', detalle: 'Dao, Djinn, Efreet o Marid: su tipo de daño y sus conjuros ampliados.', hecho: true },
   { id: 'vestigio', donde: 'Hechos', que: 'El Vestigio: tipo y dominio', detalle: 'celestial, infernal o no muerto (resistencia, daño y Poder Divino) y dominio de clérigo (Vida, Luz, Engaño o Guerra) para sus conjuros siempre preparados.', hecho: true },
   { id: 'orden-divina', donde: 'Clases de las reglas (no están en ningún lote)', que: 'Clérigo: Orden Divina', detalle: 'Protector (armadura pesada y armas marciales) o Taumaturgo (un truco más y SAB a Arcanos o Religión); cambia competencias y trucos.' },
@@ -101,7 +102,9 @@ const NOTAS_CLASE: Record<string, string> = {
   brujo: 'Fuente: Manual del Jugador 2024; El No Muerto de Ravenloft: The Horrors Within (2026) y El Vestigio de Arcana Unleashed (2026). El Filo Maldito, El Genio, El Insondable y El Inmortal no tienen versión 2024: se agregaron con su libro, con los rasgos de nivel 1 en el 3. Números del No Muerto y del Vestigio tomados de las fichas públicas de esas subclases (dnd2024.wikidot.com); el tipo de acción del Poder Divino del Vestigio no aparece ahí y quedó como acción adicional.',
 };
 
-const reglaDe =(nombre: string, src: string) => REGLAS.some((r: any) => r.n.test(norm(nombre)) && (!r.de || r.de.test(norm(src))));
+/* Las reglas que solo declaran conjuros (o su selector) no revisan el tipo del rasgo */
+const soloConjuros = (r: any) => Object.keys(r).every(k => ['n', 'de', 'conjuros', 'eleccion'].includes(k)) && !!r.conjuros;
+const reglaDe =(nombre: string, src: string) => REGLAS.some((r: any) => !soloConjuros(r) && r.n.test(norm(nombre)) && (!r.de || r.de.test(norm(src))));
 
 function auditar(rasgos: Rasgo[], origen: (r: Rasgo) => string, lote: Lote, tipoDe: (r: Rasgo) => string = r => clasificar(r.texto || '')) {
   for (const r of rasgos) {

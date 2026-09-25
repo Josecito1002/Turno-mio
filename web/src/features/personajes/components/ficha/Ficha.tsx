@@ -23,7 +23,7 @@ function Stat({ valor, etiqueta, children }: { valor?: ReactNode; etiqueta: stri
 }
 
 function Turno({ c }: { c: any }) {
-  const sp = S.pj.conjuros || [];
+  const sp = c.conjuros || [];
   return (
     <>
       <Recursos c={c} />
@@ -131,7 +131,7 @@ function Hoja({ c }: { c: any }) {
 }
 
 function ConjurosTab({ c }: { c: any }) {
-  const sp = S.pj.conjuros || [];
+  const sp = c.conjuros || [];
   const cab = c.casterAb && (
     <div className="grid grid-cols-3 gap-px overflow-hidden rounded-2xl bg-rule ring-1 ring-rule">
       <Stat valor={c.dcSpell} etiqueta="CD de conjuros" />

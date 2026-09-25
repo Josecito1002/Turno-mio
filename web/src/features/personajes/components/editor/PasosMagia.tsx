@@ -29,7 +29,7 @@ function TarjetaConjuro({ s, c, pj }: { s: any; c: any; pj: any }) {
         <summary className={cx('flex min-h-12 cursor-pointer list-none flex-col justify-center rounded-lg py-1 [&::-webkit-details-marker]:hidden', foco)}>
           <span className="font-serif text-[1.05rem] font-bold">
             <span aria-hidden="true" className="mr-1 inline-block text-muted transition-transform group-open:rotate-90">▸</span>
-            {s.nombre}{tiene >= 0 && <span className="ml-1 text-pas" aria-label="(elegido)">✓</span>}
+            {s.nombre}{(tiene >= 0 || c.siempre.has(norm(s.nombre))) && <span className="ml-1 text-pas" aria-label="(ya lo tienes)">✓</span>}
           </span>
           <span className="text-sm text-muted">{bits.join(', ')}</span>
         </summary>
@@ -129,13 +129,25 @@ export function PasoConjuros({ pj, c }: { pj: any; c: any }) {
         <>
           <ContadoresConjuros c={c} />
           <Nota>Los <b>trucos</b> se lanzan cuando quieras. Los <b>conjuros preparados</b> gastan un espacio de conjuro{pj.clase === 'brujo' ? ' de pacto' : ''} y los cambias al terminar un descanso largo. Tu CD es {c.dcSpell} y tu ataque de conjuro {sign(c.atkSpell)}, con {abInfo(c.casterAb)[3]}.</Nota>
-          {c.siempre.size > 0 && <Nota>Los de tu subclase ya vienen preparados y no cuentan en el límite.</Nota>}
+          {c.conjurosRasgo.length > 0 && <Nota>Los que te dan tus rasgos ya están en tu hoja y no cuentan en el límite.</Nota>}
         </>
-      ) : <Aviso tipo="info" titulo="Tu clase no lanza conjuros">Si una dote, tu especie o un objeto te da un conjuro, escríbelo abajo; no cuenta en ningún límite.</Aviso>}
+      ) : <Aviso tipo="info" titulo="Tu clase no lanza conjuros">Los conjuros que te dan tu especie, tus dotes o tu subclase ya salen en tu hoja. Si uno te lo da otra cosa (un objeto, tu DM), escríbelo abajo; no cuenta en ningún límite.</Aviso>}
 
       {lista && (
         <Seccion titulo={`Conjuros de ${C.n.toLowerCase()}`} descripcion={`Solo los de tu lista${c.nivelMax ? `, hasta nivel ${c.nivelMax}` : ''}.`}>
           <ListaConjuros pj={pj} c={c} />
+        </Seccion>
+      )}
+
+      {c.conjurosRasgo.length > 0 && (
+        <Seccion titulo="Conjuros de tus rasgos" descripcion="Los dan tu especie, tus dotes, tu subclase o tus invocaciones. Ya están en tu hoja y no cuentan en el límite.">
+          <Lista>
+            {c.conjurosRasgo.map((s: any) => (
+              <Fila key={s.nombre}>
+                <span>{s.nombre} <span className="text-sm text-muted">{+s.nivel ? 'nivel ' + s.nivel : 'truco'}, de {s.rasgo}{s.nota ? `. ${s.nota}` : ''}</span></span>
+              </Fila>
+            ))}
+          </Lista>
         </Seccion>
       )}
 

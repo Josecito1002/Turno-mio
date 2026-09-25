@@ -13,7 +13,7 @@ import { doteKey } from '@/features/reglas/data/dotes';
 import { kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
 import { kitClase } from '@/features/reglas/data/equipo-clases';
 import { clasificar } from '@/features/reglas/domain/clasificar';
-import { getLib, getE, getC, getT, getD, getSubs, subNivel, getAltos, getSubAltos } from '@/features/biblioteca/domain/biblioteca';
+import { getLib, getE, getC, getT, getD, getSubs, subNivel, getAltos, getSubAltos, todosConjuros } from '@/features/biblioteca/domain/biblioteca';
 import { competenciasBase, leerCompetencias, competenteArma } from '@/features/reglas/domain/competencias';
 import { mejoraDeDote } from '@/features/reglas/domain/mejora-dote';
 import { baseScores } from './modelo';
@@ -134,6 +134,7 @@ export function compute(pj): any {
 
   c.entries = buildEntries(c);
   aplicarReglas(c);
+  conjurosDeRasgos(c);
   c.passive = 10 + c.skill['percepcion']; // una regla pudo dar competencia en Percepción
   // Competencias que dan los rasgos (especie, subclase, dotes); si cambian las de armas, las filas de ataque se recalculan
   if (leerCompetencias(c) || c.rehacerArmas) c.armas = (pj.armas || []).map(([k, q], i) => ARMAS[k] ? weaponRow({k, q, i}, c) : null).filter(Boolean);
@@ -141,9 +142,12 @@ export function compute(pj): any {
   c.sinCompEscudo = c.shield && !c.compArm.escudo;
   c.recursos = buildRecursos(c);
   c.extraAttack = c.extraAttack || c.entries.some(e => /ataque extra/.test(norm(e.nombre)));
-  c.siempre = new Set();
-  c.entries.filter(e => /^conjuros/.test(norm(e.nombre)) && e.texto.includes(':')).forEach(e => e.texto.split(':').slice(1).join(':').split(',').forEach(n => c.siempre.add(norm(n.replace(/\.$/, '')))));
+  // Los conjuros que dan los rasgos no cuentan en el límite, aunque el jugador también los haya agregado a mano
+  c.siempre = new Set([...listasDeConjuros(c).map(x => norm(x.nombre)), ...c.conjurosRasgo.map(s => norm(s.nombre))]);
   c.esExtra = s => !!s.extra || c.siempre.has(norm(s.nombre));
+  // Todos los conjuros de la hoja: los elegidos (con la marca del rasgo si alguno también lo da) y los de los rasgos
+  const propios = (pj.conjuros || []).map(s => { const r = c.conjurosRasgo.find(x => norm(x.nombre) === norm(s.nombre)); return r ? {...s, rasgo: r.rasgo, nota: r.nota} : s; });
+  c.conjuros = [...propios, ...c.conjurosRasgo.filter(r => !propios.some(s => norm(s.nombre) === norm(r.nombre)))];
   c.nivelMax = pj.clase === 'brujo' ? pacto(lvl).nivel : (c.slots.length ? Math.max(...c.slots.map(s => s.nivel)) : 0);
   const conLimite = C?.lanz && !C.lib;
   // Las clases de biblioteca no traen estos límites; una regla revisada puede darlos (c.trucosReglas, c.prepReglas)
@@ -376,6 +380,7 @@ export function buildAvisos(c){
    efecto(c) (cambia números ya calculados: velocidad, salvaciones, espacios...), ataques(c) (filas extra en Ataques),
    opciones (entradas propias que salen del rasgo, con los mismos campos, `si(c)` para mostrarlas solo cuando aplican
    y `elegida: [id, key]` para ordenarlas de la última elegida a la primera),
+   conjuros(c) (conjuros que da el rasgo: [{nombre, nivel?, desde?, usos?, reset?, nota?, ab?}]; salen en la hoja sin contar en el límite),
    eleccion {id, titulo, opciones: [{key, nombre, nivel?}], max?} (algo que el jugador elige dentro del rasgo, como el patrón
    de un pacto; con `max`, número o función de c, se eligen varias. Se guarda en pj.elecciones[id] y el paso Clase muestra el selector) */
 const valor = (x, c) => typeof x === 'function' ? x(c) : x;
@@ -383,6 +388,9 @@ const usosMax = (u, c) => { const v = valor(u, c); return v === 'pb' ? c.pb : +v
 export function aplicarReglas(c){
   const out = [];
   c.ataquesReglas = [];
+  c.conjurosReglas = [];
+  // Conjuros que da la regla o una de sus opciones (los arma conjurosDeRasgos)
+  const conjuros = (x, src) => [].concat(valor(x, c) || []).forEach(s => c.conjurosReglas.push({src, ...s}));
   c.elecciones = [];
   const conUsos = (x, R, id) => {
     c.extraRes = c.extraRes.filter(r => r.nombre !== x.nombre);
@@ -405,6 +413,7 @@ export function aplicarReglas(c){
     if (R.usos) { e.coste = R.coste ? e.coste : ''; conUsos(e, R, 'rg-' + slug(e.nombre)); }
     if (R.efecto) R.efecto(c);
     if (R.ataques) c.ataquesReglas.push(...R.ataques(c));
+    if (R.conjuros) conjuros(R.conjuros, e.nombre);
     // Una regla puede pedir una elección o varias (lista)
     for (const el of [].concat(R.eleccion || [])) {
       // `si(c)`: la elección solo aparece cuando aplica (p. ej. el Arcano Místico de nivel 7 desde el nivel 13)
@@ -430,6 +439,7 @@ export function aplicarReglas(c){
       const t = valor(o.t, c);
       const x = {t, tAuto:t, nombre:o.nombre, texto:o.texto(c), textoF:o.texto, coste:valor(o.coste, c) || '', src:e.nombre, grupo:e.grupo, nivel:e.nivel, revisada:true, opcion:true, noSplit:true};
       if (o.usos) conUsos(x, o, 'rg-' + slug(o.nombre));
+      if (o.conjuros) conjuros(o.conjuros, o.nombre);
       x.rollF = o.roll;
       // Las opciones ligadas a una elección (`elegida: [id, key]`) salen de la última elegida a la primera
       const [id, key] = o.elegida || [];
@@ -439,6 +449,35 @@ export function aplicarReglas(c){
     xs.sort((a, b) => a.orden - b.orden).forEach(({x}) => out.push(x));
   });
   c.entries = out;
+}
+
+/* Rasgos "Conjuros de…" con su lista después de dos puntos (conjuros de subclase siempre preparados) */
+export function listasDeConjuros(c){
+  return c.entries.filter(e => /^conjuros/.test(norm(e.nombre)) && typeof e.texto === 'string' && e.texto.includes(':'))
+    .flatMap(e => e.texto.split(':').slice(1).join(':').split(',').map(n => ({nombre: n.replace(/\.$/, '').trim(), src: e.src || e.nombre})));
+}
+/* Conjuros que dan los rasgos, con sus datos del catálogo: las listas "Conjuros de…" y los que declaran las reglas
+   (`conjuros` en reglas-revisadas.ts: {nombre, nivel?, desde?, usos?, reset?, nota?, ab?}). Los que tienen usos suman su recurso. */
+export function conjurosDeRasgos(c){
+  const cat = new Map(todosConjuros().map(s => [norm(s.nombre), s]));
+  const out = [];
+  const conCd = (s, ab) => { if (!ab) return s; const m = c.m[ab]; return {...s, cd: 8 + c.pb + m, atk: c.pb + m, abNota: ab.toUpperCase()}; };
+  // Sin clase lanzadora, los conjuros de especie y dotes usan INT, SAB o CAR a elección: se toma la más alta
+  const abLibre = c.casterAb ? null : ['int', 'sab', 'car'].reduce((a, b) => c.m[b] > c.m[a] ? b : a);
+  for (const x of listasDeConjuros(c)) {
+    const s = cat.get(norm(x.nombre));
+    if (s && !out.some(o => norm(o.nombre) === norm(s.nombre))) out.push({...s, extra: true, rasgo: x.src, nota: 'Siempre preparado'});
+  }
+  for (const x of c.conjurosReglas || []) {
+    if (x.desde && c.lvl < x.desde) continue;
+    if (out.some(o => norm(o.nombre) === norm(x.nombre))) continue;
+    const s = cat.get(norm(x.nombre)) || {nombre: x.nombre, nivel: x.nivel || 0, desc: ''};
+    const max = x.usos === 'pb' ? c.pb : +x.usos || 0;
+    const nota = [x.nota || (max ? '' : +s.nivel ? 'Siempre preparado' : ''), max ? `${usoTxt(max, x.reset)} sin gastar espacio${+s.nivel ? ' (o con tus espacios)' : ''}` : ''].filter(Boolean).join('. ');
+    out.push(conCd({...s, extra: true, rasgo: x.src, nota}, x.ab || abLibre));
+    if (max) c.extraRes.push({id: 'cr-' + slug(x.nombre), nombre: `${s.nombre} (${x.src})`, max, reset: x.reset || 'largo'});
+  }
+  c.conjurosRasgo = out;
 }
 
 export function puedeLanzar(c){

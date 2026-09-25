@@ -154,37 +154,37 @@ const DOMINIOS_CLERIGO = {
 
 /* Brujo: Invocaciones Sobrenaturales del Manual del Jugador 2024 (las antiguas de Xanathar y Tasha no se reimprimieron).
    `req`: otra invocación que hay que tener. Las que se pueden repetir llevan una segunda opción que pide la primera. */
-const INVOC: {key: string, n: string, nivel: number, req?: string, t: string, texto: (c: any) => string, usos?: number}[] = [
-  {key:'armadura-sombras', n:'Armadura de Sombras', nivel:1, t:'accion', texto: c => `Lanzas Armadura de mago sobre ti sin gastar espacio. Sin armadura, tu CA es 13 + DES = ${13 + c.m.des} (ya sumado).`},
+const INVOC: {key: string, conjuro?: string, n: string, nivel: number, req?: string, t: string, texto: (c: any) => string, usos?: number}[] = [
+  {key:'armadura-sombras', conjuro:'Armadura de mago', n:'Armadura de Sombras', nivel:1, t:'accion', texto: c => `Lanzas Armadura de mago sobre ti sin gastar espacio. Sin armadura, tu CA es 13 + DES = ${13 + c.m.des} (ya sumado).`},
   {key:'mente-sobrenatural', n:'Mente Sobrenatural', nivel:1, t:'pasiva', texto: () => 'Tienes ventaja en las salvaciones de CON para mantener la concentración.'},
   {key:'pacto-filo', n:'Pacto del Filo', nivel:1, t:'adicional', texto: c => `Conjuras en tu mano un arma de pacto cuerpo a cuerpo, sencilla o marcial, o te vinculas a un arma mágica que toques. Eres competente con ella, atacas y haces daño con CAR (${sign(c.m.car)}) en vez de FUE o DES (ya en Ataques), su daño puede ser necrótico, psíquico o radiante, y te sirve de foco de conjuros.`},
-  {key:'pacto-cadena', n:'Pacto de la Cadena', nivel:1, t:'accion', texto: () => 'Lanzas Encontrar familiar como acción mágica sin gastar espacio, con formas especiales (sale en tus rasgos).'},
+  {key:'pacto-cadena', conjuro:'Encontrar familiar', n:'Pacto de la Cadena', nivel:1, t:'accion', texto: () => 'Lanzas Encontrar familiar como acción mágica sin gastar espacio, con formas especiales (sale en tus rasgos).'},
   {key:'pacto-tomo', n:'Pacto del Tomo', nivel:1, t:'pasiva', texto: () => 'Tu Libro de las Sombras te da tres trucos y dos conjuros rituales de nivel 1 de cualquier lista, siempre preparados (agrégalos en Conjuros marcando que no cuentan en el límite), y te sirve de foco de conjuros. Si lo pierdes, un rito de 1 hora te da otro.'},
   {key:'explosion-agonizante', n:'Explosión Agonizante', nivel:2, t:'pasiva', texto: c => `Eliges un truco de brujo que haga daño (como Explosión sobrenatural): sumas tu CAR (${sign(c.m.car)}) a su daño. Pide conocer un truco de brujo que haga daño.`},
   {key:'explosion-agonizante-2', n:'Explosión Agonizante (otro truco)', nivel:2, req:'explosion-agonizante', t:'pasiva', texto: c => `Sumas tu CAR (${sign(c.m.car)}) al daño de un segundo truco de brujo que haga daño.`},
   {key:'vision-diablo', n:'Visión del Diablo', nivel:2, t:'pasiva', texto: () => 'Ves con normalidad en luz tenue y en oscuridad, mágica o no, a 120 pies (ya en tus sentidos).'},
   {key:'lanza-sobrenatural', n:'Lanza Sobrenatural', nivel:2, t:'pasiva', texto: c => `Un truco de brujo que haga daño y tenga alcance de 10 pies o más gana ${30 * c.lvl} pies de alcance. Pide conocer un truco de brujo que haga daño.`},
   {key:'lanza-sobrenatural-2', n:'Lanza Sobrenatural (otro truco)', nivel:2, req:'lanza-sobrenatural', t:'pasiva', texto: c => `Un segundo truco de brujo que haga daño gana ${30 * c.lvl} pies de alcance.`},
-  {key:'vigor-infernal', n:'Vigor Infernal', nivel:2, t:'accion', texto: () => 'Lanzas Falsa vida sobre ti sin gastar espacio y, en vez de tirar, ganas el máximo de PG temporales.'},
+  {key:'vigor-infernal', conjuro:'Falsa vida', n:'Vigor Infernal', nivel:2, t:'accion', texto: () => 'Lanzas Falsa vida sobre ti sin gastar espacio y, en vez de tirar, ganas el máximo de PG temporales.'},
   {key:'lecciones-primeros', n:'Lecciones de los Primeros', nivel:2, t:'pasiva', texto: () => 'Ganas una dote de origen que no tengas (agrégala en el paso Características).'},
   {key:'lecciones-primeros-2', n:'Lecciones de los Primeros (otra dote)', nivel:2, req:'lecciones-primeros', t:'pasiva', texto: () => 'Ganas otra dote de origen que no tengas (agrégala en el paso Características).'},
-  {key:'mascara-caras', n:'Máscara de Mil Caras', nivel:2, t:'accion', texto: () => 'Lanzas Disfrazarse sin gastar espacio.'},
-  {key:'visiones-brumosas', n:'Visiones Brumosas', nivel:2, t:'accion', texto: () => 'Lanzas Imagen silenciosa sin gastar espacio.'},
-  {key:'salto-otro-mundo', n:'Salto de Otro Mundo', nivel:2, t:'adicional', texto: () => 'Lanzas Salto sobre ti sin gastar espacio.'},
+  {key:'mascara-caras', conjuro:'Disfrazarse', n:'Máscara de Mil Caras', nivel:2, t:'accion', texto: () => 'Lanzas Disfrazarse sin gastar espacio.'},
+  {key:'visiones-brumosas', conjuro:'Imagen silenciosa', n:'Visiones Brumosas', nivel:2, t:'accion', texto: () => 'Lanzas Imagen silenciosa sin gastar espacio.'},
+  {key:'salto-otro-mundo', conjuro:'Salto', n:'Salto de Otro Mundo', nivel:2, t:'adicional', texto: () => 'Lanzas Salto sobre ti sin gastar espacio.'},
   {key:'explosion-repulsora', n:'Explosión Repulsora', nivel:2, t:'gratis', texto: () => 'Eliges un truco de brujo que haga daño con tirada de ataque: al acertar a una criatura Grande o menor, la empujas hasta 10 pies en línea recta. Pide conocer un truco de brujo que haga daño.'},
   {key:'explosion-repulsora-2', n:'Explosión Repulsora (otro truco)', nivel:2, req:'explosion-repulsora', t:'gratis', texto: () => 'Lo mismo con un segundo truco de brujo que haga daño con tirada de ataque.'},
-  {key:'paso-ascendente', n:'Paso Ascendente', nivel:5, t:'accion', texto: () => 'Lanzas Levitar sobre ti sin gastar espacio.'},
+  {key:'paso-ascendente', conjuro:'Levitar', n:'Paso Ascendente', nivel:5, t:'accion', texto: () => 'Lanzas Levitar sobre ti sin gastar espacio.'},
   {key:'castigo-sobrenatural', n:'Castigo Sobrenatural', nivel:5, req:'pacto-filo', t:'gratis', texto: () => 'Una vez por turno, al acertar con tu arma de pacto, gastas un espacio de Magia de Pacto: 1d8 de daño de fuerza extra, más 1d8 por nivel del espacio, y puedes dejar Derribado al objetivo si es Enorme o menor.'},
   {key:'mirada-dos-mentes', n:'Mirada de Dos Mentes', nivel:5, t:'adicional', texto: () => 'Tocas a una criatura voluntaria y percibes por sus sentidos hasta el final de tu próximo turno (lo alargas con acción adicional). Mientras, si está a 60 pies, puedes lanzar conjuros como si estuvieras en su espacio.'},
-  {key:'don-profundidades', n:'Don de las Profundidades', nivel:5, t:'accion', usos:1, texto: () => 'Respiras bajo el agua y tienes velocidad de nadar igual a tu velocidad. Una vez por descanso largo lanzas Respirar bajo el agua sin gastar espacio.'},
+  {key:'don-profundidades', conjuro:'Respirar bajo el agua', n:'Don de las Profundidades', nivel:5, t:'accion', usos:1, texto: () => 'Respiras bajo el agua y tienes velocidad de nadar igual a tu velocidad. Una vez por descanso largo lanzas Respirar bajo el agua sin gastar espacio.'},
   {key:'maestro-cadena', n:'Inversión del Maestro de la Cadena', nivel:5, req:'pacto-cadena', t:'adicional', texto: c => `Tu familiar gana vuelo o nado de 40 pies; con acción adicional le ordenas que ataque; su daño puede ser necrótico o radiante y sus salvaciones usan tu CD (${c.dcSpell}). Cuando recibe daño, con tu reacción le das resistencia a ese daño.`},
-  {key:'mil-formas', n:'Maestro de las Mil Formas', nivel:5, t:'accion', texto: () => 'Lanzas Alterar el propio aspecto sin gastar espacio.'},
+  {key:'mil-formas', conjuro:'Alterar el propio aspecto', n:'Maestro de las Mil Formas', nivel:5, t:'accion', texto: () => 'Lanzas Alterar el propio aspecto sin gastar espacio.'},
   {key:'uno-sombras', n:'Uno con las Sombras', nivel:5, t:'accion', texto: () => 'En luz tenue u oscuridad, con una acción mágica te vuelves Invisible hasta que te mueves o usas una acción, acción adicional o reacción.'},
   {key:'filo-sediento', n:'Filo Sediento', nivel:5, req:'pacto-filo', t:'pasiva', texto: () => 'Ganas Ataque Extra con tu arma de pacto: al usar la acción Atacar, atacas dos veces con ella.'},
-  {key:'susurros-tumba', n:'Susurros de la Tumba', nivel:7, t:'accion', texto: () => 'Lanzas Hablar con los muertos sin gastar espacio.'},
+  {key:'susurros-tumba', conjuro:'Hablar con los Muertos', n:'Susurros de la Tumba', nivel:7, t:'accion', texto: () => 'Lanzas Hablar con los muertos sin gastar espacio.'},
   {key:'bebedor-vida', n:'Bebedor de Vida', nivel:9, req:'pacto-filo', t:'gratis', texto: c => `Una vez por turno, al acertar con tu arma de pacto, haces 1d6 de daño necrótico, psíquico o radiante extra, y puedes gastar un Dado de Golpe para recuperar su resultado${fmtMod(c.m.con)} PG (mínimo 1).`},
   {key:'don-protectores', n:'Don de los Protectores', nivel:9, req:'pacto-tomo', t:'gratis', usos:1, texto: () => 'Quien haya escrito su nombre en tu Libro de las Sombras y caiga a 0 PG sin morir en el acto queda en 1 PG. Una vez por descanso largo.'},
-  {key:'visiones-reinos', n:'Visiones de Reinos Lejanos', nivel:9, t:'accion', texto: () => 'Lanzas Ojo arcano sin gastar espacio.'},
+  {key:'visiones-reinos', conjuro:'Ojo arcano', n:'Visiones de Reinos Lejanos', nivel:9, t:'accion', texto: () => 'Lanzas Ojo arcano sin gastar espacio.'},
   {key:'filo-devorador', n:'Filo Devorador', nivel:12, req:'filo-sediento', t:'pasiva', texto: () => 'Filo Sediento te da dos ataques extra con tu arma de pacto en vez de uno: atacas tres veces con ella.'},
   {key:'vista-bruja', n:'Vista Bruja', nivel:15, t:'pasiva', texto: () => 'Tienes visión verdadera a 30 pies.'},
 ];
@@ -197,7 +197,6 @@ const conjurosBrujo = nv => todosConjuros().filter(s => +s.nivel === nv && conju
 const arcanoDe = (c, nv) => conjurosBrujo(nv).find(s => norm(s.nombre) === elegido(c, `arcano-${nv}`));
 /* Primera frase de una descripción, para los selectores */
 const resumen = d => { const f = String(d || '').replace(/\s+/g, ' ').trim().split(/(?<=\.)\s/)[0]; return f.length > 180 ? f.slice(0, 177) + '…' : f; };
-const tipoConjuro = t => ['accion', 'adicional', 'reaccion', 'fuera'].includes(t) ? t : 'accion';
 /* El Vestigio: tipo del compañero y dominio de sus conjuros */
 const VESTIGIO = {
   celestial: {n:'Celestial', dano:'radiante', poder:'Toque Sanador', texto: c => `Toca a una criatura: recupera 2d8${fmtMod(c.m.car)} PG y deja de estar Cegada, Ensordecida o Envenenada.`},
@@ -834,6 +833,10 @@ export const REGLAS: any[] = [
       if (s.includes('pacto-filo')) { const antes = c.usaCar; c.pactoFilo = true; c.usaCar = w => !w.dist || !!antes?.(w); c.rehacerArmas = true; }
       if (s.includes('filo-sediento')) c.extraAttack = true;
     },
+    // Las que lanzan un conjuro lo ponen en tus conjuros: a voluntad, salvo Respirar bajo el agua (1 por descanso largo)
+    conjuros: c => invocaciones(c).map(k => INVOC.find(i => i.key === k)).filter(i => i.conjuro).map(i => i.key === 'don-profundidades'
+      ? {nombre: i.conjuro, usos: 1, reset: 'largo'}
+      : {nombre: i.conjuro, nota: `${i.n}: a voluntad, sin gastar espacio`}),
     texto: c => { const n = INVOCACIONES[c.lvl - 1], ya = invocaciones(c).length;
       return `Conoces ${n} invocaci${n > 1 ? 'ones' : 'ón'}${ya < n ? ` (te falta${n - ya > 1 ? 'n' : ''} ${n - ya}: elígelas en el paso Clase)` : ''}; cada una sale aparte. Al subir de nivel puedes cambiar una por otra.`; },
     opciones: INVOC.filter(i => i.key !== 'pacto-cadena').map(i => ({nombre: i.n, t: i.t, texto: i.texto, usos: i.usos, reset:'largo',
@@ -843,10 +846,8 @@ export const REGLAS: any[] = [
       opciones: () => conjurosBrujo(nv).map(s => ({key: norm(s.nombre), nombre: s.nombre, desc: resumen(s.desc)}))})),
     texto: c => { const ya = ARCANO.filter(([, lv]) => c.lvl >= lv), prox = ARCANO.find(([, lv]) => c.lvl < lv);
       const falta = ya.some(([nv]) => !arcanoDe(c, nv));
-      return `Tu patrón te da un conjuro de brujo de nivel ${ya.map(([nv]) => nv).join(', ')} que lanzas una vez por descanso largo sin gastar espacio; cada uno sale aparte.${falta ? ' Elígelos en el paso Clase.' : ''}${prox ? ` En el nivel ${prox[1]} ganas otro de nivel ${prox[0]}.` : ''} Al subir de nivel puedes cambiar uno por otro del mismo nivel.`; },
-    opciones: ARCANO.map(([nv, lv]) => ({nombre:`Arcano Místico de nivel ${nv}`, usos:1, reset:'largo',
-      si: c => c.lvl >= lv && !!arcanoDe(c, nv), t: c => tipoConjuro(arcanoDe(c, nv)?.tiempo),
-      texto: c => { const s = arcanoDe(c, nv); return `${s.nombre}: ${resumen(s.desc)}`; }}))},
+      return `Tu patrón te da un conjuro de brujo de nivel ${ya.map(([nv]) => nv).join(', ')} que lanzas una vez por descanso largo sin gastar espacio; están en tus conjuros.${falta ? ' Elígelos en el paso Clase.' : ''}${prox ? ` En el nivel ${prox[1]} ganas otro de nivel ${prox[0]}.` : ''} Al subir de nivel puedes cambiar uno por otro del mismo nivel.`; },
+    conjuros: c => ARCANO.filter(([nv, lv]) => c.lvl >= lv && arcanoDe(c, nv)).map(([nv]) => ({nombre: arcanoDe(c, nv).nombre, usos: 1, reset: 'largo'}))},
 
   /* Patrones del manual: niveles 6, 10 y 14 */
   {de:/patron archihada/, n:/^huida brumosa/,
@@ -924,10 +925,11 @@ export const REGLAS: any[] = [
     texto: c => `Creas un tentáculo espectral de 10 pies en un punto que veas a 60 pies, que dura 1 minuto, y haces con él un ataque de conjuro cuerpo a cuerpo contra una criatura a 10 pies de él: ${dadoTentaculo(c)} de daño de frío y su velocidad baja 10 pies (en Ataques). Con acción adicional lo mueves 30 pies y repites el ataque.`},
   {de:/el insondable/, n:/^espiral guardiana/,
     texto: c => `Cuando tú o una criatura que ves a 10 pies de tu tentáculo recibe daño, reduces ese daño en ${dadoTentaculo(c)}.`},
-  {de:/el insondable/, n:/^tentaculos aferradores/,
+  {de:/el insondable/, n:/^tentaculos aferradores/, conjuros: [{nombre:'Tentáculos negros de Evard', usos:1, reset:'largo'}],
     texto: c => `Aprendes Tentáculos negros de Evard, que no cuenta en tu límite; una vez por descanso largo lo lanzas sin gastar espacio. Al lanzarlo ganas ${c.lvl} PG temporales, y el daño no rompe tu concentración en él.`},
 
   /* El Inmortal (Sword Coast) */
+  {de:/el inmortal/, n:/^entre los muertos/, conjuros: [{nombre:'Perdonar a los moribundos', nota:'Cuenta como truco de brujo'}]},
   {de:/el inmortal/, n:/^desafiar a la muerte/,
     texto: c => `Cuando superas una salvación contra la muerte o estabilizas a alguien con Estabilizar, recuperas 1d8${fmtMod(c.m.con)} PG (mínimo 1). Una vez por descanso largo.`},
   {de:/el inmortal/, n:/^vida indestructible/,
@@ -1111,6 +1113,55 @@ export const REGLAS: any[] = [
       const h = HABS_GUERRERO.find(x => norm(x) === elegido(c, 'estudiante-guerra-hab'));
       return `Competencia con un tipo de herramientas de artesano${h ? ` y en ${h} (ya sumada)` : ' y con una habilidad de la lista del guerrero'}, a tu elección (elígelas en la subclase).`;
     }},
+
+  /* ---------- Conjuros que dan las especies y las dotes ----------
+     Solo declaran los conjuros (salen en la hoja sin contar en el límite); el texto y el tipo siguen siendo los de cada rasgo.
+     `desde`: nivel de personaje en que se gana. Sin clase lanzadora usan la más alta de INT, SAB o CAR. */
+  {n:/^portador de luz$/, conjuros: [{nombre:'Luz', ab:'car'}]},
+  {n:/^linaje elfico$/, conjuros: c => ({
+    drow: [{nombre:'Luces danzantes'}, {nombre:'Fuego feérico', desde:3, usos:1}, {nombre:'Oscuridad', desde:5, usos:1}],
+    alto: [{nombre:'Prestidigitación'}, {nombre:'Detectar magia', desde:3, usos:1}, {nombre:'Paso brumoso', desde:5, usos:1}],
+    silvano: [{nombre:'Druidismo'}, {nombre:'Zancada prodigiosa', desde:3, usos:1}, {nombre:'Pasar sin rastro', desde:5, usos:1}],
+  })[c.esub] || []},
+  {n:/^linaje gnomo$/, conjuros: c => ({
+    bosque: [{nombre:'Ilusión menor'}, {nombre:'Hablar con los Animales', usos:'pb'}],
+    roca: [{nombre:'Remendar'}, {nombre:'Prestidigitación'}],
+  })[c.esub] || []},
+  {n:/^legado infernal$/, conjuros: c => ({
+    abisal: [{nombre:'Rociada venenosa'}, {nombre:'Rayo nauseabundo', desde:3, usos:1}, {nombre:'Inmovilizar persona', desde:5, usos:1}],
+    ctonico: [{nombre:'Toque helado'}, {nombre:'Falsa vida', desde:3, usos:1}, {nombre:'Rayo debilitador', desde:5, usos:1}],
+    infernal: [{nombre:'Rayo de fuego'}, {nombre:'Reprensión infernal', desde:3, usos:1}, {nombre:'Oscuridad', desde:5, usos:1}],
+  })[c.esub] || []},
+  {n:/^presencia de otro mundo$/, conjuros: [{nombre:'Taumaturgia'}]},
+  {de:/^fata$/, n:/^magia feerica$/, conjuros: [{nombre:'Druidismo'}, {nombre:'Fuego feérico', desde:3, usos:1}, {nombre:'Agrandar/Reducir', desde:5, usos:1}]},
+  {n:/^magia firbolg$/, conjuros: [{nombre:'Detectar magia', usos:1}, {nombre:'Disfrazarse', usos:1}]},
+  {n:/^llamada de la ola$/, conjuros: [{nombre:'Salpicadura ácida'}, {nombre:'Crear o destruir agua', nivel:1, desde:3, usos:1}, {nombre:'Caminar sobre el agua', desde:5, usos:1}]},
+  {n:/^alcanzar la llama$/, conjuros: [{nombre:'Producir llama'}, {nombre:'Manos ardientes', desde:3, usos:1}, {nombre:'Hoja de fuego', desde:5, usos:1}]},
+  {n:/^fundirse con la piedra$/, conjuros: c => [{nombre:'Custodia de la hoja', nivel:0, nota:`Puedes lanzarlo con acción adicional ${c.pb} veces por descanso largo`}, {nombre:'Pasar sin rastro', desde:5, usos:1}]},
+  {n:/^fundirse con el viento$/, conjuros: [{nombre:'Agarre electrizante'}, {nombre:'Caída de pluma', desde:3, usos:1}, {nombre:'Levitar', desde:5, usos:1}]},
+  {n:/^psionica githyanki$/, conjuros: [{nombre:'Mano de mago', nota:'La mano es invisible'}, {nombre:'Salto', desde:3, usos:1}, {nombre:'Paso brumoso', desde:5, usos:1}]},
+  {n:/^psionica githzerai$/, conjuros: [{nombre:'Mano de mago', nota:'La mano es invisible'}, {nombre:'Escudo', desde:3, usos:1}, {nombre:'Detectar pensamientos', desde:5, usos:1}]},
+  {n:/^controlar el aire y el agua$/, conjuros: [{nombre:'Niebla', usos:1}, {nombre:'Ráfaga de viento', desde:3, usos:1}, {nombre:'Caminar sobre el agua', desde:5, usos:1}]},
+  {n:/^magia serpentina$/, conjuros: [{nombre:'Rociada venenosa'}, {nombre:'Hablar con los Animales', nota:'Sin límite, solo con serpientes'}, {nombre:'Sugestión', desde:3, usos:1}]},
+  {n:/^magia de maleficio$/, conjuros: [{nombre:'Disfrazarse', usos:1}, {nombre:'Maleficio', usos:1}]},
+  {n:/^fuego astral$/,
+    eleccion: {id:'elfo-astral-truco', titulo:'Truco (Fuego Astral)', opciones: ['Luces danzantes', 'Luz', 'Llama sagrada'].map(n => ({key: norm(n), nombre: n}))},
+    conjuros: c => { const k = elegido(c, 'elfo-astral-truco'); return k ? [{nombre: ['Luces danzantes', 'Luz', 'Llama sagrada'].find(n => norm(n) === k)}] : []; }},
+  /* Dotes: Toque Feérico y Toque de las Sombras, y las Marcas de Dragón (el conjuro que eliges se agrega a mano) */
+  {n:/^toque feerico$/, conjuros: [{nombre:'Paso brumoso', usos:1, nota:'El conjuro de nivel 1 que eliges agrégalo en Conjuros'}]},
+  {n:/^toque de las sombras$/, conjuros: [{nombre:'Invisibilidad', usos:1, nota:'El conjuro de nivel 1 que eliges agrégalo en Conjuros'}]},
+  {n:/^marca de deteccion$/, conjuros: [{nombre:'Detectar magia', usos:1}, {nombre:'Detectar veneno y enfermedad', nivel:1, usos:1}, {nombre:'Ver invisibilidad', desde:3, usos:1}]},
+  {n:/^marca de hallazgo$/, conjuros: [{nombre:'Marca del cazador', usos:1}, {nombre:'Localizar objeto', desde:3, usos:1}]},
+  {n:/^marca de manejo$/, conjuros: [{nombre:'Amistad con los animales', nivel:1, usos:1}, {nombre:'Hablar con los Animales', usos:1}]},
+  {n:/^marca de curacion$/, conjuros: c => [{nombre:'Curar heridas', usos: c.dotes.some(d => /marca-curacion-mayor/.test(d.key || '')) ? 'pb' : 1}, {nombre:'Restablecimiento menor', desde:3, usos:1}]},
+  {n:/^marca de hospitalidad$/, conjuros: [{nombre:'Purificar comida y bebida', usos:1}, {nombre:'Sirviente invisible', usos:1}, {nombre:'Calmar emociones', desde:3, usos:1}]},
+  {n:/^marca de creacion$/, conjuros: [{nombre:'Remendar'}, {nombre:'Arma mágica', usos:1}]},
+  {n:/^marca de pasaje$/, conjuros: [{nombre:'Paso brumoso', usos:1}]},
+  {n:/^marca de escritura$/, conjuros: [{nombre:'Mensaje'}, {nombre:'Comprender idiomas', usos:1}, {nombre:'Boca mágica', desde:3, usos:1}]},
+  {n:/^marca del centinela$/, conjuros: [{nombre:'Escudo', usos:1}]},
+  {n:/^marca de las sombras$/, conjuros: [{nombre:'Ilusión menor'}, {nombre:'Invisibilidad', usos:1}]},
+  {n:/^marca de la tormenta$/, conjuros: [{nombre:'Trueno', nivel:0}, {nombre:'Ráfaga de viento', desde:3, usos:1}]},
+  {n:/^marca de proteccion$/, conjuros: [{nombre:'Alarma', usos:1}, {nombre:'Armadura de mago', usos:1}, {nombre:'Cerradura arcana', desde:3, usos:1}]},
 
   /* ---------- Dotes con elección (Manual del Jugador 2024) ----------
      Las dotes no tienen `de`: su origen es "Dote de nivel N", así que se reconocen solo por el nombre */
