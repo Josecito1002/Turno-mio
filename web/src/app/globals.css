@@ -4,6 +4,8 @@
 :root {
   --bg: #ECEEE8; --surface: #F9FAF6; --soft: #E1E5DE; --ink: #1D2830; --muted: #56626A; --rule: #C9CFC8;
   --acc: #A8392F; --adi: #8F5A0C; --rea: #2C6A88; --gol: #6B4F96; --pas: #4A6550; --warn: #8F5500;
+  /* Etiquetas de origen: 5.5e 2024, D&D Beyond, Homebrew y Playtest */
+  --f-2024: #1B78B5; --f-dndb: #B3261E; --f-hb: #B45309; --f-pt: #2E7D32;
   --serif: var(--font-alegreya), "Alegreya", Georgia, "Times New Roman", serif;
   --sans: var(--font-alegreya-sans), "Alegreya Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --alto-nav-inferior: 4.5rem;
@@ -14,6 +16,7 @@
   :root {
     --bg: #131B20; --surface: #1B252C; --soft: #25313A; --ink: #E3E7E1; --muted: #A3AEB1; --rule: #3A4852;
     --acc: #E8877C; --adi: #E6AE55; --rea: #7BBBDA; --gol: #BCA6E8; --pas: #97BD9C; --warn: #E6AE55;
+    --f-2024: #7CC4EE; --f-dndb: #F08A80; --f-hb: #F5A35B; --f-pt: #86CF8A;
     color-scheme: dark;
   }
 }
@@ -22,6 +25,7 @@
   --color-bg: var(--bg); --color-surface: var(--surface); --color-soft: var(--soft); --color-ink: var(--ink);
   --color-muted: var(--muted); --color-rule: var(--rule); --color-acc: var(--acc); --color-adi: var(--adi);
   --color-rea: var(--rea); --color-gol: var(--gol); --color-pas: var(--pas); --color-warn: var(--warn);
+  --color-f-2024: var(--f-2024); --color-f-dndb: var(--f-dndb); --color-f-hb: var(--f-hb); --color-f-pt: var(--f-pt);
   --font-serif: var(--serif); --font-sans: var(--sans);
 }
 

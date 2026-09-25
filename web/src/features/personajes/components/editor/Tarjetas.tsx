@@ -39,12 +39,15 @@ export function Tarjeta({ on, onClick, img, titulo, sub, clampSub, fuente }: { o
   );
 }
 
-/** Etiqueta pequeña con el origen: Reglas básicas, D&D Beyond u Homebrew (el libro va en el título al pasar el ratón). */
+/** Etiqueta pequeña con el origen: 5.5e 2024 (celeste), D&D Beyond (rojo), Homebrew (naranja) o Playtest (verde); el libro va en el título al pasar el ratón. */
+const COLOR_FUENTE: Record<Fuente['tipo'], string> = {
+  basicas: 'text-f-2024 ring-f-2024/50', dndbeyond: 'text-f-dndb ring-f-dndb/50', homebrew: 'text-f-hb ring-f-hb/50', playtest: 'text-f-pt ring-f-pt/50',
+};
 export function EtiquetaFuente({ fuente, className }: { fuente: Fuente; className?: string }) {
   return (
     <span className={className}>
       <span title={fuente.libro} className={cx('inline-block rounded-full px-1.5 py-px text-[0.68rem] font-bold leading-tight ring-1',
-        fuente.tipo === 'homebrew' ? 'text-warn ring-warn/40' : 'text-muted ring-rule')}>
+        COLOR_FUENTE[fuente.tipo])}>
         {ETIQUETA_FUENTE[fuente.tipo]}
       </span>
     </span>

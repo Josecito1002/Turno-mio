@@ -139,10 +139,10 @@ Se agregan en el lote de su clase, con su versión oficial más reciente. Las ma
 
 ### Lote 13: Mago
 
-- [ ] **Magia de Guerra** (Xanathar's Guide to Everything) <!-- agregar|magia de guerra -->
-- [ ] **Orden de los Escribas** (Tasha's Cauldron of Everything) <!-- agregar|orden de los escribas -->
-- [ ] **Cronurgia** (Explorer's Guide to Wildemount) <!-- agregar|cronurgia -->
-- [ ] **Graviturgia** (Explorer's Guide to Wildemount) <!-- agregar|graviturgia -->
+- [x] **Magia de Guerra** (Xanathar's Guide to Everything): agregado (lote 13), versión de Xanathar's Guide to Everything (2017); sus rasgos de nivel 2 pasan al 3. <!-- agregar|magia de guerra -->
+- [x] **Orden de los Escribas** (Tasha's Cauldron of Everything): agregado (lote 13), versión de Tasha's Cauldron of Everything (2020); sus rasgos de nivel 2 pasan al 3. <!-- agregar|orden de los escribas -->
+- [x] **Cronurgia** (Explorer's Guide to Wildemount): agregado (lote 13), versión de Explorer's Guide to Wildemount (2020); sus rasgos de nivel 2 pasan al 3. <!-- agregar|cronurgia -->
+- [x] **Graviturgia** (Explorer's Guide to Wildemount): agregado (lote 13), versión de Explorer's Guide to Wildemount (2020); sus rasgos de nivel 2 pasan al 3. <!-- agregar|graviturgia -->
 
 ### Lote 14: Monje
 
@@ -1031,67 +1031,88 @@ Respuesta de Gemini revisada el 2026-09-25. Versiones: Manual del Jugador 2024 (
 
 ## Lote 13: Mago (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 30. Con tipo claro: 13. Ya revisados: 0.
+Dudosos: 0. Con tipo claro: 0. Ya revisados: 71.
 
-### Mago
+Respuesta de Gemini revisada el 2026-09-25. Versiones: Manual del Jugador 2024 (clase, Abjurador, Adivino, Evocador, Ilusionista), Arcana Unleashed 2026 (Conjurador, Encantador, Nigromante, Transmutador), Heroes of Faerûn 2025 (Cantor de la Hoja); Cronurgia y Graviturgia (Explorer's Guide to Wildemount 2020), Orden de Escribas (Tasha 2020) y Magia de Guerra (Xanathar 2017) no tienen versión 2024 y se agregan con sus rasgos de nivel 2 pasados al 3.
 
-- [ ] **Dominio de Conjuros** (nivel 18): hoy `pasiva`, no menciona tipo de acción <!-- mago|dominio de conjuros -->
-- [ ] **Conjuros de Firma** (nivel 20): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- mago|conjuros de firma -->
+- [x] **Corregido de la respuesta**: Gemini no puso los rasgos de nivel 2 de las cuatro subclases antiguas (Cambio Crónico y Conciencia Temporal; Ajustar Densidad; Pluma de Mago y Libro de Conjuros Despierto; Desvío Arcano e Ingenio Táctico): se escribieron a mano con el texto oficial. El libro de cada subclase iba por nombre y no por clave. Invocar bestia e Invocar feérico sí están en la app.
+- [x] **Nombres**: las escuelas pasan a llamarse como en 2024 (Abjurador, Adivino, Evocador, Ilusionista, Conjurador, Encantador, Nigromante, Transmutador); la clave de cada una no cambia, así que los personajes que ya las tenían las conservan.
+- [x] **Escuelas de 2014 que tenía la biblioteca**: Conjuración, Encantamiento, Necromancia y Transmutación eran la versión de 2014 (Conjuración Menor, Mirada Hipnótica, Cosecha Mortal, Alquimia Menor); quedan con la de Arcana Unleashed. Evocación e Ilusión quedan con el orden de 2024 (Truco Potente en el 3 y Esculpir Conjuros en el 6; Criaturas Fantasmales reemplaza a Ilusiones Maleables).
+- [x] **A mano (reglas-revisadas.ts)**: PG de la Capa Arcana, CA del Canto de la Hoja, iniciativa de Conciencia Temporal e Ingenio Táctico, daño de Evocación Potenciada, Siervos Muertos Vivientes, Amo de la Muerte y Manto Desviador con el número ya calculado.
 
-### Escuela de Abjuración
+### Revisados
 
-- [ ] **Capa Arcana** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- escuela de abjuracion|capa arcana -->
-- [ ] **Capa Proyectada** (nivel 6): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- escuela de abjuracion|capa proyectada -->
-- [ ] **Resistencia a Conjuros** (nivel 14): hoy `pasiva`, no menciona tipo de acción <!-- escuela de abjuracion|resistencia a conjuros -->
-
-### Escuela de Adivinación
-
-- [ ] **Portento** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- escuela de adivinacion|portento -->
-- [ ] **Adivino Experto** (nivel 6): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- escuela de adivinacion|adivino experto -->
-- [ ] **El Tercer Ojo** (nivel 10): hoy `pasiva`, no menciona tipo de acción <!-- escuela de adivinacion|el tercer ojo -->
-- [ ] **Portento Mayor** (nivel 14): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- escuela de adivinacion|portento mayor -->
-
-### Escuela de Evocación
-
-- [ ] **Esculpir Conjuros** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- escuela de evocacion|esculpir conjuros -->
-- [ ] **Truco Potente** (nivel 6): hoy `pasiva`, no menciona tipo de acción <!-- escuela de evocacion|truco potente -->
-- [ ] **Evocación Potenciada** (nivel 10): hoy `pasiva`, no menciona tipo de acción <!-- escuela de evocacion|evocacion potenciada -->
-- [ ] **Sobrecarga** (nivel 14): hoy `pasiva`, no menciona tipo de acción <!-- escuela de evocacion|sobrecarga -->
-
-### Escuela de Ilusión
-
-- [ ] **Ilusión Menor Mejorada** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- escuela de ilusion|ilusion menor mejorada -->
-- [ ] **Ilusiones Maleables** (nivel 6): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- escuela de ilusion|ilusiones maleables -->
-- [ ] **Realidad Ilusoria** (nivel 14): hoy `pasiva`, no menciona tipo de acción <!-- escuela de ilusion|realidad ilusoria -->
-
-### Cantor de la Hoja
-
-- [ ] **Formación en Guerra y Canto** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- cantor de la hoja|formacion en guerra y canto -->
-
-### Escuela de Conjuración
-
-- [ ] **Erudito de la Conjuración** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- escuela de conjuracion|erudito de la conjuracion -->
-- [ ] **Conjuración Concentrada** (nivel 10): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- escuela de conjuracion|conjuracion concentrada -->
-- [ ] **Invocaciones Duraderas** (nivel 14): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- escuela de conjuracion|invocaciones duraderas -->
-
-### Escuela de Encantamiento
-
-- [ ] **Erudito del Encantamiento** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- escuela de encantamiento|erudito del encantamiento -->
-- [ ] **Encantamiento Dividido** (nivel 10): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- escuela de encantamiento|encantamiento dividido -->
-
-### Escuela de Necromancia
-
-- [ ] **Erudito de la Necromancia** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- escuela de necromancia|erudito de la necromancia -->
-- [ ] **Cosecha Mortal** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- escuela de necromancia|cosecha mortal -->
-- [ ] **Séquito de Muertos** (nivel 6): hoy `pasiva`, queda pasiva pero parece activarse <!-- escuela de necromancia|sequito de muertos -->
-- [ ] **Acostumbrado a la Muerte** (nivel 10): hoy `pasiva`, no menciona tipo de acción <!-- escuela de necromancia|acostumbrado a la muerte -->
-
-### Escuela de Transmutación
-
-- [ ] **Erudito de la Transmutación** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- escuela de transmutacion|erudito de la transmutacion -->
-- [ ] **Alquimia Menor** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- escuela de transmutacion|alquimia menor -->
-- [ ] **Piedra del Transmutador** (nivel 6): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- escuela de transmutacion|piedra del transmutador -->
-- [ ] **Cambiaformas** (nivel 10): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- escuela de transmutacion|cambiaformas -->
+- [x] **Dominio de Conjuros** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- mago|dominio de conjuros -->
+- [x] **Conjuros de Firma** (nivel 20): `pasiva`. Manual del Jugador (2024). <!-- mago|conjuros de firma -->
+- [x] **Erudito de la Abjuración** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- abjurador|erudito de la abjuracion -->
+- [x] **Capa Arcana** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- abjurador|capa arcana -->
+- [x] **Capa Proyectada** (nivel 6): `reaccion`. Manual del Jugador (2024). <!-- abjurador|capa proyectada -->
+- [x] **Rompeconjuros** (nivel 10): `adicional`. Manual del Jugador (2024). <!-- abjurador|rompeconjuros -->
+- [x] **Resistencia a Conjuros** (nivel 14): `pasiva`. Manual del Jugador (2024). <!-- abjurador|resistencia a conjuros -->
+- [x] **Canto de la Hoja** (nivel 3): `adicional`. Forgotten Realms: Heroes of Faerûn (2025). <!-- cantor de la hoja|canto de la hoja -->
+- [x] **Formación en Guerra y Canto** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- cantor de la hoja|formacion en guerra y canto -->
+- [x] **Ataque Extra** (nivel 6): `accion`. Forgotten Realms: Heroes of Faerûn (2025). <!-- cantor de la hoja|ataque extra -->
+- [x] **Canción de Defensa** (nivel 10): `reaccion`. Forgotten Realms: Heroes of Faerûn (2025). <!-- cantor de la hoja|cancion de defensa -->
+- [x] **Canción de Victoria** (nivel 14): `adicional`. Forgotten Realms: Heroes of Faerûn (2025). <!-- cantor de la hoja|cancion de victoria -->
+- [x] **Erudito de la Conjuración** (nivel 3): `pasiva`. Arcana Unleashed (2026). <!-- conjurador|erudito de la conjuracion -->
+- [x] **Transposición Benigna** (nivel 3): `adicional`. Arcana Unleashed (2026). <!-- conjurador|transposicion benigna -->
+- [x] **Transposición Distante** (nivel 6): `pasiva`. Arcana Unleashed (2026). <!-- conjurador|transposicion distante -->
+- [x] **Invocaciones Duraderas** (nivel 6): `pasiva`. Arcana Unleashed (2026). <!-- conjurador|invocaciones duraderas -->
+- [x] **Conjuración Concentrada** (nivel 10): `pasiva`. Arcana Unleashed (2026). <!-- conjurador|conjuracion concentrada -->
+- [x] **Invocación Astillada** (nivel 14): `pasiva`. Arcana Unleashed (2026). <!-- conjurador|invocacion astillada -->
+- [x] **Erudito de la Adivinación** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- adivino|erudito de la adivinacion -->
+- [x] **Portento** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- adivino|portento -->
+- [x] **Adivino Experto** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- adivino|adivino experto -->
+- [x] **El Tercer Ojo** (nivel 10): `adicional`. Manual del Jugador (2024). <!-- adivino|el tercer ojo -->
+- [x] **Portento Mayor** (nivel 14): `pasiva`. Manual del Jugador (2024). <!-- adivino|portento mayor -->
+- [x] **Erudito del Encantamiento** (nivel 3): `pasiva`. Arcana Unleashed (2026). <!-- encantador|erudito del encantamiento -->
+- [x] **Conversador Encantador** (nivel 3): `pasiva`. Arcana Unleashed (2026). <!-- encantador|conversador encantador -->
+- [x] **Presencia Hipnótica** (nivel 3): `accion`. Arcana Unleashed (2026). <!-- encantador|presencia hipnotica -->
+- [x] **Encantamiento Dividido** (nivel 6): `pasiva`. Arcana Unleashed (2026). <!-- encantador|encantamiento dividido -->
+- [x] **Encanto Instintivo** (nivel 10): `reaccion`. Arcana Unleashed (2026). <!-- encantador|encanto instintivo -->
+- [x] **Alterar Recuerdos** (nivel 14): `accion`. Arcana Unleashed (2026). <!-- encantador|alterar recuerdos -->
+- [x] **Erudito de la Evocación** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- evocador|erudito de la evocacion -->
+- [x] **Truco Potente** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- evocador|truco potente -->
+- [x] **Esculpir Conjuros** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- evocador|esculpir conjuros -->
+- [x] **Evocación Potenciada** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- evocador|evocacion potenciada -->
+- [x] **Sobrecarga** (nivel 14): `pasiva`. Manual del Jugador (2024). <!-- evocador|sobrecarga -->
+- [x] **Erudito de la Ilusión** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- ilusionista|erudito de la ilusion -->
+- [x] **Ilusiones Mejoradas** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- ilusionista|ilusiones mejoradas -->
+- [x] **Criaturas Fantasmales** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- ilusionista|criaturas fantasmales -->
+- [x] **Yo Ilusorio** (nivel 10): `reaccion`. Manual del Jugador (2024). <!-- ilusionista|yo ilusorio -->
+- [x] **Realidad Ilusoria** (nivel 14): `adicional`. Manual del Jugador (2024). <!-- ilusionista|realidad ilusoria -->
+- [x] **Erudito de la Necromancia** (nivel 3): `pasiva`. Arcana Unleashed (2026). <!-- nigromante|erudito de la necromancia -->
+- [x] **Libro de Necromancia** (nivel 3): `pasiva`. Arcana Unleashed (2026). <!-- nigromante|libro de necromancia -->
+- [x] **Poder de la Tumba** (nivel 6): `pasiva`. Arcana Unleashed (2026). <!-- nigromante|poder de la tumba -->
+- [x] **Siervos Muertos Vivientes** (nivel 6): `pasiva`. Arcana Unleashed (2026). <!-- nigromante|siervos muertos vivientes -->
+- [x] **Cosechar a los Muertos** (nivel 10): `reaccion`. Arcana Unleashed (2026). <!-- nigromante|cosechar a los muertos -->
+- [x] **Amo de la Muerte** (nivel 14): `adicional`. Arcana Unleashed (2026). <!-- nigromante|amo de la muerte -->
+- [x] **Erudito de la Transmutación** (nivel 3): `pasiva`. Arcana Unleashed (2026). <!-- transmutador|erudito de la transmutacion -->
+- [x] **Piedra del Transmutador** (nivel 3): `pasiva`. Arcana Unleashed (2026). <!-- transmutador|piedra del transmutador -->
+- [x] **Alteración Maravillosa** (nivel 3): `pasiva`. Arcana Unleashed (2026). <!-- transmutador|alteracion maravillosa -->
+- [x] **Transmutación Potenciada** (nivel 6): `pasiva`. Arcana Unleashed (2026). <!-- transmutador|transmutacion potenciada -->
+- [x] **Piedra Potente** (nivel 10): `pasiva`. Arcana Unleashed (2026). <!-- transmutador|piedra potente -->
+- [x] **Cambiaformas** (nivel 10): `pasiva`. Arcana Unleashed (2026). <!-- transmutador|cambiaformas -->
+- [x] **Maestro Transmutador** (nivel 14): `accion`. Arcana Unleashed (2026). <!-- transmutador|maestro transmutador -->
+- [x] **Cambio Crónico** (nivel 3): `reaccion`. Explorer's Guide to Wildemount (2020). <!-- magia de cronurgia|cambio cronico -->
+- [x] **Conciencia Temporal** (nivel 3): `pasiva`. Explorer's Guide to Wildemount (2020). <!-- magia de cronurgia|conciencia temporal -->
+- [x] **Estasis Momentánea** (nivel 6): `accion`. Explorer's Guide to Wildemount (2020). <!-- magia de cronurgia|estasis momentanea -->
+- [x] **Suspensión Arcana** (nivel 10): `pasiva`. Explorer's Guide to Wildemount (2020). <!-- magia de cronurgia|suspension arcana -->
+- [x] **Futuro Convergente** (nivel 14): `reaccion`. Explorer's Guide to Wildemount (2020). <!-- magia de cronurgia|futuro convergente -->
+- [x] **Ajustar Densidad** (nivel 3): `accion`. Explorer's Guide to Wildemount (2020). <!-- magia de graviturgia|ajustar densidad -->
+- [x] **Pozo Gravitatorio** (nivel 6): `pasiva`. Explorer's Guide to Wildemount (2020). <!-- magia de graviturgia|pozo gravitatorio -->
+- [x] **Atracción Violenta** (nivel 10): `reaccion`. Explorer's Guide to Wildemount (2020). <!-- magia de graviturgia|atraccion violenta -->
+- [x] **Horizonte de Sucesos** (nivel 14): `accion`. Explorer's Guide to Wildemount (2020). <!-- magia de graviturgia|horizonte de sucesos -->
+- [x] **Pluma de Mago** (nivel 3): `adicional`. Tasha's Cauldron of Everything (2020). <!-- orden de escribas|pluma de mago -->
+- [x] **Libro de Conjuros Despierto** (nivel 3): `pasiva`. Tasha's Cauldron of Everything (2020). <!-- orden de escribas|libro de conjuros despierto -->
+- [x] **Mente Manifiesta** (nivel 6): `adicional`. Tasha's Cauldron of Everything (2020). <!-- orden de escribas|mente manifiesta -->
+- [x] **Maestro Copista** (nivel 10): `fuera`. Tasha's Cauldron of Everything (2020). <!-- orden de escribas|maestro copista -->
+- [x] **Uno con la Palabra** (nivel 14): `pasiva`. Tasha's Cauldron of Everything (2020). <!-- orden de escribas|uno con la palabra -->
+- [x] **Desvío Arcano** (nivel 3): `reaccion`. Xanathar's Guide to Everything (2017). <!-- magia de guerra|desvio arcano -->
+- [x] **Ingenio Táctico** (nivel 3): `pasiva`. Xanathar's Guide to Everything (2017). <!-- magia de guerra|ingenio tactico -->
+- [x] **Oleada de Poder** (nivel 6): `pasiva`. Xanathar's Guide to Everything (2017). <!-- magia de guerra|oleada de poder -->
+- [x] **Magia Duradera** (nivel 10): `pasiva`. Xanathar's Guide to Everything (2017). <!-- magia de guerra|magia duradera -->
+- [x] **Manto Desviador** (nivel 14): `pasiva`. Xanathar's Guide to Everything (2017). <!-- magia de guerra|manto desviador -->
 
 ## Lote 14: Monje (subclases y rasgos de nivel alto de la biblioteca)
 

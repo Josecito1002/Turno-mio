@@ -2,6 +2,8 @@ export type Termino = { n: number; d: number; s: number } | { k: number };
 export type OpcionesTirada = {
   adv?: number; crit?: boolean; keep?: number; min3?: boolean; neutral?: boolean; noRepeat?: boolean;
   dmg?: string; dmgLabel?: string; dmgMin3?: boolean;
+  /** Lo que puede seguir a un ataque (rasgos al acertar, acciones adicionales), para ofrecerlo tras la tirada */
+  extras?: { nombre: string; t: string; expr: string }[];
 };
 export type Grupo = { d: number; vals: number[]; kept: boolean[]; s: number; sum: number };
 export type Resultado = { expr: string; groups: Grupo[]; consts: number; total: number; nat: number | null; label?: string; o?: OpcionesTirada };

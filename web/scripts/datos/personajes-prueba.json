@@ -20,6 +20,61 @@
       "clase": "guerrero",
       "subclase": "samurai",
       "nivel": 10
+    },
+    {
+      "clase": "mago",
+      "subclase": "abjuracion",
+      "nivel": 6
+    },
+    {
+      "clase": "mago",
+      "subclase": "cantor-hoja",
+      "nivel": 3
+    },
+    {
+      "clase": "mago",
+      "subclase": "encantamiento",
+      "nivel": 3
+    },
+    {
+      "clase": "mago",
+      "subclase": "magia-cronurgia",
+      "nivel": 3
+    },
+    {
+      "clase": "mago",
+      "subclase": "magia-graviturgia",
+      "nivel": 10
+    },
+    {
+      "clase": "mago",
+      "subclase": "escribas",
+      "nivel": 3
+    },
+    {
+      "clase": "mago",
+      "subclase": "magia-guerra",
+      "nivel": 14
+    },
+    {
+      "clase": "mago",
+      "subclase": "necromancia",
+      "nivel": 14
+    },
+    {
+      "clase": "mago",
+      "subclase": "evocacion",
+      "nivel": 10
+    },
+    {
+      "clase": "picaro",
+      "subclase": "",
+      "nivel": 5
+    },
+    {
+      "clase": "paladin",
+      "subclase": "",
+      "nivel": 5
     }
   ]
 }

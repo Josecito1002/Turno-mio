@@ -1,6 +1,7 @@
-=== A ===
+/* Mago de la biblioteca puesto al día con su versión oficial más reciente (texto oficial de 5etools, redactado por
+   Gemini y revisado con scripts/gemini/revisar.ts). Libros: Manual del Jugador (2024); Forgotten Realms: Heroes of Faerûn (2025); Explorer's Guide to Wildemount (2020); Arcana Unleashed (2026); Tasha's Cauldron of Everything (2020); Xanathar's Guide to Everything (2017).
+   Lo aplica scripts/actualizar-clase.ts (opción "mago"). */
 
-```ts
 const r = (n: number, nombre: string, t: string, texto: string, extra: Record<string, unknown> = {}) => ({ nombre, t, texto, n, manual: true, usos: 0, reset: 'largo', ...extra });
 
 export const MAGO_2024 = {
@@ -146,100 +147,3 @@ export const MAGO_2024 = {
     }
   }
 };
-
-```
-
-=== B ===
-
-```json
-[
-  { "donde": "abjuracion", "rasgo": "Capa Arcana", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "abjuracion", "rasgo": "Capa Arcana", "tipo": "pg", "detalle": "(2 * nivel) + INT" },
-  { "donde": "cantor-hoja", "rasgo": "Canto de la Hoja", "tipo": "usos", "usos": "max(1, INT)", "reset": "largo" },
-  { "donde": "cantor-hoja", "rasgo": "Canto de la Hoja", "tipo": "ca", "detalle": "INT (mínimo +1)" },
-  { "donde": "conjuracion", "rasgo": "Transposición Benigna", "tipo": "usos", "usos": "max(1, INT)", "reset": "largo" },
-  { "donde": "conjuracion", "rasgo": "Invocación Astillada", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "adivinacion", "rasgo": "El Tercer Ojo", "tipo": "usos", "usos": "1", "reset": "corto" },
-  { "donde": "encantamiento", "rasgo": "Conversador Encantador", "tipo": "eleccion", "id": "encantamiento-habilidades", "cuantas": "1",
-    "opciones": [
-      { "key": "encant-engano", "nombre": "Engaño", "desc": "Competencia en Engaño y sumas INT.", "nivel": 3, "requiere": null },
-      { "key": "encant-intimidacion", "nombre": "Intimidación", "desc": "Competencia en Intimidación y sumas INT.", "nivel": 3, "requiere": null },
-      { "key": "encant-persuasion", "nombre": "Persuasión", "desc": "Competencia en Persuasión y sumas INT.", "nivel": 3, "requiere": null }
-    ]
-  },
-  { "donde": "encantamiento", "rasgo": "Presencia Hipnótica", "tipo": "usos", "usos": "max(1, INT)", "reset": "largo" },
-  { "donde": "encantamiento", "rasgo": "Encantamiento Dividido", "tipo": "usos", "usos": "max(1, INT)", "reset": "largo" },
-  { "donde": "encantamiento", "rasgo": "Encanto Instintivo", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "evocacion", "rasgo": "Evocación Potenciada", "tipo": "daño", "daño": "INT" },
-  { "donde": "ilusion", "rasgo": "Criaturas Fantasmales", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "ilusion", "rasgo": "Yo Ilusorio", "tipo": "usos", "usos": "1", "reset": "corto" },
-  { "donde": "necromancia", "rasgo": "Siervos Muertos Vivientes", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "necromancia", "rasgo": "Siervos Muertos Vivientes", "tipo": "daño", "daño": "INT Necrótico" },
-  { "donde": "necromancia", "rasgo": "Amo de la Muerte", "tipo": "pg", "detalle": "nivel" },
-  { "donde": "transmutacion", "rasgo": "Alteración Maravillosa", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "transmutacion", "rasgo": "Transmutación Potenciada", "tipo": "usos", "usos": "max(1, INT)", "reset": "largo" },
-  { "donde": "transmutacion", "rasgo": "Cambiaformas", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "magia-cronurgia", "rasgo": "Cambio Crónico", "tipo": "usos", "usos": "2", "reset": "largo" },
-  { "donde": "escribas", "rasgo": "Libro de Conjuros Despierto", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "magia-cronurgia", "rasgo": "Estasis Momentánea", "tipo": "usos", "usos": "max(1, INT)", "reset": "largo" },
-  { "donde": "magia-cronurgia", "rasgo": "Suspensión Arcana", "tipo": "usos", "usos": "1", "reset": "corto" },
-  { "donde": "magia-graviturgia", "rasgo": "Atracción Violenta", "tipo": "usos", "usos": "max(1, INT)", "reset": "largo" },
-  { "donde": "escribas", "rasgo": "Mente Manifiesta", "tipo": "usos", "usos": "pb", "reset": "largo" },
-  { "donde": "escribas", "rasgo": "Uno con la Palabra", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "magia-guerra", "rasgo": "Manto Desviador", "tipo": "daño", "daño": "nivel/2 Fuerza" }
-]
-
-```
-
-=== C ===
-
-```json
-{
-  "abjuracion": "Manual del Jugador (2024)",
-  "cantor-hoja": "Forgotten Realms: Heroes of Faerûn (2025)",
-  "magia-cronurgia": "Explorer's Guide to Wildemount (2020)",
-  "conjuracion": "Arcana Unleashed (2026)",
-  "adivinacion": "Manual del Jugador (2024)",
-  "encantamiento": "Arcana Unleashed (2026)",
-  "evocacion": "Manual del Jugador (2024)",
-  "magia-graviturgia": "Explorer's Guide to Wildemount (2020)",
-  "ilusion": "Manual del Jugador (2024)",
-  "necromancia": "Arcana Unleashed (2026)",
-  "escribas": "Tasha's Cauldron of Everything (2020)",
-  "transmutacion": "Arcana Unleashed (2026)",
-  "magia-guerra": "Xanathar's Guide to Everything (2017)"
-}
-
-```
-
-=== D ===
-
-```json
-{
-  "abjuracion": "Especialistas en conjuros defensivos capaces de sellar portales, desintegrar hechizos enemigos e invocar escudos arcanos indestructibles.",
-  "cantor-hoja": "Tradición élfica de hechiceros espadachines que bailan al son de un canto mágico para volverse intocables en el combate cuerpo a cuerpo.",
-  "conjuracion": "Burlan la física usando agujeros de gusano y portales para teletransportarse y convocar espíritus masivos desde otros planos de existencia.",
-  "adivinacion": "Videntes y oráculos que estudian los secretos del pasado y futuro, torciendo el destino mediante la imposición de visiones cósmicas en los dados.",
-  "encantamiento": "Maestros del control mental, embelesan al enemigo con la palabra y pueden secuestrar su memoria e instintos más profundos.",
-  "evocacion": "Artilleros pesados de la magia que moldean la energía elemental y destruyen ciudades con explosiones colosales sin dañar a sus aliados.",
-  "ilusion": "Manipulan la percepción creando fantasías realistas, clones engañosos y engañando los sentidos al punto de volver la imaginación tangible.",
-  "necromancia": "Amos del ciclo vital, reaniman cadáveres para formar ejércitos eternos, resisten el daño decrépito y extraen su vida al destruir al enemigo.",
-  "transmutacion": "Alquimistas que experimentan con la materia y la metamorfosis de la carne, creando curas milagrosas o desatando poder alterando armas aliadas.",
-  "magia-cronurgia": "Expertos en congelar el tiempo que encapsulan hechizos en objetos esféricos y deshacen un éxito enemigo en un fracaso.",
-  "magia-graviturgia": "Manipuladores de densidad que imponen campos gravitacionales colosales, aplastando enemigos al suelo y aumentando el peso de armas aliadas.",
-  "escribas": "Ratones de biblioteca que despiertan la conciencia de su libro de conjuros, el cual actúa de mensajero y escudo sacrificial mágico.",
-  "magia-guerra": "Tácticos curtidos que defienden y absorben energía de la disipación para potenciar la fuerza atronadora de su próximo golpe."
-}
-
-```
-
-=== E ===
-
-* **Revisión profunda 2024 en Subclases Base:** Casi todas las escuelas del Player's Handbook (Abjurador, Adivino, Evocador, Ilusionista) fueron actualizadas por el manual base 2024, mejorando duraciones, escalado o reemplazando requerimientos de acción por usos que escalan con el stat principal (Inteligencia). Subclases como Nigromante, Encantador, Conjurador y Transmutador han sido reestructuradas bajo "Arcana Unleashed (2026)".
-* **Eruditos Arcamos:** Todas las escuelas clásicas (Conjurador, Abjurador, Evocador, etc.) actualizadas perdieron su descuento en oro para copiar hechizos. A cambio, todas recibieron la pasiva (Savants) que otorga *dos* conjuros de la especialidad gratis en nivel 3 y luego *uno adicional* en cada nivel que desbloqueen nuevos espacios (hasta nivel 9). Esto es masivo, así que he reestructurado todos los niveles 3.
-* **Cantor de la Hoja:** Actualizada bajo Heroes of Faerun 2025. El rasgo nivel 3 otorga competencia en armas marciales *de una mano* (No dice expresamente "cuerpo a cuerpo" y "larga", dice *Melee Martial weapons that don't have the Two-Handed or Heavy*), y permite usar el arma como foco arcano. Usos ahora son `max(1, INT)` ligados al descanso largo (y +1 en descanso corto arcano).
-* **Abjuración Nivel 3:** La *Capa Arcana (Arcane Ward)* se lanza gratis *sólo* la primera vez en el día que usas un conjuro, luego se recarga. Además, puedes gastar espacios como Acción Adicional para regenerarla.
-* **Ilusión (Niveles 6 y 14):** El nivel 6 original (Ilusiones Maleables) desapareció de 2024. Fue sustituido por "Criaturas Fantasmales" (convocas espectros con conjuros concretos pero gratis a media vida). Realidad Ilusoria (nivel 14) fue simplificada (usa una Bonus Action en lugar de una acción completa).
-* **Evocación Nivel 3 y 6:** "Truco Potente" fue degradado a Nivel 3 (original 6). "Esculpir Conjuros" se movió al Nivel 6 (original 3).
-* **Nigromancia (Múltiples cambios AU 2026):** Resistencia necrótica pasa de nivel 10 a nivel 3. "Acostumbrado a la muerte" (10) ahora es la reacción de curarte al desintegrar zombis en apuros. Obtienes invocar familiares no muertos directos en nivel 3.
-* **Transmutación:** Obtiene un hechizo permanente de forma "Alterar el propio aspecto" y "Polimorfar" que puede alterar los efectos. Puede crear 2 beneficios a nivel 10 en su piedra (Potent Stone).

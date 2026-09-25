@@ -64,6 +64,12 @@ export function tocarPip(id: string, i: number, max: number) {
   pj.used[id] = i < left ? used + 1 : Math.max(0, used - 1);
   savePj(); render();
 }
+/** Gasta un espacio de conjuro del nivel dado; devuelve false si no quedaba ninguno. */
+export function gastarEspacio(nivel: number) {
+  const pj = S.pj, r = S.c.recursos.find((x: any) => x.id === 'slot' + nivel); if (!r) return false;
+  const used = Math.min(pj.used[r.id] || 0, r.max); if (used >= r.max) return false;
+  pj.used[r.id] = used + 1; savePj(); render(); return true;
+}
 export function moverPool(id: string, d: number) {
   const pj = S.pj, r = S.c.recursos.find((r: any) => r.id === id);
   const used = Math.min(pj.used[r.id] || 0, r.max);

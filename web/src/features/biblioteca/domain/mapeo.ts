@@ -86,6 +86,14 @@ export type BibliotecaAnidada = {
   libExtra: Fila[];
 };
 
+/** Algunos conjuros importados traen la descripción dos veces (en pies y en metros) unida por ".,": se deja la primera. */
+export function sinDuplicado(desc: string) {
+  if (typeof desc !== 'string') return desc;
+  const inicio = desc.slice(0, 30);
+  for (let i = desc.indexOf('.,'); i >= 0; i = desc.indexOf('.,', i + 1)) if (desc.slice(i + 2, i + 32) === inicio) return desc.slice(0, i + 1);
+  return desc;
+}
+
 export function filasALib(data: BibliotecaAnidada): Biblioteca {
   const LIB: any = { clases: {}, especies: {}, trasfondos: {}, dotes: {}, conjuros: {} };
   const rasgo = (r: Fila) => {
@@ -139,7 +147,7 @@ export function filasALib(data: BibliotecaAnidada): Biblioteca {
   for (const s of data.conjuros) {
     LIB.conjuros[s.id] = {
       nombre: s.nombre, nivel: s.nivel, tiempo: s.tiempo, alcance: s.alcance, dur: s.duracion, conc: s.concentracion, ritual: s.ritual,
-      salv: s.salvacion, ataque: s.ataque, dados: s.dados, desc: s.descripcion, clases: s.clases, ...(s.extra || {}),
+      salv: s.salvacion, ataque: s.ataque, dados: s.dados, desc: sinDuplicado(s.descripcion), clases: s.clases, ...(s.extra || {}),
     };
   }
   for (const x of data.libExtra || []) (LIB[x.tipo] = LIB[x.tipo] || {})[x.clave] = x.valor;
