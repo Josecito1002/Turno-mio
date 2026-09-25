@@ -3,7 +3,7 @@
 Rasgos de la biblioteca sin regla revisada en `web/src/features/reglas/data/reglas-revisadas.ts` cuyo tipo es dudoso:
 el clasificador los deja como pasiva aunque su texto sugiere que se activan, o su texto no menciona ningún tipo de acción.
 
-Generado con `npx tsx scripts/auditar-reglas.ts` (desde `web/`). Pendientes al generar: 214.
+Generado con `npx tsx scripts/auditar-reglas.ts` (desde `web/`). Pendientes al generar: 211.
 Al marcar una casilla, agrega al final una nota corta con la fuente si hubo que investigar.
 
 ## Selectores
@@ -49,8 +49,8 @@ Las que se deciden al usar el rasgo (a quién, qué efecto) no llevan selector: 
 
 ### Lote 9: Druida
 
-- [ ] **Furia Elemental (nivel 7)**: Golpe Primigenio o Lanzamiento Potente. <!-- selector|furia-elemental -->
-- [ ] **Círculo de la Tierra: tipo de tierra**: Árida, Polar, Templada o Tropical; decide los conjuros siempre preparados. <!-- selector|tipo-tierra -->
+- [x] **Furia Elemental (nivel 7)**: Golpe Primigenio o Lanzamiento Potente; en el cálculo. <!-- selector|furia-elemental -->
+- [x] **Círculo de la Tierra: tipo de tierra**: Árida, Polar, Templada o Tropical; decide los conjuros siempre preparados, en el cálculo. <!-- selector|tipo-tierra -->
 
 ### Lote 10: Explorador
 
@@ -107,10 +107,10 @@ Se agregan en el lote de su clase, con su versión oficial más reciente. Las ma
 
 ### Lote 9: Druida
 
-- [ ] **Círculo de los Sueños** (Xanathar's Guide to Everything) <!-- agregar|circulo de los suenos -->
-- [ ] **Círculo del Pastor** (Xanathar's Guide to Everything) <!-- agregar|circulo del pastor -->
-- [ ] **Círculo de las Esporas** (Tasha's Cauldron of Everything) <!-- agregar|circulo de las esporas -->
-- [ ] **Círculo del Fuego Salvaje** (Tasha's Cauldron of Everything) <!-- agregar|circulo del fuego salvaje -->
+- [x] **Círculo de los Sueños** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). <!-- agregar|circulo de los suenos -->
+- [x] **Círculo del Pastor** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). <!-- agregar|circulo del pastor -->
+- [x] **Círculo de las Esporas** (Tasha's Cauldron of Everything): agregado, versión de Tasha's Cauldron of Everything (2020). <!-- agregar|circulo de las esporas -->
+- [x] **Círculo del Fuego Salvaje** (Tasha's Cauldron of Everything): agregado, versión de Tasha's Cauldron of Everything (2020). <!-- agregar|circulo del fuego salvaje -->
 
 ### Lote 10: Explorador
 
@@ -784,36 +784,40 @@ Dudosos: 0. Con tipo claro: 0. Ya revisados: 82.
 
 ## Lote 9: Druida (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 14. Con tipo claro: 4. Ya revisados: 0.
+Dudosos: 11. Con tipo claro: 3. Ya revisados: 4.
 
 ### Druida
 
-- [ ] **Furia Elemental** (nivel 7): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- druida|furia elemental -->
-- [ ] **Archidruida** (nivel 20): hoy `gratis`, no menciona tipo de acción <!-- druida|archidruida -->
+- [x] **Archidruida** (nivel 20): `gratis`. Manual del Jugador (2024). <!-- druida|archidruida -->
 
 ### Círculo de la Tierra
 
-- [ ] **Recuperación Natural** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- circulo de la tierra|recuperacion natural -->
-- [ ] **Conjuros de Círculo** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- circulo de la tierra|conjuros de circulo -->
-- [ ] **Zancada de la Tierra** (nivel 6): hoy `pasiva`, no menciona tipo de acción <!-- circulo de la tierra|zancada de la tierra -->
-- [ ] **Protección de la Naturaleza** (nivel 10): hoy `pasiva`, no menciona tipo de acción <!-- circulo de la tierra|proteccion de la naturaleza -->
+- [x] **Recuperación Natural** (nivel 6): `fuera`. Manual del Jugador (2024). <!-- circulo de la tierra|recuperacion natural -->
+- [x] **Conjuros de Círculo** (nivel 3): pasa a llamarse Conjuros del Círculo de la Tierra, con los cuatro tipos de tierra 2024 y su selector; Manual del Jugador (2024). <!-- circulo de la tierra|conjuros de circulo -->
+- [x] **Zancada de la Tierra** (nivel 6): quitado: en 2024 el nivel 6 es Recuperación Natural; Manual del Jugador (2024). <!-- circulo de la tierra|zancada de la tierra -->
+- [x] **Protección de la Naturaleza** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- circulo de la tierra|proteccion de la naturaleza -->
 
 ### Círculo de la Luna
 
-- [ ] **Golpes Primigenios** (nivel 6): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- circulo de la luna|golpes primigenios -->
-- [ ] **Mil Formas** (nivel 14): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- circulo de la luna|mil formas -->
+- [x] **Golpes Primigenios** (nivel 6): sustituido por Formas del Círculo Mejoradas (daño radiante y SAB a las salvaciones de CON); Manual del Jugador (2024). <!-- circulo de la luna|golpes primigenios -->
+- [x] **Mil Formas** (nivel 14): sustituido por Forma Lunar (2d10 radiante y Paso de Luz Lunar compartido); Manual del Jugador (2024). <!-- circulo de la luna|mil formas -->
 
 ### Círculo del Mar
 
-- [ ] **Ira de la Marea** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- circulo del mar|ira de la marea -->
-- [ ] **Marea Creciente** (nivel 10): hoy `pasiva`, no menciona tipo de acción <!-- circulo del mar|marea creciente -->
-- [ ] **Unión con el Océano** (nivel 14): hoy `pasiva`, no menciona tipo de acción <!-- circulo del mar|union con el oceano -->
+- [x] **Ira de la Marea** (nivel 3): pasa a llamarse Ira del Mar: acción adicional, 1 Forma Salvaje, SAB d6 de frío; Manual del Jugador (2024). <!-- circulo del mar|ira de la marea -->
+- [x] **Marea Creciente** (nivel 10): sustituido por Hijo de la Tormenta (vuelo y resistencias); Manual del Jugador (2024). <!-- circulo del mar|marea creciente -->
+- [x] **Unión con el Océano** (nivel 14): sustituido por Don Oceánico (emanación en un aliado); Manual del Jugador (2024). <!-- circulo del mar|union con el oceano -->
 
 ### Círculo de las Estrellas
 
-- [ ] **Mapa Estelar** (nivel 2): hoy `pasiva`, no menciona tipo de acción <!-- circulo de las estrellas|mapa estelar -->
-- [ ] **Augurio Cósmico** (nivel 6): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- circulo de las estrellas|augurio cosmico -->
-- [ ] **Luminosidad Completa** (nivel 14): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- circulo de las estrellas|luminosidad completa -->
+- [x] **Luminosidad Completa** (nivel 14): pasa a llamarse Lleno de Estrellas (pasiva, resistencia física en forma estelar); Manual del Jugador (2024). <!-- circulo de las estrellas|luminosidad completa -->
+
+### Revisados
+
+- [x] **Furia Elemental** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- druida|furia elemental -->
+- [x] **Paso de Luz Lunar** (nivel 10): `adicional`. Manual del Jugador (2024). <!-- circulo de la luna|paso de luz lunar -->
+- [x] **Mapa Estelar** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- circulo de las estrellas|mapa estelar -->
+- [x] **Augurio Cósmico** (nivel 6): `reaccion`. Manual del Jugador (2024). <!-- circulo de las estrellas|augurio cosmico -->
 
 ## Lote 10: Explorador (subclases y rasgos de nivel alto de la biblioteca)
 
@@ -1207,3 +1211,43 @@ Dudosos: 12. Con tipo claro: 1. Ya revisados: 0.
 - [ ] **Don del Espíritu Nocturno** (nivel 19): hoy `pasiva`, no menciona tipo de acción <!-- dote epica|don del espiritu nocturno -->
 - [ ] **Don de Visión Verdadera** (nivel 19): hoy `pasiva`, no menciona tipo de acción <!-- dote epica|don de vision verdadera -->
 - [ ] **Bendición de Siberys** (nivel 19): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- dote epica|bendicion de siberys -->
+
+## Revisados en pasadas anteriores
+
+- [x] **Furia Elemental Mejorada** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- druida|furia elemental mejorada -->
+- [x] **Conjuros de Bestia** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- druida|conjuros de bestia -->
+- [x] **Conjuros del Círculo de la Tierra** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- circulo de la tierra|conjuros del circulo de la tierra -->
+- [x] **Ayuda de la Tierra** (nivel 3): `accion`. Manual del Jugador (2024). <!-- circulo de la tierra|ayuda de la tierra -->
+- [x] **Santuario de la Naturaleza** (nivel 14): `accion`. Manual del Jugador (2024). <!-- circulo de la tierra|santuario de la naturaleza -->
+- [x] **Conjuros del Círculo de la Luna** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- circulo de la luna|conjuros del circulo de la luna -->
+- [x] **Formas del Círculo** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- circulo de la luna|formas del circulo -->
+- [x] **Formas del Círculo Mejoradas** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- circulo de la luna|formas del circulo mejoradas -->
+- [x] **Forma Lunar** (nivel 14): `pasiva`. Manual del Jugador (2024). <!-- circulo de la luna|forma lunar -->
+- [x] **Conjuros del Círculo del Mar** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- circulo del mar|conjuros del circulo del mar -->
+- [x] **Ira del Mar** (nivel 3): `adicional`. Manual del Jugador (2024). <!-- circulo del mar|ira del mar -->
+- [x] **Afinidad Acuática** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- circulo del mar|afinidad acuatica -->
+- [x] **Hijo de la Tormenta** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- circulo del mar|hijo de la tormenta -->
+- [x] **Don Oceánico** (nivel 14): `pasiva`. Manual del Jugador (2024). <!-- circulo del mar|don oceanico -->
+- [x] **Forma Estelar** (nivel 3): `adicional`. Manual del Jugador (2024). <!-- circulo de las estrellas|forma estelar -->
+- [x] **Constelaciones Titilantes** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- circulo de las estrellas|constelaciones titilantes -->
+- [x] **Lleno de Estrellas** (nivel 14): `pasiva`. Manual del Jugador (2024). <!-- circulo de las estrellas|lleno de estrellas -->
+- [x] **Bálsamo de la Corte Estival** (nivel 3): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo de los suenos|balsamo de la corte estival -->
+- [x] **Hogar de Luz Lunar y Sombra** (nivel 6): `fuera`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo de los suenos|hogar de luz lunar y sombra -->
+- [x] **Senderos Ocultos** (nivel 10): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo de los suenos|senderos ocultos -->
+- [x] **Caminante de los Sueños** (nivel 14): `fuera`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo de los suenos|caminante de los suenos -->
+- [x] **Habla del Bosque** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo del pastor|habla del bosque -->
+- [x] **Tótem Espiritual** (nivel 3): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo del pastor|totem espiritual -->
+- [x] **Invocador Poderoso** (nivel 6): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo del pastor|invocador poderoso -->
+- [x] **Espíritu Guardián** (nivel 10): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo del pastor|espiritu guardian -->
+- [x] **Invocación Fiel** (nivel 14): `gratis`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- circulo del pastor|invocacion fiel -->
+- [x] **Conjuros del Círculo de las Esporas** (nivel 3): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|conjuros del circulo de las esporas -->
+- [x] **Halo de Esporas** (nivel 3): `reaccion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|halo de esporas -->
+- [x] **Entidad Simbiótica** (nivel 3): `accion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|entidad simbiotica -->
+- [x] **Infestación Fúngica** (nivel 6): `reaccion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|infestacion fungica -->
+- [x] **Esporas Esparcidas** (nivel 10): `adicional`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|esporas esparcidas -->
+- [x] **Cuerpo Fúngico** (nivel 14): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo de las esporas|cuerpo fungico -->
+- [x] **Conjuros del Círculo del Fuego Salvaje** (nivel 3): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo del fuego salvaje|conjuros del circulo del fuego salvaje -->
+- [x] **Invocar Espíritu de Fuego Salvaje** (nivel 3): `accion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo del fuego salvaje|invocar espiritu de fuego salvaje -->
+- [x] **Vínculo Potenciado** (nivel 6): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo del fuego salvaje|vinculo potenciado -->
+- [x] **Llamas Cauterizantes** (nivel 10): `reaccion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo del fuego salvaje|llamas cauterizantes -->
+- [x] **Resurgir Llameante** (nivel 14): `gratis`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- circulo del fuego salvaje|resurgir llameante -->

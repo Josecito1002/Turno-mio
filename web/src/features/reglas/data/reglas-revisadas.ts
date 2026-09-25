@@ -215,6 +215,17 @@ const genio = c => GENIOS[elegido(c, 'genio-tipo')];
 const danoGenio = c => genio(c) ? `daño ${genio(c).dano}` : 'daño del tipo de tu genio';
 const dadoTentaculo = c => c.lvl >= 10 ? '2d8' : '1d8';
 
+/* Druida: tipos de tierra del Círculo de la Tierra (conjuros por nivel de druida y resistencia de Protección de la Naturaleza) */
+const TIERRAS = {
+  arida: {n:'Tierra árida', res:'al fuego', conj:[[3, ['Contorno borroso', 'Manos ardientes', 'Descarga de fuego']], [5, ['Bola de fuego']], [7, ['Marchitar']], [9, ['Muro de piedra']]]},
+  polar: {n:'Tierra polar', res:'al frío', conj:[[3, ['Niebla', 'Inmovilizar persona', 'Rayo de escarcha']], [5, ['Tormenta de aguanieve']], [7, ['Tormenta de hielo']], [9, ['Cono de frío']]]},
+  templada: {n:'Tierra templada', res:'al relámpago', conj:[[3, ['Paso brumoso', 'Agarre electrizante', 'Dormir']], [5, ['Relámpago']], [7, ['Libertad de movimiento']], [9, ['Paso arbóreo']]]},
+  tropical: {n:'Tierra tropical', res:'al veneno', conj:[[3, ['Salpicadura ácida', 'Rayo nauseabundo', 'Telaraña']], [5, ['Nube apestosa']], [7, ['Polimorfar']], [9, ['Plaga de insectos']]]},
+};
+const dadoAyudaTierra = c => c.lvl >= 14 ? '4d6' : c.lvl >= 10 ? '3d6' : '2d6';
+const dadoEstrella = c => c.lvl >= 10 ? '2d8' : '1d8';
+const dadoHalo = c => c.lvl >= 14 ? '1d10' : c.lvl >= 10 ? '1d8' : c.lvl >= 6 ? '1d6' : '1d4';
+
 export const REGLAS: any[] = [
   /* ---------- Pugilista (The Pugilist Class 2024, Benjamin Huffman) ----------
      La biblioteca ya trae la versión 2024 (scripts/datos/pugilista-2024.ts). Arena Royale y Matones Sabuesos
@@ -1046,6 +1057,43 @@ export const REGLAS: any[] = [
   {de:/dominio de la muerte/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Falsa vida', 'Rayo nauseabundo', 'Sordera/Ceguera', 'Rayo debilitador']], [5, ['Animar a los muertos', 'Toque vampírico']], [7, ['Marchitar', 'Guarda contra la Muerte']], [9, ['Caparazón antivida', 'Nube aniquiladora']]]).texto},
   {de:/dominio de la muerte/, n:/^toque de la muerte/, t:'gratis', coste:'1 Canalizar Divinidad',
     texto: c => `Al acertar con un ataque cuerpo a cuerpo, haces ${5 + 2 * c.lvl} de daño necrótico extra.`},
+
+  /* ---------- Druida (Lote 9: Manual del Jugador 2024; Sueños y Pastor de Xanathar, Esporas y Fuego Salvaje de Tasha) ----------
+     Lo demás (textos, usos, conjuros de círculo) está en generadas/druida.ts */
+  /* Círculo de la Tierra: la regla repite la elección de lo generado, porque esta tiene prioridad */
+  {de:/^circulo de la tierra$/, n:/^conjuros del circulo de la tierra$/, t:'pasiva',
+    texto: c => TIERRAS[elegido(c, 'tipo-tierra')] ? conjurosSub('', TIERRAS[elegido(c, 'tipo-tierra')].conj).texto(c) : 'Elige tu tipo de tierra (puedes cambiarlo al terminar cada descanso largo).',
+    eleccion: {id:'tipo-tierra', titulo:'Tipo de tierra', opciones: Object.entries(TIERRAS).map(([key, x]) => ({key, nombre: x.n,
+      desc: `${x.conj.map(([n, s]) => `${s.join(', ')} (${n})`).join('; ')}. Resistencia ${x.res}.`}))}},
+  {de:/^circulo de la tierra$/, n:/^ayuda de la tierra/, t:'accion', coste:'1 Forma Salvaje',
+    texto: c => `En una esfera de 10 pies a 60 pies, las criaturas que elijas hacen una salvación de CON (CD ${c.dcSpell}): ${dadoAyudaTierra(c)} de daño necrótico, o la mitad si la pasan. Una criatura de la zona recupera ${dadoAyudaTierra(c)} PG.`},
+  {de:/^circulo de la tierra$/, n:/^proteccion de la naturaleza/, t:'pasiva',
+    texto: c => `Eres inmune a la condición de Envenenado y tienes resistencia al daño ${TIERRAS[elegido(c, 'tipo-tierra')]?.res || 'que da tu tipo de tierra (fuego, frío, relámpago o veneno)'}.`},
+  /* Círculo de la Luna */
+  {de:/^circulo de la luna$/, n:/^formas del circulo$/, t:'pasiva',
+    texto: c => `En Forma Salvaje puedes adoptar bestias de VD ${Math.max(1, Math.floor(c.lvl / 3))} o menos, tu CA es ${13 + c.m.sab} si la de la bestia es menor, y ganas ${3 * c.lvl} PG temporales.`},
+  /* Círculo del Mar */
+  {de:/^circulo del mar$/, n:/^ira del mar/, t:'adicional', coste:'1 Forma Salvaje',
+    texto: c => `Durante 10 minutos te rodea una emanación de espuma de ${c.lvl >= 6 ? 10 : 5} pies. Al crearla, y con una acción adicional en tus turnos siguientes, eliges a una criatura dentro: salvación de CON (CD ${c.dcSpell}) o recibe ${Math.max(1, c.m.sab)}d6 de daño de frío y, si es Grande o menor, la empujas hasta 15 pies.`},
+  /* Círculo de las Estrellas: el Mapa declara sus conjuros porque su nombre no empieza por "Conjuros" */
+  {de:/^circulo de las estrellas$/, n:/^mapa estelar/, t:'pasiva', usos: c => Math.max(1, c.m.sab), reset:'largo',
+    conjuros: [{nombre:'Guía'}, {nombre:'Rayo guía'}],
+    texto: () => 'Tu carta estelar es un foco de conjuros. Mientras la tienes, Guía y Rayo guía están siempre preparados (ya en tus conjuros), y lanzas Rayo guía sin gastar espacio con los usos de este rasgo. Si la pierdes, la rehaces con un ritual de 1 hora.'},
+  {de:/^circulo de las estrellas$/, n:/^forma estelar/, t:'adicional', coste:'1 Forma Salvaje',
+    ataques: c => [{nombre:'Arquero (Forma Estelar)', atk: c.atkSpell, expr: `${dadoEstrella(c)}${modStr(c.m.sab)}`, dmg: `${dadoEstrella(c)}${fmtMod(c.m.sab)} radiante`,
+      notas:['Ataque de conjuro a distancia a 60 pies, al activar la forma y con acción adicional en los turnos siguientes']}],
+    texto: c => `Durante 10 minutos brillas (luz brillante a 10 pies) y eliges constelación. Arquero: ataque de conjuro a distancia a 60 pies con acción adicional, ${dadoEstrella(c)}${fmtMod(c.m.sab)} radiante (en Ataques). Cáliz: al curar con un espacio de conjuro, tú u otra criatura a 30 pies recuperáis ${dadoEstrella(c)}${fmtMod(c.m.sab)} PG. Dragón: en pruebas de INT o SAB y salvaciones de concentración, un 9 o menos en el d20 cuenta como 10${c.lvl >= 10 ? '; además vuelas a 20 pies y puedes flotar' : ''}.`},
+  /* Círculo de los Sueños */
+  {de:/^circulo de los suenos$/, n:/^balsamo de la corte estival/, t:'adicional', usos: c => c.lvl, reset:'largo', pool: true,
+    texto: c => `Tienes ${c.lvl} d6. Con una acción adicional gastas hasta ${Math.max(1, Math.floor(c.lvl / 2))} para curar a una criatura que veas a 120 pies: recupera lo que saquen y gana 1 PG temporal por dado.`},
+  /* Círculo del Pastor */
+  {de:/^circulo del pastor$/, n:/^totem espiritual/, t:'adicional', usos:1, reset:'corto',
+    texto: c => `Invocas un espíritu a 60 pies con un aura de 30 pies durante 1 minuto. Oso: tú y tus aliados en el aura ganáis ${5 + c.lvl} PG temporales y ventaja en pruebas y salvaciones de FUE. Halcón: con tu reacción das ventaja al ataque de una criatura en el aura, y tenéis ventaja en Percepción. Unicornio: ventaja para detectar criaturas en el aura, y al curar con un espacio de conjuro, cada criatura que elijas en el aura recupera ${c.lvl} PG más.`},
+  /* Círculo de las Esporas */
+  {de:/^circulo de las esporas$/, n:/^halo de esporas/, t:'reaccion',
+    texto: c => `Cuando una criatura que ves se mueve a 10 pies de ti o empieza su turno allí, hace una salvación de CON (CD ${c.dcSpell}) o recibe ${dadoHalo(c)} de daño necrótico.`},
+  {de:/^circulo de las esporas$/, n:/^entidad simbiotica/, t:'accion', coste:'1 Forma Salvaje',
+    texto: c => `Ganas ${4 * c.lvl} PG temporales durante 10 minutos. Mientras los tengas, el daño de tu Halo de Esporas pasa a ${dadoHalo(c).replace(/^1/, '2')} y tus ataques cuerpo a cuerpo hacen 1d6 necrótico extra.`},
 
   /* ---------- Especies (Lote 4) ----------
      Sus tipos, usos y textos están en la biblioteca (scripts/datos/especies-2025.ts, rasgos con `manual`).

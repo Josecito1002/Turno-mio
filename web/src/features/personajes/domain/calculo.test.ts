@@ -13,6 +13,7 @@ import { BARBARO_2024 } from '../../../../scripts/datos/barbaro-2024';
 import { BARDO_2024 } from '../../../../scripts/datos/bardo-2024';
 import { CLERIGO_2024 } from '../../../../scripts/datos/clerigo-2024';
 import { BRUJO_2024 } from '../../../../scripts/datos/brujo-2024';
+import { DRUIDA_2024 } from '../../../../scripts/datos/druida-2024';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
 import { ARMAS } from '@/features/reglas/data/equipo';
 import { EQUIPO_TRASFONDOS, kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
@@ -561,5 +562,32 @@ describe('Conjuros que dan los rasgos', () => {
     assert.equal(c.conjuros.filter((s: any) => s.nombre === 'Manos ardientes').length, 1);
     assert.equal(c.conjuros.find((s: any) => s.nombre === 'Manos ardientes').rasgo, 'Patrón Infernal');
     assert.equal(c.prepUsados, 0);
+  });
+});
+
+describe('Druida 2024 (Lote 9)', () => {
+  const dru = (nivel: number, sub = '', stats: Record<string, number> = {}, extra: Record<string, any> = {}) => { setLib({ clases: { druida: DRUIDA_2024 } }); return pj('druida', nivel, sub, stats, extra); };
+  test('Tierra: los conjuros siempre preparados dependen del tipo de tierra elegido', () => {
+    const c = dru(5, 'lib:circulo-tierra', {}, { elecciones: { 'tipo-tierra': 'polar' } });
+    assert.equal(c.esExtra({ nombre: 'Inmovilizar persona' }), true);
+    assert.equal(c.esExtra({ nombre: 'Tormenta de aguanieve' }), true);
+    assert.equal(c.esExtra({ nombre: 'Tormenta de hielo' }), false);
+    assert.equal(c.esExtra({ nombre: 'Bola de fuego' }), false);
+    assert.match(entrada(dru(10, 'lib:circulo-tierra', {}, { elecciones: { 'tipo-tierra': 'polar' } }), 'Protección de la Naturaleza').texto, /al frío/);
+  });
+  test('Luna: Formas del Círculo con CA 13 + SAB y PG temporales 3 × nivel; Paso de Luz Lunar usa SAB', () => {
+    const c = dru(6, 'lib:circulo-luna', { sab: 16 });
+    assert.match(entrada(c, 'Formas del Círculo').texto, /VD 2 .*CA es 16.*18 PG temporales/);
+    assert.equal(dru(10, 'lib:circulo-luna', { sab: 16 }).recursos.find((x: any) => x.nombre === 'Paso de Luz Lunar').max, 3);
+  });
+  test('Estrellas: Mapa Estelar da Guía y Rayo guía; el Arquero hace 1d8 + SAB y 2d8 desde nivel 10', () => {
+    const c = dru(3, 'lib:circulo-estrellas', { sab: 16 });
+    assert.equal(c.esExtra({ nombre: 'Rayo guía' }), true);
+    assert.equal(c.naturales.find((a: any) => /Arquero/.test(a.nombre)).dmg, '1d8 + 3 radiante');
+    assert.equal(dru(10, 'lib:circulo-estrellas', { sab: 16 }).naturales.find((a: any) => /Arquero/.test(a.nombre)).dmg, '2d8 + 3 radiante');
+  });
+  test('Esporas: el Halo sube con el nivel y Entidad Simbiótica da 4 PG temporales por nivel', () => {
+    assert.match(entrada(dru(6, 'lib:circulo-esporas'), 'Halo de Esporas').texto, /1d6 de daño/);
+    assert.match(entrada(dru(10, 'lib:circulo-esporas'), 'Entidad Simbiótica').texto, /40 PG temporales.*2d8/);
   });
 });
