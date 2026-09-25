@@ -100,6 +100,46 @@
       "clase": "monje",
       "subclase": "manoabierta",
       "nivel": 20
+    },
+    {
+      "clase": "monje",
+      "subclase": "dragon-ascendente",
+      "nivel": 11
+    },
+    {
+      "clase": "monje",
+      "subclase": "yo-astral",
+      "nivel": 17
+    },
+    {
+      "clase": "monje",
+      "subclase": "maestro-borracho",
+      "nivel": 11
+    },
+    {
+      "clase": "monje",
+      "subclase": "kensei",
+      "nivel": 11
+    },
+    {
+      "clase": "monje",
+      "subclase": "larga-muerte",
+      "nivel": 17
+    },
+    {
+      "clase": "monje",
+      "subclase": "alma-solar",
+      "nivel": 11
+    },
+    {
+      "clase": "guerrero",
+      "subclase": "caballero-arcano",
+      "nivel": 7
+    },
+    {
+      "clase": "picaro",
+      "subclase": "embaucador",
+      "nivel": 10
     }
   ]
 }

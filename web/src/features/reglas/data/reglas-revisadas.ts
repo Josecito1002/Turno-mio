@@ -283,6 +283,22 @@ const RUNAS: [string, string, string, number, (c: any) => string][] = [
   ['tormenta', 'Runa de Tormenta', 'adicional', 7, () => 'Pasiva: ventaja en Arcanos y no te pueden sorprender mientras no estés Incapacitado. Al invocarla: durante 1 minuto, cuando tú u otra criatura que veas a 60 pies hace un ataque, una salvación o una prueba, puedes usar tu reacción para darle ventaja o desventaja.'],
 ];
 
+/* Subclases que lanzan conjuros con un tercio de los niveles (Caballero Arcano, Embaucador Arcano, Guerrero de las Artes
+   Místicas; Manual del Jugador 2024 y Arcana Unleashed 2026): espacios, preparados, trucos y característica */
+const ESPACIOS_TERCIO = [[], [], [2], [3], [3], [3], [4, 2], [4, 2], [4, 2], [4, 3], [4, 3], [4, 3], [4, 3, 2], [4, 3, 2], [4, 3, 2], [4, 3, 3], [4, 3, 3], [4, 3, 3], [4, 3, 3, 1], [4, 3, 3, 1]];
+const PREPARADOS_TERCIO = [0, 0, 3, 4, 4, 4, 5, 6, 6, 7, 8, 8, 9, 10, 10, 11, 11, 11, 12, 13];
+export const espaciosTercio = lvl => ESPACIOS_TERCIO[lvl - 1] || [];
+const NOMBRE_LISTA = {mago: 'Mago', hechicero: 'Hechicero'};
+export const lanzadorTercio = (ab, lista, trucos) => ({
+  efecto: c => {
+    if (!c.casterAb) { c.casterAb = ab; c.mSpell = c.m[ab]; c.dcSpell = 8 + c.pb + c.mSpell; c.atkSpell = c.pb + c.mSpell; }
+    espaciosTercio(c.lvl).forEach((n, i) => { if (!c.slots.some(e => e.nivel === i + 1)) c.slots.push({nivel: i + 1, n}); });
+    c.listaSub = lista;
+    c.trucosReglas = trucos(c); c.prepReglas = PREPARADOS_TERCIO[c.lvl - 1];
+  },
+  texto: c => `Lanzas conjuros de la lista de ${NOMBRE_LISTA[lista]} con ${NOMBRE_AB[ab]} (CD ${c.dcSpell}, ${sign(c.atkSpell)} al ataque). Conoces ${trucos(c)} trucos y preparas ${PREPARADOS_TERCIO[c.lvl - 1]} conjuros de nivel 1 o más; tus espacios: ${espaciosTercio(c.lvl).map((n, i) => `${n} de nivel ${i + 1}`).join(', ')}. Los eliges en el paso Conjuros y cambias uno al subir de nivel.`,
+});
+
 export const REGLAS: any[] = [
   /* ---------- Pugilista (The Pugilist Class 2024, Benjamin Huffman) ----------
      La biblioteca ya trae la versión 2024 (scripts/datos/pugilista-2024.ts). Arena Royale y Matones Sabuesos
@@ -1384,6 +1400,11 @@ export const REGLAS: any[] = [
     texto: c => `Sumas tu INT (${sign(c.m.int)}) a la iniciativa (ya sumado).`},
   {de:/^magia de cronurgia$/, n:/^conciencia temporal$/, t:'pasiva', efecto: c => { c.init += c.m.int; },
     texto: c => `Sumas tu INT (${sign(c.m.int)}) a la iniciativa (ya sumado).`},
+
+  /* ---------- Lanzadores de un tercio: Caballero Arcano, Embaucador Arcano (Manual del Jugador 2024) y Guerrero de las Artes Místicas (Arcana Unleashed 2026) ---------- */
+  {de:/^caballero arcano$/, n:/^lanzamiento de conjuros$/, t:'pasiva', ...lanzadorTercio('int', 'mago', c => c.lvl >= 10 ? 3 : 2)},
+  {de:/^embaucador arcano$/, n:/^lanzamiento de conjuros$/, t:'pasiva', ...lanzadorTercio('int', 'mago', c => c.lvl >= 10 ? 4 : 3)},
+  {de:/^guerrero de las artes misticas$/, n:/^conjuros de las artes misticas$/, t:'pasiva', ...lanzadorTercio('sab', 'hechicero', c => c.lvl >= 10 ? 3 : 2)},
 
   /* Lo generado desde las respuestas de Gemini (scripts/gemini/revisar.ts); las de arriba tienen prioridad */
   ...REGLAS_GENERADAS,

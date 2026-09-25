@@ -1116,13 +1116,14 @@ Respuesta de Gemini revisada el 2026-09-25. Versiones: Manual del Jugador 2024 (
 
 ## Lote 14: Monje (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 0. Con tipo claro: 0. Ya revisados: 28.
+Dudosos: 0. Con tipo claro: 0. Ya revisados: 56.
 
-Respuesta de Gemini revisada el 2026-09-25. Versiones: Manual del Jugador 2024 (clase, Misericordia, Sombra, Elementos y Mano Abierta), Arcana Unleashed 2026 (Artes Místicas, nueva). Los Elementos de 2024 reemplazan al Camino de los Cuatro Elementos; Dragón Ascendente, Yo Astral, Maestro Borracho, Kensei, Larga Muerte y Alma Solar (libros de 2015 a 2021) no están en la app y el encargo no traía su texto, así que no se agregaron.
+Respuesta de Gemini revisada el 2026-09-25. Versiones: Manual del Jugador 2024 (clase, Misericordia, Sombra, Elementos y Mano Abierta), Arcana Unleashed 2026 (Artes Místicas, nueva). Los Elementos de 2024 reemplazan al Camino de los Cuatro Elementos; Dragón Ascendente (Fizban 2021), Yo Astral (Tasha 2020), Maestro Borracho, Kensei y Alma Solar (Xanathar 2017) y Larga Muerte (Sword Coast 2015) no tienen versión 2024: se agregaron con su texto original (5etools) escrito a mano, con el ki pasado a Puntos de Enfoque; todos sus rasgos ya empezaban en el nivel 3. El Guerrero de la Embriaguez (nueva versión del Maestro Borracho) es solo Unearthed Arcana de noviembre de 2025, no un libro.
 
 - [x] **Corregido de la respuesta**: los libros de C con clave; Elementalismo sí está en la app; Sintonía Elemental (la salvación de FUE es solo si cambias el tipo de daño), Conjuros y Enfoque Místico de las Artes Místicas (preparados, foco, tabla de coste para recuperar espacios) y la duración de Manto de Sombras. Se quitaron Paso de Sombra e Integridad del Cuerpo de nivel 6 porque ya los trae la subclase integrada.
 - [x] **La biblioteca difería**: rasgos altos de 2014 (Disciplina Perfecta, Alma Diamantina, Desafiar a la Muerte, Tranquilidad, Oportunista) y Misericordia y Elementos resumidos en una línea; ahora siguen 2024.
 - [x] **Cuerpo y Mente**: +4 a DES y SAB (máximo 25) en el nivel 20, calculado.
+- [x] **Artes Místicas**: lanza conjuros de hechicero con SAB, con los espacios de un tercio de lanzador (los mismos que Caballero Arcano y Embaucador Arcano, que ahora también los tienen), trucos 2/3 y preparados de la tabla.
 
 ### Revisados
 
@@ -1150,6 +1151,34 @@ Respuesta de Gemini revisada el 2026-09-25. Versiones: Manual del Jugador 2024 (
 - [x] **Enfoque Místico** (nivel 6): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- guerrero de las artes misticas|enfoque mistico -->
 - [x] **Golpe Concentrado** (nivel 11): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- guerrero de las artes misticas|golpe concentrado -->
 - [x] **Estilo de Lucha Místico Mejorado** (nivel 17): `pasiva`. subclase nueva; Arcana Unleashed (2026). <!-- guerrero de las artes misticas|estilo de lucha mistico mejorado -->
+- [x] **Discípulo Dracónico** (nivel 3): `pasiva`. subclase nueva; Fizban's Treasury of Dragons (2021). <!-- camino del dragon ascendente|discipulo draconico -->
+- [x] **Aliento del Dragón** (nivel 3): `gratis`. subclase nueva; Fizban's Treasury of Dragons (2021). <!-- camino del dragon ascendente|aliento del dragon -->
+- [x] **Alas Desplegadas** (nivel 6): `pasiva`. subclase nueva; Fizban's Treasury of Dragons (2021). <!-- camino del dragon ascendente|alas desplegadas -->
+- [x] **Aspecto del Wyrm** (nivel 11): `adicional`. subclase nueva; Fizban's Treasury of Dragons (2021). <!-- camino del dragon ascendente|aspecto del wyrm -->
+- [x] **Aspecto Ascendente** (nivel 17): `pasiva`. subclase nueva; Fizban's Treasury of Dragons (2021). <!-- camino del dragon ascendente|aspecto ascendente -->
+- [x] **Brazos del Yo Astral** (nivel 3): `adicional`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- camino del yo astral|brazos del yo astral -->
+- [x] **Rostro del Yo Astral** (nivel 6): `adicional`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- camino del yo astral|rostro del yo astral -->
+- [x] **Cuerpo del Yo Astral** (nivel 11): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- camino del yo astral|cuerpo del yo astral -->
+- [x] **Yo Astral Despierto** (nivel 17): `adicional`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- camino del yo astral|yo astral despierto -->
+- [x] **Competencias Adicionales** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del maestro borracho|competencias adicionales -->
+- [x] **Técnica del Borracho** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del maestro borracho|tecnica del borracho -->
+- [x] **Vaivén Ebrio** (nivel 6): `reaccion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del maestro borracho|vaiven ebrio -->
+- [x] **Suerte del Borracho** (nivel 11): `gratis`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del maestro borracho|suerte del borracho -->
+- [x] **Frenesí Ebrio** (nivel 17): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del maestro borracho|frenesi ebrio -->
+- [x] **Senda del Kensei** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del kensei|senda del kensei -->
+- [x] **Parada Ágil** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del kensei|parada agil -->
+- [x] **Disparo del Kensei** (nivel 3): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del kensei|disparo del kensei -->
+- [x] **Uno con la Hoja** (nivel 6): `gratis`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del kensei|uno con la hoja -->
+- [x] **Afilar la Hoja** (nivel 11): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del kensei|afilar la hoja -->
+- [x] **Precisión Infalible** (nivel 17): `gratis`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del kensei|precision infalible -->
+- [x] **Toque de la Muerte** (nivel 3): `pasiva`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- camino de la larga muerte|toque de la muerte -->
+- [x] **Hora de la Cosecha** (nivel 6): `accion`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- camino de la larga muerte|hora de la cosecha -->
+- [x] **Dominio de la Muerte** (nivel 11): `gratis`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- camino de la larga muerte|dominio de la muerte -->
+- [x] **Toque de la Larga Muerte** (nivel 17): `accion`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- camino de la larga muerte|toque de la larga muerte -->
+- [x] **Rayo Solar Radiante** (nivel 3): `accion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del alma solar|rayo solar radiante -->
+- [x] **Golpe de Arco Abrasador** (nivel 6): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del alma solar|golpe de arco abrasador -->
+- [x] **Estallido Solar Abrasador** (nivel 11): `accion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del alma solar|estallido solar abrasador -->
+- [x] **Escudo Solar** (nivel 17): `reaccion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- camino del alma solar|escudo solar -->
 - [x] **Paso de Sombra Mejorado** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la sombra|paso de sombra mejorado -->
 - [x] **Manto de Sombras** (nivel 17): `accion`. Manual del Jugador (2024). <!-- guerrero de la sombra|manto de sombras -->
 - [x] **Paso Veloz** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- guerrero de la mano abierta|paso veloz -->

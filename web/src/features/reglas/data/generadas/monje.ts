@@ -22,7 +22,13 @@ export const fuentes: Record<string, string> = {
   "guerrero de la sombra": "Manual del Jugador (2024)",
   "guerrero de los elementos": "Manual del Jugador (2024)",
   "guerrero de las artes misticas": "Arcana Unleashed (2026)",
-  "guerrero de la mano abierta": "Manual del Jugador (2024)"
+  "guerrero de la mano abierta": "Manual del Jugador (2024)",
+  "camino del dragon ascendente": "Fizban's Treasury of Dragons (2021)",
+  "camino del yo astral": "Tasha's Cauldron of Everything (2020)",
+  "camino del maestro borracho": "Xanathar's Guide to Everything (2017)",
+  "camino del kensei": "Xanathar's Guide to Everything (2017)",
+  "camino de la larga muerte": "Sword Coast Adventurer's Guide (2015)",
+  "camino del alma solar": "Xanathar's Guide to Everything (2017)"
 };
 
 export const descripciones: Record<string, string> = {
@@ -30,5 +36,11 @@ export const descripciones: Record<string, string> = {
   "sombra": "Espías y asesinos de la noche que moldean las sombras para teletransportarse y golpear desde la invisibilidad.",
   "misericordia": "Médicos errantes enmascarados capaces de curar con un toque benévolo o provocar un dolor letal mediante golpes necróticos.",
   "elementos": "Canalizadores del Caos Elemental que alargan sus golpes y desatan destructivas explosiones de fuego, hielo y relámpago.",
-  "artes-misticas": "Expertos que entrelazan artes marciales y hechicería, disparando trucos y canalizando espacios de conjuros a través de sus golpes."
+  "artes-misticas": "Expertos que entrelazan artes marciales y hechicería, disparando trucos y canalizando espacios de conjuros a través de sus golpes.",
+  "dragon-ascendente": "Monjes que imitan a los dragones: sueltan su aliento, despliegan alas espectrales y rodean a sus aliados de poder dracónico.",
+  "yo-astral": "Monjes que invocan su verdadero ser astral: brazos, rostro y cuerpo espectrales que golpean con fuerza y SAB.",
+  "maestro-borracho": "Luchadores de pasos tambaleantes e impredecibles que esquivan, desvían golpes hacia otros y reparten ráfagas entre muchos enemigos.",
+  "kensei": "Maestros de unas pocas armas elegidas que tratan como una extensión de su cuerpo, con paradas, disparos certeros y hojas afiladas con Enfoque.",
+  "larga-muerte": "Estudiosos de la muerte que se alimentan de la vida de quien cae, siembran el terror y descargan su energía necrótica con un toque.",
+  "alma-solar": "Monjes que canalizan su energía vital en rayos de luz radiante, estallidos solares y un aura que quema a quien los golpea."
 };

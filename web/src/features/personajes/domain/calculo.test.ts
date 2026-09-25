@@ -657,6 +657,14 @@ describe('Guerrero 2024 (Lote 11)', () => {
     assert.equal(usos(gue(17), 'Indomable'), 3);
     assert.match(entrada(gue(17), 'Indomable').texto, /\+17/);
   });
+  test('Caballero Arcano: espacios de un tercio, INT y lista de mago', () => {
+    const c = gue(13, 'lib:caballero-arcano', { int: 16 });
+    assert.deepEqual(c.slots.map((s: any) => s.n), [4, 3, 2]);
+    assert.equal(c.casterAb, 'int');
+    assert.equal(c.prepMax, 9);
+    assert.equal(c.trucosMax, 3);
+    assert.equal(gue(3, 'lib:caballero-arcano').slots[0].n, 2);
+  });
   test('Maestro de Batalla: dados 4/5/6, d8 a d12, y las maniobras elegidas salen con su tipo', () => {
     const c = gue(7, 'lib:maestro-batalla', { fue: 16 }, { elecciones: { maniobra: ['parada', 'finta'] } });
     assert.equal(usos(c, 'Superioridad en Combate'), 5);
@@ -926,6 +934,20 @@ describe('Monje 2024 (Lote 14)', () => {
     assert.equal(c20.sc.des, 24);
     assert.equal(c20.sc.sab, 20);
     assert.equal(c20.ac, c19.ac + 4);
+  });
+  test('Artes Místicas: lanza conjuros de hechicero con SAB y espacios de un tercio', () => {
+    const c = mon(7, { sab: 16 }, 'lib:artes-misticas');
+    assert.deepEqual(c.slots.map((s: any) => [s.nivel, s.n]), [[1, 4], [2, 2]]);
+    assert.equal(c.casterAb, 'sab');
+    assert.equal(c.dcSpell, 8 + c.pb + 3);
+    assert.equal(c.prepMax, 5);
+    assert.equal(c.trucosMax, 2);
+    assert.equal(c.listaSub, 'hechicero');
+    assert.ok(c.recursos.some((r: any) => r.id === 'slot2'));
+  });
+  test('subclases viejas: Aliento del Dragón con usos = competencia', () => {
+    assert.equal(recurso(mon(5, {}, 'lib:dragon-ascendente'), 'Aliento del Dragón')?.max, 3);
+    assert.ok(entrada(mon(17, {}, 'lib:alma-solar'), 'Escudo Solar'));
   });
   test('los rasgos altos son los de 2024', () => {
     const c = mon(20);
