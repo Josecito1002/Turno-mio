@@ -15,7 +15,7 @@ import { compute, puedeLanzar } from './domain/calculo';
 import { pendientesAlSubir } from './domain/pendientes';
 import { snapshot } from './domain/importar-personaje';
 import { manosDe, aDosManos, puedeIrEnLaOtra } from './domain/manos';
-import { armadurasDe, bolsaDe, guardarBolsa, nuevaClave, pagar, pasoEquipoEnEditor } from './domain/inventario';
+import { armadurasDe, bolsaDe, guardarBolsa, juntar, nuevaClave, pagar, pasoEquipoEnEditor } from './domain/inventario';
 import { ARMAS, ARMADURAS } from '@/features/reglas/data/equipo';
 import { MAX_SINTONIA, armaMagica, armaduraMagica, defDe, sintonizados } from './domain/magicos';
 
@@ -299,7 +299,25 @@ export function quitarArmadura(k: string) {
   if (pj.armadura === k) pj.armadura = 'ninguna';
   if (k === 'escudo') pj.escudo = false;
   if (pj.armadurasPropias?.[k]) delete pj.armadurasPropias[k];
+  if (pj.cantArm) delete pj.cantArm[k];
   savePj(); render();
+}
+/** Cuántas de cada armadura o escudo (pj.cantArm; 1 si no dice). En 0 se quita, con su objeto mágico si lo es. */
+export function cambiarCantidadArmadura(k: string, d: number) {
+  const pj = S.pj, n = (+pj.cantArm?.[k] || 1) + d;
+  if (n <= 0) {
+    if (pj.cantArm) delete pj.cantArm[k];
+    const m = (pj.magicos || []).find((x: any) => x.armadura === k); if (m) return quitarMagico(m.id);
+    return quitarArmadura(k);
+  }
+  pj.cantArm = { ...(pj.cantArm || {}), [k]: n };
+  savePj(); render();
+}
+/** Cuántos de un objeto mágico (pociones, pergaminos...). En 0 se quita. */
+export function cambiarCantidadMagico(id: string, d: number) {
+  const pj = S.pj, m = (pj.magicos || []).find((x: any) => x.id === id); if (!m) return;
+  const n = (+m.q || 1) + d; if (n <= 0) return quitarMagico(id);
+  m.q = n; savePj(); render();
 }
 /** Cambia la armadura puesta por otra que tenga; la anterior queda guardada. */
 export function ponerArmadura(k: string) {
@@ -361,9 +379,17 @@ export function moverMonedas(den: string, n: number, gastar: boolean) {
   if (!r) return avisar('No te alcanza el dinero.', 'aviso');
   guardarBolsa(pj, r); savePj(); render();
 }
+/** Cambia cobre por plata y plata por oro cuando alcanza para una entera. */
+export function juntarMonedas() {
+  const pj = S.pj; guardarBolsa(pj, juntar(bolsaDe(pj))); savePj(); render();
+}
 export function cambiarCantidadArma(i: number, d: number) {
   const pj = S.pj, a = pj.armas[i]; if (!a) return;
   a[1] += d;
-  if (a[1] <= 0) { pj.armas.splice(i, 1); if (pj.armasPropias?.[a[0]]) delete pj.armasPropias[a[0]]; }
+  if (a[1] <= 0) {
+    // Si es el arma de un objeto mágico, se va con él
+    const m = (pj.magicos || []).find((x: any) => x.arma === a[0]); if (m) return quitarMagico(m.id);
+    pj.armas.splice(i, 1); if (pj.armasPropias?.[a[0]]) delete pj.armasPropias[a[0]];
+  }
   savePj(); render();
 }

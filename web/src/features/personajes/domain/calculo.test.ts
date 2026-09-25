@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { pagar, armadurasDe } from './inventario';
+import { pagar, armadurasDe, juntar } from './inventario';
 import { armaMagica, armaduraMagica } from './magicos';
 import { OBJETOS_MAGICOS } from '@/features/reglas/data/objetos-magicos';
 import { test, describe, beforeEach } from 'node:test';
@@ -804,5 +804,12 @@ describe('Objetos mágicos', () => {
     const magicos = ['anillo-proteccion', 'capa-proteccion', 'piedra-suerte', 'amuleto-salud'].map((k, i) => ({ id: 'm' + i, k, sint: true }));
     const c = pj('guerrero', 3, '', {}, { magicos });
     assert.ok(c.avisos.some((a: any) => /sintonizados/.test(a.t)));
+  });
+});
+
+describe('Juntar monedas', () => {
+  test('10 de cobre son 1 de plata y 10 de plata, 1 de oro; el oro no pasa a platino', () => {
+    assert.deepEqual(juntar({ pt: 1, po: 25, pp: 14, pc: 27 }), { pt: 1, po: 26, pp: 6, pc: 7 });
+    assert.deepEqual(juntar({ pt: 0, po: 0, pp: 9, pc: 10 }), { pt: 0, po: 1, pp: 0, pc: 0 });
   });
 });

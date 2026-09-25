@@ -157,9 +157,15 @@ export function Pestanas({ items, activa, onCambiar, etiqueta, idBase }:
     if (j < 0) return;
     e.preventDefault(); onCambiar(items[j].id); refs.current[j]?.focus();
   };
-  useEffect(() => { refs.current[items.findIndex(t => t.id === activa)]?.scrollIntoView({ block: 'nearest', inline: 'center' }); }, [activa, items]);
+  // Centra la pestaña activa moviendo solo la barra: scrollIntoView también movía la página en el teléfono, y como
+  // `items` es nuevo en cada render, pasaba con cualquier botón
+  const barra = useRef<HTMLDivElement>(null), idx = items.findIndex(t => t.id === activa);
+  useEffect(() => {
+    const b = barra.current, el = refs.current[idx]; if (!b || !el) return;
+    b.scrollTo({ left: el.offsetLeft - (b.clientWidth - el.clientWidth) / 2 });
+  }, [idx]);
   return (
-    <div role="tablist" aria-label={etiqueta}
+    <div ref={barra} role="tablist" aria-label={etiqueta}
       className="sticky top-[var(--alto-cabecera,0px)] z-10 -mx-4 flex gap-1 overflow-x-auto border-b border-rule bg-bg px-4 py-2 backdrop-blur [scrollbar-width:none] print:hidden">
       {items.map((t, i) => {
         const sel = t.id === activa;

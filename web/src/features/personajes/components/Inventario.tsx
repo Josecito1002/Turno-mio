@@ -1,19 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { S } from '@/app-shell/estado';
 import { Boton, Campo, Lista, Nota, Seccion, Segmentado, claseCampo, cx } from '@/shared/ui/kit';
 import { ARMAS, ARMADURAS } from '@/features/reglas/data/equipo';
 import { ElegirManos } from './Manos';
 import { CampoArea } from './editor/campos';
-import { MONEDAS, armadurasDe, bolsaDe, esPropia } from '../domain/inventario';
+import { MONEDAS, armadurasDe, bolsaDe, esPropia, puedeJuntar } from '../domain/inventario';
 import { MAX_SINTONIA } from '../domain/magicos';
 import { OBJETOS_MAGICOS, RAREZAS, type ObjetoMagico } from '@/features/reglas/data/objetos-magicos';
 import { ORDEN_TIPOS, TIPOS } from '@/features/reglas/data/caracteristicas';
 import { norm } from '@/shared/utils/texto';
 import {
-  agregarArma, agregarArmadura, agregarMagico, agregarObjeto, cambiarCantidadArma, cambiarObjeto, moverMonedas, ponerArmadura, quitarArma, quitarArmadura,
-  quitarMagico, sintonizar,
+  agregarArma, agregarArmadura, agregarMagico, agregarObjeto, cambiarCantidadArma, cambiarCantidadArmadura, cambiarCantidadMagico, cambiarObjeto,
+  juntarMonedas, moverMonedas, ponerArmadura, sintonizar,
 } from '../acciones';
 
 const nombreArmadura = (k: string) => k === 'escudo' ? 'Escudo' : ARMADURAS[k]?.n || k;
@@ -43,7 +43,8 @@ function Monedas({ pj }: { pj: any }) {
         <Boton onClick={() => mover(false)} disabled={!(+n > 0)}>Añadir</Boton>
         <Boton variante="primario" onClick={() => mover(true)} disabled={!(+n > 0)}>Gastar</Boton>
       </div>
-      <Nota className="mt-2">Si no tienes suficientes de esa moneda, se cambia una mayor (o se juntan menores) y recibes el cambio.</Nota>
+      <div className="mt-3"><Boton onClick={juntarMonedas} disabled={!puedeJuntar(b)}>Juntar monedas</Boton></div>
+      <Nota className="mt-2">Si no tienes suficientes de esa moneda, se cambia una mayor (o se juntan menores) y recibes el cambio. Juntar monedas cambia cada 10 de cobre por 1 de plata y cada 10 de plata por 1 de oro.</Nota>
     </>
   );
 }
@@ -148,29 +149,43 @@ function AgregarMagico() {
   );
 }
 
-/** Objetos mágicos que lleva: sintonizar y quitar. */
+/** Una fila del inventario: cantidad y nombre a la izquierda, y siempre a la derecha los botones − y + (en 0 se quita). */
+function Fila({ q, nombre, detalle, menos, mas, extra, texto = typeof nombre === 'string' ? nombre : 'objeto' }:
+  { q: number; nombre: ReactNode; detalle?: ReactNode; menos: () => void; mas: () => void; extra?: ReactNode; texto?: string }) {
+  return (
+    <li className="flex min-h-12 items-center gap-3 py-2">
+      <div className="min-w-0 flex-1">
+        {typeof nombre === 'string' && <><b className="font-serif">{q}</b> </>}{nombre}{detalle ? <> <span className="text-sm text-muted">{detalle}</span></> : null}
+      </div>
+      <div className="flex shrink-0 items-center gap-2">
+        {extra}
+        <Boton tamano="sm" onClick={menos} aria-label={q > 1 ? `Quitar uno: ${texto}` : `Quitar ${texto} del inventario`}>−</Boton>
+        <Boton tamano="sm" onClick={mas} aria-label={`Agregar uno: ${texto}`}>+</Boton>
+      </div>
+    </li>
+  );
+}
+
+/** Objetos mágicos que lleva: sintonizar y cuántos. */
 function ListaMagicos({ c }: { c: any }) {
-  const fila = 'flex min-h-12 flex-wrap items-center justify-between gap-x-3 gap-y-1 py-2';
   if (!c.magicos?.length) return <p className="m-0 text-sm text-muted">No llevas objetos mágicos.</p>;
   return (
     <>
       <p className="mb-2 mt-0 text-sm">Sintonizados: <b>{c.sintonizados} de {MAX_SINTONIA}</b>. Los que piden sintonización solo funcionan sintonizados.</p>
       <Lista etiqueta="Objetos mágicos">
         {c.magicos.map(({ m, d, activo }: any) => (
-          <li key={m.id} className={fila}>
-            <details className="min-w-0 flex-1">
-              <summary className="cursor-pointer">
-                {d.n}{m.arma && ARMAS[m.arma] ? ` (${ARMAS[m.arma].n})` : m.armadura && ARMADURAS[m.armadura] ? ` (${ARMADURAS[m.armadura].n})` : ''}{' '}
-                <span className="text-sm text-muted">{d.sint ? (m.sint ? 'Sintonizado' : 'Sin sintonizar: no funciona') : activo ? 'Activo' : ''}</span>
-              </summary>
-              <p className="mb-0 mt-1 text-sm text-muted">{resumenMagico(d)}</p>
-              <p className="mb-0 mt-1">{d.texto}</p>
-            </details>
-            <span className="flex gap-2">
-              {d.sint && <Boton tamano="sm" aria-pressed={!!m.sint} onClick={() => sintonizar(m.id)}>{m.sint ? 'Dejar de sintonizar' : 'Sintonizar'}</Boton>}
-              <Boton tamano="sm" variante="fantasma" onClick={() => quitarMagico(m.id)}>Quitar</Boton>
-            </span>
-          </li>
+          <Fila key={m.id} q={+m.q || 1} texto={d.n} menos={() => cambiarCantidadMagico(m.id, -1)} mas={() => cambiarCantidadMagico(m.id, 1)}
+            nombre={
+              <details>
+                <summary className="cursor-pointer">
+                  <b className="font-serif">{+m.q || 1}</b> {d.n}{m.arma && ARMAS[m.arma] ? ` (${ARMAS[m.arma].n})` : m.armadura && ARMADURAS[m.armadura] ? ` (${ARMADURAS[m.armadura].n})` : ''}{' '}
+                  <span className="text-sm text-muted">{d.sint ? (m.sint ? 'Sintonizado' : 'Sin sintonizar: no funciona') : activo ? 'Activo' : ''}</span>
+                </summary>
+                <p className="mb-0 mt-1 text-sm text-muted">{resumenMagico(d)}</p>
+                <p className="mb-0 mt-1">{d.texto}</p>
+              </details>
+            }
+            extra={d.sint && <Boton tamano="sm" aria-pressed={!!m.sint} onClick={() => sintonizar(m.id)}>{m.sint ? 'Sintonizado' : 'Sintonizar'}</Boton>} />
         ))}
       </Lista>
     </>
@@ -283,9 +298,6 @@ function Agregar() {
 export function Inventario({ c }: { c: any }) {
   const pj = S.pj;
   const armaduras = armadurasDe(pj), cuerpo = armaduras.filter(k => k !== 'escudo');
-  const fila = 'flex min-h-12 flex-wrap items-center justify-between gap-x-3 gap-y-1 py-2';
-  // Las armas y armaduras de un objeto mágico se quitan con él
-  const deMagico = (k: string) => (pj.magicos || []).find((m: any) => m.arma === k || m.armadura === k);
   return (
     <div className="flex flex-col gap-4">
       <Seccion titulo="En las manos" descripcion="Solo las armas empuñadas salen en Atacar.">
@@ -304,35 +316,21 @@ export function Inventario({ c }: { c: any }) {
       <Seccion titulo="Inventario">
         <Lista etiqueta="Armas">
           {c.armas.map((a: any) => (
-            <li key={'a' + a.k} className={fila}>
-              <span>{a.nombre} <span className="text-sm text-muted">{a.dmg}{a.w.p.length ? `, ${a.w.p.join(', ')}` : ''}. {a.mano === 'principal' ? 'Mano principal' : a.mano === 'otra' ? 'Otra mano' : 'Guardada'}</span></span>
-              <span className="flex gap-2">
-                <Boton tamano="sm" onClick={() => cambiarCantidadArma(a.i, -1)} aria-label={`Quitar una ${a.w.n}`}>−</Boton>
-                <Boton tamano="sm" onClick={() => cambiarCantidadArma(a.i, 1)} aria-label={`Agregar una ${a.w.n}`}>+</Boton>
-                {esPropia(a.k) && <Boton tamano="sm" variante="fantasma" onClick={() => deMagico(a.k) ? quitarMagico(deMagico(a.k).id) : quitarArma(a.k)}>Quitar</Boton>}
-              </span>
-            </li>
+            <Fila key={'a' + a.k} q={a.q} nombre={a.w.n} menos={() => cambiarCantidadArma(a.i, -1)} mas={() => cambiarCantidadArma(a.i, 1)}
+              detalle={`${a.dmg}${a.w.p.length ? `, ${a.w.p.join(', ')}` : ''}. ${a.mano === 'principal' ? 'Mano principal' : a.mano === 'otra' ? 'Otra mano' : 'Guardada'}`} />
           ))}
           {armaduras.map(k => (
-            <li key={'r' + k} className={fila}>
-              <span>{nombreArmadura(k)} <span className="text-sm text-muted">{k === 'escudo' ? (c.shield ? 'En la otra mano' : 'Guardado') : c.armorKey === k ? 'Puesta' : 'Guardada'}</span></span>
-              <Boton tamano="sm" variante="fantasma" onClick={() => deMagico(k) ? quitarMagico(deMagico(k).id) : quitarArmadura(k)}>Quitar</Boton>
-            </li>
+            <Fila key={'r' + k} q={+pj.cantArm?.[k] || 1} nombre={nombreArmadura(k)} menos={() => cambiarCantidadArmadura(k, -1)} mas={() => cambiarCantidadArmadura(k, 1)}
+              detalle={k === 'escudo' ? (c.shield ? 'En la otra mano' : 'Guardado') : c.armorKey === k ? 'Puesta' : 'Guardada'} />
           ))}
           {(pj.objetos || []).map((o: any, i: number) => (
-            <li key={'o' + i} className={fila}>
-              <span>{o.n}{o.q > 1 ? ` (${o.q})` : ''}</span>
-              <span className="flex gap-2">
-                <Boton tamano="sm" onClick={() => cambiarObjeto(i, -1)} aria-label={`Quitar un ${o.n}`}>−</Boton>
-                <Boton tamano="sm" onClick={() => cambiarObjeto(i, 1)} aria-label={`Agregar un ${o.n}`}>+</Boton>
-              </span>
-            </li>
+            <Fila key={'o' + i} q={o.q} nombre={o.n} menos={() => cambiarObjeto(i, -1)} mas={() => cambiarObjeto(i, 1)} />
           ))}
           {!c.armas.length && !armaduras.length && !(pj.objetos || []).length && <li className="py-2 text-sm text-muted">Todavía no llevas nada.</li>}
         </Lista>
       </Seccion>
       <Seccion titulo="Objetos mágicos"><ListaMagicos c={c} /></Seccion>
-      <Seccion titulo="Añadir al inventario"><Agregar /></Seccion>
+      <Seccion titulo="Añadir al inventario"><div className="rounded-2xl bg-surface p-4 ring-1 ring-rule/60"><Agregar /></div></Seccion>
       <Seccion titulo="Notas" descripcion="Lo que trajeron los kits iniciales y cualquier otra cosa que quieras anotar.">
         <CampoArea path="inventario" value={pj.inventario} rows={5} aria-label="Notas del inventario" />
       </Seccion>
