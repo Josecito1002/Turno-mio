@@ -43,6 +43,22 @@ investigación que ya trae el texto oficial.
 Números de lote: 7 Brujo, 8 Clérigo, 9 Druida, 10 Explorador, 11 Guerrero, 12 Hechicero, 13 Mago, 14 Monje,
 15 Paladín, 16 Pícaro.
 
+### Lotes 17 a 20 (no son clases)
+
+Sus encargos los genera `npm run gemini:encargo-extra` (`scripts/gemini/encargo-extra.ts`), con el mismo formato:
+
+- 17 `lote-17-dotes-generales.md`, 18 `lote-18-dotes-origen-y-otras.md` (origen, estilos de combate, marcas de dragón,
+  dones oscuros), 19 `lote-19-dotes-epicas.md`: la parte A es `DOTES_NUEVAS` (clave → `{ n, t, cat, nivelMin, texto }`,
+  mismas claves que `biblioteca.dotes`); B mecánicas con "donde" = clave de la dote.
+- 20 `lote-20-especies-y-selectores.md`: A trae `ESPECIES_NUEVAS` (Aarakocra, Gnomo de las Profundidades, Duergar) y
+  `LINAJES_GEMA` (linajes del Dracónido de gema); B trae también los selectores sueltos (Orden Divina, Orden
+  Primordial, formas de Forma Salvaje, Afinidad Elemental, Dominio de Conjuros, planos del Artífice, truco del Colegio
+  de la Luna, estilo adicional del Campeón) con "donde" = "clase:<clave>" o la clave de la subclase.
+- La respuesta va en `docs/gemini/respuesta-NN-<nombre>.md` (mismo nombre que el encargo, con "respuesta").
+- **`gemini:revisar` todavía no sabe leer estos lotes**: la primera vez que se analice uno hay que adaptarlo (validar A
+  y B igual que en las clases; aplicar las dotes con una opción nueva de `actualizar-clase` sobre la sección `dotes`,
+  las especies sobre `especies`, y los selectores como reglas en `generadas/`).
+
 ## Revisión en la app
 
 - **No revises la app con un navegador automático**: la revisión la hace el usuario en Vercel.

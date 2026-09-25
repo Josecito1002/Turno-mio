@@ -10,7 +10,7 @@ const CACHE = '.cache/5etools/';
 
 export const CLASE_EN: Record<string, string> = {
   barbaro: 'barbarian', bardo: 'bard', brujo: 'warlock', clerigo: 'cleric', druida: 'druid', explorador: 'ranger',
-  guerrero: 'fighter', hechicero: 'sorcerer', mago: 'wizard', monje: 'monk', paladin: 'paladin', picaro: 'rogue',
+  guerrero: 'fighter', hechicero: 'sorcerer', mago: 'wizard', monje: 'monk', paladin: 'paladin', picaro: 'rogue', artifice: 'artificer',
 };
 /* Opciones de clase que se eligen de una lista (optionalfeatures de 5etools) */
 const OPCIONES: Record<string, { tipo: string; nombre: string }> = {
@@ -25,12 +25,12 @@ export const LIBROS: Record<string, [string, number]> = {
   EFA: ['Eberron: Forge of the Artificer', 2025], XPHB: ['Manual del Jugador', 2024], BGG: ['Bigby Presents: Glory of the Giants', 2023],
   DSotDQ: ['Dragonlance: Shadow of the Dragon Queen', 2022], VRGR: ["Van Richten's Guide to Ravenloft", 2021],
   FTD: ["Fizban's Treasury of Dragons", 2021], TCE: ["Tasha's Cauldron of Everything", 2020], EGW: ["Explorer's Guide to Wildemount", 2020],
-  XGE: ["Xanathar's Guide to Everything", 2017], SCAG: ["Sword Coast Adventurer's Guide", 2015], DMG: ['Guía del Dungeon Master', 2014],
+  MPMM: ['Mordenkainen Presents: Monsters of the Multiverse', 2022], XGE: ["Xanathar's Guide to Everything", 2017], SCAG: ["Sword Coast Adventurer's Guide", 2015], DMG: ['Guía del Dungeon Master', 2014],
   PHB: ['Manual del Jugador', 2014],
 };
 export const libro = (src: string) => LIBROS[src] ? `${LIBROS[src][0]} (${LIBROS[src][1]})` : src;
 
-async function json(ruta: string) {
+export async function json(ruta: string) {
   const local = CACHE + ruta.replace(/\//g, '_');
   if (existsSync(local)) return JSON.parse(readFileSync(local, 'utf8'));
   const res = await fetch(BASE + ruta);
@@ -41,8 +41,13 @@ async function json(ruta: string) {
   return JSON.parse(texto);
 }
 
+/* Texto plano de entradas de 5etools sin referencias a otros rasgos */
+export const textoPlano = (e: any): string => typeof e === 'string' ? sinEtiquetas(e) : Array.isArray(e) ? e.map(textoPlano).filter(Boolean).join(' ')
+  : !e || typeof e !== 'object' ? '' : e.type === 'table' ? [e.caption, ...(e.rows || []).map((r: any) => (Array.isArray(r) ? r : r.row || []).map(textoPlano).join(' | '))].filter(Boolean).join(' / ')
+  : [e.name ? `[${sinEtiquetas(e.name)}]` : '', textoPlano(e.entries || e.items || e.entry || [])].filter(Boolean).join(' ');
+
 /* {@spell Misty Step|XPHB} → Misty Step; {@variantrule Bloodied|XPHB|Ensangrentado} → el texto a mostrar */
-const sinEtiquetas = (s: string) => {
+export const sinEtiquetas = (s: string) => {
   let prev = '';
   while (prev !== s) { prev = s; s = s.replace(/\{@(\w+) ([^{}]*)\}/g, (_, tag, x) => { const p = x.split('|'); return tag === 'filter' ? p[0] : p[2] || p[0]; }); }
   return s;
@@ -79,7 +84,7 @@ export async function oficial(clase: string): Promise<Oficial> {
   };
 
   // Rasgos de la clase 2024
-  const C = d.class.find((c: any) => c.source === 'XPHB') || d.class[0];
+  const C = d.class.find((c: any) => c.source === 'XPHB') || [...d.class].sort((a: any, b: any) => (LIBROS[b.source]?.[1] || 0) - (LIBROS[a.source]?.[1] || 0))[0];
   const claseRasgos: Rasgo[] = (C.classFeatures || []).map((x: any) => {
     const f = buscarClase(typeof x === 'string' ? x : x.classFeature);
     return f && { n: f.level, nombre: f.name, texto: plano(f.entries) };
