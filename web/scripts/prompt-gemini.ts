@@ -5,13 +5,15 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { CLASES } from '../src/features/reglas/data/clases';
 import { SUBCLASES } from '../src/features/reglas/data/subclases';
+import { CATALOGO } from '../src/features/reglas/data/conjuros';
 
 const LOTES: Record<string, number> = { brujo: 7, clerigo: 8, druida: 9, explorador: 10, guerrero: 11, hechicero: 12, mago: 13, monje: 14, paladin: 15, picaro: 16 };
 
 const clase = process.argv[2];
 if (!clase || !LOTES[clase]) { console.error('Clase: ' + Object.keys(LOTES).join(', ')); process.exit(1); }
 const C = CLASES[clase] as any, nom = C.n as string, num = LOTES[clase];
-const lib = JSON.parse(readFileSync('../biblioteca-mi-turno.json', 'utf8')).clases[clase] || {};
+const biblioteca = JSON.parse(readFileSync('../biblioteca-mi-turno.json', 'utf8'));
+const lib = biblioteca.clases[clase] || {};
 const doc = readFileSync('../docs/revision-reglas.md', 'utf8');
 
 /* Los textos de las reglas a veces son funciones del personaje: se evalúan con uno de nivel 20 y modificadores +3 */
@@ -59,7 +61,9 @@ aplica tu respuesta, así que la precisión importa más que la extensión.
    los niveles de subclase de la clase 2024 (por ejemplo, lo de nivel 1 o 2 pasa al 3). Di en las notas qué moviste.
 3. **Textos propios en español**, cortos (1 a 3 frases), escritos por ti. Nunca copies ni traduzcas literal el texto
    del libro. Nombres de rasgos y conjuros: la traducción oficial al español si existe, con el inglés entre paréntesis
-   la primera vez que aparezca un conjuro, por ejemplo "Paso brumoso (Misty Step)".
+   la primera vez que aparezca un conjuro, por ejemplo "Paso brumoso (Misty Step)". **Los conjuros escríbelos con el
+   nombre exacto de la lista "Conjuros de la app" del final** (por ejemplo "Ayuda", no "Auxilio"); si uno no está en
+   la lista, usa la traducción oficial y márcalo con (NO ESTÁ EN LA APP).
 4. **No inventes.** Si no puedes confirmar un dato (un número, un nivel, un nombre), escríbelo igual con la marca
    **[NO CONFIRMADO]** y di por qué.
 5. **Antes de agregar algo nuevo**, comprueba que no esté ya en la app con otro nombre (lista de abajo).
@@ -133,6 +137,12 @@ for (const [k, s] of Object.entries<any>(lib.subclases || {})) {
   partes.push(`### ${s.n} (biblioteca, clave \`${k}\`)\n${(s.rasgos || []).map(linea).join('\n')}`);
 }
 if (delDoc) partes.push(`## Pendientes de este lote en la revisión (selectores por hacer, subclases que faltan respecto a D&D Beyond, rasgos dudosos)\n\n${delDoc.replace(/^#+ /gm, '#### ')}`);
+
+/* Nombres de conjuros tal como los tiene la app, por nivel, para que las listas coincidan con el catálogo */
+const conj = new Map<string, number>();
+for (const x of [...CATALOGO, ...Object.values<any>(biblioteca.conjuros || {})]) if (x?.nombre && !conj.has(x.nombre)) conj.set(x.nombre, +x.nivel || 0);
+const porNivel = [...Array(10).keys()].map(n => [...conj].filter(([, v]) => v === n).map(([k]) => k).sort((a, b) => a.localeCompare(b, 'es')));
+partes.push('## Conjuros de la app (usa estos nombres exactos)\n\n' + porNivel.map((l, n) => `- ${n ? 'Nivel ' + n : 'Trucos'}: ${l.join(', ')}`).join('\n'));
 
 mkdirSync('../docs/gemini', { recursive: true });
 const salida = `../docs/gemini/lote-${String(num).padStart(2, '0')}-${clase}.md`;
