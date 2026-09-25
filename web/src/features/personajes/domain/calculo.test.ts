@@ -6,6 +6,7 @@ import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { setLib, getSubs, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
 import { compute } from './calculo';
+import { resolver } from '@/features/dados/domain/dados';
 import { bonosPara, dadosAlLanzar, espaciosPara, extrasAtaque } from './lanzar';
 import { sinDuplicado } from '@/features/biblioteca/domain/mapeo';
 import { nuevoPj } from './modelo';
@@ -901,5 +902,17 @@ describe('Lanzar conjuros y seguir un ataque', () => {
     assert.equal(furtivo?.requiere, 'ventaja');
     // Con un arma que no es sutil ni a distancia no se ofrece
     assert.ok(!extrasAtaque(p, { w: ARMAS.garrote || { p: [] }, mano: 'principal' }).some((x: any) => /Ataque Furtivo/.test(x.nombre)));
+  });
+});
+
+describe('Ventaja sobre una tirada ya hecha', () => {
+  test('Se conserva el d20 que salió y se tira solo el segundo', () => {
+    for (let i = 0; i < 20; i++) {
+      const r = resolver('1d20+4', { adv: 1, previo: 7 });
+      assert.equal(r.groups[0].vals[0], 7);
+      assert.equal(r.nat, Math.max(7, r.groups[0].vals[1]));
+      const d = resolver('1d20+4', { adv: -1, previo: 7 });
+      assert.equal(d.nat, Math.min(7, d.groups[0].vals[1]));
+    }
   });
 });

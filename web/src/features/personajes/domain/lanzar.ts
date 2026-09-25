@@ -53,9 +53,10 @@ export function extrasAtaque(c: any, a?: any): Extra[] {
     // Lo que no se puede pagar no se ofrece.
     const expr = dado(e.texto), rec = e.recurso ? recursoLibre(c, e.recurso) : null;
     if (/espacio/.test(norm(e.coste || ''))) {
-      if (rec) out.push({ nombre: `${e.nombre} (${rec.nombre.toLowerCase()})`, t: e.t, expr, gasta: rec.id });
-      for (const x of espaciosPara(c, 1).filter((x: any) => x.quedan > 0))
-        out.push({ nombre: `${e.nombre} (espacio de nivel ${x.nivel})`, t: e.t, expr: dadosAlLanzar(expr, 1, x.nivel, e.texto), gasta: 'slot' + x.nivel });
+      // El uso gratis equivale a un espacio de nivel 1: mientras quede, se ofrece ese y los espacios desde el nivel 2
+      if (rec) out.push({ nombre: `${e.nombre} gratis`, t: e.t, expr, gasta: rec.id });
+      for (const x of espaciosPara(c, rec ? 2 : 1).filter((x: any) => x.quedan > 0))
+        out.push({ nombre: `${e.nombre} con espacio de nivel ${x.nivel}`, t: e.t, expr: dadosAlLanzar(expr, 1, x.nivel, e.texto), gasta: 'slot' + x.nivel });
       continue;
     }
     if (e.recurso && !rec && recursoDe(c, e.recurso)) continue;
@@ -70,7 +71,7 @@ export function extrasAtaque(c: any, a?: any): Extra[] {
     const nv = +s.nivel || 0;
     if (!nv) { out.push({ nombre: s.nombre, t: 'adicional', expr: s.dados || '' }); continue; }
     for (const e of espaciosPara(c, nv).filter((x: any) => x.quedan > 0))
-      out.push({ nombre: `${s.nombre} (espacio de nivel ${e.nivel})`, t: 'adicional', expr: dadosAlLanzar(s.dados || '', nv, e.nivel, s.desc), gasta: 'slot' + e.nivel });
+      out.push({ nombre: `${s.nombre} con espacio de nivel ${e.nivel}`, t: 'adicional', expr: dadosAlLanzar(s.dados || '', nv, e.nivel, s.desc), gasta: 'slot' + e.nivel });
   }
   return out;
 }

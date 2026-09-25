@@ -74,6 +74,11 @@ export function gastarRecurso(id: string) {
   const used = Math.min(pj.used[r.id] || 0, r.max); if (used >= r.max) return false;
   pj.used[r.id] = used + 1; savePj(); render(); return true;
 }
+/** Si al recurso del personaje abierto le queda algún uso. */
+export function quedaRecurso(id: string) {
+  const r = S.c?.recursos.find((x: any) => x.id === id);
+  return !!r && Math.min(S.pj?.used?.[id] || 0, r.max) < r.max;
+}
 export function moverPool(id: string, d: number) {
   const pj = S.pj, r = S.c.recursos.find((r: any) => r.id === id);
   const used = Math.min(pj.used[r.id] || 0, r.max);
