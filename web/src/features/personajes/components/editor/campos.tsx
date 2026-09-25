@@ -35,7 +35,7 @@ export function CampoArea({ path, value, rows = 3, placeholder, ...rest }: { pat
   return <textarea key={String(value ?? '')} ref={ref} rows={rows} placeholder={placeholder} {...rest} defaultValue={value ?? ''} className={cx(claseCampo, 'py-2')} />;
 }
 
-export function Selector({ path, value, num, children, className, ...rest }: { path: string; value: any; num?: boolean; children: ReactNode; className?: string; id?: string; 'aria-label'?: string; 'aria-describedby'?: string }) {
+export function Selector({ path, value, num, children, className, ...rest }: { path: string; value: any; num?: boolean; children: ReactNode; className?: string; id?: string; disabled?: boolean; 'aria-label'?: string; 'aria-describedby'?: string }) {
   return <select value={value ?? ''} onChange={e => setVal(path, num ? +e.target.value : e.target.value)} className={cx(claseCampo, 'cursor-pointer', className)} {...rest}>{children}</select>;
 }
 

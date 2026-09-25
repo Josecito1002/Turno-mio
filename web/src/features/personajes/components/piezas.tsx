@@ -13,6 +13,8 @@ export const Shape = ({ t }: { t: string; className?: string }) => <FormaTipo t=
 
 function Mover({ e }: { e: any }) {
   const k = norm(e.nombre);
+  // Al tocar una opción (aunque sea la actual) el menú se cierra
+  const elegir = (ev: React.MouseEvent<HTMLElement>, t: string) => { ev.currentTarget.closest('details')?.removeAttribute('open'); moverRasgo(k, t); };
   return (
     <details className="group/m text-sm print:hidden">
       <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-2 text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>
@@ -20,13 +22,13 @@ function Mover({ e }: { e: any }) {
       </summary>
       <div role="group" aria-label={`¿Dónde se usa ${e.nombre}?`} className="mt-2 flex flex-wrap gap-1.5">
         {Object.entries(TIPOS).map(([t, [n]]) => (
-          <button key={t} type="button" aria-pressed={e.t === t} onClick={() => moverRasgo(k, t)}
+          <button key={t} type="button" aria-pressed={e.t === t} onClick={ev => elegir(ev, t)}
             className={cx('inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full px-3 text-sm font-bold sm:min-h-9', foco,
               e.t === t ? 'bg-ink text-bg' : 'bg-soft hover:bg-rule/70')}>
             <FormaTipo t={t} className="size-2.5" />{n}
           </button>
         ))}
-        {e.t !== e.tAuto && <Boton tamano="sm" variante="fantasma" onClick={() => moverRasgo(k, '')}>Volver a como venía</Boton>}
+        {e.t !== e.tAuto && <Boton tamano="sm" variante="fantasma" onClick={ev => elegir(ev, '')}>Volver a como venía</Boton>}
       </div>
     </details>
   );
@@ -173,8 +175,8 @@ export function Recursos({ c }: { c: any }) {
           const used = Math.min(u[r.id] || 0, r.max), left = r.max - used;
           const nota = r.nota || (r.reset === 'corto' ? 'Vuelve con descanso corto' : 'Vuelve con descanso largo');
           return (
-            <li key={r.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2">
-              <div className="min-w-44 flex-1">{r.nombre}<small className="block text-xs text-muted">{nota}</small></div>
+            <li key={r.id} className="flex flex-col items-start gap-1 py-2">
+              <div>{r.nombre}<small className="block text-xs text-muted">{nota}</small></div>
               {r.tipo === 'pool'
                 ? <Contador nombre={r.nombre} valor={left} max={r.max} onCambiar={d => moverPool(r.id, d)} onFijar={v => fijarPool(r.id, r.max, v)} />
                 : <Puntos nombre={r.nombre} max={r.max} usados={used} onTocar={i => tocarPip(r.id, i, r.max)} />}

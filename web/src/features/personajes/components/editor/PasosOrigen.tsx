@@ -18,6 +18,7 @@ import { Entrada } from '../piezas';
 import { quitarEquipoTrasfondo, savePj, setVal, tomarEquipoTrasfondo } from '../../acciones';
 import { TarjetasBuscables, Tarjeta } from './Tarjetas';
 import { ElegirElecciones, InfoSubclase } from './InfoSubclase';
+import { faltaParaSubir } from '../../domain/pendientes';
 import { AbSel, Casilla, CampoNumero, CampoTexto, Selector } from './campos';
 
 /* Elegir especie, clase o trasfondo reinicia lo que dependía de la anterior. Cambian el personaje fuera del componente. */
@@ -48,7 +49,7 @@ export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
       {E && pj.especie.key !== 'custom' && <PanelMedia k={pj.especie.key} n={E.n} d={descEspecie(pj.especie.key)} fuente={fuenteEspecie(pj.especie.key, E)} />}
       {E?.subs && (
         <Campo etiqueta={E.subL} className="max-w-sm">
-          <Selector path="especie.sub" value={pj.especie.sub}>
+          <Selector path="especie.sub" value={pj.especie.sub} disabled={c.lvl > 1 && !!pj.especie.sub}>
             <option value="">Elige…</option>
             {Object.entries<any>(E.subs).map(([k, s]) => <option key={k} value={k}>{s.n}{s.dmg ? ` (${s.dmg})` : ''}</option>)}
           </Selector>
@@ -64,7 +65,9 @@ export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
       )}
       <ElegirElecciones pj={pj} elecciones={(c.elecciones || []).filter((e: any) => e.grupo === 'especie')} />
       {ents.length > 0 && <Seccion titulo="Rasgos de tu especie">{ents.map((e: any, i: number) => <Entrada key={i} e={e} />)}</Seccion>}
-      <Seccion titulo={E ? 'Cambiar de especie' : 'Elige tu especie'}><TarjetasBuscables que="especie" items={items} /></Seccion>
+      {E && c.lvl > 1
+        ? <Nota>La especie se elige a nivel 1 y ya no se puede cambiar.</Nota>
+        : <Seccion titulo={E ? 'Cambiar de especie' : 'Elige tu especie'}><TarjetasBuscables que="especie" items={items} /></Seccion>}
     </>
   );
 }
@@ -75,6 +78,8 @@ export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
 export function ElegirSubclase({ pj, c }: { pj: any; c: any }) {
   const subs = getSubs(pj, pj.clase).filter(s => s.key !== 'cadena');
   const puede = c.lvl >= c.subNivel;
+  // Pasado su nivel, la subclase ya elegida queda fija: solo se ve su tarjeta y lo que da
+  const fija = c.lvl > c.subNivel && !!pj.subclase;
   // La vista previa vale para el nivel en que se abrió: al cambiar de nivel se cierra
   const [vista, setVista] = useState({ k: '', lvl: 0 });
   const elegirSub = (k: string) => puede ? setVal('subclase', k) : setVista(v => ({ k: v.k === k && v.lvl === c.lvl ? '' : k, lvl: c.lvl }));
@@ -93,6 +98,19 @@ export function ElegirSubclase({ pj, c }: { pj: any; c: any }) {
       </div>
     </Plegable>
   );
+  if (fija) {
+    const s = subs.find(x => x.key === pj.subclase);
+    return (
+      <>
+        <div className="max-w-md">
+          {s ? <Tarjeta on onClick={() => {}} titulo={s.n} sub={descSubclase(s.key)} clampSub fuente={fuenteSubclase(s, pj.clase)} />
+            : <Tarjeta on onClick={() => {}} titulo={pj.subclaseNombre || 'Otra'} sub="Sus rasgos van en Rasgos propios." />}
+        </div>
+        <Nota>Se eligió a nivel {c.subNivel} y ya no se puede cambiar.</Nota>
+        {s && <InfoSubclase pj={pj} sk={s.key} lvl={c.lvl} />}
+      </>
+    );
+  }
   return (
     <>
       <TarjetasBuscables que="subclase" items={[
@@ -108,6 +126,10 @@ export function ElegirSubclase({ pj, c }: { pj: any; c: any }) {
 }
 
 export function ElegirEstilo({ pj, c }: { pj: any; c: any }) {
+  // Pasado el nivel en que se elige, queda fijo
+  if (pj.estilo && ESTILOS[pj.estilo] && c.lvl > c.C.estilo) return (
+    <Campo etiqueta="Estilo de combate" ayuda={`Se eligió a nivel ${c.C.estilo}.`}><p className="m-0 min-h-11 content-center font-bold">{ESTILOS[pj.estilo][0]}</p></Campo>
+  );
   return (
     <Campo etiqueta="Estilo de combate">
       <Selector path="estilo" value={pj.estilo}>
@@ -128,13 +150,18 @@ export function PasoClase({ pj, c }: { pj: any; c: any }) {
   });
   const tarjetas = <Seccion titulo={C ? 'Cambiar de clase' : 'Elige tu clase'} descripcion={C ? 'Cambiar de clase borra las habilidades, pericias y maestrías que elegiste.' : undefined}><TarjetasBuscables que="clase" items={items} /></Seccion>;
   if (!C) return tarjetas;
+  // Con algo pendiente no se puede subir de nivel (bajar sí)
+  const falta = faltaParaSubir(c);
   return (
     <>
       <PanelMedia k={'c:' + pj.clase} n={C.n} d={descClase(pj.clase)} fuente={fuenteClase(pj.clase)} />
       <div className="grid gap-3 sm:grid-cols-2">
-        <Campo etiqueta="Nivel">
-          <Selector path="nivel" value={+pj.nivel} num>{Array.from({ length: 20 }, (_, i) => <option key={i} value={i + 1}>{i + 1}</option>)}</Selector>
-        </Campo>
+        <div>
+          <Campo etiqueta="Nivel">
+            <Selector path="nivel" value={+pj.nivel} num>{Array.from({ length: 20 }, (_, i) => <option key={i} value={i + 1} disabled={falta.length > 0 && i + 1 > c.lvl}>{i + 1}</option>)}</Selector>
+          </Campo>
+          {falta.length > 0 && c.lvl < 20 && <p className="m-0 mt-1 text-sm text-muted">Para subir de nivel falta elegir: {falta.map((a: any) => a.t.toLowerCase()).join(', ')}.</p>}
+        </div>
         {C.estilo && c.lvl >= C.estilo && <ElegirEstilo pj={pj} c={c} />}
       </div>
       <ElegirElecciones pj={pj} elecciones={(c.elecciones || []).filter((e: any) => e.grupo === 'clase')} />
@@ -146,7 +173,7 @@ export function PasoClase({ pj, c }: { pj: any; c: any }) {
       <Seccion titulo={`Rasgos hasta nivel ${c.lvl}`}>
         {c.entries.filter((e: any) => e.grupo === 'clase' || e.grupo === 'sub').map((e: any, i: number) => <Entrada key={i} e={e} />)}
       </Seccion>
-      {tarjetas}
+      {c.lvl > 1 ? <Nota>La clase se elige a nivel 1 y ya no se puede cambiar.</Nota> : tarjetas}
     </>
   );
 }
@@ -245,7 +272,7 @@ export function PasoTrasfondo({ pj, c }: { pj: any; c: any }) {
         </div>
         {ds.map((e: any, i: number) => <Entrada key={i} e={e} />)}
       </Seccion>
-      {tarjetas}
+      {c.lvl > 1 ? <Nota>El trasfondo se elige a nivel 1 y ya no se puede cambiar.</Nota> : tarjetas}
     </>
   );
 }
