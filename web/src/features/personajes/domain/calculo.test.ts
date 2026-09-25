@@ -1,4 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { pagar, armadurasDe } from './inventario';
+import { armaMagica, armaduraMagica } from './magicos';
+import { OBJETOS_MAGICOS } from '@/features/reglas/data/objetos-magicos';
 import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { setLib, getSubs, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
@@ -734,5 +737,72 @@ describe('Manos: qué arma se empuña', () => {
     assert.equal(dos.manos.b, 'daga');
     assert.ok(dos.entries.some((e: any) => e.nombre === 'Ataque con la otra arma ligera'));
     assert.equal(gue({ armas: [['daga', 1]], manos: { a: 'daga', b: 'daga' } }).manos.b, '');
+  });
+});
+
+describe('Inventario y monedas', () => {
+  test('pagar con la misma moneda, o cambiando una mayor y recibiendo el cambio', () => {
+    const b = { pt: 0, po: 35, pp: 3, pc: 1 };
+    assert.deepEqual(pagar(b, 'pp', 2), { pt: 0, po: 35, pp: 1, pc: 1 });
+    // 5 de plata con solo 3: se cambia 1 de oro (10 de plata), quedan 8
+    assert.deepEqual(pagar(b, 'pp', 5), { pt: 0, po: 34, pp: 8, pc: 1 });
+    // 1 de oro sin oro: se cambia 1 de platino
+    assert.deepEqual(pagar({ pt: 1, po: 0, pp: 0, pc: 0 }, 'po', 1), { pt: 0, po: 9, pp: 0, pc: 0 });
+    // Sin mayores, se juntan menores
+    assert.deepEqual(pagar({ pt: 0, po: 0, pp: 12, pc: 5 }, 'po', 1), { pt: 0, po: 0, pp: 2, pc: 5 });
+    assert.deepEqual(pagar({ pt: 0, po: 0, pp: 1, pc: 0 }, 'pc', 3), { pt: 0, po: 0, pp: 0, pc: 7 });
+    assert.equal(pagar({ pt: 0, po: 1, pp: 0, pc: 0 }, 'pt', 1), null);
+  });
+  test('armas y armaduras personalizadas cuentan en ataques y CA', () => {
+    const c = pj('guerrero', 3, '', { fue: 16, des: 14 }, {
+      armas: [['x:hacha', 1]], armasPropias: { 'x:hacha': { n: 'Hacha rúnica', d: '1d10', tipo: 'cortante', cat: 'marcial', p: [] } },
+      armadura: 'x:malla', armadurasPropias: { 'x:malla': { n: 'Malla élfica', base: 14, cat: 'ligera' } },
+    });
+    assert.equal(c.armas[0].w.n, 'Hacha rúnica');
+    assert.equal(c.armas[0].dmg, "1d10 + 3 cortante");
+    assert.equal(c.ac, 16);
+  });
+  test('la armadura que se quita del cuerpo sigue en el inventario, y el escudo también', () => {
+    assert.deepEqual(armadurasDe({ armadura: 'mallas', armaduras: ['cuero'], escudo: true }), ['mallas', 'cuero', 'escudo']);
+  });
+});
+
+describe('Objetos mágicos', () => {
+  const M = OBJETOS_MAGICOS;
+  test('arma +1: suma al ataque y al daño; armadura +1 a la CA', () => {
+    const c = pj('guerrero', 3, '', { fue: 16, des: 10 }, {
+      armas: [['x:m1', 1]], armasPropias: { 'x:m1': armaMagica('estoque', M['arma-1']) },
+      armadura: 'x:m2', armadurasPropias: { 'x:m2': armaduraMagica('mallas', M['armadura-1']) },
+      magicos: [{ id: 'a', k: 'arma-1', arma: 'x:m1' }, { id: 'b', k: 'armadura-1', armadura: 'x:m2' }],
+    });
+    const a = c.armas.find((x: any) => x.k === 'x:m1');
+    assert.equal(a.w.n, 'Estoque +1');
+    assert.equal(a.atk, 3 + 2 + 1);
+    assert.equal(a.dmg, '1d8 + 4 perforante');
+    assert.equal(c.ac, 17);
+  });
+  test('sin sintonizar no funciona; sintonizado da CA, salvaciones y características', () => {
+    const sin = pj('guerrero', 3, '', { fue: 10, con: 10 }, { magicos: [{ id: 'a', k: 'anillo-proteccion' }, { id: 'b', k: 'guanteletes-ogro' }] });
+    const con = pj('guerrero', 3, '', { fue: 10, con: 10 }, { magicos: [{ id: 'a', k: 'anillo-proteccion', sint: true }, { id: 'b', k: 'guanteletes-ogro', sint: true }] });
+    assert.equal(con.ac, sin.ac + 1);
+    assert.equal(con.saves.con, sin.saves.con + 1);
+    assert.equal(sin.sc.fue, 10);
+    assert.equal(con.sc.fue, 19);
+    assert.ok(con.entries.some((e: any) => e.nombre === 'Anillo de Protección' && e.src === 'Objeto mágico'));
+    assert.ok(!sin.entries.some((e: any) => e.nombre === 'Anillo de Protección'));
+  });
+  test('cargas como recurso y conjuros en la lista con su coste y CD fija', () => {
+    const c = pj('guerrero', 3, '', {}, { magicos: [{ id: 'v', k: 'varita-bolas-fuego', sint: true }] });
+    const r = c.recursos.find((x: any) => x.id === 'mg-v');
+    assert.equal(r?.max, 7);
+    const s = c.conjuros.find((x: any) => x.nombre === 'Bola de fuego');
+    assert.equal(s?.cd, 15);
+    assert.equal(s?.recurso, 'mg-v');
+    assert.match(s?.coste, /carga/);
+  });
+  test('más de 3 sintonizados avisa', () => {
+    const magicos = ['anillo-proteccion', 'capa-proteccion', 'piedra-suerte', 'amuleto-salud'].map((k, i) => ({ id: 'm' + i, k, sint: true }));
+    const c = pj('guerrero', 3, '', {}, { magicos });
+    assert.ok(c.avisos.some((a: any) => /sintonizados/.test(a.t)));
   });
 });

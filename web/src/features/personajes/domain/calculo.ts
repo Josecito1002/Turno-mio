@@ -18,8 +18,11 @@ import { competenciasBase, leerCompetencias, competenteArma } from '@/features/r
 import { mejoraDeDote } from '@/features/reglas/domain/mejora-dote';
 import { baseScores } from './modelo';
 import { manosDe, aDosManos, portadorDual } from './manos';
+import { registrarPropias } from './inventario';
+import { MAX_SINTONIA, aplicarFijas, aplicarMagicos, armasInactivas } from './magicos';
 
 export function compute(pj): any {
+  registrarPropias(pj);
   const E = getE(pj, pj.especie?.key), C = getC(pj, pj.clase), T = getT(pj, pj.trasfondo?.key);
   const lvl = Math.min(20, Math.max(1, +pj.nivel || 1)), tl = lvl, pb = Math.ceil(tl / 4) + 1;
   const tb = pj.trasfondo || {};
@@ -41,6 +44,7 @@ export function compute(pj): any {
     if (k) { (md.max > 20 ? epico : bono)[k] += 1; subeDote[norm(D.n)] = k; } });
   for (const k in sc) sc[k] = Math.min(30, Math.min(20, sc[k] + bono[k]) + epico[k]);
   for (const k in bono) bono[k] += epico[k];
+  aplicarFijas(pj, sc); // objetos mágicos como los Guanteletes de Fuerza de Ogro
   for (const [k, v] of Object.entries(pj.fix || {})) if (v !== '' && v != null && !isNaN(v)) sc[k] = +v;
   const m = {}; for (const k in sc) m[k] = modOf(sc[k]);
 
@@ -77,6 +81,7 @@ export function compute(pj): any {
   c.armor = ARMADURAS[c.armorKey] || null;
   // Manos: un arma a dos manos o un arma en la otra mano no dejan usar el escudo
   c.manos = manosDe(pj);
+  c.armasInactivas = armasInactivas(pj);
   c.shield = !!pj.escudo && !c.manos.b && !(c.manos.a && aDosManos(c.manos.a));
   const opc = [c.armor ? c.armor.base + (c.armor.max === 0 ? 0 : c.armor.max ? Math.min(m.des, c.armor.max) : m.des) : 10 + m.des];
   [C?.ca, c.SD?.ca].forEach(f => { if (f) { const v = f(c); if (v != null) opc.push(v); } });
@@ -142,6 +147,7 @@ export function compute(pj): any {
 
   c.entries = buildEntries(c);
   aplicarReglas(c);
+  aplicarMagicos(c);
   conjurosDeRasgos(c);
   c.passive = 10 + c.skill['percepcion']; // una regla pudo dar competencia en Percepción
   // Competencias que dan los rasgos (especie, subclase, dotes); si cambian las de armas, las filas de ataque se recalculan
@@ -166,6 +172,7 @@ export function compute(pj): any {
   aplicarTextos(c);
   // Sin competencia con escudos, el escudo no suma a la CA (reglas 2024)
   if (c.sinCompEscudo) c.ac -= 2;
+  c.ac += c.bonoCAMagica || 0;
   c.entries.forEach(e => { if (e.textoF) e.texto = e.textoF(c); if (e.rollF) e.roll = e.rollF(c); });
   vincularRecursos(c);
   separarOpciones(c);
@@ -269,15 +276,19 @@ export function weaponRow(a, c){
   const conCar = !!c.usaCar?.(w);
   if (conCar && m.car > m[ab]) ab = 'car';
   const prof = competenteArma(c, a.k) || (c.pactoFilo && !w.dist);
-  const atk = m[ab] + (prof ? c.pb : 0) + (c.tieneEstilo('arqueria') && w.dist ? 2 : 0);
+  // Bono de arma mágica (+1, +2, +3); no suma si su objeto pide sintonización y no la tiene
+  const bono = c.armasInactivas?.has(a.k) ? 0 : +w.bono || 0;
+  const atk = m[ab] + (prof ? c.pb : 0) + (c.tieneEstilo('arqueria') && w.dist ? 2 : 0) + bono;
   let dado = w.d;
   if (monkW) { const [nn, dd] = w.d.split('d').map(Number); if (nn === 1 && c.md > dd) dado = `1d${c.md}`; }
-  const dmgMod = m[ab] + (c.tieneEstilo('duelo') && !w.dist && !w.p.includes('dos manos') ? 2 : 0);
+  const dmgMod = m[ab] + bono + (c.tieneEstilo('duelo') && !w.dist && !w.p.includes('dos manos') ? 2 : 0);
   const min3 = c.tieneEstilo('dosmanos') && !w.dist && (w.p.includes('dos manos') || w.p.includes('versátil'));
   const notas = [];
   if (w.r) notas.push(`${w.p.includes('arrojadiza') ? 'Arrojadiza' : 'Alcance'} ${w.r} pies`);
   if (w.p.includes('alcance')) notas.push('Alcance de 10 pies');
   if (!prof) notas.push('Sin competencia');
+  if (w.danoExtra && !c.armasInactivas?.has(a.k)) notas.push(`Suma ${w.danoExtra} al daño`);
+  if (c.armasInactivas?.has(a.k)) notas.push('Sin sintonizar: no suma su magia');
   if (conCar) notas.push(c.pactoFilo && !w.dist ? 'Como arma de pacto usa CAR si es mayor' : 'Si es tu arma de Guerrero Maleficio, usa CAR si es mayor');
   let maestria = null;
   // Maestrías de la clase, más las que dan dotes como Maestro de Armas (c.maestriasExtra)
@@ -389,6 +400,7 @@ export function buildAvisos(c){
   if (c.sinCompArmadura) A.push({nivel:'aviso', t:'Armadura sin competencia', txt:`No eres competente con ${c.armor.n.toLowerCase()}: desventaja en pruebas, salvaciones y ataques de FUE o DES, y no puedes lanzar conjuros.`, paso:'equipo'});
   if (c.sinCompEscudo) A.push({nivel:'aviso', t:'Escudo sin competencia', txt:'No eres competente con escudos: el escudo no suma a tu CA.', paso:'equipo'});
   if (c.armor?.fue && c.sc.fue < c.armor.fue) A.push({nivel:'aviso', t:'Armadura muy pesada', txt:`${c.armor.n} pide FUE ${c.armor.fue}: velocidad −10 pies.`, paso:'equipo'});
+  if ((c.sintonizados || 0) > MAX_SINTONIA) A.push({nivel:'aviso', t:'Demasiados objetos sintonizados', txt:`Tienes ${c.sintonizados} y el límite es ${MAX_SINTONIA}: deja de sintonizar alguno.`, paso:'equipo'});
   if (c.futuros.length) A.push({nivel:'info', t:'Llegan más adelante', txt: c.futuros.map(f => `${f.nombre} (nivel ${f.nivel})`).join(', ') + '.'});
   return A;
 }
@@ -496,8 +508,11 @@ export function conjurosDeRasgos(c){
     // Con usos se lanza sin espacio; también con uno propio solo si el personaje tiene espacios de ese nivel
     const conEspacios = nv > 0 && (c.slots.some(e => e.nivel >= nv) || (c.pj.clase === 'brujo' && pacto(c.lvl).nivel >= nv));
     const nota = [x.nota || (!max && nv ? 'Siempre preparado' : ''), max && `Sin gastar espacio${conEspacios ? '; también puedes lanzarlo con tus espacios' : ''}`].filter(Boolean).join('. ');
-    const recurso = max ? 'cr-' + slug(x.nombre) : '';
-    out.push(conCd({...s, extra: true, rasgo: x.src, nota, coste: max ? usoTxt(max, x.reset) : '', recurso}, x.ab || abLibre));
+    const recurso = max ? 'cr-' + slug(x.nombre) : x.recurso || '';
+    let fila = conCd({...s, extra: true, rasgo: x.src, nota, coste: max ? usoTxt(max, x.reset) : x.coste || '', recurso}, x.ab || abLibre);
+    // Los objetos mágicos pueden traer su propia CD o ataque
+    if (x.cd || x.atk != null) fila = {...fila, ...(x.cd ? {cd: x.cd} : {}), ...(x.atk != null ? {atk: x.atk} : {}), abNota: ''};
+    out.push(fila);
     // El origen va en la nota del recurso, no en su nombre; `solo` evita que se ligue a otro rasgo por palabras sueltas
     if (max) c.extraRes.push({id: recurso, nombre: s.nombre, nota: `De ${x.src}. Vuelve con descanso ${x.reset === 'corto' ? 'corto' : 'largo'}`, max, reset: x.reset || 'largo', solo: true});
   }

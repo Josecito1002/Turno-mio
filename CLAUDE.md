@@ -61,6 +61,15 @@ Sus encargos los genera `npm run gemini:encargo-extra` (`scripts/gemini/encargo-
   y B igual que en las clases; aplicar las dotes con una opción nueva de `actualizar-clase` sobre la sección `dotes`,
   las especies sobre `especies`, y los selectores como reglas en `generadas/`).
 
+### Lote 21: objetos mágicos
+
+- `npm run gemini:encargo-objetos` (`scripts/gemini/encargo-objetos.ts`) genera cinco encargos: `lote-21a-objetos-comunes`,
+  `21b-objetos-raros`, `21c-objetos-muy-raros`, `21d-objetos-legendarios` y `21e-objetos-variantes` (armas y armaduras
+  mágicas que van sobre una que elige el jugador). Fuente: Guía del Dungeon Master 2024 y libros posteriores.
+- La parte A de cada respuesta es `OBJETOS` con la forma de `ObjetoMagico` (`src/features/reglas/data/objetos-magicos.ts`).
+  Al aplicarla, se suma a `OBJETOS_MAGICOS_GENERADOS` en `src/features/reglas/data/generadas/objetos-magicos.ts`, que
+  tiene prioridad sobre el catálogo inicial. Comprobar que los conjuros existan en la app y que las claves no se repitan.
+
 ## Revisión en la app
 
 - **No revises la app con un navegador automático**: la revisión la hace el usuario en Vercel.

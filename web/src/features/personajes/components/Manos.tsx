@@ -3,6 +3,7 @@
 import { Campo, Nota, claseCampo, cx } from '@/shared/ui/kit';
 import { ARMAS } from '@/features/reglas/data/equipo';
 import { aDosManos, puedeIrEnLaOtra } from '../domain/manos';
+import { armadurasDe } from '../domain/inventario';
 import { setMano } from '../acciones';
 
 /** Qué lleva en cada mano. Solo las armas empuñadas salen en Atacar; el escudo cuenta si va en la otra mano. */
@@ -11,7 +12,7 @@ export function ElegirManos({ pj, c }: { pj: any; c: any }) {
   const ks: string[] = (pj.armas || []).map(([k]: any) => k).filter((k: string) => ARMAS[k]);
   const dos = !!a && aDosManos(a);
   const otras = ks.filter(k => puedeIrEnLaOtra(pj, k, a));
-  const escudo = c.compArm?.escudo || pj.escudo;
+  const escudo = armadurasDe(pj).includes('escudo');
   const otra = pj.escudo && !dos && !b ? 'escudo' : b;
   return (
     <div className="grid gap-3 sm:grid-cols-2">

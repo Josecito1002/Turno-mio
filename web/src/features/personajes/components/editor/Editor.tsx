@@ -8,12 +8,19 @@ import { PASO_N } from '../ficha/Ficha';
 import { PasoClase, PasoEspecie, PasoTrasfondo } from './PasosOrigen';
 import { PasoEquipo, PasoHabs, PasoStats } from './PasosAtributos';
 import { PasoConjuros, PasoDetalles, PasoRasgos } from './PasosMagia';
+import { pasoEquipoEnEditor } from '../../domain/inventario';
+import { kitClase } from '@/features/reglas/data/equipo-clases';
+import { kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
 
-const PASOS = Object.keys(PASO_N);
+const TODOS = Object.keys(PASO_N);
 const irPaso = (k: string) => { S.step = k; S.sel = null; render(); irArriba(); };
 
 export function Editor({ c }: { c: any }) {
-  const pj = S.pj, i = PASOS.indexOf(S.step);
+  const pj = S.pj;
+  // Pasada la creación, el equipo se maneja en la pestaña Equipo de la hoja
+  const conEquipo = pasoEquipoEnEditor(pj, c, kitClase, kitTrasfondo);
+  const PASOS = TODOS.filter(k => k !== 'equipo' || conEquipo);
+  const paso = PASOS.includes(S.step) ? S.step : 'habs', i = PASOS.indexOf(paso);
   const pend = new Set(c.avisos.filter((a: any) => a.nivel === 'aviso').map((a: any) => a.paso));
   const pasos: Record<string, ReactNode> = {
     especie: <PasoEspecie pj={pj} c={c} />, clase: <PasoClase pj={pj} c={c} />, trasfondo: <PasoTrasfondo pj={pj} c={c} />,
@@ -23,10 +30,10 @@ export function Editor({ c }: { c: any }) {
   return (
     <>
       <EncabezadoPagina id="titulo-vista" titulo={pj.nombre || 'Nuevo personaje'} subtitulo={<>{resumen(pj)}. <span className="whitespace-nowrap">Los cambios se guardan solos.</span></>} />
-      <Pestanas idBase="editor" etiqueta="Pasos para crear el personaje" activa={S.step} onCambiar={irPaso}
+      <Pestanas idBase="editor" etiqueta="Pasos para crear el personaje" activa={paso} onCambiar={irPaso}
         items={PASOS.map((k, n) => ({ id: k, texto: <><span className="text-xs">{n + 1}.</span> {PASO_N[k]}</>, insignia: pend.has(k) ? <Insignia etiqueta="(falta algo)">!</Insignia> : undefined }))} />
-      <PanelPestana idBase="editor" activa={S.step}>
-        <div key={S.step} className="pb-4">{pasos[S.step]}</div>
+      <PanelPestana idBase="editor" activa={paso}>
+        <div key={paso} className="pb-4">{pasos[paso]}</div>
       </PanelPestana>
       <nav aria-label="Navegación entre pasos"
         className="sticky bottom-[var(--alto-nav-inferior,0px)] z-10 -mx-4 mt-6 flex items-center justify-between gap-2 border-t border-rule bg-bg px-4 py-3 backdrop-blur print:hidden">

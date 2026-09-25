@@ -15,6 +15,9 @@ import { compute, puedeLanzar } from './domain/calculo';
 import { pendientesAlSubir } from './domain/pendientes';
 import { snapshot } from './domain/importar-personaje';
 import { manosDe, aDosManos, puedeIrEnLaOtra } from './domain/manos';
+import { armadurasDe, bolsaDe, guardarBolsa, nuevaClave, pagar, pasoEquipoEnEditor } from './domain/inventario';
+import { ARMAS, ARMADURAS } from '@/features/reglas/data/equipo';
+import { MAX_SINTONIA, armaMagica, armaduraMagica, defDe, sintonizados } from './domain/magicos';
 
 export type Tirar = (expr: string, label: string, o?: OpcionesTirada) => Promise<Resultado>;
 
@@ -214,7 +217,13 @@ export function tomarEquipoTrasfondo(op: 'A' | 'B') {
   avisar(op === 'A' ? `Kit de ${T?.n || 'trasfondo'} agregado: armas, inventario y ${kit.oro} po.` : `${kit.alternativa} po agregadas.`);
 }
 
-export function irAPaso(paso: string) { S.subida = null; S.view = 'editor'; S.step = paso; render(); irArriba(); }
+export function irAPaso(paso: string) {
+  S.subida = null;
+  // Pasada la creación, el equipo está en la pestaña Equipo de la hoja
+  if (paso === 'equipo' && S.pj && !pasoEquipoEnEditor(S.pj, compute(S.pj), kitClase, kitTrasfondo)) { S.view = 'ficha'; S.tab = 'equipo'; }
+  else { S.view = 'editor'; S.step = paso; }
+  render(); irArriba();
+}
 
 /* ---- Conjuros y rasgos ---- */
 export async function confirmarNoLanzador() {
@@ -252,6 +261,7 @@ export const claveRasgo = (nombre: string) => norm(nombre);
     Un arma a dos manos en la principal suelta lo que hubiera en la otra. */
 export function setMano(lado: 'a' | 'b', v: string) {
   const pj = S.pj, m = manosDe(pj);
+  pj.armaduras = armadurasDe(pj); // el escudo que se suelta sigue en el inventario
   if (lado === 'a') {
     m.a = v;
     if (v && aDosManos(v)) { m.b = ''; pj.escudo = false; }
@@ -261,4 +271,99 @@ export function setMano(lado: 'a' | 'b', v: string) {
     m.b = v === 'escudo' ? '' : v;
   }
   pj.manos = m; savePj(); render();
+}
+
+/* ---- Inventario: armas, armaduras y objetos, y monedas ---- */
+export function agregarArma(k: string, def?: any) {
+  const pj = S.pj;
+  if (def) { k = nuevaClave(); pj.armasPropias = { ...(pj.armasPropias || {}), [k]: def }; }
+  const ex = pj.armas.find((a: any) => a[0] === k); if (ex) ex[1]++; else pj.armas.push([k, 1]);
+  savePj(); render(); avisar(`${def?.n || ARMAS[k]?.n || 'Arma'} agregada.`);
+}
+export function quitarArma(k: string) {
+  const pj = S.pj; pj.armas = pj.armas.filter((a: any) => a[0] !== k);
+  if (pj.armasPropias?.[k]) delete pj.armasPropias[k];
+  savePj(); render();
+}
+export function agregarArmadura(k: string, def?: any) {
+  const pj = S.pj;
+  if (def) { k = nuevaClave(); pj.armadurasPropias = { ...(pj.armadurasPropias || {}), [k]: def }; }
+  const tiene = armadurasDe(pj);
+  if (tiene.includes(k)) return avisar(k === 'escudo' ? 'Ya tienes un escudo.' : 'Ya tienes esa armadura.', 'info');
+  pj.armaduras = [...tiene, k];
+  savePj(); render(); avisar(`${k === 'escudo' ? 'Escudo' : def?.n || ARMADURAS[k]?.n || 'Armadura'} agregado.`);
+}
+export function quitarArmadura(k: string) {
+  const pj = S.pj;
+  pj.armaduras = armadurasDe(pj).filter(x => x !== k);
+  if (pj.armadura === k) pj.armadura = 'ninguna';
+  if (k === 'escudo') pj.escudo = false;
+  if (pj.armadurasPropias?.[k]) delete pj.armadurasPropias[k];
+  savePj(); render();
+}
+/** Cambia la armadura puesta por otra que tenga; la anterior queda guardada. */
+export function ponerArmadura(k: string) {
+  const pj = S.pj;
+  pj.armaduras = armadurasDe(pj); pj.armadura = k || 'ninguna';
+  savePj(); render();
+}
+export function agregarObjeto(nombre: string, q: number) {
+  const pj = S.pj, n = nombre.trim(); if (!n) return;
+  const ex = (pj.objetos || []).find((o: any) => o.n.toLowerCase() === n.toLowerCase());
+  if (ex) ex.q += q; else pj.objetos = [...(pj.objetos || []), { n, q }];
+  savePj(); render();
+}
+export function cambiarObjeto(i: number, d: number) {
+  const pj = S.pj, o = pj.objetos?.[i]; if (!o) return;
+  o.q += d; if (o.q <= 0) pj.objetos.splice(i, 1);
+  savePj(); render();
+}
+/** Añade un objeto mágico del catálogo (`k`) o personalizado (`def`). Si es un arma o armadura mágica, `base` es la
+    que lo lleva: se crea su arma o armadura con el bono en el inventario. */
+export function agregarMagico(k: string, def?: any, base?: string) {
+  const pj = S.pj, id = nuevaClave().slice(2), m: any = { id, ...(def ? { def } : { k }), sint: false };
+  const d = defDe(m); if (!d) return;
+  if (d.base === 'arma' && base) {
+    const w = armaMagica(base, d); if (!w) return;
+    m.arma = nuevaClave(); pj.armasPropias = { ...(pj.armasPropias || {}), [m.arma]: w }; pj.armas.push([m.arma, 1]);
+  } else if (d.base === 'armadura' && base) {
+    const a = armaduraMagica(base, d); if (!a) return;
+    m.armadura = nuevaClave(); pj.armadurasPropias = { ...(pj.armadurasPropias || {}), [m.armadura]: a };
+    pj.armaduras = [...armadurasDe(pj), m.armadura];
+  } else if (d.base === 'escudo') {
+    m.escudo = true; if (!armadurasDe(pj).includes('escudo')) pj.armaduras = [...armadurasDe(pj), 'escudo'];
+  }
+  pj.magicos = [...(pj.magicos || []), m];
+  savePj(); render(); avisar(`${d.n} agregado${d.sint ? '. Sintonízalo para que funcione' : ''}.`);
+}
+export function quitarMagico(id: string) {
+  const pj = S.pj, m = (pj.magicos || []).find((x: any) => x.id === id); if (!m) return;
+  if (m.arma) { pj.armas = pj.armas.filter((a: any) => a[0] !== m.arma); delete pj.armasPropias?.[m.arma]; }
+  if (m.armadura) {
+    pj.armaduras = armadurasDe(pj).filter((k: string) => k !== m.armadura); delete pj.armadurasPropias?.[m.armadura];
+    if (pj.armadura === m.armadura) pj.armadura = 'ninguna';
+  }
+  pj.magicos = pj.magicos.filter((x: any) => x.id !== id);
+  savePj(); render();
+}
+/** Sintoniza o deja de sintonizar; no deja pasar del límite de 3. */
+export function sintonizar(id: string) {
+  const pj = S.pj, m = (pj.magicos || []).find((x: any) => x.id === id); if (!m) return;
+  if (!m.sint && sintonizados(pj) >= MAX_SINTONIA) return avisar(`Ya tienes ${MAX_SINTONIA} objetos sintonizados, el máximo. Deja de sintonizar uno primero.`, 'info');
+  m.sint = !m.sint;
+  savePj(); render();
+}
+/** Suma o gasta monedas; al gastar, cambia monedas mayores o junta menores si hace falta. */
+export function moverMonedas(den: string, n: number, gastar: boolean) {
+  const pj = S.pj, b = bolsaDe(pj); n = Math.floor(n); if (!(n > 0)) return;
+  if (!gastar) { b[den] += n; guardarBolsa(pj, b); savePj(); render(); return; }
+  const r = pagar(b, den, n);
+  if (!r) return avisar('No te alcanza el dinero.', 'aviso');
+  guardarBolsa(pj, r); savePj(); render();
+}
+export function cambiarCantidadArma(i: number, d: number) {
+  const pj = S.pj, a = pj.armas[i]; if (!a) return;
+  a[1] += d;
+  if (a[1] <= 0) { pj.armas.splice(i, 1); if (pj.armasPropias?.[a[0]]) delete pj.armasPropias[a[0]]; }
+  savePj(); render();
 }

@@ -15,6 +15,7 @@
     "auditar-reglas": "tsx scripts/auditar-reglas.ts",
     "gemini:encargo": "tsx scripts/gemini/encargo.ts",
     "gemini:encargo-extra": "tsx scripts/gemini/encargo-extra.ts",
+    "gemini:encargo-objetos": "tsx scripts/gemini/encargo-objetos.ts",
     "gemini:revisar": "tsx scripts/gemini/revisar.ts",
     "prueba:crear": "tsx --env-file-if-exists=.env.local scripts/gemini/personajes-prueba.ts",
     "prueba:borrar": "tsx --env-file-if-exists=.env.local scripts/gemini/personajes-prueba.ts --borrar",
