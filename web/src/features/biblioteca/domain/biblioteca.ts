@@ -40,7 +40,7 @@ export const getT = (pj: any, k: string) => TRASFONDOS[k] || LIB.trasfondos[k] |
 export const getD = (pj: any, k: string) => DOTES[k] || LIB.dotes[k] || pj?.contenido?.dotes?.[k] || null;
 
 /* Subclases de biblioteca de una clase. Para una clase base incluye también las de las clases de
-   biblioteca que derivan de ella: el Artífice importado como "Arcanista (Artífice)" guarda ahí las suyas. */
+   biblioteca que derivan de ella: el Artífice de la biblioteca (lib:arcanista) guarda ahí las suyas. */
 export function subclasesLib(clase: string): Record<string, any> {
   const derivadas = CLASES[clase]
     ? Object.entries(LIB.clases).filter(([k, v]) => k !== clase && !CLASES[k] && v?.n && claseBase(k, v) === clase)
@@ -121,4 +121,20 @@ export function mezclarContenido(ct: any): string[] {
 export function sinRepetidas(lib: Record<string, any>, base: Record<string, any>, elegida?: string): [string, any][] {
   const nombres = new Set(Object.values(base).map((x: any) => norm(x.n)));
   return Object.entries(lib).filter(([k, v]) => k === elegida || !nombres.has(norm(v?.n)));
+}
+
+/* Clases para elegir: las de las reglas y las de biblioteca. Si una clase de reglas es solo un esbozo (trae rasgos
+   hasta nivel 1) y la biblioteca tiene su versión completa, como el Artífice (lib:arcanista), sale solo la de
+   biblioteca; la de reglas queda únicamente si el personaje ya la tiene. */
+export function clasesParaElegir(elegida?: string): [string, any][] {
+  const nombres = new Set(Object.values(CLASES).map((x: any) => norm(x.n)));
+  const esbozo = (b: string | null) => !!b && (CLASES[b]?.hasta || 20) <= 1;
+  const reemplazo = new Set<string>();
+  const lib = Object.entries(LIB.clases).filter(([k, x]) => {
+    if (!x?.dado || CLASES[k]) return false;
+    const b = claseBase(k, x);
+    if (esbozo(b)) { reemplazo.add(b!); return true; }
+    return k === elegida || !nombres.has(norm(x.n));
+  });
+  return [...Object.entries(CLASES).filter(([k]) => !reemplazo.has(k) || k === elegida), ...lib];
 }
