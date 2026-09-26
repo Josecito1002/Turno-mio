@@ -15,6 +15,13 @@ export const viewport: Viewport = { width: 'device-width', initialScale: 1, view
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="es" className={`${ebGaramond.variable} ${geist.variable}`}>
+      <head>
+        {/* Íconos del diseño (Material Symbols); next/font no incluye fuentes de íconos.
+            display=block: en una fuente de íconos, mostrar la de respaldo enseñaría el nombre ("shield") en vez del ícono */}
+        {/* La regla no-page-custom-font es del router de pages; esto es el layout raíz y carga en todas las páginas */}
+        {/* eslint-disable-next-line @next/next/google-font-display, @next/next/no-page-custom-font */}
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" />
+      </head>
       <body>
         {children}
         <Toaster position="bottom-center" theme="dark" />

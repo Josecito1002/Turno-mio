@@ -1,18 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { useState, type ReactNode } from 'react';
-import { S, render, irArriba } from '@/app-shell/estado';
-import { modStr, norm, richT, sign, slug } from '@/shared/utils/texto';
-import { Aviso, Boton, Dialogo, Insignia, Lista, Plegable, Seccion, Tarjeta, cx, foco } from '@/shared/ui/kit';
+import type { ReactNode } from 'react';
+import { S, render } from '@/app-shell/estado';
+import { esc, modStr, norm, richT, sign } from '@/shared/utils/texto';
+import { Aviso, Boton, Dialogo, Simbolo, cx, foco } from '@/shared/ui/kit';
+import { avisar } from '@/shared/ui/avisos';
 import { AB, SKILLS, TIPOS, ORDEN_TIPOS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { COMUNES } from '@/features/reglas/data/comunes';
 import { textoArmaduras, textoArmas } from '@/features/reglas/domain/competencias';
 import { FormaTipo } from '@/features/reglas/components/TipoAccion';
-import { BotonTirada } from '@/features/dados/components/BotonTirada';
+import { BotonTirada, TextoConDados } from '@/features/dados/components/BotonTirada';
 import { useDados } from '@/features/dados/components/Bandeja';
-import { Ataque, ConjuroFila, ConjuroTarjeta, Entrada, Recursos } from '../piezas';
-import { abrirSubida, bajarArchivo, bajarNivel, borrarPj, irAPaso, moverPool, fijarPool } from '../../acciones';
+import { Entrada, LanzarConjuro, Mover, datosConjuro } from '../piezas';
+import { fijarPool, irAPaso, moverPool, setVal, tocarPip } from '../../acciones';
 import { desglose } from '../../domain/calculo';
+import { extrasAtaque } from '../../domain/lanzar';
+import { Inventario } from '../Inventario';
+
+export const PASO_N: Record<string, string> = { especie: 'Especie', clase: 'Clase', trasfondo: 'Trasfondo', stats: 'Características', habs: 'Habilidades', equipo: 'Equipo', conjuros: 'Conjuros', rasgos: 'Rasgos propios', detalles: 'Detalles' };
 
 /* De dónde sale el bono de una habilidad: la característica y la competencia (doble con pericia, o la mitad con Polivalente) */
 function desgloseHabilidad(c: any, k: string, a: string) {
@@ -20,104 +25,514 @@ function desgloseHabilidad(c: any, k: string, a: string) {
   return desglose([[c.m[a], a.toUpperCase()], [c.skillProf[k] ? c.pb * (c.skillPer[k] ? 2 : 1) : bardo,
     c.skillPer[k] ? 'competencia ×2 (pericia)' : c.skillProf[k] ? 'competencia' : 'Polivalente']]);
 }
-import { faltaParaSubir } from '../../domain/pendientes';
-import { avisar } from '@/shared/ui/avisos';
-import { Inventario } from '../Inventario';
 
-export const PASO_N: Record<string, string> = { especie: 'Especie', clase: 'Clase', trasfondo: 'Trasfondo', stats: 'Características', habs: 'Habilidades', equipo: 'Equipo', conjuros: 'Conjuros', rasgos: 'Rasgos propios', detalles: 'Detalles' };
+/* Números editables sin las flechas del navegador */
+const SIN_FLECHAS = '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none';
+const alSoltarEnter = (e: React.KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') e.currentTarget.blur(); };
+const metros = (pies: number) => `${String(Math.round(pies * 0.3 * 10) / 10).replace('.', ',')} m`;
 
-/* ---------- Íconos pequeños de la ficha (decorativos) ---------- */
-const IconoV = ({ d }: { d: string }) => (
-  <svg viewBox="0 0 24 24" aria-hidden="true" className="size-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"><path d={d} /></svg>
+/** Encabezado pequeño de tarjeta: ícono dorado + etiqueta en versalitas. */
+const Rotulo = ({ icono, children, extra }: { icono: string; children: ReactNode; extra?: ReactNode }) => (
+  <div className="mb-2 flex items-center justify-between gap-2">
+    <h2 className="m-0 flex items-center gap-1 font-sans text-label-caps uppercase tracking-wider text-outline">
+      <Simbolo n={icono} className="text-body-md text-primary" />{children}
+    </h2>
+    {extra}
+  </div>
 );
-const D_ESCUDO = 'M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6z';
-const D_CORAZON = 'M12 20.5s-7-4.3-9.2-8.7C1.2 8.4 2.4 5 6 5c2 0 3.7 1.2 6 3.6C14.3 6.2 16 5 18 5c3.6 0 4.8 3.4 3.2 6.8-2.2 4.4-9.2 8.7-9.2 8.7z';
-const D_MENU = 'M4 6h16M4 12h16M4 18h16';
 
-/** Una tarjeta de estadística vital, con ícono opcional. */
-function Vital({ etiqueta, icono, className, children }: { etiqueta: string; icono?: string; className?: string; children: ReactNode }) {
+/** Desplegable con el aspecto de la ficha (versalitas pequeñas, fondo hundido). */
+function Desplegable({ titulo, nota, children }: { titulo: string; nota?: string; children: ReactNode }) {
   return (
-    <div className={cx('flex flex-col items-center justify-center gap-1 rounded-2xl bg-surface p-3 text-center shadow-sm ring-1 ring-rule/60', className)}>
-      <span className="flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-muted">
-        {icono && <IconoV d={icono} />}{etiqueta}
-      </span>
-      {children}
+    <details className="group rounded-lg bg-surface-container-lowest/60">
+      <summary className={cx('flex min-h-11 cursor-pointer list-none flex-wrap items-center gap-x-2 rounded-lg px-3 py-2 [&::-webkit-details-marker]:hidden', foco)}>
+        <Simbolo n="chevron_right" className="text-body-lg text-outline transition-transform group-open:rotate-90" />
+        <span className="text-label-caps uppercase tracking-wider text-on-surface-variant">{titulo}</span>
+        {nota && <span className="text-body-sm text-outline">{nota}</span>}
+      </summary>
+      <div className="px-3 pb-3">{children}</div>
+    </details>
+  );
+}
+
+/* ===================== Cabecera: identidad ===================== */
+function Identidad({ c }: { c: any }) {
+  const pj = S.pj;
+  const esp = pj.especie.key === 'custom' ? pj.especie.nombre : c.E ? c.E.n + (c.E.subs?.[c.esub] ? ` (${c.E.subs[c.esub].n})` : '') : '';
+  const subN = c.SD ? c.SD.n : (pj.subclase === 'otra' && c.lvl >= c.subNivel ? pj.subclaseNombre : '');
+  const linea = c.C ? `${c.C.n}${subN ? ` (${subN})` : ''}${c.chain ? ', Pacto de la Cadena' : ''} • Nivel ${c.lvl}` : 'Sin clase todavía';
+  const insp = !!pj.inspiracion;
+  const inicial = (pj.nombre || '?').trim().charAt(0).toUpperCase();
+  return (
+    <div className="flex flex-col items-center gap-5 rounded-lg bg-surface-container-low p-5 shadow-xl sm:flex-row sm:items-start">
+      <div className="relative shrink-0">
+        <div className="size-28 overflow-hidden rounded-lg bg-linear-to-b from-primary-container via-outline-variant to-surface-container-lowest p-1 shadow-[0_0_24px_rgba(212,175,55,0.2)] sm:size-32">
+          <div aria-hidden="true" className="grid size-full place-items-center rounded bg-linear-to-br from-surface-container-high to-surface-container-lowest">
+            <span className="font-serif text-6xl font-bold text-primary">{inicial}</span>
+          </div>
+        </div>
+        <button type="button" aria-pressed={insp} onClick={() => setVal('inspiracion', !insp)} title="Inspiración heroica (toca para cambiar)"
+          className={cx('absolute -bottom-2 -right-2 flex cursor-pointer items-center gap-1 rounded-full bg-surface-container-highest px-2 py-1 shadow-[0_0_12px_rgba(212,175,55,0.4)] transition-transform hover:scale-105', foco, !insp && 'opacity-40')}>
+          <Simbolo n="auto_awesome" relleno={insp} className="text-body-md text-primary" />
+          <span className="text-label-caps uppercase tracking-widest text-primary">Inspirado</span>
+        </button>
+      </div>
+      <div className="flex h-full min-w-0 flex-col justify-between text-center sm:text-left">
+        <div>
+          {(esp || pj.alineamiento) && (
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+              {esp && <span className="rounded-xs bg-surface-container-high px-2 py-1 text-label-caps uppercase tracking-wider text-secondary">{esp}</span>}
+              {pj.alineamiento && <span className="rounded-xs bg-surface-container-high px-2 py-1 text-label-caps uppercase tracking-wider text-outline">{pj.alineamiento}</span>}
+            </div>
+          )}
+          <h1 id="titulo-vista" tabIndex={-1} className="mb-0 mt-1 font-serif text-headline-xl-mobile tracking-wide text-primary outline-none [overflow-wrap:anywhere] sm:text-headline-xl">{pj.nombre || 'Sin nombre'}</h1>
+          <p className="m-0 font-serif text-headline-sm italic text-on-surface-variant">{linea}</p>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-3 sm:justify-start">
+          <div className="flex items-center gap-1 rounded bg-surface-container-lowest px-3 py-1 shadow-inner">
+            <span className="text-label-caps uppercase text-outline">Bono comp.</span>
+            <span className="text-stat-modifier font-bold text-primary">{sign(c.pb)}</span>
+          </div>
+          <div className="flex items-center gap-1 rounded bg-surface-container-lowest px-3 py-1 shadow-inner">
+            <span className="text-label-caps uppercase text-outline">Velocidad</span>
+            <span className="text-body-lg font-semibold text-on-surface">{metros(c.speed)} <span className="text-body-sm text-outline">({c.speed} pies)</span></span>
+          </div>
+          <div className="flex items-center gap-1 rounded bg-surface-container-lowest px-3 py-1 shadow-inner">
+            <span className="text-label-caps uppercase text-outline">Iniciativa</span>
+            <BotonTirada estilo="libre" expr={`1d20${modStr(c.init)}`} label="Iniciativa" mods={desglose(c.initPartes || [])} ariaLabel={`Tirar iniciativa, ${sign(c.init)}`}
+              className="flex items-center gap-0.5 rounded text-stat-modifier text-secondary transition-colors hover:text-primary">
+              {sign(c.init)}<Simbolo n="casino" className="text-body-sm" />
+            </BotonTirada>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
-/** Puntos de golpe con pasos rápidos (−5/−1/+1/+5), número editable y barra de vida. */
-function TarjetaPG({ pg, usados }: { pg: { id: string; max: number }; usados: number }) {
-  const left = pg.max - usados, frac = pg.max > 0 ? left / pg.max : 0;
-  const barra = frac <= 0.25 ? 'bg-acc' : frac <= 0.5 ? 'bg-warn' : 'bg-adi';
+/* ===================== Cabecera: CA, PG, dados de golpe ===================== */
+/** Tres casillas de salvación contra muerte; marcar una deja marcadas las anteriores. */
+function Salvaciones({ clave, n, acento, nombre }: { clave: string; n: number; acento: string; nombre: string }) {
   return (
-    <Vital etiqueta="Puntos de golpe" icono={D_CORAZON} className="col-span-3 sm:col-span-2">
-      <div className="flex items-center gap-1.5">
-        <Boton tamano="sm" onClick={() => moverPool(pg.id, -5)} aria-label="−5 puntos de golpe">−5</Boton>
-        <Boton tamano="sm" onClick={() => moverPool(pg.id, -1)} aria-label="−1 punto de golpe">−1</Boton>
-        <input key={left} type="number" inputMode="numeric" min={0} max={pg.max} defaultValue={left} aria-label={`Puntos de golpe, quedan (de ${pg.max})`}
-          onBlur={e => { if (+e.target.value !== left) fijarPool(pg.id, pg.max, e.target.value); }}
-          onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
-          className="w-16 rounded-lg border border-rule bg-bg px-1 py-1 text-center font-serif text-2xl font-extrabold text-ink" />
-        <Boton tamano="sm" onClick={() => moverPool(pg.id, 1)} aria-label="+1 punto de golpe">+1</Boton>
-        <Boton tamano="sm" onClick={() => moverPool(pg.id, 5)} aria-label="+5 puntos de golpe">+5</Boton>
-      </div>
-      <span className="text-xs text-muted">de {pg.max}</span>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-soft">
-        <div className={cx('h-full rounded-full transition-all duration-300', barra)} style={{ width: `${Math.max(4, frac * 100)}%` }} />
-      </div>
-    </Vital>
-  );
-}
-
-function Stat({ valor, etiqueta, children }: { valor?: ReactNode; etiqueta: string; children?: ReactNode }) {
-  return (
-    <div className="flex min-h-20 flex-col items-center justify-center bg-surface px-1 py-2 text-center">
-      {children ?? <><b className="font-serif text-3xl font-extrabold leading-none">{valor}</b><span className="mt-1 text-xs text-muted">{etiqueta}</span></>}
+    <div className="flex gap-1.5">
+      {[0, 1, 2].map(i => (
+        <input key={i} type="checkbox" checked={i < n} aria-label={`${nombre} ${i + 1}`} title={`${nombre} ${i + 1}`}
+          onChange={() => setVal(`used.${clave}`, i < n ? i : i + 1)} className={cx('size-3.5 cursor-pointer rounded-sm', acento)} />
+      ))}
     </div>
   );
 }
 
-function Turno({ c, tipos = ORDEN_TIPOS, principal }: { c: any; tipos?: string[]; principal?: boolean }) {
-  const sp = c.conjuros || [];
+function Vitales({ c }: { c: any }) {
+  const pj = S.pj, tirar = useDados();
+  const pg = c.recursos.find((r: any) => r.id === 'pg');
+  const max = pg?.max ?? c.hpMax, actual = max - Math.min(pj.used?.pg || 0, max);
+  const temp = Math.max(0, +pj.pgTemp || 0);
+  const pct = max ? (actual / max) * 100 : 0;
+  const barra = pct <= 25 ? 'bg-error' : pct <= 50 ? 'bg-primary-fixed-dim' : 'bg-linear-to-r from-primary-container to-primary';
+  // El daño se lleva primero los puntos temporales
+  const danar = (n: number) => {
+    const t = Math.min(temp, n);
+    if (t) setVal('pgTemp', temp - t);
+    if (n - t && pg) moverPool('pg', -(n - t));
+  };
+  const curar = (n: number) => { if (pg) moverPool('pg', n); };
+  const armadura = [c.armor?.n || 'Sin armadura', c.shield && 'Escudo'].filter(Boolean).join(' & ');
+
+  const dgUsados = Math.min(pj.used?.['dados-golpe'] || 0, c.lvl), dgQuedan = c.lvl - dgUsados;
+  const gastarDado = async () => {
+    if (!dgQuedan) return avisar('No te quedan dados de golpe: vuelven con un descanso largo.', 'aviso');
+    setVal('used.dados-golpe', dgUsados + 1);
+    const r = await tirar(`1d${c.die}${modStr(c.m.con)}`, 'Dado de golpe', { mods: desglose([[c.m.con, 'CON']]) }).catch(() => null);
+    if (r && r.total > 0) curar(r.total);
+  };
+  const exitos = Math.min(3, pj.used?.['muerte-exitos'] || 0), fallos = Math.min(3, pj.used?.['muerte-fallos'] || 0);
+
+  return (
+    <div className="grid flex-1 grid-cols-2 gap-3 md:grid-cols-4">
+      {/* Armadura */}
+      <div className="relative flex flex-col items-center justify-between overflow-hidden rounded-lg bg-surface-container-low p-3 text-center shadow-lg">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-linear-to-br from-primary-container/10 via-transparent to-transparent" />
+        <div className="flex items-center gap-1 text-outline">
+          <Simbolo n="shield" className="text-headline-sm text-primary" />
+          <span className="whitespace-nowrap text-label-caps uppercase tracking-wide">Armadura (CA)</span>
+        </div>
+        <div className="my-1 text-stat-display tracking-tight text-on-surface">{c.ac}</div>
+        <span className="text-body-sm text-on-surface-variant">{armadura}</span>
+      </div>
+
+      {/* Puntos de golpe */}
+      <div className="col-span-2 flex flex-col justify-between rounded-lg bg-surface-container-low p-3 shadow-lg">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1 text-outline">
+            <Simbolo n="favorite" className="text-headline-sm text-error" />
+            <span className="text-label-caps uppercase tracking-wider">Puntos de golpe (PG)</span>
+          </div>
+          <label className="flex items-center gap-1 text-label-caps uppercase text-secondary">
+            Temp:
+            <input key={temp} type="number" inputMode="numeric" min={0} defaultValue={temp || ''} placeholder="0" aria-label="Puntos de golpe temporales"
+              onBlur={e => { const v = Math.max(0, parseInt(e.target.value) || 0); if (v !== temp) setVal('pgTemp', v); }} onKeyDown={alSoltarEnter}
+              className={cx('w-10 rounded bg-surface-container-lowest px-1 text-center text-body-md font-bold text-secondary-fixed-dim placeholder:text-outline', SIN_FLECHAS, foco)} />
+          </label>
+        </div>
+        <div className="my-1 flex flex-wrap items-baseline justify-between gap-2">
+          <div className="flex items-baseline gap-1">
+            <input key={actual} type="number" inputMode="numeric" min={0} max={max} defaultValue={actual} aria-label={`Puntos de golpe actuales (de ${max})`}
+              onBlur={e => { if (+e.target.value !== actual) fijarPool('pg', max, e.target.value); }} onKeyDown={alSoltarEnter}
+              style={{ width: `${String(actual).length + 0.6}ch` }}
+              className={cx('rounded bg-transparent text-stat-display text-primary hover:bg-surface-container-lowest focus:bg-surface-container-lowest', SIN_FLECHAS, foco)} />
+            <span className="whitespace-nowrap text-body-lg text-outline">/ {max} máx.</span>
+          </div>
+          <div className="flex items-center gap-1">
+            {[-5, -1, 1, 5].map(n => (
+              <button key={n} type="button" onClick={() => (n < 0 ? danar(-n) : curar(n))}
+                aria-label={n < 0 ? `Recibir ${-n} de daño` : `Curar ${n}`}
+                className={cx('min-h-7 min-w-7 cursor-pointer rounded bg-surface-container-high px-1.5 py-1 text-body-sm font-bold shadow-sm transition-all', foco,
+                  n < 0 ? 'text-error hover:bg-error-container hover:text-on-error-container' : 'text-primary hover:bg-primary-container hover:text-on-primary-container')}>
+                {n > 0 ? `+${n}` : n}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="relative h-3 w-full overflow-hidden rounded-full bg-surface-container-lowest p-0.5 shadow-inner">
+          <div className={cx('h-full rounded-full transition-all duration-300', barra)} style={{ width: `${Math.max(pct, actual > 0 ? 3 : 0)}%` }} />
+        </div>
+      </div>
+
+      {/* Dados de golpe y salvaciones contra muerte */}
+      <div className="col-span-2 flex flex-col justify-between rounded-lg bg-surface-container-low p-3 shadow-lg md:col-span-1">
+        <div>
+          <div className="flex items-center justify-between text-outline">
+            <span className="text-label-caps uppercase tracking-wider">Dados golpe</span>
+            <span className="text-label-caps text-secondary">{c.lvl}d{c.die}</span>
+          </div>
+          <div className="mt-1 flex items-center justify-between">
+            <span className="font-serif text-headline-sm text-on-surface">{dgQuedan} / {c.lvl}</span>
+            <button type="button" onClick={gastarDado} title="Gastar un dado de golpe: tira y te cura" aria-label={`Gastar un dado de golpe (1d${c.die}${modStr(c.m.con)}), quedan ${dgQuedan}`}
+              className={cx('grid size-8 cursor-pointer place-items-center rounded bg-surface-container-high text-primary transition-all hover:bg-primary hover:text-on-primary', foco)}>
+              <Simbolo n="healing" className="text-body-md" />
+            </button>
+          </div>
+        </div>
+        <div className="mt-1 rounded-lg bg-surface-container-lowest/50 p-1">
+          <div className="flex items-center justify-between text-label-caps uppercase text-outline">
+            <span>Éxitos</span><Salvaciones clave="muerte-exitos" n={exitos} acento="accent-primary" nombre="Éxito" />
+          </div>
+          <div className="mt-1 flex items-center justify-between text-label-caps uppercase text-outline">
+            <span>Fallos</span><Salvaciones clave="muerte-fallos" n={fallos} acento="accent-error" nombre="Fallo" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ===================== Franja de características ===================== */
+const ICONO_AB: Record<string, string> = { fue: 'fitness_center', des: 'bolt', con: 'shield', int: 'auto_stories', sab: 'visibility', car: 'theater_comedy' };
+
+function Caracteristicas({ c }: { c: any }) {
+  return (
+    <section aria-label="Características" className="w-full bg-surface-dim px-4 py-5 shadow-inner lg:px-6">
+      <div className="mx-auto grid max-w-[1600px] grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        {AB.map(([k, , ab, nm]) => {
+          const prof = c.saveProf.includes(k);
+          // Dorado si salva con competencia, azul si el modificador suma, neutro si no
+          const tono = prof ? 'primary' : c.m[k] > 0 ? 'secondary' : 'neutro';
+          return (
+            <div key={k} className="group relative flex flex-col items-center overflow-hidden rounded-lg bg-surface-container p-3 text-center shadow-md transition-all hover:bg-surface-container-high">
+              <div className="flex w-full items-center justify-between text-outline">
+                <span className="text-label-caps uppercase tracking-widest text-on-surface-variant">{nm}</span>
+                <Simbolo n={ICONO_AB[k]} className={cx('text-body-sm', tono === 'primary' ? 'text-primary' : tono === 'secondary' ? 'text-secondary' : 'text-outline')} />
+              </div>
+              <div className="my-1 text-stat-display text-on-surface">{c.sc[k]}</div>
+              <BotonTirada estilo="libre" expr={`1d20${modStr(c.m[k])}`} label={`Prueba de ${nm}`} mods={desglose([[c.m[k], ab]])} ariaLabel={`Prueba de ${nm} (${c.sc[k]}), ${sign(c.m[k])}`}
+                className={cx('flex w-full items-center justify-center gap-1 rounded bg-surface-container-lowest px-2 py-1 shadow-inner transition-all',
+                  tono === 'primary' ? 'text-primary hover:bg-primary-container hover:text-on-primary-container'
+                    : tono === 'secondary' ? 'text-secondary hover:bg-secondary-container hover:text-on-secondary-container'
+                      : 'text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface')}>
+                <span className="text-stat-modifier font-bold">{sign(c.m[k])}</span>
+                <Simbolo n="casino" className="text-body-sm" />
+              </BotonTirada>
+              <div className="mt-1 flex w-full items-center justify-between text-label-caps text-outline">
+                <span className={cx(prof && 'text-primary-fixed-dim')}>Salvación:</span>
+                <BotonTirada estilo="libre" expr={`1d20${modStr(c.saves[k])}`} label={`Salvación de ${nm}`}
+                  mods={desglose([[c.m[k], ab], [prof ? c.pb : 0, 'competencia']])}
+                  ariaLabel={`Salvación de ${nm}, ${sign(c.saves[k])}${prof ? ', competente' : ''}`}
+                  className="rounded font-bold text-on-surface transition-colors hover:text-primary">
+                  {sign(c.saves[k])}{prof ? ' ★' : ''}
+                </BotonTirada>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/* ===================== Columna izquierda ===================== */
+function SentidosPasivos({ c }: { c: any }) {
+  const filas: [string, number][] = [
+    ['Percepción pasiva', c.passive],
+    ['Investigación pasiva', 10 + (c.skill['investigacion'] || 0)],
+    ['Perspicacia pasiva', 10 + (c.skill['perspicacia'] || 0)],
+  ];
+  return (
+    <div className="rounded-lg bg-surface-container-low p-3 shadow-lg">
+      <Rotulo icono="explore">Sentidos pasivos</Rotulo>
+      <div className="space-y-1">
+        {filas.map(([n, v], i) => (
+          <div key={n} className="flex items-center justify-between rounded-xs bg-surface-container-lowest p-1">
+            <span className="text-body-sm text-on-surface-variant">{n}</span>
+            <span className={cx('text-label-md font-bold', i === 0 ? 'text-primary' : 'text-on-surface')}>{v}</span>
+          </div>
+        ))}
+      </div>
+      {c.vision > 0 && (
+        <div className="mt-3 border-t border-surface-container-high/40 pt-1">
+          <span className="text-label-caps uppercase text-outline">Sentidos especiales</span>
+          <div className="mt-1 flex flex-wrap gap-1">
+            <span className="rounded-full bg-surface-container-high px-2 py-0.5 text-body-sm text-secondary">Visión en la oscuridad {c.vision} pies</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Habilidades({ c }: { c: any }) {
+  return (
+    <div className="rounded-lg bg-surface-container-low p-3 shadow-lg">
+      <Rotulo icono="format_list_bulleted" extra={<span className="text-label-caps text-outline">★ = competente</span>}>Habilidades</Rotulo>
+      <ul className="m-0 list-none space-y-1 p-0">
+        {SKILLS.map(([n, a]) => {
+          const k = norm(n), prof = !!c.skillProf[k], per = !!c.skillPer[k];
+          const acento = per ? 'text-secondary' : 'text-primary';
+          return (
+            <li key={n}>
+              <BotonTirada estilo="libre" expr={`1d20${modStr(c.skill[k])}`} label={n} mods={desgloseHabilidad(c, k, a)}
+                ariaLabel={`${n}${prof ? ', competente' : ''}${per ? ', con pericia' : ''}: ${sign(c.skill[k])}`}
+                className={cx('group flex w-full items-center justify-between rounded-xs p-1 text-left transition-colors hover:bg-surface-container', prof && 'bg-surface-container-lowest/60')}>
+                <span className="flex min-w-0 items-center gap-1">
+                  <span aria-hidden="true" className={cx('size-2 shrink-0 rounded-full', prof ? (per ? 'bg-secondary shadow-[0_0_6px_rgba(123,208,255,0.6)]' : 'bg-primary shadow-[0_0_6px_rgba(212,175,55,0.6)]') : 'bg-surface-container-highest')} />
+                  <span className={cx('text-body-sm transition-colors', prof ? `font-semibold ${acento}` : 'text-on-surface group-hover:text-primary')}>
+                    {n}{per ? ' (pericia)' : ''} <span className="text-label-caps text-outline">({a.toUpperCase()})</span>
+                  </span>
+                </span>
+                <span className={cx('text-label-md tabular-nums', prof ? `font-bold ${acento}` : 'text-outline group-hover:text-on-surface')}>
+                  {sign(c.skill[k])}{prof ? ' ★' : ''}
+                </span>
+              </BotonTirada>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function Competencias({ c }: { c: any }) {
+  const pj = S.pj, tb = pj.trasfondo, T = c.T;
+  const datos: [string, ReactNode][] = [
+    ['Armaduras', textoArmaduras(c)], ['Armas', textoArmas(c)], ['Herramientas', c.herramientas.map((h: any) => h.que).join(', ') || '—'],
+    ...(c.compFuentes.length ? [['Competencias de rasgos', c.compFuentes.map((f: any) => `${f.que} (${f.src})`).join(', ')] as [string, ReactNode]] : []),
+    ['Trasfondo', T ? (T.custom ? tb.nombre || 'Personalizado' : T.n) : '—'],
+    ['Dotes', c.dotes.map((d: any) => d.nombre).join(', ') || 'Ninguna'],
+  ];
+  if (c.isMonk) datos.push(['CD de Focus', c.dcFocus]);
+  if (pj.oro) datos.push(['Oro', `${pj.oro} po`]);
   return (
     <>
-      {principal && <Recursos c={c} />}
-      {principal && <p className="mt-3 text-sm text-muted">Toca cualquier número con fondo para tirarlo.</p>}
-      {tipos.map(t => {
-        const ents = c.entries.filter((e: any) => e.t === t), sps = sp.filter((s: any) => (s.tiempo || 'accion') === t), com = COMUNES[t] || [];
-        if (!ents.length && !sps.length && !com.length && t !== 'accion') return null;
-        const un = { nombre: 'Golpe sin armas', atk: c.unarmed.atk, expr: c.unarmed.expr, dmg: c.unarmed.dmg, atkDesg: c.unarmed.atkDesg, dmgDesg: c.unarmed.dmgDesg, notas: [`También puede Agarrar o Empujar (CD ${c.grappleDC})`] };
+      <div className="rounded-lg bg-surface-container-low p-3 shadow-lg">
+        <Rotulo icono="school">Competencias</Rotulo>
+        <dl className="m-0 space-y-2">
+          {datos.map(([k, v]) => (
+            <div key={k}><dt className="text-label-caps uppercase text-outline">{k}</dt><dd className="m-0 text-body-sm text-on-surface">{v}</dd></div>
+          ))}
+        </dl>
+      </div>
+      {pj.historia && (
+        <div className="rounded-lg bg-surface-container-low p-3 shadow-lg">
+          <Rotulo icono="history_edu">Historia</Rotulo>
+          <p className="m-0 text-body-sm text-on-surface-variant" dangerouslySetInnerHTML={{ __html: richT(pj.historia) }} />
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ===================== Columna central ===================== */
+/** Recursos de clase y rasgos (Oleada de Acción, Tomar Aliento, Ki…); los PG y los espacios de conjuro van en su tarjeta. */
+function RecursosClase({ c }: { c: any }) {
+  const u = S.pj.used || {};
+  const rs = c.recursos.filter((r: any) => r.id !== 'pg' && !/^slot\d/.test(r.id));
+  if (!rs.length) return null;
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      {rs.map((r: any, i: number) => {
+        const used = Math.min(u[r.id] || 0, r.max), left = r.max - used, azul = i % 2 === 1;
+        const nota = r.nota || (r.reset === 'corto' ? 'Vuelve con descanso corto' : 'Vuelve con descanso largo');
         return (
-          <section key={t} aria-labelledby={`sec-${t}`} className="mt-8">
-            <div className="flex items-center gap-2.5">
-              <FormaTipo t={t} className="size-4" />
-              <h2 id={`sec-${t}`} className="m-0 font-serif text-2xl font-bold">{TIPOS[t][0]}</h2>
+          <div key={r.id} className="flex items-center justify-between gap-3 rounded-lg bg-surface-container-low p-3 shadow-lg">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className={cx('grid size-10 shrink-0 place-items-center rounded bg-surface-container-highest', azul ? 'text-secondary' : 'text-primary')}>
+                <Simbolo n={azul ? 'air' : 'flash_on'} className="text-headline-sm" />
+              </div>
+              <div className="min-w-0">
+                <span className="block truncate text-label-caps uppercase text-outline" title={nota}>{nota}</span>
+                <h3 className="m-0 font-serif text-headline-sm text-on-surface">{r.nombre}</h3>
+              </div>
             </div>
-            {TIPOS[t][1] && <p className="mb-2 ml-7 mt-0.5 text-sm text-muted">{TIPOS[t][1]}</p>}
-            {t === 'accion' && (
-              <Tarjeta className="border-l-4 border-acc px-4 py-1">
-                <p className="m-0 pt-2 text-sm text-muted">Con la acción Atacar{c.extraAttack ? ' haces dos ataques' : ''}</p>
-                <ul className="m-0 list-none divide-y divide-soft p-0">
-                  {c.armas.filter((a: any) => a.mano).map((a: any) => <Ataque key={'w' + a.i} a={a} />)}
-                  {(c.naturales || []).map((a: any, i: number) => <Ataque key={'n' + i} a={a} />)}
-                  <Ataque a={un} />
-                </ul>
-                {c.armas.some((a: any) => !a.mano) && (
-                  <Plegable titulo="Armas guardadas" nota="Sacar una es interactuar con un objeto. Cambia lo que empuñas en Equipo.">
-                    <ul className="m-0 list-none divide-y divide-soft px-4 pb-2">
-                      {c.armas.filter((a: any) => !a.mano).map((a: any) => <Ataque key={'g' + a.i} a={a} />)}
-                    </ul>
-                  </Plegable>
-                )}
-              </Tarjeta>
-            )}
+            <div className="flex shrink-0 items-center gap-1">
+              {r.tipo === 'pool' ? (
+                <label className="flex items-baseline gap-1 text-body-sm text-outline">
+                  <input key={left} type="number" inputMode="numeric" min={0} max={r.max} defaultValue={left} aria-label={`${r.nombre}: quedan (de ${r.max})`}
+                    onBlur={e => { if (+e.target.value !== left) fijarPool(r.id, r.max, e.target.value); }} onKeyDown={alSoltarEnter}
+                    className={cx('w-12 rounded bg-surface-container-lowest px-1 py-1 text-center text-stat-modifier font-bold text-primary shadow-inner', SIN_FLECHAS, foco)} />
+                  / {r.max}
+                </label>
+              ) : (
+                <>
+                  {used > 0 && (
+                    <button type="button" onClick={() => moverPool(r.id, 1)} aria-label={`Recuperar 1 de ${r.nombre}`} title="Recuperar uno"
+                      className={cx('grid size-8 cursor-pointer place-items-center rounded text-outline hover:bg-surface-container-high hover:text-on-surface', foco)}>
+                      <Simbolo n="undo" className="text-body-md" />
+                    </button>
+                  )}
+                  <button type="button" disabled={!left} onClick={() => moverPool(r.id, -1)} aria-label={`Gastar 1 de ${r.nombre}: quedan ${left} de ${r.max}`}
+                    className={cx('rounded px-3 py-1 text-label-md font-bold shadow-sm transition-all', foco,
+                      left ? (azul ? 'cursor-pointer bg-secondary-container text-on-secondary-container hover:brightness-110' : 'cursor-pointer bg-primary-container text-on-primary-container hover:brightness-110')
+                        : 'bg-surface-container-highest text-outline opacity-60')}>
+                    {left ? `${left} / ${r.max} disp.` : `0 / ${r.max} gastado`}
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function FilaArsenal({ a }: { a: any }) {
+  const n = a.w ? a.w.n : a.nombre, dist = !!a.w?.dist;
+  const icono = dist ? 'adjust' : a.w ? 'colorize' : 'sports_martial_arts';
+  const txt = dist ? 'text-secondary' : 'text-primary';
+  const maestria = a.maestria ? String(a.maestria).split(':')[0] : '';
+  const desc = [dist ? 'A distancia' : 'Cuerpo a cuerpo', a.dmg, ...(a.notas || [])].filter(Boolean).join(' • ');
+  return (
+    <div className="flex flex-col justify-between gap-3 rounded-lg bg-surface-container p-3 shadow-md transition-all hover:bg-surface-container-high sm:flex-row sm:items-center">
+      <div className="flex min-w-0 items-start gap-3">
+        <div className={cx('grid size-12 shrink-0 place-items-center rounded-lg bg-surface-container-lowest shadow-inner', txt)}>
+          <Simbolo n={icono} className="text-headline-md" />
+        </div>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-1">
+            <h3 className="m-0 font-serif text-headline-sm text-on-surface">{a.nombre}</h3>
+            {maestria && <span className="rounded-xs bg-primary-container/20 px-1 py-0.5 text-[10px] font-bold uppercase tracking-widest text-primary">{maestria}</span>}
+          </div>
+          <p className="m-0 mt-0.5 text-body-sm text-outline">{desc}</p>
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 text-label-caps text-on-surface-variant">
+            {a.cd != null
+              ? <span>Salvación: <strong className={txt}>CD {a.cd} de {a.salv}</strong></span>
+              : <span>Modificador: <strong className={txt}>{sign(a.atk)} impacto</strong></span>}
+            {a.v && <span>Versátil ({a.v.dmg})</span>}
+          </div>
+          {a.maestria && <p className="m-0 mt-1 text-body-sm text-on-surface-variant"><b className="text-on-surface">Maestría</b> {a.maestria}</p>}
+        </div>
+      </div>
+      <div className="flex shrink-0 gap-1 sm:flex-col">
+        {a.cd == null && (
+          <BotonTirada estilo="libre" expr={`1d20${modStr(a.atk)}`} label={`${n}: ataque`} dmg={a.expr} dmgLabel={`${n}: daño`} min3={a.min3}
+            extras={S.c ? extrasAtaque(S.c, a) : undefined} mods={a.atkDesg} dmgMods={a.dmgDesg} ariaLabel={`Tirar ataque con ${n}, ${sign(a.atk)}`}
+            className={cx('flex flex-1 items-center justify-center gap-1 rounded bg-surface-container-lowest px-3 py-2 text-label-md font-bold shadow-inner transition-all sm:flex-none',
+              dist ? 'text-secondary hover:bg-secondary hover:text-on-secondary' : 'text-primary hover:bg-primary hover:text-on-primary')}>
+            <Simbolo n={dist ? 'gps_fixed' : 'sports_martial_arts'} className="text-body-md" />{dist ? 'Disparar' : 'Tirar ataque'}
+          </BotonTirada>
+        )}
+        <BotonTirada estilo="libre" expr={a.expr} label={`${n}: daño`} min3={a.min3} gasta={a.gasta} mods={a.dmgDesg} ariaLabel={`Tirar daño de ${n}: ${a.dmg}`}
+          className="flex-1 rounded bg-surface-container-high px-3 py-1 text-center text-body-sm text-on-surface-variant transition-all hover:bg-surface-container-highest hover:text-on-surface sm:flex-none">
+          Tirar daño
+        </BotonTirada>
+        {a.v && (
+          <BotonTirada estilo="libre" expr={a.v.expr} label={`${n}: daño a dos manos`} min3={a.min3} mods={a.dmgDesg}
+            className="flex-1 rounded bg-surface-container-high px-3 py-1 text-center text-body-sm text-on-surface-variant transition-all hover:bg-surface-container-highest hover:text-on-surface sm:flex-none">
+            A dos manos
+          </BotonTirada>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Arsenal({ c }: { c: any }) {
+  const armas = [...c.armas.filter((a: any) => a.mano), ...(c.naturales || [])];
+  const guardadas = c.armas.filter((a: any) => !a.mano);
+  const sinArmas = { nombre: 'Golpe sin armas', atk: c.unarmed.atk, expr: c.unarmed.expr, dmg: c.unarmed.dmg, atkDesg: c.unarmed.atkDesg, dmgDesg: c.unarmed.dmgDesg, notas: [`También puede Agarrar o Empujar (CD ${c.grappleDC})`] };
+  const ataques = c.pj?.clase === 'guerrero' ? (c.lvl >= 20 ? 4 : c.lvl >= 11 ? 3 : 2) : 2;
+  return (
+    <section aria-labelledby="titulo-arsenal" className="flex flex-col gap-3 rounded-lg bg-surface-container-low p-5 shadow-lg">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-1">
+          <Simbolo n="swords" className="text-headline-sm text-primary" />
+          <h2 id="titulo-arsenal" className="m-0 font-serif text-headline-md text-primary">Arsenal de combate</h2>
+        </div>
+        {c.extraAttack && <span className="rounded bg-surface-container-high px-2 py-1 text-label-caps uppercase text-secondary">Ataque extra ({ataques} ataques/turno)</span>}
+      </div>
+      {armas.map((a: any, i: number) => <FilaArsenal key={(a.i ?? 'n') + '-' + i} a={a} />)}
+      <FilaArsenal a={sinArmas} />
+      {guardadas.length > 0 && (
+        <Desplegable titulo="Armas guardadas" nota="Sacar una es interactuar con un objeto. Cambia lo que empuñas en Equipo.">
+          <div className="flex flex-col gap-3">{guardadas.map((a: any) => <FilaArsenal key={'g' + a.i} a={a} />)}</div>
+        </Desplegable>
+      )}
+    </section>
+  );
+}
+
+function TiradorRapido() {
+  const tirar = useDados();
+  return (
+    <div className="rounded-lg bg-surface-container-low p-3 shadow-lg">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <span className="flex items-center gap-1 text-label-caps uppercase tracking-wider text-outline">
+          <Simbolo n="casino" className="text-body-md text-primary" />Tirador rápido de dados
+        </span>
+        <span className="text-body-sm text-outline">Toca para lanzar sin modificador</span>
+      </div>
+      <div className="grid grid-cols-4 gap-1 sm:grid-cols-7">
+        {[4, 6, 8, 10, 12, 20, 100].map(n => (
+          <button key={n} type="button" onClick={() => tirar(`1d${n}`, `d${n}`, { neutral: true })} aria-label={`Tirar un d${n}`}
+            className={cx('flex cursor-pointer flex-col items-center rounded-xs py-2 transition-all hover:bg-primary hover:text-on-primary', foco,
+              n === 20 ? 'bg-surface-container-high text-primary shadow-md' : 'bg-surface-container text-outline')}>
+            <span className="text-body-sm uppercase">d{n}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Lo demás que puedes hacer en tu turno (rasgos por tipo de acción); los ataques y los conjuros tienen su propia tarjeta. */
+function OtrasAcciones({ c }: { c: any }) {
+  return (
+    <>
+      {ORDEN_TIPOS.filter(t => t !== 'pasiva').map(t => {
+        const ents = c.entries.filter((e: any) => e.t === t), com = COMUNES[t] || [];
+        if (!ents.length && !com.length) return null;
+        return (
+          <section key={t} aria-labelledby={`sec-${t}`} className="rounded-lg bg-surface-container-low p-5 shadow-lg">
+            <div className="flex items-center gap-2">
+              <FormaTipo t={t} className="size-4" />
+              <h2 id={`sec-${t}`} className="m-0 font-serif text-headline-md text-on-surface">{TIPOS[t][0]}</h2>
+            </div>
+            {TIPOS[t][1] && <p className="mb-2 ml-6 mt-0.5 text-body-sm text-outline">{TIPOS[t][1]}</p>}
             {ents.map((e: any, i: number) => <Entrada key={i} e={e} />)}
-            {sps.map((s: any, i: number) => <ConjuroTarjeta key={'s' + i} s={s} c={c} t={t} />)}
             {com.length > 0 && (
-              <Plegable titulo={t === 'accion' ? 'Acciones que cualquiera puede hacer' : 'Para cualquier personaje'}>
+              <Desplegable titulo={t === 'accion' ? 'Acciones que cualquiera puede hacer' : 'Para cualquier personaje'}>
                 {com.map(([n, f]: [string, (c: any) => string]) => <Entrada key={n} e={{ t, nombre: n, texto: f(c), src: 'Reglas básicas' }} />)}
-              </Plegable>
+              </Desplegable>
             )}
           </section>
         );
@@ -126,135 +541,113 @@ function Turno({ c, tipos = ORDEN_TIPOS, principal }: { c: any; tipos?: string[]
   );
 }
 
-/** Tarjeta de dados sueltos, para tiradas que no dependen del personaje. */
-function TiradorRapido() {
-  const tirar = useDados();
+/* ===================== Columna derecha ===================== */
+function Ranuras({ r }: { r: any }) {
+  const used = Math.min(S.pj.used?.[r.id] || 0, r.max), quedan = r.max - used;
+  const nivel = r.id.replace('slot', '');
+  const titulo = !r.nombre || /^Espacios de nivel/.test(r.nombre) ? `Ranuras nivel ${nivel}` : r.nombre;
   return (
-    <Tarjeta>
-      <h2 className="m-0 mb-2 font-serif text-lg font-bold">Tirador rápido de dados</h2>
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-        {[4, 6, 8, 10, 12, 20].map(n => (
-          <button key={n} type="button" onClick={() => tirar(`1d${n}`, `d${n}`, { neutral: true })}
-            className={cx('min-h-11 cursor-pointer rounded-xl bg-soft font-serif text-lg font-bold hover:bg-rule/60', foco)}>
-            d{n}
-          </button>
-        ))}
+    <div className="rounded-lg bg-surface-container p-3 shadow-inner">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <span className="text-label-caps uppercase tracking-wider text-outline">{titulo}</span>
+        <span className="text-label-caps text-secondary">{quedan} / {r.max} disponibles</span>
       </div>
-    </Tarjeta>
-  );
-}
-
-function Caracteristicas({ c }: { c: any }) {
-  return (
-    <Seccion titulo="Características" descripcion="Toca una para hacer una prueba; debajo, su salvación (● si eres competente).">
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-        {AB.map(([k, , ab, nm]) => (
-          <Tarjeta key={k} className="flex flex-col items-stretch gap-1 p-2 text-center">
-            <BotonTirada expr={`1d20${modStr(c.m[k])}`} label={`Prueba de ${nm}`} mods={desglose([[c.m[k], ab]])} estilo="bloque" className="py-1" ariaLabel={`Prueba de ${nm} (${c.sc[k]}), ${sign(c.m[k])}`}>
-              <span className="block text-xs text-muted">{ab} {c.sc[k]}</span>
-              <b className="block font-serif text-3xl font-extrabold leading-tight">{sign(c.m[k])}</b>
-            </BotonTirada>
-            <BotonTirada expr={`1d20${modStr(c.saves[k])}`} label={`Salvación de ${nm}`} className="text-sm"
-              mods={desglose([[c.m[k], ab], [c.saveProf.includes(k) ? c.pb : 0, 'competencia']])}
-              ariaLabel={`Salvación de ${nm}, ${sign(c.saves[k])}${c.saveProf.includes(k) ? ', competente' : ''}`}>
-              Salv. {sign(c.saves[k])}{c.saveProf.includes(k) ? ' ●' : ''}
-            </BotonTirada>
-          </Tarjeta>
-        ))}
-      </div>
-    </Seccion>
-  );
-}
-
-function SentidosPasivos({ c }: { c: any }) {
-  const inv = 10 + (c.skill['investigacion'] || 0), per = 10 + (c.skill['perspicacia'] || 0);
-  return (
-    <Tarjeta>
-      <h2 className="m-0 mb-2 font-serif text-lg font-bold">Sentidos pasivos</h2>
-      <dl className="m-0 flex flex-col gap-1.5 text-sm">
-        {[['Percepción', c.passive], ['Investigación', inv], ['Intuición', per]].map(([n, v]) => (
-          <div key={n as string} className="flex items-center justify-between rounded-lg bg-soft/60 px-2 py-1.5">
-            <dt className="text-muted">{n}</dt><dd className="m-0 font-serif text-lg font-bold">{v}</dd>
-          </div>
-        ))}
-      </dl>
-    </Tarjeta>
-  );
-}
-
-function Habilidades({ c }: { c: any }) {
-  return (
-    <Seccion titulo="Habilidades" descripcion="● competente. Toca una para tirarla.">
-      <Lista>
-        {SKILLS.map(([n, a]) => {
-          const k = norm(n);
+      <div role="group" aria-label={`${titulo}: quedan ${quedan} de ${r.max}`} className="flex flex-wrap items-center gap-2">
+        {Array.from({ length: r.max }, (_, i) => {
+          const libre = i < quedan;
           return (
-            <li key={n}>
-              <BotonTirada expr={`1d20${modStr(c.skill[k])}`} label={n} mods={desgloseHabilidad(c, k, a)} estilo="bloque" className="flex min-h-12 items-center justify-between px-1 text-left"
-                ariaLabel={`${n}${c.skillProf[k] ? ', competente' : ''}${c.skillPer[k] ? ', con pericia' : ''}: ${sign(c.skill[k])}`}>
-                <span className="flex items-center gap-2">
-                  <span aria-hidden="true" className={cx('size-2.5 rounded-full', c.skillProf[k] ? 'bg-ink' : 'ring-[1.5px] ring-inset ring-rule')} />
-                  {n}{c.skillPer[k] ? ' (pericia)' : ''} <span className="text-xs text-muted">{a.toUpperCase()}</span>
-                </span>
-                <b className="font-serif text-lg tabular-nums">{sign(c.skill[k])}</b>
-              </BotonTirada>
-            </li>
+            <button key={i} type="button" aria-pressed={!libre} onClick={() => tocarPip(r.id, i, r.max)}
+              aria-label={`${titulo}, ranura ${i + 1}: ${libre ? 'disponible, toca para gastarla' : 'gastada, toca para recuperarla'}`}
+              className={cx('flex h-10 min-w-10 flex-1 cursor-pointer items-center justify-center rounded transition-all hover:scale-105', foco,
+                libre ? 'bg-secondary-container text-on-secondary-container shadow-[0_0_12px_rgba(0,166,224,0.4)]' : 'bg-surface-container-lowest text-outline opacity-50 shadow-inner')}>
+              <Simbolo n={libre ? 'diamond' : 'radio_button_unchecked'} className="text-body-md" />
+            </button>
           );
         })}
-      </Lista>
-      <div className="mt-3"><BotonTirada expr="1d20" label="Salvación contra muerte" className="px-4">Salvación contra muerte</BotonTirada></div>
-    </Seccion>
-  );
-}
-
-function DatosSeccion({ c }: { c: any }) {
-  const pj = S.pj, tb = pj.trasfondo, T = c.T;
-  const datos: [string, ReactNode][] = [
-    ['Armaduras', textoArmaduras(c)], ['Armas', textoArmas(c)], ['Herramientas', c.herramientas.map((h: any) => h.que).join(', ') || '—'],
-    ...(c.compFuentes.length ? [['Competencias de rasgos', c.compFuentes.map((f: any) => `${f.que} (${f.src})`).join(', ')] as [string, ReactNode]] : []),
-    ['Trasfondo', T ? (T.custom ? tb.nombre || 'Personalizado' : T.n) : '—'], ['Visión en la oscuridad', c.vision ? c.vision + ' pies' : 'No'],
-    ['Alineamiento', pj.alineamiento || '—'], ['Dotes', c.dotes.map((d: any) => d.nombre).join(', ') || 'Ninguna'],
-  ];
-  if (c.casterAb) datos.push(['Conjuros', `CD ${c.dcSpell}, ${sign(c.atkSpell)} al ataque`]);
-  if (c.isMonk) datos.push(['CD de Focus', c.dcFocus]);
-  if (pj.oro) datos.push(['Oro', pj.oro]);
-  return (
-    <>
-      <Seccion titulo="Datos">
-        <Tarjeta><dl className="m-0 grid gap-x-6 gap-y-2 sm:grid-cols-2">
-          {datos.map(([k, v]) => <div key={k}><dt className="text-sm font-bold text-muted">{k}</dt><dd className="m-0">{v}</dd></div>)}
-        </dl></Tarjeta>
-      </Seccion>
-      {pj.historia && <Seccion titulo="Historia"><Tarjeta><p className="m-0" dangerouslySetInnerHTML={{ __html: richT(pj.historia) }} /></Tarjeta></Seccion>}
-    </>
-  );
-}
-
-function ConjurosTab({ c }: { c: any }) {
-  const sp = c.conjuros || [];
-  const cab = c.casterAb && (
-    <div className="grid grid-cols-3 gap-px overflow-hidden rounded-2xl bg-rule ring-1 ring-rule">
-      <Stat valor={c.dcSpell} etiqueta="CD de conjuros" />
-      <Stat etiqueta="Ataque">
-        <BotonTirada expr={`1d20${modStr(c.atkSpell)}`} label="Ataque de conjuro" mods={desglose([[c.mSpell, c.casterAb.toUpperCase()], [c.pb, 'competencia']])} estilo="bloque" className="py-1">
-          <b className="block font-serif text-3xl font-extrabold leading-none underline decoration-dotted decoration-2 underline-offset-4">{sign(c.atkSpell)}</b>
-          <span className="mt-1 block text-xs text-muted">Ataque</span>
-        </BotonTirada>
-      </Stat>
-      <Stat valor={abInfo(c.casterAb)[2]} etiqueta="Característica" />
+      </div>
     </div>
   );
-  if (!sp.length) return <>{cab}<Aviso tipo="info" titulo="Sin conjuros" accion={<Boton onClick={() => irAPaso('conjuros')}>Elegir conjuros</Boton>}>Agrégalos en el paso Conjuros del editor.</Aviso></>;
-  const niveles = [...new Set<number>(sp.map((s: any) => +s.nivel || 0))].sort((a, b) => a - b);
+}
+
+function FilaConjuro({ s, c }: { s: any; c: any }) {
+  const d = datosConjuro(s, c);
+  const meta = [TIPOS[s.tiempo || 'accion']?.[0], d.bits.join(', '), s.coste].filter(Boolean).join(' • ');
+  const primero = String(s.desc || '').trim().split(/\n\s*\n/)[0];
   return (
-    <>
-      {cab}
-      {niveles.map(n => (
-        <Seccion key={n} titulo={n === 0 ? 'Trucos' : `Nivel ${n}`}>
-          <Lista>{sp.filter((s: any) => (+s.nivel || 0) === n).map((s: any, i: number) => <ConjuroFila key={i} s={s} c={c} />)}</Lista>
-        </Seccion>
-      ))}
-    </>
+    <li className="flex items-start gap-1 rounded-xs bg-surface-container-lowest">
+      <details className="group min-w-0 flex-1">
+        <summary className={cx('flex cursor-pointer list-none flex-col p-1 pl-2 [&::-webkit-details-marker]:hidden', foco)}>
+          <span className="text-body-sm font-semibold text-on-surface">{s.nombre}</span>
+          <span className="text-label-caps text-outline">{meta}</span>
+        </summary>
+        <div className="space-y-1 px-2 pb-2 text-body-sm text-on-surface-variant">
+          {d.meta && <p className="m-0 text-outline">{d.meta}</p>}
+          {primero && <p className="m-0" dangerouslySetInnerHTML={{ __html: richT(primero) }} />}
+          {d.origen && <p className="m-0">{d.origen}.</p>}
+          {s.rasgo && <p className="m-0 text-label-caps text-outline">De {s.rasgo}</p>}
+        </div>
+      </details>
+      <LanzarConjuro s={s} c={c} d={d} compacto />
+    </li>
+  );
+}
+
+function Magia({ c }: { c: any }) {
+  const sp = c.conjuros || [];
+  const slots = c.recursos.filter((r: any) => /^slot\d/.test(r.id));
+  if (!sp.length && !slots.length && !c.casterAb) return null;
+  const ab = c.casterAb ? abInfo(c.casterAb)[2] : '';
+  const orden = [...sp].sort((a: any, b: any) => (+a.nivel || 0) - (+b.nivel || 0));
+  return (
+    <section aria-labelledby="titulo-magia" className="flex flex-col gap-3 rounded-lg bg-surface-container-low p-3 shadow-lg">
+      <div className="flex items-start justify-between gap-2">
+        <h2 id="titulo-magia" className="m-0 flex items-center gap-1 font-serif text-headline-sm text-secondary">
+          <Simbolo n="auto_awesome" className="text-body-lg" />Magia{ab ? ` (${ab})` : ''}
+        </h2>
+        {c.casterAb && (
+          <div className="flex flex-col items-end gap-0.5 text-label-caps text-outline">
+            <span>CD salvación: <strong className="text-body-md text-on-surface">{c.dcSpell}</strong></span>
+            <span className="flex items-center gap-1">Ataque:
+              <BotonTirada estilo="libre" expr={`1d20${modStr(c.atkSpell)}`} label="Ataque de conjuro" mods={desglose([[c.mSpell, c.casterAb.toUpperCase()], [c.pb, 'competencia']])}
+                className="rounded text-body-md font-bold text-on-surface hover:text-primary">{sign(c.atkSpell)}</BotonTirada>
+            </span>
+          </div>
+        )}
+      </div>
+      {slots.map((r: any) => <Ranuras key={r.id} r={r} />)}
+      {sp.length ? (
+        <div className="space-y-1">
+          <span className="text-label-caps uppercase text-outline">Conjuros preparados</span>
+          <ul className="m-0 list-none space-y-1 p-0">{orden.map((s: any, i: number) => <FilaConjuro key={s.nombre + i} s={s} c={c} />)}</ul>
+        </div>
+      ) : (
+        <div className="rounded-xs bg-surface-container-lowest p-2 text-body-sm text-on-surface-variant">
+          Sin conjuros todavía. <button type="button" onClick={() => irAPaso('conjuros')} className={cx('cursor-pointer font-bold text-primary underline', foco)}>Elegir conjuros</button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function Rasgos({ c }: { c: any }) {
+  const ents = c.entries.filter((e: any) => e.t === 'pasiva');
+  if (!ents.length) return null;
+  return (
+    <section className="flex flex-col gap-3 rounded-lg bg-surface-container-low p-3 shadow-lg">
+      <Rotulo icono="bookmark">Rasgos de especie y clase</Rotulo>
+      <div className="space-y-2">
+        {ents.map((e: any, i: number) => (
+          <div key={e.nombre + i} className="rounded-xs bg-surface-container p-2">
+            <span className={cx('block text-body-md font-semibold', i === 0 ? 'text-primary' : 'text-on-surface')}>{e.nombre}</span>
+            <TextoConDados html={e.raw ? richT(e.texto) : esc(e.texto)} label={e.nombre} className="m-0 mt-0.5 text-body-sm text-on-surface-variant" />
+            <div className="flex flex-wrap items-center justify-between gap-x-2">
+              {e.src && <span className="text-label-caps text-outline">{e.src}</span>}
+              {e.grupo && e.grupo !== 'reglas' && <Mover e={e} />}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -270,116 +663,48 @@ function Avisos({ c }: { c: any }) {
   );
 }
 
+/* ===================== Ficha ===================== */
 export function Ficha({ c }: { c: any }) {
-  const pj = S.pj;
-  const [menu, setMenu] = useState(false);
-  // Algunas acciones fuera de React (irAPaso) piden abrir Equipo directamente al llegar a la ficha
-  const [verEquipo, setVerEquipo] = useState(() => { const abrir = S.tab === 'equipo'; S.tab = 'turno'; return abrir; });
-  const [verRevisar, setVerRevisar] = useState(false);
-  const esp = pj.especie.key === 'custom' ? pj.especie.nombre : c.E ? c.E.n + (c.E.subs?.[c.esub] ? ` (${c.E.subs[c.esub].n})` : '') : '';
-  const subN = c.SD ? c.SD.n : (pj.subclase === 'otra' && c.lvl >= c.subNivel ? pj.subclaseNombre : '');
-  const who = `${esp || 'Sin especie'}. ${c.C ? `${c.C.n} de nivel ${c.lvl}` : 'Sin clase'}${subN ? `, ${subN}` : ''}${c.chain ? ', Pacto de la Cadena' : ''}.`;
-  const nAv = c.avisos.filter((a: any) => a.nivel === 'aviso').length;
-  const falta = faltaParaSubir(c);
-  const pg = c.recursos.find((r: any) => r.id === 'pg');
-  const usedPg = Math.min(pj.used?.pg || 0, pg?.max || 0);
-  // Con algo pendiente, el botón explica qué falta y lleva a Revisar
-  const subir = () => {
-    if (!falta.length) return abrirSubida();
-    avisar(`No puedes subir de nivel: tienes elecciones pendientes (${falta.map((a: any) => a.t.toLowerCase()).join(', ')}). Míralas en Revisar.`, 'aviso');
-    setVerRevisar(true);
-  };
-  const exportar = () => bajarArchivo(slug(pj.nombre || 'personaje') + '.json', JSON.stringify(pj, null, 1));
-  const editar = () => { setMenu(false); S.view = 'editor'; S.step = S.step || 'especie'; render(); irArriba(); };
+  const cerrarDialogo = () => { S.dialogo = ''; render(); };
   return (
     <>
-      {/* ---------- Identidad + vitales ---------- */}
-      <div className="relative rounded-2xl bg-surface p-4 shadow-xl ring-1 ring-rule/60 sm:p-5">
-        <button type="button" onClick={() => setMenu(true)} aria-label="Más opciones de la ficha"
-          className={cx('absolute right-3 top-3 grid size-11 cursor-pointer place-items-center rounded-full text-muted hover:bg-soft hover:text-ink print:hidden', foco)}>
-          <IconoV d={D_MENU} />
-        </button>
-        <div className="flex flex-col gap-4 pr-12 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
-          <div className="min-w-0 lg:shrink-0 lg:basis-96">
-            {(esp || pj.alineamiento) && (
-              <div className="mb-1 flex flex-wrap gap-1.5">
-                {esp && <span className="rounded-full bg-soft px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-muted">{esp}</span>}
-                {pj.alineamiento && <span className="rounded-full bg-soft px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-muted">{pj.alineamiento}</span>}
-              </div>
-            )}
-            <h1 id="titulo-vista" tabIndex={-1} className="m-0 font-serif text-[clamp(1.75rem,6vw,2.5rem)] font-extrabold leading-tight text-adi outline-none [overflow-wrap:anywhere]">{pj.nombre || 'Sin nombre'}</h1>
-            <p className="mb-0 mt-1 italic text-muted">{who}</p>
-            <div className="mt-3 flex flex-wrap gap-2 print:hidden">
-              {c.C && c.lvl < 20 && <Boton variante="primario" tamano="sm" onClick={subir} aria-disabled={falta.length > 0} className={falta.length ? 'opacity-60' : undefined}>Subir a nivel {c.lvl + 1}</Boton>}
-              {c.C && c.lvl > 1 && <Boton tamano="sm" onClick={bajarNivel}>Bajar a nivel {c.lvl - 1}</Boton>}
-            </div>
-            {c.C && c.lvl < 20 && falta.length > 0 && (
-              <p className="mb-0 mt-2 text-sm text-muted">Para subir de nivel falta elegir: {falta.map((a: any) => a.t.toLowerCase()).join(', ')}.</p>
-            )}
-          </div>
-          <div className="grid min-w-0 grid-cols-3 gap-2 sm:grid-cols-6 lg:flex-1 lg:max-w-3xl">
-            <Vital etiqueta="CA" icono={D_ESCUDO}><b className="font-serif text-3xl font-extrabold leading-none">{c.ac}</b></Vital>
-            {pg ? <TarjetaPG pg={pg} usados={usedPg} /> : (
-              <Vital etiqueta="Puntos de golpe" icono={D_CORAZON} className="col-span-3 sm:col-span-2"><b className="font-serif text-3xl font-extrabold leading-none">{c.hpMax}</b></Vital>
-            )}
-            <Vital etiqueta="Iniciativa">
-              <BotonTirada expr={`1d20${modStr(c.init)}`} label="Iniciativa" mods={desglose(c.initPartes || [])} estilo="bloque" ariaLabel={`Tirar iniciativa, ${sign(c.init)}`}>
-                <b className="block font-serif text-3xl font-extrabold leading-none underline decoration-dotted decoration-2 underline-offset-4">{sign(c.init)}</b>
-              </BotonTirada>
-            </Vital>
-            <Vital etiqueta={`Pies (${Math.floor(c.speed / 5)} c.)`}><b className="font-serif text-3xl font-extrabold leading-none">{c.speed}</b></Vital>
-            <Vital etiqueta="Competencia"><b className="font-serif text-3xl font-extrabold leading-none">{sign(c.pb)}</b></Vital>
-          </div>
+      {/* Identidad y vitales */}
+      <section aria-label="Personaje" className="w-full bg-surface-container-lowest px-4 py-5 lg:px-6">
+        <div className="mx-auto flex max-w-[1600px] flex-col items-stretch justify-between gap-5 xl:flex-row">
+          <Identidad c={c} />
+          <Vitales c={c} />
         </div>
-      </div>
+      </section>
 
-      {/* ---------- Características (fila de 6) ---------- */}
       <Caracteristicas c={c} />
 
-      {/* ---------- Tablero de 3 columnas ---------- */}
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
-        <div className="flex flex-col gap-6 lg:col-span-3">
-          <SentidosPasivos c={c} />
-          <Habilidades c={c} />
-        </div>
-        <div className="flex flex-col gap-6 lg:col-span-6">
-          <Turno c={c} tipos={ORDEN_TIPOS.filter(t => t !== 'pasiva')} principal />
-          <TiradorRapido />
-        </div>
-        <div className="flex flex-col gap-6 lg:col-span-3">
-          <Seccion titulo="Conjuros"><ConjurosTab c={c} /></Seccion>
-          <Turno c={c} tipos={['pasiva']} />
+      {/* Tablero de 3 columnas */}
+      <div className="mx-auto w-full max-w-[1600px] px-4 py-8 lg:px-6">
+        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-12">
+          <div className="flex flex-col gap-5 lg:col-span-3">
+            <SentidosPasivos c={c} />
+            <Habilidades c={c} />
+            <Competencias c={c} />
+          </div>
+          <div className="flex flex-col gap-5 lg:col-span-6">
+            <RecursosClase c={c} />
+            <Arsenal c={c} />
+            <TiradorRapido />
+            <OtrasAcciones c={c} />
+          </div>
+          <div className="flex flex-col gap-5 lg:col-span-3">
+            <Magia c={c} />
+            <Rasgos c={c} />
+          </div>
         </div>
       </div>
 
-      <DatosSeccion c={c} />
-
-      {/* ---------- Menú de opciones (esquina) ---------- */}
-      <Dialogo abierto={menu} onCerrar={() => setMenu(false)} titulo="Más opciones" abajo>
-        <ul className="m-0 grid list-none gap-2 p-0">
-          <li><Boton className="w-full justify-between" onClick={() => { setMenu(false); setVerEquipo(true); }}>Equipo</Boton></li>
-          <li><Boton className="w-full justify-between" onClick={() => { setMenu(false); setVerRevisar(true); }}>
-            Revisar {nAv > 0 && <Insignia etiqueta={`${nAv} cosas por elegir`}>{nAv}</Insignia>}
-          </Boton></li>
-          <li><Boton className="w-full justify-start" onClick={editar}>Editar personaje</Boton></li>
-          <li><Boton className="w-full justify-start" onClick={() => { setMenu(false); window.print(); }}>Imprimir o guardar PDF</Boton></li>
-          <li><Boton className="w-full justify-start" onClick={() => { setMenu(false); exportar(); }}>Descargar respaldo</Boton></li>
-          <li><Boton variante="peligro" className="w-full justify-start" onClick={() => { setMenu(false); borrarPj(); }}>Borrar personaje</Boton></li>
-        </ul>
-      </Dialogo>
-
-      <Dialogo abierto={verEquipo} onCerrar={() => setVerEquipo(false)} titulo="Equipo" ancho="lg">
+      <Dialogo abierto={S.dialogo === 'equipo'} onCerrar={cerrarDialogo} titulo="Equipo" ancho="lg">
         <Inventario c={c} />
       </Dialogo>
-
-      <Dialogo abierto={verRevisar} onCerrar={() => setVerRevisar(false)} titulo="Revisar">
+      <Dialogo abierto={S.dialogo === 'revisar'} onCerrar={cerrarDialogo} titulo="Revisar">
         <Avisos c={c} />
       </Dialogo>
-
-      <div className="hidden print:block">
-        <Turno c={c} principal />
-        <ConjurosTab c={c} />
-      </div>
     </>
   );
 }

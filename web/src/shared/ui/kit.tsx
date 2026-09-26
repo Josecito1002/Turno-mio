@@ -11,6 +11,11 @@ import {
 
 export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(' ');
 
+/** Ícono decorativo de Material Symbols (el nombre es la ligadura, p. ej. "shield"). */
+export function Simbolo({ n, className, relleno }: { n: string; className?: string; relleno?: boolean }) {
+  return <span aria-hidden="true" className={cx('material-symbols-outlined leading-none', relleno && 'relleno', className)}>{n}</span>;
+}
+
 export const foco = 'focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-rea';
 export const claseCampo = cx(
   'min-h-11 w-full rounded-xl border border-rule bg-surface px-3 text-base text-ink placeholder:text-muted/80',

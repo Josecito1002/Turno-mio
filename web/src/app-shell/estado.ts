@@ -19,6 +19,8 @@ export const S = {
   view: 'home' as Vista,
   step: 'especie',
   tab: 'turno',
+  /** Diálogo de la ficha abierto desde el menú de la barra superior ('equipo' | 'revisar' | ''). */
+  dialogo: '' as string,
   sel: null as number | null,
   draft: nuevoDraft(),
   subida: null as any,

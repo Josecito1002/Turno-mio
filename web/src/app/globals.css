@@ -21,6 +21,36 @@
   --font-serif: var(--serif); --font-sans: var(--sans);
 }
 
+/* ===== Tokens "Grimorio & Espada" (DESIGN.md), para la ficha y la barra superior ===== */
+@theme {
+  --color-surface-dim: #10131a; --color-surface-bright: #363941;
+  --color-surface-container-lowest: #0b0e15; --color-surface-container-low: #191c23; --color-surface-container: #1d2027;
+  --color-surface-container-high: #272a31; --color-surface-container-highest: #32353c;
+  --color-on-surface: #e0e2ec; --color-on-surface-variant: #d0c5af; --color-outline: #99907c; --color-outline-variant: #4d4635;
+  --color-primary: #f2ca50; --color-on-primary: #3c2f00; --color-primary-container: #d4af37; --color-on-primary-container: #554300;
+  --color-primary-fixed-dim: #e9c349;
+  --color-secondary: #7bd0ff; --color-on-secondary: #00354a; --color-secondary-container: #00a6e0; --color-on-secondary-container: #00374d;
+  --color-secondary-fixed-dim: #7bd0ff; --color-tertiary: #ffbfb7;
+  --color-error: #ffb4ab; --color-on-error: #690005; --color-error-container: #93000a; --color-on-error-container: #ffdad6;
+
+  --text-headline-xl: 40px; --text-headline-xl--line-height: 48px; --text-headline-xl--letter-spacing: -0.01em; --text-headline-xl--font-weight: 700;
+  --text-headline-xl-mobile: 30px; --text-headline-xl-mobile--line-height: 36px; --text-headline-xl-mobile--font-weight: 700;
+  --text-headline-lg: 28px; --text-headline-lg--line-height: 34px; --text-headline-lg--letter-spacing: 0.01em; --text-headline-lg--font-weight: 600;
+  --text-headline-md: 22px; --text-headline-md--line-height: 28px; --text-headline-md--letter-spacing: 0.015em; --text-headline-md--font-weight: 600;
+  --text-headline-sm: 18px; --text-headline-sm--line-height: 24px; --text-headline-sm--letter-spacing: 0.02em; --text-headline-sm--font-weight: 600;
+  --text-body-lg: 16px; --text-body-lg--line-height: 24px;
+  --text-body-md: 14px; --text-body-md--line-height: 20px;
+  --text-body-sm: 12px; --text-body-sm--line-height: 16px;
+  --text-stat-display: 28px; --text-stat-display--line-height: 32px; --text-stat-display--letter-spacing: -0.02em; --text-stat-display--font-weight: 700;
+  --text-stat-modifier: 20px; --text-stat-modifier--line-height: 24px; --text-stat-modifier--font-weight: 600;
+  --text-label-caps: 10px; --text-label-caps--line-height: 12px; --text-label-caps--letter-spacing: 0.08em; --text-label-caps--font-weight: 700;
+  --text-label-md: 12px; --text-label-md--line-height: 16px; --text-label-md--font-weight: 500;
+}
+
+/* Íconos Material Symbols (la hoja de estilo se carga en layout.tsx) */
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; user-select: none; }
+.material-symbols-outlined.relleno { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
 /* ===== Base ===== */
 @layer base {
   html { scroll-padding-top: calc(var(--alto-cabecera, 64px) + 72px); -webkit-text-size-adjust: 100%; }
@@ -64,7 +94,13 @@ dialog::backdrop { background: rgb(8 12 15 / .55); }
 
 /* ===== Impresión ===== */
 @media print {
-  :root { --bg: #fff; --surface: #fff; --soft: #eee; --ink: #000; --muted: #444; --rule: #bbb; color-scheme: light; }
+  :root { --bg: #fff; --surface: #fff; --soft: #eee; --ink: #000; --muted: #444; --rule: #bbb; color-scheme: light;
+    --color-surface-dim: #fff; --color-surface-container-lowest: #fff; --color-surface-container-low: #fff; --color-surface-container: #f4f4f4;
+    --color-surface-container-high: #eee; --color-surface-container-highest: #e4e4e4;
+    --color-on-surface: #000; --color-on-surface-variant: #333; --color-outline: #555; --color-outline-variant: #bbb;
+    --color-primary: #6b5200; --color-primary-fixed-dim: #6b5200; --color-secondary: #00506f; --color-secondary-fixed-dim: #00506f; --color-error: #9a1a10; }
+  body { background-image: none; }
+  * { box-shadow: none !important; }
   body { font-size: 11pt; }
 }
 

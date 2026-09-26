@@ -2,7 +2,7 @@
 'use client';
 import { S } from '@/app-shell/estado';
 import { esc, modStr, norm, richT, sign } from '@/shared/utils/texto';
-import { Boton, Contador, Dialogo, Puntos, cx, foco } from '@/shared/ui/kit';
+import { Boton, Contador, Dialogo, Puntos, Simbolo, cx, foco } from '@/shared/ui/kit';
 import { TIPOS } from '@/features/reglas/data/caracteristicas';
 import { COLOR_TIPO, FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { BotonTirada, TextoConDados } from '@/features/dados/components/BotonTirada';
@@ -16,7 +16,7 @@ import { desglose } from '../domain/calculo';
 /** Compatibilidad: forma del tipo de acción. */
 export const Shape = ({ t }: { t: string; className?: string }) => <FormaTipo t={t} />;
 
-function Mover({ e }: { e: any }) {
+export function Mover({ e }: { e: any }) {
   const k = norm(e.nombre);
   // Al tocar una opción (aunque sea la actual) el menú se cierra
   const elegir = (ev: React.MouseEvent<HTMLElement>, t: string) => { ev.currentTarget.closest('details')?.removeAttribute('open'); moverRasgo(k, t); };
@@ -56,7 +56,7 @@ export function Entrada({ e }: { e: any }) {
   const body = e.raw ? richT(e.texto) : esc(e.texto);
   const color = COLOR_TIPO[e.t] || COLOR_TIPO.pasiva;
   return (
-    <article className={cx('my-2 rounded-2xl border-l-4 bg-surface px-4 py-3 shadow-sm ring-1 ring-rule/50 break-inside-avoid', color.borde)}>
+    <article className={cx('my-2 rounded-lg border-l-4 bg-surface-container px-4 py-3 shadow-md break-inside-avoid', color.borde)}>
       <div className={cx(e.roll && 'grid grid-cols-[1fr_auto] gap-x-3')}>
         <div>
           <header className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
@@ -118,7 +118,7 @@ export function Ataque({ a }: { a: any }) {
 }
 
 /** Lo que muestran las dos vistas de un conjuro: nivel y etiquetas, dados ya escalados, CD y ataque (los de un rasgo pueden usar otra característica). */
-function datosConjuro(s: any, c: any) {
+export function datosConjuro(s: any, c: any) {
   const nv = +s.nivel || 0, bits = [nv === 0 ? 'Truco' : `Nivel ${nv}`];
   let dados = s.dados || '';
   if (nv === 0 && dados && !s.noEscala && /^1d\d+$/.test(dados)) dados = dados.replace(/^1d/, (c.lvl >= 17 ? 4 : c.lvl >= 11 ? 3 : c.lvl >= 5 ? 2 : 1) + 'd');
@@ -156,7 +156,7 @@ function DescripcionCorta({ desc }: { desc?: string }) {
 /** Lanzar un conjuro. El botón dice lo que tiras (+5 al ataque, CD 13 de DES o sus dados). Un truco se tira al momento;
     uno de nivel 1 o más pregunta con qué espacio (o con el uso del rasgo que lo da), lo gasta y tira ya subido de nivel.
     Los bonos de rasgos que aplican (Evocación Potenciada) se suman solos. */
-function LanzarConjuro({ s, c, d }: { s: any; c: any; d: ReturnType<typeof datosConjuro> }) {
+export function LanzarConjuro({ s, c, d, compacto }: { s: any; c: any; d: ReturnType<typeof datosConjuro>; compacto?: boolean }) {
   const tirar = useDados();
   const [abierto, setAbierto] = useState(false);
   const nv = +s.nivel || 0, bonos = bonosPara(c, s), bono = d.dexpr ? bonos.reduce((t: number, b: any) => t + (+b.valor || 0), 0) : 0;
@@ -202,6 +202,16 @@ function LanzarConjuro({ s, c, d }: { s: any; c: any; d: ReturnType<typeof datos
       );
   // Ataque o salvación: el mismo botón grande de Ataques, a la derecha de la tarjeta
   // Siempre el mismo botón grande de Ataques, a la derecha de la tarjeta: el bono al ataque, la CD, los dados o "Lanzar"
+  // Versión compacta (lista de conjuros preparados): solo el ícono de lanzar
+  if (compacto) return (
+    <>
+      <button type="button" onClick={lanzar} aria-label={`Lanzar ${s.nombre}${etiqueta ? ', ' + etiqueta : ''}`} title={etiqueta || 'Lanzar'}
+        className={cx('grid size-11 shrink-0 cursor-pointer place-items-center rounded text-secondary transition-colors hover:text-primary sm:size-8 print:hidden', foco)}>
+        <Simbolo n="electric_bolt" className="text-body-lg" />
+      </button>
+      {dialogo}
+    </>
+  );
   const grande = ataque ? sign(d.atk) : s.salv ? `CD ${d.cd ?? '?'}` : d.dexpr ? dadosAlLanzar(d.dexpr, nv, nv, '', bono) : 'Lanzar';
   const debajo = ataque ? 'al ataque' : s.salv ? `salvación de ${s.salv}` : d.dexpr ? (s.tipo || 'Lanzar') : '';
   return (
@@ -246,7 +256,7 @@ export function ConjuroFila({ s, c }: { s: any; c: any }) {
 export function ConjuroTarjeta({ s, c, t }: { s: any; c: any; t: string }) {
   const d = datosConjuro(s, c), color = COLOR_TIPO[t] || COLOR_TIPO.pasiva;
   return (
-    <article className={cx('my-2 rounded-2xl border-l-4 bg-surface px-4 py-3 shadow-sm ring-1 ring-rule/50 break-inside-avoid', color.borde)}>
+    <article className={cx('my-2 rounded-lg border-l-4 bg-surface-container px-4 py-3 shadow-md break-inside-avoid', color.borde)}>
       <div className={cx(botonGrande(s, d) && 'grid grid-cols-[1fr_auto] gap-x-3')}>
         <div>
           <header className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
