@@ -235,11 +235,19 @@ export function ConjuroFila({ s, c }: { s: any; c: any }) {
           <DescripcionCorta desc={s.desc} />
           {d.origen && <p className="mb-0 mt-1 text-sm">{d.origen}.</p>}
           {s.rasgo && <p className="m-0 text-xs text-muted">De {s.rasgo}</p>}
+          <Golpes s={s} />
         </div>
       </details>
       <div className={cx('pb-2', botonGrande(s, d) && 'flex justify-end')}><LanzarConjuro s={s} c={c} d={d} /></div>
     </li>
   );
+}
+
+/** Conjuros que atacan con tu arma (Golpe certero): una fila de ataque por arma empuñada */
+function Golpes({ s }: { s: any }) {
+  if (!s.golpes) return null;
+  if (!s.golpes.length) return <p className="mb-0 mt-1 text-sm text-muted">Empuña un arma en el paso Equipo para ver su ataque.</p>;
+  return <ul className="m-0 list-none divide-y divide-soft p-0">{s.golpes.map((a: any, i: number) => <Ataque key={i} a={a} />)}</ul>;
 }
 
 /** Conjuro en tu turno: la misma tarjeta que los rasgos, con su tipo de acción, sus usos y el botón Lanzar. */
@@ -259,6 +267,7 @@ export function ConjuroTarjeta({ s, c, t }: { s: any; c: any; t: string }) {
         </div>
         <LanzarConjuro s={s} c={c} d={d} />
       </div>
+      <Golpes s={s} />
       {s.recurso && S.view === 'ficha' && <RecursoInline id={s.recurso} />}
       <p className="m-0 mt-1 text-xs text-muted">{s.rasgo ? `Conjuro de ${s.rasgo}` : 'Conjuro'}</p>
     </article>

@@ -992,15 +992,15 @@ describe('Playtest: Unearthed Arcana 2025', () => {
     return pj(clase, nivel, 'lib:' + sub, stats);
   };
   test('las cinco subclases llevan la etiqueta Playtest', () => {
-    for (const [clase, subs] of Object.entries(PLAYTEST_2025)) for (const s of Object.values(subs))
-      assert.equal(fuenteSubclase({ n: s.n, lib: true }, clase).tipo, 'playtest', s.n);
+    for (const [clase, subs] of Object.entries(PLAYTEST_2025)) for (const [key, s] of Object.entries(subs))
+      assert.equal(fuenteSubclase({ n: s.n, lib: true, key: 'lib:' + key }, clase).tipo, 'playtest', s.n);
     assert.notEqual(fuenteSubclase({ n: 'Caballero', lib: true }, 'guerrero').tipo, 'playtest');
   });
   test('Heraldo de la Tormenta: dados según el daño de Furia y CD con CON', () => {
     const c = ua('barbaro', 9, 'heraldo-tormenta', { con: 16 });
     assert.match(entrada(c, 'Aura de Tormenta').texto, new RegExp(`CD ${8 + c.pb + 3}\\).*3d4 de fuego`));
   });
-  test('Caballero (Playtest): Maniobra de Protección con usos = CON', () => {
+  test('Caballero de playtest: Maniobra de Protección con usos = CON', () => {
     assert.equal(recurso(ua('guerrero', 7, 'caballero-playtest', { con: 16 }), 'Maniobra de Protección')?.max, 3);
   });
   test('Rompejuramentos: conjuros siempre preparados y Golpe Sombrío en el nivel 20', () => {
@@ -1022,5 +1022,15 @@ describe('Conjuros que dan los rasgos', () => {
   });
   test('Druídico deja Hablar con los animales siempre preparado', () => {
     assert.ok(pj('druida', 1).conjurosRasgo.some((x: any) => /^hablar con los animales$/i.test(x.nombre)));
+  });
+});
+
+describe('Golpe certero', () => {
+  test('ataca con el arma empuñada usando la característica de conjuros y suma radiante desde el nivel 5', () => {
+    const c = pj('mago', 5, '', { int: 18, fue: 10, des: 10 }, { armas: [['daga', 1]], conjuros: [{ nombre: 'Golpe certero', nivel: 0 }] });
+    const g = c.conjuros.find((s: any) => s.nombre === 'Golpe certero')?.golpes?.[0];
+    assert.ok(g, 'sin fila de ataque');
+    assert.equal(g.atk, 4 + c.pb);
+    assert.match(g.expr, /^1d4\+4\+1d6$/);
   });
 });

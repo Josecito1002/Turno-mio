@@ -2,8 +2,6 @@
 import { S } from '@/app-shell/estado';
 import { Boton, EncabezadoPagina, Tarjeta, cx, foco } from '@/shared/ui/kit';
 import { FormaTipo } from '@/features/reglas/components/TipoAccion';
-import { esInvitado } from '@/app-shell/estado';
-import { CambiarContrasena } from '@/features/cuentas/components/CambiarContrasena';
 import { abrir, borrarPj, nuevo } from '../acciones';
 
 const ECONOMIA: [string, string, string][] = [
@@ -29,7 +27,6 @@ export function Inicio() {
           ))}
         </ul>
       </section>
-      {!esInvitado() && <CambiarContrasena />}
     </>
   );
   return (
@@ -51,7 +48,6 @@ export function Inicio() {
           </li>
         ))}
       </ul>
-      {!esInvitado() && <CambiarContrasena />}
     </>
   );
 }
