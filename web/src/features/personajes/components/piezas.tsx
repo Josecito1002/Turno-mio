@@ -56,16 +56,22 @@ export function Entrada({ e }: { e: any }) {
   const color = COLOR_TIPO[e.t] || COLOR_TIPO.pasiva;
   return (
     <article className={cx('my-2 rounded-2xl border-l-4 bg-surface px-4 py-3 shadow-sm ring-1 ring-rule/50 break-inside-avoid', color.borde)}>
-      <header className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
-        <h3 className="m-0 font-serif text-lg font-bold leading-snug">{e.nombre}</h3>
-        {e.coste && <span className={cx('text-sm font-bold', color.texto)}>{e.coste}</span>}
-      </header>
-      <TextoConDados html={body} label={e.nombre} className="mb-0 mt-1" />
-      {e.roll && (
-        <p className="mb-0 mt-2">
-          <BotonTirada expr={e.roll[0]} label={`${e.nombre}: ataque`} dmg={e.roll[1]} dmgLabel={`${e.nombre}: daño`}>Tirar ataque</BotonTirada>
-        </p>
-      )}
+      <div className={cx(e.roll && 'grid grid-cols-[1fr_auto] gap-x-3')}>
+        <div>
+          <header className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+            <h3 className="m-0 font-serif text-lg font-bold leading-snug">{e.nombre}</h3>
+            {e.coste && <span className={cx('text-sm font-bold', color.texto)}>{e.coste}</span>}
+          </header>
+          <TextoConDados html={body} label={e.nombre} className="mb-0 mt-1" />
+        </div>
+        {/* El mismo botón grande que en Ataques: el bono al ataque, y el daño se tira desde la bandeja */}
+        {e.roll && (() => { const b = e.roll[0].replace(/^1d20\s*/, '') || '+0'; return (
+          <div className="flex flex-col items-center justify-center">
+            <BotonTirada expr={e.roll[0]} label={`${e.nombre}: ataque`} dmg={e.roll[1]} dmgLabel={`${e.nombre}: daño`} estilo="grande"
+              ariaLabel={`Tirar ataque de ${e.nombre}, ${b}`}>{b}</BotonTirada>
+            <small className="mt-0.5 text-xs text-muted" aria-hidden="true">al ataque</small>
+          </div>); })()}
+      </div>
       {e.recurso && S.view === 'ficha' && <RecursoInline id={e.recurso} />}
       <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
         <p className="m-0 text-xs text-muted">{e.src || ''}{e.revisada && <span className="ml-2 font-bold text-pas">Regla revisada</span>}</p>
@@ -83,8 +89,8 @@ export function Ataque({ a }: { a: any }) {
       <div>
         <p className="m-0 font-serif text-lg font-bold leading-snug">{a.nombre}</p>
         <div className="mt-1 flex flex-wrap items-center gap-2">
-          <BotonTirada expr={a.expr} label={`${n}: daño`} min3={a.min3} gasta={a.gasta} ariaLabel={`Tirar daño de ${n}: ${a.dmg}`}>{a.dmg}</BotonTirada>
-          {a.v && <><span className="text-sm text-muted">o</span><BotonTirada expr={a.v.expr} label={`${n}: daño a dos manos`} min3={a.min3}>{a.v.dmg} a dos manos</BotonTirada></>}
+          <BotonTirada expr={a.expr} label={`${n}: daño`} min3={a.min3} gasta={a.gasta} mods={a.dmgDesg} ariaLabel={`Tirar daño de ${n}: ${a.dmg}`}>{a.dmg}</BotonTirada>
+          {a.v && <><span className="text-sm text-muted">o</span><BotonTirada expr={a.v.expr} label={`${n}: daño a dos manos`} min3={a.min3} mods={a.dmgDesg}>{a.v.dmg} a dos manos</BotonTirada></>}
         </div>
       </div>
       {a.cd != null ? (
@@ -94,7 +100,7 @@ export function Ataque({ a }: { a: any }) {
           <small className="mt-0.5 text-xs text-muted">salvación de {a.salv}</small>
         </div>
       ) : <div className="row-span-2 flex flex-col items-center justify-center">
-        <BotonTirada expr={`1d20${modStr(a.atk)}`} label={`${n}: ataque`} estilo="grande" dmg={a.expr} dmgLabel={`${n}: daño`} min3={a.min3} extras={S.c ? extrasAtaque(S.c, a) : undefined}
+        <BotonTirada expr={`1d20${modStr(a.atk)}`} label={`${n}: ataque`} estilo="grande" dmg={a.expr} dmgLabel={`${n}: daño`} min3={a.min3} extras={S.c ? extrasAtaque(S.c, a) : undefined} mods={a.atkDesg} dmgMods={a.dmgDesg}
           ariaLabel={`Tirar ataque con ${n}, ${sign(a.atk)}`}>{sign(a.atk)}</BotonTirada>
         <small className="mt-0.5 text-xs text-muted" aria-hidden="true">al ataque</small>
       </div>}

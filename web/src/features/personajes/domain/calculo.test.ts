@@ -680,6 +680,13 @@ describe('Guerrero 2024 (Lote 11)', () => {
     assert.match(perf.expr, /^1d8\+3\+2d6$/);
     assert.ok(perf.gasta);
   });
+  test('Desglose de bonos: arma a distancia con Arquería, y sin armas', () => {
+    const c = gue(5, '', { des: 16, fue: 10 }, { estilo: 'arqueria', armas: [['arco_largo', 1]] });
+    const arco = c.armas.find((x: any) => x.w?.n === 'Arco largo');
+    assert.equal(arco.atkDesg, '3 DES + 3 competencia + 2 Arquería');
+    assert.equal(arco.dmgDesg, '3 DES');
+    assert.equal(c.unarmed.atkDesg, '3 competencia');
+  });
   test('Maestro de Batalla: dados 4/5/6, d8 a d12, y las maniobras elegidas salen con su tipo', () => {
     const c = gue(7, 'lib:maestro-batalla', { fue: 16 }, { elecciones: { maniobra: ['parada', 'finta'] } });
     assert.equal(usos(c, 'Superioridad en Combate'), 5);
