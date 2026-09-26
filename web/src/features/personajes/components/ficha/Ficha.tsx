@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { S, render, irArriba } from '@/app-shell/estado';
 import { modStr, norm, richT, sign, slug } from '@/shared/utils/texto';
-import { Aviso, Boton, EncabezadoPagina, Insignia, Lista, PanelPestana, Pestanas, Plegable, Seccion, Tarjeta, cx } from '@/shared/ui/kit';
+import { Aviso, Boton, Contador, Dialogo, Insignia, Lista, Plegable, Seccion, Tarjeta, cx, foco } from '@/shared/ui/kit';
 import { AB, SKILLS, TIPOS, ORDEN_TIPOS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { COMUNES } from '@/features/reglas/data/comunes';
 import { textoArmaduras, textoArmas } from '@/features/reglas/domain/competencias';
 import { FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { BotonTirada } from '@/features/dados/components/BotonTirada';
 import { Ataque, ConjuroFila, ConjuroTarjeta, Entrada, Recursos } from '../piezas';
-import { abrirSubida, bajarArchivo, bajarNivel, borrarPj, irAPaso } from '../../acciones';
+import { abrirSubida, bajarArchivo, bajarNivel, borrarPj, irAPaso, moverPool, fijarPool } from '../../acciones';
 import { desglose } from '../../domain/calculo';
 
 /* De dónde sale el bono de una habilidad: la característica y la competencia (doble con pericia, o la mitad con Polivalente) */
@@ -24,6 +24,26 @@ import { avisar } from '@/shared/ui/avisos';
 import { Inventario } from '../Inventario';
 
 export const PASO_N: Record<string, string> = { especie: 'Especie', clase: 'Clase', trasfondo: 'Trasfondo', stats: 'Características', habs: 'Habilidades', equipo: 'Equipo', conjuros: 'Conjuros', rasgos: 'Rasgos propios', detalles: 'Detalles' };
+
+/* ---------- Íconos pequeños de la ficha (decorativos) ---------- */
+const IconoV = ({ d }: { d: string }) => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" className="size-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"><path d={d} /></svg>
+);
+const D_ESCUDO = 'M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6z';
+const D_CORAZON = 'M12 20.5s-7-4.3-9.2-8.7C1.2 8.4 2.4 5 6 5c2 0 3.7 1.2 6 3.6C14.3 6.2 16 5 18 5c3.6 0 4.8 3.4 3.2 6.8-2.2 4.4-9.2 8.7-9.2 8.7z';
+const D_MENU = 'M4 6h16M4 12h16M4 18h16';
+
+/** Una tarjeta de estadística vital, con ícono opcional. */
+function Vital({ etiqueta, icono, className, children }: { etiqueta: string; icono?: string; className?: string; children: ReactNode }) {
+  return (
+    <div className={cx('flex flex-col items-center justify-center gap-1 rounded-2xl bg-surface p-3 text-center shadow-sm ring-1 ring-rule/60', className)}>
+      <span className="flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-muted">
+        {icono && <IconoV d={icono} />}{etiqueta}
+      </span>
+      {children}
+    </div>
+  );
+}
 
 function Stat({ valor, etiqueta, children }: { valor?: ReactNode; etiqueta: string; children?: ReactNode }) {
   return (
@@ -81,9 +101,71 @@ function Turno({ c }: { c: any }) {
   );
 }
 
-function Hoja({ c }: { c: any }) {
+function Caracteristicas({ c }: { c: any }) {
+  return (
+    <Seccion titulo="Características" descripcion="Toca una para hacer una prueba; debajo, su salvación (● si eres competente).">
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+        {AB.map(([k, , ab, nm]) => (
+          <Tarjeta key={k} className="flex flex-col items-stretch gap-1 p-2 text-center">
+            <BotonTirada expr={`1d20${modStr(c.m[k])}`} label={`Prueba de ${nm}`} mods={desglose([[c.m[k], ab]])} estilo="bloque" className="py-1" ariaLabel={`Prueba de ${nm} (${c.sc[k]}), ${sign(c.m[k])}`}>
+              <span className="block text-xs text-muted">{ab} {c.sc[k]}</span>
+              <b className="block font-serif text-3xl font-extrabold leading-tight">{sign(c.m[k])}</b>
+            </BotonTirada>
+            <BotonTirada expr={`1d20${modStr(c.saves[k])}`} label={`Salvación de ${nm}`} className="text-sm"
+              mods={desglose([[c.m[k], ab], [c.saveProf.includes(k) ? c.pb : 0, 'competencia']])}
+              ariaLabel={`Salvación de ${nm}, ${sign(c.saves[k])}${c.saveProf.includes(k) ? ', competente' : ''}`}>
+              Salv. {sign(c.saves[k])}{c.saveProf.includes(k) ? ' ●' : ''}
+            </BotonTirada>
+          </Tarjeta>
+        ))}
+      </div>
+    </Seccion>
+  );
+}
+
+function SentidosPasivos({ c }: { c: any }) {
+  const inv = 10 + (c.skill['investigacion'] || 0), per = 10 + (c.skill['perspicacia'] || 0);
+  return (
+    <Tarjeta>
+      <h2 className="m-0 mb-2 font-serif text-lg font-bold">Sentidos pasivos</h2>
+      <dl className="m-0 flex flex-col gap-1.5 text-sm">
+        {[['Percepción', c.passive], ['Investigación', inv], ['Intuición', per]].map(([n, v]) => (
+          <div key={n as string} className="flex items-center justify-between rounded-lg bg-soft/60 px-2 py-1.5">
+            <dt className="text-muted">{n}</dt><dd className="m-0 font-serif text-lg font-bold">{v}</dd>
+          </div>
+        ))}
+      </dl>
+    </Tarjeta>
+  );
+}
+
+function Habilidades({ c }: { c: any }) {
+  return (
+    <Seccion titulo="Habilidades" descripcion="● competente. Toca una para tirarla.">
+      <Lista>
+        {SKILLS.map(([n, a]) => {
+          const k = norm(n);
+          return (
+            <li key={n}>
+              <BotonTirada expr={`1d20${modStr(c.skill[k])}`} label={n} mods={desgloseHabilidad(c, k, a)} estilo="bloque" className="flex min-h-12 items-center justify-between px-1 text-left"
+                ariaLabel={`${n}${c.skillProf[k] ? ', competente' : ''}${c.skillPer[k] ? ', con pericia' : ''}: ${sign(c.skill[k])}`}>
+                <span className="flex items-center gap-2">
+                  <span aria-hidden="true" className={cx('size-2.5 rounded-full', c.skillProf[k] ? 'bg-ink' : 'ring-[1.5px] ring-inset ring-rule')} />
+                  {n}{c.skillPer[k] ? ' (pericia)' : ''} <span className="text-xs text-muted">{a.toUpperCase()}</span>
+                </span>
+                <b className="font-serif text-lg tabular-nums">{sign(c.skill[k])}</b>
+              </BotonTirada>
+            </li>
+          );
+        })}
+      </Lista>
+      <div className="mt-3"><BotonTirada expr="1d20" label="Salvación contra muerte" className="px-4">Salvación contra muerte</BotonTirada></div>
+    </Seccion>
+  );
+}
+
+function DatosSeccion({ c }: { c: any }) {
   const pj = S.pj, tb = pj.trasfondo, T = c.T;
-  const exportar = () => bajarArchivo(slug(pj.nombre || 'personaje') + '.json', JSON.stringify(pj, null, 1));
   const datos: [string, ReactNode][] = [
     ['Armaduras', textoArmaduras(c)], ['Armas', textoArmas(c)], ['Herramientas', c.herramientas.map((h: any) => h.que).join(', ') || '—'],
     ...(c.compFuentes.length ? [['Competencias de rasgos', c.compFuentes.map((f: any) => `${f.que} (${f.src})`).join(', ')] as [string, ReactNode]] : []),
@@ -95,56 +177,12 @@ function Hoja({ c }: { c: any }) {
   if (pj.oro) datos.push(['Oro', pj.oro]);
   return (
     <>
-      <Seccion titulo="Características" descripcion="Toca una para hacer una prueba; debajo, su salvación (● si eres competente).">
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-          {AB.map(([k, , ab, nm]) => (
-            <Tarjeta key={k} className="flex flex-col items-stretch gap-1 p-2 text-center">
-              <BotonTirada expr={`1d20${modStr(c.m[k])}`} label={`Prueba de ${nm}`} mods={desglose([[c.m[k], ab]])} estilo="bloque" className="py-1" ariaLabel={`Prueba de ${nm} (${c.sc[k]}), ${sign(c.m[k])}`}>
-                <span className="block text-xs text-muted">{ab} {c.sc[k]}</span>
-                <b className="block font-serif text-3xl font-extrabold leading-tight">{sign(c.m[k])}</b>
-              </BotonTirada>
-              <BotonTirada expr={`1d20${modStr(c.saves[k])}`} label={`Salvación de ${nm}`} className="text-sm"
-                mods={desglose([[c.m[k], ab], [c.saveProf.includes(k) ? c.pb : 0, 'competencia']])}
-                ariaLabel={`Salvación de ${nm}, ${sign(c.saves[k])}${c.saveProf.includes(k) ? ', competente' : ''}`}>
-                Salv. {sign(c.saves[k])}{c.saveProf.includes(k) ? ' ●' : ''}
-              </BotonTirada>
-            </Tarjeta>
-          ))}
-        </div>
-      </Seccion>
-      <Seccion titulo="Habilidades" descripcion="● competente. Toca una para tirarla.">
-        <Lista>
-          {SKILLS.map(([n, a]) => {
-            const k = norm(n);
-            return (
-              <li key={n}>
-                <BotonTirada expr={`1d20${modStr(c.skill[k])}`} label={n} mods={desgloseHabilidad(c, k, a)} estilo="bloque" className="flex min-h-12 items-center justify-between px-1 text-left"
-                  ariaLabel={`${n}${c.skillProf[k] ? ', competente' : ''}${c.skillPer[k] ? ', con pericia' : ''}: ${sign(c.skill[k])}`}>
-                  <span className="flex items-center gap-2">
-                    <span aria-hidden="true" className={cx('size-2.5 rounded-full', c.skillProf[k] ? 'bg-ink' : 'ring-[1.5px] ring-inset ring-rule')} />
-                    {n}{c.skillPer[k] ? ' (pericia)' : ''} <span className="text-xs text-muted">{a.toUpperCase()}</span>
-                  </span>
-                  <b className="font-serif text-lg tabular-nums">{sign(c.skill[k])}</b>
-                </BotonTirada>
-              </li>
-            );
-          })}
-        </Lista>
-        <div className="mt-3"><BotonTirada expr="1d20" label="Salvación contra muerte" className="px-4">Salvación contra muerte</BotonTirada></div>
-      </Seccion>
       <Seccion titulo="Datos">
         <Tarjeta><dl className="m-0 grid gap-x-6 gap-y-2 sm:grid-cols-2">
           {datos.map(([k, v]) => <div key={k}><dt className="text-sm font-bold text-muted">{k}</dt><dd className="m-0">{v}</dd></div>)}
         </dl></Tarjeta>
       </Seccion>
-      {pj.inventario && <Seccion titulo="Inventario"><Tarjeta><p className="m-0" dangerouslySetInnerHTML={{ __html: richT(pj.inventario) }} /></Tarjeta></Seccion>}
       {pj.historia && <Seccion titulo="Historia"><Tarjeta><p className="m-0" dangerouslySetInnerHTML={{ __html: richT(pj.historia) }} /></Tarjeta></Seccion>}
-      <div className="mt-8 flex flex-wrap gap-2 print:hidden">
-        <Boton variante="primario" onClick={() => { S.view = 'editor'; S.step = S.step || 'especie'; render(); irArriba(); }}>Editar personaje</Boton>
-        <Boton onClick={() => window.print()}>Imprimir o guardar PDF</Boton>
-        <Boton onClick={exportar}>Descargar respaldo</Boton>
-        <Boton variante="peligro" onClick={() => borrarPj()}>Borrar personaje</Boton>
-      </div>
     </>
   );
 }
@@ -191,55 +229,106 @@ function Avisos({ c }: { c: any }) {
 
 export function Ficha({ c }: { c: any }) {
   const pj = S.pj;
+  const [menu, setMenu] = useState(false);
+  // Algunas acciones fuera de React (irAPaso) piden abrir Equipo directamente al llegar a la ficha
+  const [verEquipo, setVerEquipo] = useState(() => { const abrir = S.tab === 'equipo'; S.tab = 'turno'; return abrir; });
+  const [verRevisar, setVerRevisar] = useState(false);
   const esp = pj.especie.key === 'custom' ? pj.especie.nombre : c.E ? c.E.n + (c.E.subs?.[c.esub] ? ` (${c.E.subs[c.esub].n})` : '') : '';
   const subN = c.SD ? c.SD.n : (pj.subclase === 'otra' && c.lvl >= c.subNivel ? pj.subclaseNombre : '');
   const who = `${esp || 'Sin especie'}. ${c.C ? `${c.C.n} de nivel ${c.lvl}` : 'Sin clase'}${subN ? `, ${subN}` : ''}${c.chain ? ', Pacto de la Cadena' : ''}.`;
   const nAv = c.avisos.filter((a: any) => a.nivel === 'aviso').length;
   const falta = faltaParaSubir(c);
+  const pg = c.recursos.find((r: any) => r.id === 'pg');
+  const usedPg = Math.min(pj.used?.pg || 0, pg?.max || 0), leftPg = (pg?.max || 0) - usedPg;
   // Con algo pendiente, el botón explica qué falta y lleva a Revisar
   const subir = () => {
     if (!falta.length) return abrirSubida();
     avisar(`No puedes subir de nivel: tienes elecciones pendientes (${falta.map((a: any) => a.t.toLowerCase()).join(', ')}). Míralas en Revisar.`, 'aviso');
-    S.tab = 'revisar'; render();
+    setVerRevisar(true);
   };
-  const tabs = [
-    { id: 'turno', texto: 'En tu turno' }, { id: 'hoja', texto: 'Hoja' }, { id: 'equipo', texto: 'Equipo' }, { id: 'conjuros', texto: 'Conjuros' },
-    { id: 'revisar', texto: 'Revisar', insignia: nAv > 0 ? <Insignia etiqueta={`${nAv} cosas por elegir`}>{nAv}</Insignia> : undefined },
-  ];
+  const exportar = () => bajarArchivo(slug(pj.nombre || 'personaje') + '.json', JSON.stringify(pj, null, 1));
+  const editar = () => { setMenu(false); S.view = 'editor'; S.step = S.step || 'especie'; render(); irArriba(); };
   return (
     <>
-      <EncabezadoPagina id="titulo-vista" titulo={pj.nombre || 'Sin nombre'} subtitulo={who}>
-        {c.C && c.lvl < 20 && <Boton variante="primario" onClick={subir} aria-disabled={falta.length > 0} className={falta.length ? 'opacity-60' : undefined}>Subir a nivel {c.lvl + 1}</Boton>}
-        {c.C && c.lvl > 1 && <Boton onClick={bajarNivel}>Bajar a nivel {c.lvl - 1}</Boton>}
-      </EncabezadoPagina>
-      {c.C && c.lvl < 20 && falta.length > 0 && (
-        <p className="-mt-2 mb-4 text-sm text-muted">Para subir de nivel falta elegir: {falta.map((a: any) => a.t.toLowerCase()).join(', ')}. Está en la pestaña Revisar.</p>
-      )}
-      <div className="mb-4 grid grid-cols-3 gap-px overflow-hidden rounded-2xl bg-rule ring-1 ring-rule sm:grid-cols-6">
-        <Stat valor={c.ac} etiqueta="CA" />
-        <Stat valor={c.hpMax} etiqueta="PG máximos" />
-        <Stat etiqueta="Iniciativa">
-          <BotonTirada expr={`1d20${modStr(c.init)}`} label="Iniciativa" mods={desglose(c.initPartes || [])} estilo="bloque" className="h-full py-2" ariaLabel={`Tirar iniciativa, ${sign(c.init)}`}>
-            <b className="block font-serif text-3xl font-extrabold leading-none underline decoration-dotted decoration-2 underline-offset-4">{sign(c.init)}</b>
-            <span className="mt-1 block text-xs text-muted">Iniciativa</span>
-          </BotonTirada>
-        </Stat>
-        <Stat valor={c.speed} etiqueta={`Pies (${Math.floor(c.speed / 5)} casillas)`} />
-        <Stat valor={sign(c.pb)} etiqueta="Competencia" />
-        <Stat valor={c.passive} etiqueta="Percepción pasiva" />
+      {/* ---------- Identidad + vitales ---------- */}
+      <div className="relative rounded-2xl bg-surface p-4 shadow-xl ring-1 ring-rule/60 sm:p-5">
+        <button type="button" onClick={() => setMenu(true)} aria-label="Más opciones de la ficha"
+          className={cx('absolute right-3 top-3 grid size-11 cursor-pointer place-items-center rounded-full text-muted hover:bg-soft hover:text-ink print:hidden', foco)}>
+          <IconoV d={D_MENU} />
+        </button>
+        <div className="flex flex-col gap-4 pr-12 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+          <div className="min-w-0 lg:shrink-0 lg:basis-96">
+            <h1 id="titulo-vista" tabIndex={-1} className="m-0 font-serif text-[clamp(1.75rem,6vw,2.5rem)] font-extrabold leading-tight text-adi outline-none [overflow-wrap:anywhere]">{pj.nombre || 'Sin nombre'}</h1>
+            <p className="mb-0 mt-1 text-muted">{who}</p>
+            <div className="mt-3 flex flex-wrap gap-2 print:hidden">
+              {c.C && c.lvl < 20 && <Boton variante="primario" tamano="sm" onClick={subir} aria-disabled={falta.length > 0} className={falta.length ? 'opacity-60' : undefined}>Subir a nivel {c.lvl + 1}</Boton>}
+              {c.C && c.lvl > 1 && <Boton tamano="sm" onClick={bajarNivel}>Bajar a nivel {c.lvl - 1}</Boton>}
+            </div>
+            {c.C && c.lvl < 20 && falta.length > 0 && (
+              <p className="mb-0 mt-2 text-sm text-muted">Para subir de nivel falta elegir: {falta.map((a: any) => a.t.toLowerCase()).join(', ')}.</p>
+            )}
+          </div>
+          <div className="grid min-w-0 grid-cols-3 gap-2 sm:grid-cols-6 lg:flex-1 lg:max-w-3xl">
+            <Vital etiqueta="CA" icono={D_ESCUDO}><b className="font-serif text-3xl font-extrabold leading-none">{c.ac}</b></Vital>
+            <Vital etiqueta="Puntos de golpe" icono={D_CORAZON} className="col-span-3 sm:col-span-2">
+              {pg ? <Contador nombre="Puntos de golpe" valor={leftPg} max={pg.max} onCambiar={d => moverPool('pg', d)} onFijar={v => fijarPool('pg', pg.max, v)} />
+                : <b className="font-serif text-3xl font-extrabold leading-none">{c.hpMax}</b>}
+            </Vital>
+            <Vital etiqueta="Iniciativa">
+              <BotonTirada expr={`1d20${modStr(c.init)}`} label="Iniciativa" mods={desglose(c.initPartes || [])} estilo="bloque" ariaLabel={`Tirar iniciativa, ${sign(c.init)}`}>
+                <b className="block font-serif text-3xl font-extrabold leading-none underline decoration-dotted decoration-2 underline-offset-4">{sign(c.init)}</b>
+              </BotonTirada>
+            </Vital>
+            <Vital etiqueta={`Pies (${Math.floor(c.speed / 5)} c.)`}><b className="font-serif text-3xl font-extrabold leading-none">{c.speed}</b></Vital>
+            <Vital etiqueta="Competencia"><b className="font-serif text-3xl font-extrabold leading-none">{sign(c.pb)}</b></Vital>
+          </div>
+        </div>
       </div>
-      <Pestanas idBase="ficha" etiqueta="Secciones de la hoja" items={tabs} activa={S.tab} onCambiar={id => { S.tab = id; render(); }} />
-      <PanelPestana idBase="ficha" activa={S.tab}>
-        {S.tab === 'turno' && <Turno c={c} />}
-        {S.tab === 'hoja' && <Hoja c={c} />}
-        {S.tab === 'equipo' && <Inventario c={c} />}
-        {S.tab === 'conjuros' && <ConjurosTab c={c} />}
-        {S.tab === 'revisar' && <Avisos c={c} />}
-      </PanelPestana>
+
+      {/* ---------- Características (fila de 6) ---------- */}
+      <Caracteristicas c={c} />
+
+      {/* ---------- Tablero de 3 columnas ---------- */}
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
+        <div className="flex flex-col gap-6 lg:col-span-3">
+          <SentidosPasivos c={c} />
+          <Habilidades c={c} />
+        </div>
+        <div className="flex flex-col gap-6 lg:col-span-6">
+          <Turno c={c} />
+        </div>
+        <div className="flex flex-col gap-6 lg:col-span-3">
+          <Seccion titulo="Conjuros"><ConjurosTab c={c} /></Seccion>
+        </div>
+      </div>
+
+      <DatosSeccion c={c} />
+
+      {/* ---------- Menú de opciones (esquina) ---------- */}
+      <Dialogo abierto={menu} onCerrar={() => setMenu(false)} titulo="Más opciones" abajo>
+        <ul className="m-0 grid list-none gap-2 p-0">
+          <li><Boton className="w-full justify-between" onClick={() => { setMenu(false); setVerEquipo(true); }}>Equipo</Boton></li>
+          <li><Boton className="w-full justify-between" onClick={() => { setMenu(false); setVerRevisar(true); }}>
+            Revisar {nAv > 0 && <Insignia etiqueta={`${nAv} cosas por elegir`}>{nAv}</Insignia>}
+          </Boton></li>
+          <li><Boton className="w-full justify-start" onClick={editar}>Editar personaje</Boton></li>
+          <li><Boton className="w-full justify-start" onClick={() => { setMenu(false); window.print(); }}>Imprimir o guardar PDF</Boton></li>
+          <li><Boton className="w-full justify-start" onClick={() => { setMenu(false); exportar(); }}>Descargar respaldo</Boton></li>
+          <li><Boton variante="peligro" className="w-full justify-start" onClick={() => { setMenu(false); borrarPj(); }}>Borrar personaje</Boton></li>
+        </ul>
+      </Dialogo>
+
+      <Dialogo abierto={verEquipo} onCerrar={() => setVerEquipo(false)} titulo="Equipo" ancho="lg">
+        <Inventario c={c} />
+      </Dialogo>
+
+      <Dialogo abierto={verRevisar} onCerrar={() => setVerRevisar(false)} titulo="Revisar">
+        <Avisos c={c} />
+      </Dialogo>
+
       <div className="hidden print:block">
-        {S.tab !== 'turno' && <Turno c={c} />}
-        {S.tab !== 'hoja' && <Hoja c={c} />}
-        {S.tab !== 'conjuros' && <ConjurosTab c={c} />}
+        <Turno c={c} />
+        <ConjurosTab c={c} />
       </div>
     </>
   );
