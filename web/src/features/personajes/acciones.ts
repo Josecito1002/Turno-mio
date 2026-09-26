@@ -65,6 +65,46 @@ export function tocarPip(id: string, i: number, max: number) {
   pj.used[id] = i < left ? max - i : max - (i + 1);
   savePj(); render();
 }
+/* ---- Familiares y criaturas ---- */
+export function agregarCriatura(key: string, nombre: string) {
+  const pj = S.pj; pj.criaturas = pj.criaturas || [];
+  pj.criaturas.push({ id: 'cr' + Date.now().toString(36), key, danio: 0 });
+  savePj(); render(); avisar(`${nombre} agregado.`);
+}
+export function quitarCriatura(id: string) { S.pj.criaturas = (S.pj.criaturas || []).filter((x: any) => x.id !== id); savePj(); render(); }
+/** Cambia los PG de una criatura: d negativo es daño, positivo curación (sin pasar del máximo ni bajar de 0) */
+export function pgCriatura(id: string, d: number, max: number) {
+  const x = (S.pj.criaturas || []).find((y: any) => y.id === id); if (!x) return;
+  x.danio = Math.min(max, Math.max(0, (x.danio || 0) - d)); savePj(); render();
+}
+export function nombrarCriatura(id: string, nombre: string) {
+  const x = (S.pj.criaturas || []).find((y: any) => y.id === id); if (!x) return;
+  x.nombre = nombre.trim(); savePj(); render();
+}
+
+/* ---- Rasgos de fuera de combate que hacen algo ---- */
+/** Recupera espacios gastados (Recuperación Arcana, Recuperación Natural, Astucia Mágica) y gasta el uso del rasgo */
+export function recuperarEspacios(niveles: number[], recurso?: string) {
+  const pj = S.pj;
+  if (recurso && !gastarRecurso(recurso)) return;
+  niveles.forEach(n => { const id = 'slot' + n; pj.used[id] = Math.max(0, (pj.used[id] || 0) - 1); });
+  savePj(); render(); avisar(`Recuperaste ${niveles.length} espacio${niveles.length > 1 ? 's' : ''}.`);
+}
+/** Recupera puntos de un recurso de reserva (Restauración Hechicera) y gasta el uso del rasgo */
+export function recuperarPuntos(id: string, n: number, recurso?: string) {
+  const pj = S.pj;
+  if (recurso && !gastarRecurso(recurso)) return;
+  pj.used[id] = Math.max(0, (pj.used[id] || 0) - n);
+  savePj(); render(); avisar(`Recuperaste ${n} punto${n > 1 ? 's' : ''}.`);
+}
+/** Memorizar Conjuro: cambia un conjuro preparado por otro */
+export function cambiarConjuro(sale: string, entra: any) {
+  const pj = S.pj, i = pj.conjuros.findIndex((x: any) => norm(x.nombre) === norm(sale));
+  if (i < 0) return;
+  pj.conjuros.splice(i, 1, { ...entra, extra: false });
+  savePj(); render(); avisar(`${entra.nombre} preparado en lugar de ${sale}.`);
+}
+
 /** Gasta un espacio de conjuro del nivel dado; devuelve false si no quedaba ninguno. */
 export function gastarEspacio(nivel: number) { return gastarRecurso('slot' + nivel); }
 /** Gasta un uso de un recurso del personaje abierto (con aviso si ya no queda); devuelve si se pudo. */

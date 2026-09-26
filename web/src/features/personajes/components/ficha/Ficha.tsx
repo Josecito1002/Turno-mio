@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { S, render, irArriba } from '@/app-shell/estado';
 import { modStr, norm, richT, sign, slug } from '@/shared/utils/texto';
 import { Aviso, Boton, EncabezadoPagina, Insignia, Lista, PanelPestana, Pestanas, Plegable, Seccion, Tarjeta, cx } from '@/shared/ui/kit';
@@ -22,6 +22,7 @@ function desgloseHabilidad(c: any, k: string, a: string) {
 import { faltaParaSubir } from '../../domain/pendientes';
 import { avisar } from '@/shared/ui/avisos';
 import { Inventario } from '../Inventario';
+import { Criaturas } from './Criaturas';
 
 export const PASO_N: Record<string, string> = { especie: 'Especie', clase: 'Clase', trasfondo: 'Trasfondo', stats: 'Características', habs: 'Habilidades', equipo: 'Equipo', conjuros: 'Conjuros', rasgos: 'Rasgos propios', detalles: 'Detalles' };
 
@@ -41,10 +42,13 @@ function Turno({ c }: { c: any }) {
       <p className="mt-3 text-sm text-muted">Toca cualquier número con fondo para tirarlo.</p>
       {ORDEN_TIPOS.map(t => {
         const ents = c.entries.filter((e: any) => e.t === t), sps = sp.filter((s: any) => (s.tiempo || 'accion') === t), com = COMUNES[t] || [];
-        if (!ents.length && !sps.length && !com.length && t !== 'accion') return null;
+        // Familiares y criaturas van justo debajo de Acción adicional
+        const extra = t === 'adicional' ? <Criaturas c={c} /> : null;
+        if (!ents.length && !sps.length && !com.length && t !== 'accion') return <Fragment key={t}>{extra}</Fragment>;
         const un = { nombre: 'Golpe sin armas', atk: c.unarmed.atk, expr: c.unarmed.expr, dmg: c.unarmed.dmg, atkDesg: c.unarmed.atkDesg, dmgDesg: c.unarmed.dmgDesg, notas: [`También puede Agarrar o Empujar (CD ${c.grappleDC})`] };
         return (
-          <section key={t} aria-labelledby={`sec-${t}`} className="mt-8">
+          <Fragment key={t}>
+          <section aria-labelledby={`sec-${t}`} className="mt-8">
             <div className="flex items-center gap-2.5">
               <FormaTipo t={t} className="size-4" />
               <h2 id={`sec-${t}`} className="m-0 font-serif text-2xl font-bold">{TIPOS[t][0]}</h2>
@@ -75,6 +79,8 @@ function Turno({ c }: { c: any }) {
               </Plegable>
             )}
           </section>
+          {extra}
+          </Fragment>
         );
       })}
     </>

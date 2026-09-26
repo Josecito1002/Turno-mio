@@ -10,6 +10,7 @@ import { trucosN, prepN } from '@/features/reglas/data/conjuros';
 import { FULL_SLOTS } from '@/features/reglas/data/comunes';
 import { REGLAS, CONJUROS_RASGOS } from '@/features/reglas/data/reglas-revisadas';
 import { esClavePlaytest } from '@/features/reglas/data/fuentes';
+import { CRIATURAS, CRIATURAS_DE_CONJURO } from '@/features/reglas/data/criaturas';
 import { doteKey } from '@/features/reglas/data/dotes';
 import { kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
 import { kitClase } from '@/features/reglas/data/equipo-clases';
@@ -167,6 +168,7 @@ export function compute(pj): any {
   const propios = (pj.conjuros || []).map(s => { const r = c.conjurosRasgo.find(x => norm(x.nombre) === norm(s.nombre)); return r ? {...s, rasgo: r.rasgo, nota: r.nota} : s; });
   c.conjuros = [...propios, ...c.conjurosRasgo.filter(r => !propios.some(s => norm(s.nombre) === norm(r.nombre)))];
   golpeCertero(c);
+  criaturas(c);
   c.nivelMax = pj.clase === 'brujo' ? pacto(lvl).nivel : (c.slots.length ? Math.max(...c.slots.map(s => s.nivel)) : 0);
   const conLimite = C?.lanz && !C.lib;
   // Las clases de biblioteca no traen estos límites; una regla revisada puede darlos (c.trucosReglas, c.prepReglas)
@@ -316,6 +318,25 @@ export function weaponRow(a, c){
   }
   return {k:a.k, q:a.q, i:a.i, w, nombre: w.n + (a.q > 1 ? ` (${a.q})` : ''), atk, expr:`${dado}${modStr(dmgMod)}`, dmg:`${dado}${fmtMod(dmgMod)} ${w.tipo}`,
     v: w.v ? {expr:`${w.v}${modStr(dmgMod)}`, dmg:`${w.v}${fmtMod(dmgMod)}`} : null, notas, maestria, min3, atkDesg, dmgDesg, dado, partesAtk, partesDmg};
+}
+
+/* Familiares y muertos vivientes: qué puede crear el personaje (según sus conjuros) y la hoja de cada uno que tiene
+   (pj.criaturas: [{id, key, nombre?, danio}]). Siervos Muertos Vivientes (Nigromante) les suma PG máximos
+   (INT + la mitad del nivel) y daño necrótico al acertar (INT, mínimo 1). */
+function criaturas(c){
+  const tipos = new Set(c.conjuros.map(s => CRIATURAS_DE_CONJURO[norm(s.nombre)]).filter(Boolean));
+  c.criaturasPuede = Object.entries(CRIATURAS).filter(([, x]) => tipos.has(x.de)).map(([key, x]) => ({key, n: x.n, de: x.de}));
+  const siervos = c.entries.some(e => /^siervos muertos vivientes$/.test(norm(e.nombre)));
+  c.criaturas = (c.pj.criaturas || []).filter(x => CRIATURAS[x.key]).map(x => {
+    const b = CRIATURAS[x.key], mas = siervos && b.de === 'muerto';
+    const pgMas = mas ? Math.max(0, c.m.int + Math.floor(c.lvl / 2)) : 0, nec = mas ? Math.max(1, c.m.int) : 0;
+    const pgMax = b.pgMedia + pgMas;
+    const acciones = b.acciones.map(a => a.atk == null ? a : {...a,
+      expr: a.dmg + (nec ? '+' + nec : ''), dmgTxt: `${a.dmg} ${a.tipo}${nec ? ` + ${nec} necrótico` : ''}`,
+      dmgDesg: nec ? desglose([[nec, 'Siervos Muertos Vivientes']]) : ''});
+    return {...b, ...x, nombre: x.nombre || b.n, pgMax, pg: Math.max(0, pgMax - (x.danio || 0)), acciones,
+      nota: mas ? `Siervos Muertos Vivientes (con tu libro en la mano): +${pgMas} PG máximos y +${nec} de daño necrótico al acertar` : ''};
+  });
 }
 
 /* Golpe certero: un ataque con cada arma empuñada usando la característica de conjuros; desde el nivel 5 suma
