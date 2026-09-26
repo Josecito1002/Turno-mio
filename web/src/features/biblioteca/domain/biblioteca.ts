@@ -6,7 +6,7 @@ import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
 import { DOTES } from '@/features/reglas/data/dotes';
 import { SUBCLASES } from '@/features/reglas/data/subclases';
 import { CATALOGO } from '@/features/reglas/data/conjuros';
-import { DESC_ESPECIES, DESC_CLASES, DESC_SUBCLASES } from '@/features/reglas/data/descripciones';
+import { DESC_ESPECIES, DESC_CLASES, DESC_SUBCLASES, DESC_SUBESPECIES } from '@/features/reglas/data/descripciones';
 import { claseBase } from '@/features/reglas/domain/restricciones';
 
 /** Contenido extra compartido por todos (clases, especies, etc. que no vienen en las reglas base). */
@@ -76,6 +76,8 @@ export const getSubAltos = (pj: any, k: string, sk: string) => LIB.clases[k]?.su
 export const descEspecie = (k: string) => LIB.desc?.[k] ?? DESC_ESPECIES[String(k).replace(/^lib:/, '')] ?? '';
 export const descClase = (k: string) => LIB.desc?.['c:' + k] ?? DESC_CLASES[String(k).replace(/^lib:/, '')] ?? '';
 export const descSubclase = (k: string) => LIB.desc?.['s:' + k] ?? DESC_SUBCLASES[String(k).replace(/^lib:/, '')] ?? '';
+/** Descripción de una subraza (linaje, legado…); el administrador puede cambiarla (clave "e:especie:sub" en LIB.desc). */
+export const descSubespecie = (e: string, sub: string) => LIB.desc?.[`e:${e}:${sub}`] ?? DESC_SUBESPECIES[`${String(e).replace(/^lib:/, '')}:${sub}`] ?? '';
 
 export function limpiarBestias() {
   const fuera: string[] = [];

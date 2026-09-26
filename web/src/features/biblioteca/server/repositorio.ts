@@ -1,15 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { and, inArray, isNotNull, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNotNull, notInArray, sql } from 'drizzle-orm';
 import type { PgDatabase } from 'drizzle-orm/pg-core';
 import * as t from './tablas';
-import { libAFilas, type BibliotecaAnidada, type FilasBiblioteca } from '../domain/mapeo';
+import { libAFilas, TIPOS_EXTRA, TIPOS_MEDIA, type BibliotecaAnidada, type FilasBiblioteca } from '../domain/mapeo';
 import type { Biblioteca } from '../domain/biblioteca';
 
 type Db = PgDatabase<any, any, any>;
 
 const trozos = <T,>(xs: T[], n = 400) => Array.from({ length: Math.ceil(xs.length / n) }, (_, i) => xs.slice(i * n, i * n + n));
 
-export async function leerBiblioteca(db: Db): Promise<BibliotecaAnidada> {
+/** Dirección de una imagen de la biblioteca; `v` cambia con la imagen, así el navegador la guarda sin volver a pedirla. */
+export const urlImagen = (clave: string, v: string) => `/api/imagen?k=${encodeURIComponent(clave)}&v=${v.slice(0, 12)}`;
+
+/* Las imágenes van aparte: la biblioteca solo trae su dirección (/api/imagen) y no trae las originales, que solo
+   sirven para volver a recortar. Si no, la respuesta crece con cada imagen hasta pasar el límite del servidor. */
+async function leerExtrasLivianos(db: Db) {
+  const [otros, imgs] = await Promise.all([
+    db.select().from(t.libExtra).where(notInArray(t.libExtra.tipo, ['img', 'imgOrig'])),
+    db.select({ clave: t.libExtra.clave, v: sql<string>`md5(${t.libExtra.valor}::text)` }).from(t.libExtra).where(eq(t.libExtra.tipo, 'img')),
+  ]);
+  return [...otros, ...imgs.map(x => ({ tipo: 'img', clave: x.clave, valor: urlImagen(x.clave, x.v) }))];
+}
+
+/** Con `completa`, las imágenes vienen tal cual están guardadas (para scripts); sin ella, como las pide la web. */
+export async function leerBiblioteca(db: Db, { completa = false } = {}): Promise<BibliotecaAnidada> {
   const [clases, subclases, especies, subespecies, rasgos, dotes, trasfondos, conjuros, cc, libExtra] = await Promise.all([
     db.select().from(t.clases).orderBy(t.clases.id),
     db.select().from(t.subclases).orderBy(t.subclases.claseId, t.subclases.clave),
@@ -20,7 +34,7 @@ export async function leerBiblioteca(db: Db): Promise<BibliotecaAnidada> {
     db.select().from(t.trasfondos).orderBy(t.trasfondos.id),
     db.select().from(t.conjuros).orderBy(t.conjuros.nivel, t.conjuros.nombre),
     db.select().from(t.conjuroClases),
-    db.select().from(t.libExtra),
+    completa ? db.select().from(t.libExtra) : leerExtrasLivianos(db),
   ]);
   const agrupar = <T extends Record<string, any>>(xs: T[], k: keyof T) => {
     const m = new Map<string, T[]>();
@@ -48,15 +62,35 @@ async function insertar(db: Db, tabla: any, filas: any[], ignorarConflictos = fa
   return out;
 }
 
-/** Reemplaza toda la biblioteca (administrador). */
+/** Reemplaza toda la biblioteca (administrador). Las imágenes no se borran: se cambian con guardarExtras. */
 export async function reemplazarBiblioteca(db: Db, lib: Biblioteca) {
   const f = libAFilas(lib);
-  await db.transaction(async tx => {
-    for (const tabla of [t.rasgos, t.conjuroClases, t.subclases, t.subespecies, t.libExtra, t.conjuros, t.dotes, t.trasfondos, t.especies, t.clases]) {
+  await db.transaction(async txx => {
+    const tx = txx as unknown as Db;
+    for (const tabla of [t.rasgos, t.conjuroClases, t.subclases, t.subespecies, t.conjuros, t.dotes, t.trasfondos, t.especies, t.clases]) {
       await tx.delete(tabla);
     }
-    await cargar(tx as unknown as Db, f);
+    await tx.delete(t.libExtra).where(notInArray(t.libExtra.tipo, [...TIPOS_MEDIA]));
+    await cargar(tx, { ...f, libExtra: [] });
+    await guardarExtras(tx, f.libExtra.map(x => ({ tipo: x.tipo, clave: x.clave, valor: x.valor })));
   });
+}
+
+export type CambioExtra = { tipo: string; clave: string; valor?: unknown };
+/** Guarda o borra (valor vacío) entradas sueltas de LIB.desc / img / imgOrig / imgCrop / tipos. */
+export async function guardarExtras(db: Db, cambios: CambioExtra[]) {
+  for (const { tipo, clave, valor } of cambios) {
+    if (!(TIPOS_EXTRA as readonly string[]).includes(tipo)) throw new Error(`Tipo desconocido: ${tipo}`);
+    if (valor == null) await db.delete(t.libExtra).where(and(eq(t.libExtra.tipo, tipo), eq(t.libExtra.clave, clave)));
+    else await db.insert(t.libExtra).values({ tipo, clave, valor }).onConflictDoUpdate({ target: [t.libExtra.tipo, t.libExtra.clave], set: { valor } });
+  }
+  return cambios.length;
+}
+
+/** Una entrada suelta (p. ej. la imagen original, que la biblioteca no trae). */
+export async function leerExtra(db: Db, tipo: string, clave: string) {
+  const [x] = await db.select().from(t.libExtra).where(and(eq(t.libExtra.tipo, tipo), eq(t.libExtra.clave, clave))).limit(1);
+  return x?.valor ?? null;
 }
 
 /** Reemplaza una sola clase (sus datos, subclases y rasgos) sin tocar el resto de la biblioteca. */

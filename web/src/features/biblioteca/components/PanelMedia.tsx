@@ -1,10 +1,11 @@
 'use client';
 import { useEffect, useId, useRef, useState } from 'react';
 import { S, render, esAdmin } from '@/app-shell/estado';
-import { guardarLib } from '@/app-shell/almacen';
+import { guardarLibExtras } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
 import { Boton, Plegable, Tarjeta, claseCampo, cx, foco } from '@/shared/ui/kit';
 import { getLib } from '../domain/biblioteca';
+import { leerImagenOriginal } from '../api';
 import type { Fuente } from '@/features/reglas/data/fuentes';
 import { EtiquetaFuente } from '@/features/personajes/components/editor/Tarjetas';
 
@@ -28,21 +29,34 @@ function achicarImagen(file: File, max = 320) {
   });
 }
 
+/* Tamaños: la original se guarda hasta 1280 px (para volver a recortar) y el recorte en 640 px, que se ve nítido en grande. */
+const LADO_ORIGINAL = 1280, LADO_RECORTE = 640;
+
 async function empezarCrop(k: string, file?: File) {
   const LIB = getLib();
-  const src = file ? await achicarImagen(file, 640) : LIB.imgOrig![k];
+  // La biblioteca no trae las originales (pesan mucho): se piden al servidor la primera vez que se ajusta el recorte
+  if (!file && !LIB.imgOrig?.[k]) {
+    const orig = await leerImagenOriginal(k);
+    if (!orig) throw new Error('sin original');
+    (LIB.imgOrig = LIB.imgOrig || {})[k] = orig;
+  }
+  const src = file ? await achicarImagen(file, LADO_ORIGINAL) : LIB.imgOrig![k];
   const im = await cargarImagen(src), prev = !file && LIB.imgCrop?.[k];
   S.crop = { k, src, w: im.naturalWidth, h: im.naturalHeight, zoom: prev ? prev.zoom || 1 : 1, cx: prev ? prev.cx ?? 0.5 : 0.5, cy: prev ? prev.cy ?? 0.5 : 0.5 };
   render();
 }
 async function guardarCrop() {
-  const c = S.crop, im = await cargarImagen(c.src), lado = Math.min(c.w, c.h) / c.zoom, N = 320;
+  const c = S.crop, im = await cargarImagen(c.src), lado = Math.min(c.w, c.h) / c.zoom, N = LADO_RECORTE;
   const cv = document.createElement('canvas'); cv.width = N; cv.height = N;
   cv.getContext('2d')!.drawImage(im, c.cx * c.w - lado / 2, c.cy * c.h - lado / 2, lado, lado, 0, 0, N, N);
   const LIB = getLib();
   LIB.img = LIB.img || {}; LIB.imgOrig = LIB.imgOrig || {}; LIB.imgCrop = LIB.imgCrop || {};
-  LIB.img[c.k] = cv.toDataURL('image/jpeg', 0.82); LIB.imgOrig[c.k] = c.src; LIB.imgCrop[c.k] = { zoom: c.zoom, cx: c.cx, cy: c.cy };
-  S.crop = null; guardarLib(true); render(); avisar('Imagen guardada.');
+  const k = c.k, img = cv.toDataURL('image/jpeg', 0.85), recorte = { zoom: c.zoom, cx: c.cx, cy: c.cy };
+  LIB.img[k] = img; LIB.imgOrig[k] = c.src; LIB.imgCrop[k] = recorte;
+  S.crop = null; render();
+  guardarLibExtras([{ tipo: 'img', clave: k, valor: img }, { tipo: 'imgOrig', clave: k, valor: c.src }, { tipo: 'imgCrop', clave: k, valor: recorte }])
+    .then(() => avisar('Imagen guardada: ya la ven todos.'))
+    .catch((e: Error) => avisar(`No se pudo guardar la imagen en el servidor: ${e.message}`, 'error'));
 }
 
 /* Cambios al recorte y a la biblioteca: fuera de los componentes, que solo los llaman */
@@ -54,11 +68,18 @@ function acotarCrop(B: number, s: number) {
 function moverCrop(dx: number, dy: number) { S.crop.cx += dx; S.crop.cy += dy; }
 function zoomCrop(z: number) { S.crop.zoom = Math.min(4, Math.max(1, z)); }
 function cancelarCrop() { S.crop = null; render(); }
-function guardarDescripcion(k: string, texto: string) { const LIB = getLib(); LIB.desc = LIB.desc || {}; LIB.desc[k] = texto; guardarLib(true); render(); avisar('Descripción guardada.'); }
+function guardarDescripcion(k: string, texto: string) {
+  const LIB = getLib(); LIB.desc = LIB.desc || {}; LIB.desc[k] = texto; render();
+  guardarLibExtras([{ tipo: 'desc', clave: k, valor: texto }])
+    .then(() => avisar('Descripción guardada.'))
+    .catch((e: Error) => avisar(`No se pudo guardar la descripción: ${e.message}`, 'error'));
+}
 function quitarImagen(k: string) {
   const LIB = getLib();
   if (LIB.img) delete LIB.img[k]; if (LIB.imgOrig) delete LIB.imgOrig[k]; if (LIB.imgCrop) delete LIB.imgCrop[k];
-  guardarLib(true); render();
+  render();
+  guardarLibExtras((['img', 'imgOrig', 'imgCrop'] as const).map(tipo => ({ tipo, clave: k, valor: null })))
+    .catch((e: Error) => avisar(`No se pudo quitar la imagen en el servidor: ${e.message}`, 'error'));
 }
 
 /** Recorte cuadrado: se arrastra la imagen (o se mueve con las flechas) y se ajusta el zoom. */
@@ -118,7 +139,7 @@ export function PanelMedia({ k, n, d, fuente }: { k: string; n: string; d: strin
   return (
     <Tarjeta as="section" aria-label={`Sobre ${n}`} className="my-4 flex flex-wrap gap-4">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      {editando ? <Recorte nombre={n} /> : img ? <img className="size-32 shrink-0 rounded-xl object-cover sm:size-36" src={img} alt={`Ilustración de ${n}`} /> : null}
+      {editando ? <Recorte nombre={n} /> : img ? <img className="aspect-square w-full max-w-80 shrink-0 rounded-xl object-cover sm:w-60 md:w-72" src={img} alt={`Ilustración de ${n}`} /> : null}
       <div className="min-w-56 flex-1">
         <h2 className="m-0 font-serif text-2xl font-bold">{n}{fuente && <EtiquetaFuente fuente={fuente} className="ml-2 align-middle" />}</h2>
         {d ? <p className="mb-0 mt-1">{d}</p> : <p className="mb-0 mt-1 text-sm text-muted">Sin descripción todavía.</p>}
@@ -135,7 +156,7 @@ export function PanelMedia({ k, n, d, fuente }: { k: string; n: string; d: strin
                 {img ? 'Cambiar imagen' : 'Agregar imagen'}
                 <input id={idArchivo} type="file" accept="image/*" className="sr-only" onChange={e => { const f = e.target.files?.[0]; if (f) empezarCrop(k, f).catch(() => avisar('No se pudo leer esa imagen.', 'error')); e.target.value = ''; }} />
               </label>
-              {LIB.imgOrig?.[k] && <Boton tamano="sm" onClick={() => empezarCrop(k).catch(() => avisar('No se pudo abrir la imagen.', 'error'))}>Ajustar recorte</Boton>}
+              {img && (LIB.imgOrig?.[k] || LIB.imgCrop?.[k]) && <Boton tamano="sm" onClick={() => empezarCrop(k).catch(() => avisar('No se pudo abrir la imagen.', 'error'))}>Ajustar recorte</Boton>}
               {img && <Boton tamano="sm" variante="peligro" onClick={() => quitarImagen(k)}>Quitar imagen</Boton>}
             </div>
             <p className="mb-0 mt-2 text-sm text-muted">Se guardan en la biblioteca, compartida con todos.</p>

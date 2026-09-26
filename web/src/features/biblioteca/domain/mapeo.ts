@@ -18,6 +18,8 @@ const TRASFONDO = ['n', 'lib', 'ab', 'habs', 'herr', 'dote'];
 const DOTE = ['n', 't', 'texto', 'cat', 'nivelMin'];
 const CONJURO = ['nombre', 'nivel', 'tiempo', 'alcance', 'dur', 'conc', 'ritual', 'salv', 'ataque', 'dados', 'desc', 'clases'];
 export const TIPOS_EXTRA = ['desc', 'img', 'imgOrig', 'imgCrop', 'tipos'] as const;
+/** Imágenes: se guardan de a una (guardarExtras), no con toda la biblioteca, que si no pesaría demasiado para el servidor. */
+export const TIPOS_MEDIA: readonly string[] = ['img', 'imgOrig', 'imgCrop'];
 
 export type FilasBiblioteca = {
   clases: Fila[]; subclases: Fila[]; especies: Fila[]; subespecies: Fila[]; rasgos: Fila[];
