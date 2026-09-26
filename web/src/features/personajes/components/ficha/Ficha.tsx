@@ -3,12 +3,13 @@
 import { useState, type ReactNode } from 'react';
 import { S, render, irArriba } from '@/app-shell/estado';
 import { modStr, norm, richT, sign, slug } from '@/shared/utils/texto';
-import { Aviso, Boton, Contador, Dialogo, Insignia, Lista, Plegable, Seccion, Tarjeta, cx, foco } from '@/shared/ui/kit';
+import { Aviso, Boton, Dialogo, Insignia, Lista, Plegable, Seccion, Tarjeta, cx, foco } from '@/shared/ui/kit';
 import { AB, SKILLS, TIPOS, ORDEN_TIPOS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { COMUNES } from '@/features/reglas/data/comunes';
 import { textoArmaduras, textoArmas } from '@/features/reglas/domain/competencias';
 import { FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { BotonTirada } from '@/features/dados/components/BotonTirada';
+import { useDados } from '@/features/dados/components/Bandeja';
 import { Ataque, ConjuroFila, ConjuroTarjeta, Entrada, Recursos } from '../piezas';
 import { abrirSubida, bajarArchivo, bajarNivel, borrarPj, irAPaso, moverPool, fijarPool } from '../../acciones';
 import { desglose } from '../../domain/calculo';
@@ -45,6 +46,30 @@ function Vital({ etiqueta, icono, className, children }: { etiqueta: string; ico
   );
 }
 
+/** Puntos de golpe con pasos rápidos (−5/−1/+1/+5), número editable y barra de vida. */
+function TarjetaPG({ pg, usados }: { pg: { id: string; max: number }; usados: number }) {
+  const left = pg.max - usados, frac = pg.max > 0 ? left / pg.max : 0;
+  const barra = frac <= 0.25 ? 'bg-acc' : frac <= 0.5 ? 'bg-warn' : 'bg-adi';
+  return (
+    <Vital etiqueta="Puntos de golpe" icono={D_CORAZON} className="col-span-3 sm:col-span-2">
+      <div className="flex items-center gap-1.5">
+        <Boton tamano="sm" onClick={() => moverPool(pg.id, -5)} aria-label="−5 puntos de golpe">−5</Boton>
+        <Boton tamano="sm" onClick={() => moverPool(pg.id, -1)} aria-label="−1 punto de golpe">−1</Boton>
+        <input key={left} type="number" inputMode="numeric" min={0} max={pg.max} defaultValue={left} aria-label={`Puntos de golpe, quedan (de ${pg.max})`}
+          onBlur={e => { if (+e.target.value !== left) fijarPool(pg.id, pg.max, e.target.value); }}
+          onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+          className="w-16 rounded-lg border border-rule bg-bg px-1 py-1 text-center font-serif text-2xl font-extrabold text-ink" />
+        <Boton tamano="sm" onClick={() => moverPool(pg.id, 1)} aria-label="+1 punto de golpe">+1</Boton>
+        <Boton tamano="sm" onClick={() => moverPool(pg.id, 5)} aria-label="+5 puntos de golpe">+5</Boton>
+      </div>
+      <span className="text-xs text-muted">de {pg.max}</span>
+      <div className="h-2 w-full overflow-hidden rounded-full bg-soft">
+        <div className={cx('h-full rounded-full transition-all duration-300', barra)} style={{ width: `${Math.max(4, frac * 100)}%` }} />
+      </div>
+    </Vital>
+  );
+}
+
 function Stat({ valor, etiqueta, children }: { valor?: ReactNode; etiqueta: string; children?: ReactNode }) {
   return (
     <div className="flex min-h-20 flex-col items-center justify-center bg-surface px-1 py-2 text-center">
@@ -53,13 +78,13 @@ function Stat({ valor, etiqueta, children }: { valor?: ReactNode; etiqueta: stri
   );
 }
 
-function Turno({ c }: { c: any }) {
+function Turno({ c, tipos = ORDEN_TIPOS, principal }: { c: any; tipos?: string[]; principal?: boolean }) {
   const sp = c.conjuros || [];
   return (
     <>
-      <Recursos c={c} />
-      <p className="mt-3 text-sm text-muted">Toca cualquier número con fondo para tirarlo.</p>
-      {ORDEN_TIPOS.map(t => {
+      {principal && <Recursos c={c} />}
+      {principal && <p className="mt-3 text-sm text-muted">Toca cualquier número con fondo para tirarlo.</p>}
+      {tipos.map(t => {
         const ents = c.entries.filter((e: any) => e.t === t), sps = sp.filter((s: any) => (s.tiempo || 'accion') === t), com = COMUNES[t] || [];
         if (!ents.length && !sps.length && !com.length && t !== 'accion') return null;
         const un = { nombre: 'Golpe sin armas', atk: c.unarmed.atk, expr: c.unarmed.expr, dmg: c.unarmed.dmg, atkDesg: c.unarmed.atkDesg, dmgDesg: c.unarmed.dmgDesg, notas: [`También puede Agarrar o Empujar (CD ${c.grappleDC})`] };
@@ -98,6 +123,24 @@ function Turno({ c }: { c: any }) {
         );
       })}
     </>
+  );
+}
+
+/** Tarjeta de dados sueltos, para tiradas que no dependen del personaje. */
+function TiradorRapido() {
+  const tirar = useDados();
+  return (
+    <Tarjeta>
+      <h2 className="m-0 mb-2 font-serif text-lg font-bold">Tirador rápido de dados</h2>
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+        {[4, 6, 8, 10, 12, 20].map(n => (
+          <button key={n} type="button" onClick={() => tirar(`1d${n}`, `d${n}`, { neutral: true })}
+            className={cx('min-h-11 cursor-pointer rounded-xl bg-soft font-serif text-lg font-bold hover:bg-rule/60', foco)}>
+            d{n}
+          </button>
+        ))}
+      </div>
+    </Tarjeta>
   );
 }
 
@@ -239,7 +282,7 @@ export function Ficha({ c }: { c: any }) {
   const nAv = c.avisos.filter((a: any) => a.nivel === 'aviso').length;
   const falta = faltaParaSubir(c);
   const pg = c.recursos.find((r: any) => r.id === 'pg');
-  const usedPg = Math.min(pj.used?.pg || 0, pg?.max || 0), leftPg = (pg?.max || 0) - usedPg;
+  const usedPg = Math.min(pj.used?.pg || 0, pg?.max || 0);
   // Con algo pendiente, el botón explica qué falta y lleva a Revisar
   const subir = () => {
     if (!falta.length) return abrirSubida();
@@ -258,8 +301,14 @@ export function Ficha({ c }: { c: any }) {
         </button>
         <div className="flex flex-col gap-4 pr-12 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
           <div className="min-w-0 lg:shrink-0 lg:basis-96">
+            {(esp || pj.alineamiento) && (
+              <div className="mb-1 flex flex-wrap gap-1.5">
+                {esp && <span className="rounded-full bg-soft px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-muted">{esp}</span>}
+                {pj.alineamiento && <span className="rounded-full bg-soft px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-muted">{pj.alineamiento}</span>}
+              </div>
+            )}
             <h1 id="titulo-vista" tabIndex={-1} className="m-0 font-serif text-[clamp(1.75rem,6vw,2.5rem)] font-extrabold leading-tight text-adi outline-none [overflow-wrap:anywhere]">{pj.nombre || 'Sin nombre'}</h1>
-            <p className="mb-0 mt-1 text-muted">{who}</p>
+            <p className="mb-0 mt-1 italic text-muted">{who}</p>
             <div className="mt-3 flex flex-wrap gap-2 print:hidden">
               {c.C && c.lvl < 20 && <Boton variante="primario" tamano="sm" onClick={subir} aria-disabled={falta.length > 0} className={falta.length ? 'opacity-60' : undefined}>Subir a nivel {c.lvl + 1}</Boton>}
               {c.C && c.lvl > 1 && <Boton tamano="sm" onClick={bajarNivel}>Bajar a nivel {c.lvl - 1}</Boton>}
@@ -270,10 +319,9 @@ export function Ficha({ c }: { c: any }) {
           </div>
           <div className="grid min-w-0 grid-cols-3 gap-2 sm:grid-cols-6 lg:flex-1 lg:max-w-3xl">
             <Vital etiqueta="CA" icono={D_ESCUDO}><b className="font-serif text-3xl font-extrabold leading-none">{c.ac}</b></Vital>
-            <Vital etiqueta="Puntos de golpe" icono={D_CORAZON} className="col-span-3 sm:col-span-2">
-              {pg ? <Contador nombre="Puntos de golpe" valor={leftPg} max={pg.max} onCambiar={d => moverPool('pg', d)} onFijar={v => fijarPool('pg', pg.max, v)} />
-                : <b className="font-serif text-3xl font-extrabold leading-none">{c.hpMax}</b>}
-            </Vital>
+            {pg ? <TarjetaPG pg={pg} usados={usedPg} /> : (
+              <Vital etiqueta="Puntos de golpe" icono={D_CORAZON} className="col-span-3 sm:col-span-2"><b className="font-serif text-3xl font-extrabold leading-none">{c.hpMax}</b></Vital>
+            )}
             <Vital etiqueta="Iniciativa">
               <BotonTirada expr={`1d20${modStr(c.init)}`} label="Iniciativa" mods={desglose(c.initPartes || [])} estilo="bloque" ariaLabel={`Tirar iniciativa, ${sign(c.init)}`}>
                 <b className="block font-serif text-3xl font-extrabold leading-none underline decoration-dotted decoration-2 underline-offset-4">{sign(c.init)}</b>
@@ -295,10 +343,12 @@ export function Ficha({ c }: { c: any }) {
           <Habilidades c={c} />
         </div>
         <div className="flex flex-col gap-6 lg:col-span-6">
-          <Turno c={c} />
+          <Turno c={c} tipos={ORDEN_TIPOS.filter(t => t !== 'pasiva')} principal />
+          <TiradorRapido />
         </div>
         <div className="flex flex-col gap-6 lg:col-span-3">
           <Seccion titulo="Conjuros"><ConjurosTab c={c} /></Seccion>
+          <Turno c={c} tipos={['pasiva']} />
         </div>
       </div>
 
@@ -327,7 +377,7 @@ export function Ficha({ c }: { c: any }) {
       </Dialogo>
 
       <div className="hidden print:block">
-        <Turno c={c} />
+        <Turno c={c} principal />
         <ConjurosTab c={c} />
       </div>
     </>
