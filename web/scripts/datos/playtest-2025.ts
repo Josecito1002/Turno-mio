@@ -26,7 +26,7 @@ export const PLAYTEST_2025: Record<string, Record<string, { n: string; rasgos: R
   },
   guerrero: {
     'caballero-playtest': {
-      n: 'Caballero (Playtest)',
+      n: 'Caballero',
       rasgos: [
         r(3, 'Competencia Adicional', 'pasiva', 'Ganas competencia en Trato con Animales, Historia, Perspicacia, Interpretación o Persuasión, o aprendes un idioma, a tu elección.'),
         r(3, 'Nacido para la Silla', 'pasiva', 'Tienes ventaja en las salvaciones para no caerte de tu montura. Si te caes desde 10 pies o menos y no estás Incapacitado, caes de pie. Montar o desmontar te cuesta solo 5 pies de movimiento.'),

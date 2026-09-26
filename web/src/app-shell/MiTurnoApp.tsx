@@ -16,7 +16,7 @@ import { Inicio } from '@/features/personajes/components/Inicio';
 import { BibliotecaVista } from '@/features/biblioteca/components/BibliotecaVista';
 import { MesaVista } from '@/features/mesa/components/MesaVista';
 import { CuentasVista } from '@/features/cuentas/components/CuentasVista';
-import { cerrarSesion } from '@/features/cuentas/server/acciones';
+import { MenuCuenta } from '@/features/cuentas/components/MenuCuenta';
 
 /* ---------- Íconos (decorativos) ---------- */
 const Icono = ({ d }: { d: string }) => (
@@ -153,7 +153,7 @@ export function MiTurnoApp({ invitado = false }: { invitado?: boolean }) {
             {(S.view === 'ficha' || S.view === 'editor') && S.pj && (
               S.view === 'ficha'
                 ? <Boton tamano="sm" onClick={editar}>Editar</Boton>
-                : <Boton tamano="sm" variante="primario" onClick={verHoja}>Ver la hoja</Boton>
+                : <Boton tamano="sm" variante="primario" onClick={verHoja}>Listo</Boton>
             )}
             {S.usuario && invitado && (
               <span className="flex items-center gap-2">
@@ -161,14 +161,7 @@ export function MiTurnoApp({ invitado = false }: { invitado?: boolean }) {
                 <a href="/registro" className={cx('inline-flex min-h-11 items-center rounded-xl px-3 text-sm font-bold text-ink hover:bg-soft sm:min-h-9', foco)}>Crear cuenta</a>
               </span>
             )}
-            {S.usuario && !invitado && (
-              <form action={cerrarSesion} className="flex items-center gap-2">
-                <span className="hidden items-center gap-1.5 text-sm text-muted sm:flex" title={S.usuario.email}>
-                  {S.usuario.nombre}<span className="rounded-full bg-soft px-2 py-0.5 text-xs font-bold text-ink">{rol}</span>
-                </span>
-                <Boton tamano="sm" variante="fantasma" type="submit" aria-label={`Cerrar sesión (${S.usuario.nombre})`}>Salir</Boton>
-              </form>
-            )}
+            {S.usuario && !invitado && <MenuCuenta nombre={S.usuario.nombre} email={S.usuario.email} rol={rol} />}
           </div>
         </div>
       </Cabecera>

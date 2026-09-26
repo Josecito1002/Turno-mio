@@ -40,6 +40,6 @@ export const COMPRA: Record<number, number> = { 8: 0, 9: 1, 10: 2, 11: 3, 12: 4,
 export const TIPOS: Record<string, [string, string]> = {
   accion: ['Acción', 'Una por turno.'], adicional: ['Acción adicional', 'Una por turno, solo con algo que la use.'],
   reaccion: ['Reacción', 'Una por ronda, también en el turno de otros.'], gratis: ['Sin gastar acción', 'Al golpear, al atacar o en momentos concretos.'],
-  pasiva: ['Siempre activo', ''], fuera: ['Fuera de combate', 'Rituales y cosas que llevan minutos.'],
+  pasiva: ['Siempre activo', ''], fuera: ['Fuera de combate', 'Lo que haces entre combates: conjuros de 1 minuto o más, rituales y lo que se hace al descansar.'],
 };
-export const ORDEN_TIPOS = ['accion', 'adicional', 'reaccion', 'gratis', 'pasiva', 'fuera'];
+export const ORDEN_TIPOS = ['accion', 'adicional', 'reaccion', 'gratis', 'fuera', 'pasiva'];
