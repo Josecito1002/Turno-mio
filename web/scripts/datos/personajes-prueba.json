@@ -165,6 +165,31 @@
       "clase": "paladin",
       "subclase": "rompejuramentos",
       "nivel": 20
+    },
+    {
+      "clase": "mago",
+      "subclase": "abjuracion",
+      "nivel": 10
+    },
+    {
+      "clase": "mago",
+      "subclase": "ilusion",
+      "nivel": 6
+    },
+    {
+      "clase": "monje",
+      "subclase": "sombra",
+      "nivel": 6
+    },
+    {
+      "clase": "druida",
+      "subclase": "circulo-suenos",
+      "nivel": 10
+    },
+    {
+      "clase": "brujo",
+      "subclase": "primigenio",
+      "nivel": 3
     }
   ]
 }
