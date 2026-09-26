@@ -44,7 +44,7 @@ export function FormularioCuenta({ modo }: { modo: 'login' | 'registro' }) {
       {!registro && (
         <details className="mt-2 text-center text-sm text-muted">
           <summary className="cursor-pointer font-bold text-ink">¿Olvidaste tu contraseña?</summary>
-          <p className="mb-0 mt-2">Pídele al administrador de tu grupo que la restablezca desde «Cuentas». Te dará una contraseña temporal; al entrar, cámbiala en «Cambiar mi contraseña».</p>
+          <p className="mb-0 mt-2">Pídele al administrador de tu grupo que la restablezca desde «Cuentas». Te dará una contraseña temporal; al entrar, cámbiala tocando tu nombre, arriba a la derecha.</p>
         </details>
       )}
       <div className="mt-6 border-t border-rule pt-5 text-center">

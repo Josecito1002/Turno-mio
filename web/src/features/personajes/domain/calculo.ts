@@ -8,7 +8,9 @@ import { SUBCLASES } from '@/features/reglas/data/subclases';
 import { asiLevels, periciaN, pacto } from '@/features/reglas/data/clases';
 import { trucosN, prepN } from '@/features/reglas/data/conjuros';
 import { FULL_SLOTS } from '@/features/reglas/data/comunes';
-import { REGLAS } from '@/features/reglas/data/reglas-revisadas';
+import { REGLAS, CONJUROS_RASGOS } from '@/features/reglas/data/reglas-revisadas';
+import { esClavePlaytest } from '@/features/reglas/data/fuentes';
+import { CRIATURAS, CRIATURAS_DE_CONJURO, companerosDe } from '@/features/reglas/data/criaturas';
 import { doteKey } from '@/features/reglas/data/dotes';
 import { kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
 import { kitClase } from '@/features/reglas/data/equipo-clases';
@@ -165,6 +167,8 @@ export function compute(pj): any {
   // Todos los conjuros de la hoja: los elegidos (con la marca del rasgo si alguno también lo da) y los de los rasgos
   const propios = (pj.conjuros || []).map(s => { const r = c.conjurosRasgo.find(x => norm(x.nombre) === norm(s.nombre)); return r ? {...s, rasgo: r.rasgo, nota: r.nota} : s; });
   c.conjuros = [...propios, ...c.conjurosRasgo.filter(r => !propios.some(s => norm(s.nombre) === norm(r.nombre)))];
+  golpeCertero(c);
+  criaturas(c);
   c.nivelMax = pj.clase === 'brujo' ? pacto(lvl).nivel : (c.slots.length ? Math.max(...c.slots.map(s => s.nivel)) : 0);
   const conLimite = C?.lanz && !C.lib;
   // Las clases de biblioteca no traen estos límites; una regla revisada puede darlos (c.trucosReglas, c.prepReglas)
@@ -295,8 +299,9 @@ export function weaponRow(a, c){
   if (monkW) { const [nn, dd] = w.d.split('d').map(Number); if (nn === 1 && c.md > dd) dado = `1d${c.md}`; }
   const dmgMod = m[ab] + bono + duelo;
   // De dónde sale cada bono, para el texto pequeño de la bandeja
-  const atkDesg = desglose([[m[ab], ab.toUpperCase()], [prof ? c.pb : 0, 'competencia'], [arq, 'Arquería'], [bono, 'arma mágica']]);
-  const dmgDesg = desglose([[m[ab], ab.toUpperCase()], [bono, 'arma mágica'], [duelo, 'Duelo']]);
+  const partesAtk = [[m[ab], ab.toUpperCase()], [prof ? c.pb : 0, 'competencia'], [arq, 'Arquería'], [bono, 'arma mágica']];
+  const partesDmg = [[m[ab], ab.toUpperCase()], [bono, 'arma mágica'], [duelo, 'Duelo']];
+  const atkDesg = desglose(partesAtk), dmgDesg = desglose(partesDmg);
   const min3 = c.tieneEstilo('dosmanos') && !w.dist && (w.p.includes('dos manos') || w.p.includes('versátil'));
   const notas = [];
   if (w.r) notas.push(`${w.p.includes('arrojadiza') ? 'Arrojadiza' : 'Alcance'} ${w.r} pies`);
@@ -312,9 +317,49 @@ export function weaponRow(a, c){
     maestria = `${mn}: ${md}${w.ma === 'derribar' ? ` CD ${8 + m[ab] + c.pb}.` : ''}`;
   }
   return {k:a.k, q:a.q, i:a.i, w, nombre: w.n + (a.q > 1 ? ` (${a.q})` : ''), atk, expr:`${dado}${modStr(dmgMod)}`, dmg:`${dado}${fmtMod(dmgMod)} ${w.tipo}`,
-    v: w.v ? {expr:`${w.v}${modStr(dmgMod)}`, dmg:`${w.v}${fmtMod(dmgMod)}`} : null, notas, maestria, min3, atkDesg, dmgDesg};
+    v: w.v ? {expr:`${w.v}${modStr(dmgMod)}`, dmg:`${w.v}${fmtMod(dmgMod)}`} : null, notas, maestria, min3, atkDesg, dmgDesg, dado, partesAtk, partesDmg};
 }
 
+/* Familiares y muertos vivientes: qué puede crear el personaje (según sus conjuros) y la hoja de cada uno que tiene
+   (pj.criaturas: [{id, key, nombre?, danio}]). Siervos Muertos Vivientes (Nigromante) les suma PG máximos
+   (INT + la mitad del nivel) y daño necrótico al acertar (INT, mínimo 1). */
+function criaturas(c){
+  const tipos = new Set(c.conjuros.map(s => CRIATURAS_DE_CONJURO[norm(s.nombre)]).filter(Boolean));
+  // Las formas especiales solo con el Pacto de la Cadena
+  c.criaturasPuede = Object.entries(CRIATURAS).filter(([, x]) => tipos.has(x.de) && (!x.cadena || c.chain)).map(([key, x]) => ({key, n: x.n, de: x.de, cadena: !!x.cadena}));
+  const siervos = c.entries.some(e => /^siervos muertos vivientes$/.test(norm(e.nombre)));
+  const conDanio = a => ({...a, expr: a.expr || a.dmg, dmgTxt: a.dmgTxt || `${a.dmg} ${a.tipo}`});
+  const deConjuro = (c.pj.criaturas || []).filter(x => CRIATURAS[x.key]).map(x => {
+    const b = CRIATURAS[x.key], mas = siervos && b.de === 'muerto';
+    const pgMas = mas ? Math.max(0, c.m.int + Math.floor(c.lvl / 2)) : 0, nec = mas ? Math.max(1, c.m.int) : 0;
+    const pgMax = b.pgMedia + pgMas;
+    const acciones = b.acciones.map(a => a.atk == null ? a : conDanio({...a,
+      expr: a.dmg + (nec ? '+' + nec : ''), dmgTxt: `${a.dmg} ${a.tipo}${nec ? ` + ${nec} necrótico` : ''}`,
+      dmgDesg: nec ? desglose([[nec, 'Siervos Muertos Vivientes']]) : ''}));
+    return {...b, ...x, nombre: x.nombre || b.n, pgMax, pg: Math.max(0, pgMax - (x.danio || 0)), acciones,
+      nota: mas ? `Siervos Muertos Vivientes (con tu libro en la mano): +${pgMas} PG máximos y +${nec} de daño necrótico al acertar` : ''};
+  });
+  // Los compañeros de clase (sabueso, Defensor de Acero, bestia primigenia) van primero; sus PG gastados están en pj.used
+  const deClase = companerosDe(c).map(x => ({...x, nombre: x.n, de: 'clase', fijo: true,
+    pg: Math.max(0, x.pgMax - (c.pj.used?.[x.id] || 0)), acciones: x.acciones.map(a => a.atk == null ? a : conDanio(a))}));
+  c.criaturas = [...deClase, ...deConjuro];
+}
+
+/* Golpe certero: un ataque con cada arma empuñada usando la característica de conjuros; desde el nivel 5 suma
+   daño radiante (1d6, 2d6 en 11, 3d6 en 17) y el daño del arma puede ser radiante. Sale como filas de ataque en su tarjeta. */
+function golpeCertero(c){
+  const i = c.conjuros.findIndex(s => norm(s.nombre) === 'golpe certero');
+  if (i < 0 || !c.casterAb) return;
+  const ab = c.casterAb.toUpperCase(), n = c.lvl >= 17 ? 3 : c.lvl >= 11 ? 2 : c.lvl >= 5 ? 1 : 0;
+  const golpes = c.armas.filter(a => a.mano).map(a => {
+    const pa = [[c.mSpell, ab], ...a.partesAtk.slice(1)], pd = [[c.mSpell, ab], ...a.partesDmg.slice(1)];
+    const atk = pa.reduce((t, [v]) => t + v, 0), mod = pd.reduce((t, [v]) => t + v, 0), extra = n ? `+${n}d6` : '';
+    return {nombre: `${a.w.n} (Golpe certero)`, atk, expr: `${a.dado}${modStr(mod)}${extra}`,
+      dmg: `${a.dado}${fmtMod(mod)} ${a.w.tipo} o radiante${n ? ` + ${n}d6 radiante` : ''}`,
+      atkDesg: desglose(pa), dmgDesg: desglose(pd), notas: a.notas};
+  });
+  c.conjuros[i] = {...c.conjuros[i], golpes};
+}
 export function evalR(r, c, src, grupo){
   const fn = typeof r.texto === 'function';
   return {t:r.t || 'pasiva', nombre:r.nombre, coste: typeof r.coste === 'function' ? r.coste(c) : r.coste, texto: fn ? r.texto(c) : (r.texto || ''), raw: !fn, src, grupo, roll: r.roll ? r.roll(c) : null};
@@ -334,7 +379,11 @@ export function buildEntries(c){
     E.push(e);
   };
   if (c.C) [...c.C.rasgos, ...(getAltos(pj, pj.clase) || [])].filter(r => (+r.n || 1) <= c.lvl).forEach(r => pushR(r, c.C.n, 'clase', 'c'));
-  [c.SD, c.chain].filter(Boolean).forEach(S => [...S.rasgos, ...(getSubAltos(pj, pj.clase, S.key) || [])].filter(r => (+r.n || 1) <= c.lvl).forEach(r => pushR(r, S.n, 'sub', 's')));
+  [c.SD, c.chain].filter(Boolean).forEach(S => [...S.rasgos, ...(getSubAltos(pj, pj.clase, S.key) || [])].filter(r => (+r.n || 1) <= c.lvl).forEach(r => {
+    pushR(r, S.n, 'sub', 's');
+    // Una de playtest con el nombre de una publicada: sus reglas la buscan como "<nombre> (playtest)"
+    if (esClavePlaytest(S.key)) E[E.length - 1].de = S.n + ' (playtest)';
+  }));
   const yaEstan = new Set(E.map(e => norm(e.nombre)));
   if (c.E) c.E.rasgos.forEach(r => {
     if (r.sub && r.sub !== c.esub) return;
@@ -457,8 +506,10 @@ export function aplicarReglas(c){
     x.recurso = id; x.coste = x.coste || usoTxt(max, reset);
   };
   c.entries.forEach(e => {
-    const n = norm(e.nombre), de = norm(e.src || '');
+    const n = norm(e.nombre), de = norm(e.de || e.src || '');
     const R = REGLAS.find(r => r.n.test(n) && (!r.de || r.de.test(de)));
+    // Conjuros que dan los rasgos, aunque el rasgo no tenga regla propia (o tenga una generada)
+    CONJUROS_RASGOS.filter(r => r.n.test(n) && (!r.de || r.de.test(de)) && !(R?.conjuros)).forEach(r => conjuros(r.conjuros, e.nombre));
     if (!R) { out.push(e); return; }
     // Si la biblioteca le puso otro nombre al rasgo, se muestra con el oficial
     if (R.nombre) { c.extraRes = c.extraRes.filter(r => r.nombre !== e.nombre); e.nombre = R.nombre; }
@@ -514,7 +565,7 @@ export function listasDeConjuros(c){
     .flatMap(e => e.texto.split(':').slice(1).join(':').split(',').map(n => ({nombre: n.replace(/\.$/, '').trim(), src: e.src || e.nombre})));
 }
 /* Conjuros que dan los rasgos, con sus datos del catálogo: las listas "Conjuros de…" y los que declaran las reglas
-   (`conjuros` en reglas-revisadas.ts: {nombre, nivel?, desde?, usos?, reset?, nota?, ab?}). Los que tienen usos suman su recurso. */
+   (`conjuros` en reglas-revisadas.ts: {nombre, nivel?, desde?, usos?, reset?, nota?, ab?, tiempo?}). Los que tienen usos suman su recurso. */
 export function conjurosDeRasgos(c){
   const cat = new Map(todosConjuros().map(s => [norm(s.nombre), s]));
   const out = [];
@@ -534,7 +585,7 @@ export function conjurosDeRasgos(c){
     const conEspacios = nv > 0 && (c.slots.some(e => e.nivel >= nv) || (c.pj.clase === 'brujo' && pacto(c.lvl).nivel >= nv));
     const nota = [x.nota || (!max && nv ? 'Siempre preparado' : ''), max && `Sin gastar espacio${conEspacios ? '; también puedes lanzarlo con tus espacios' : ''}`].filter(Boolean).join('. ');
     const recurso = max ? 'cr-' + slug(x.nombre) : x.recurso || '';
-    let fila = conCd({...s, extra: true, rasgo: x.src, nota, coste: max ? usoTxt(max, x.reset) : x.coste || '', recurso}, x.ab || abLibre);
+    let fila = conCd({...s, extra: true, rasgo: x.src, nota, coste: max ? usoTxt(max, x.reset) : x.coste || '', recurso, ...(x.tiempo ? {tiempo: x.tiempo} : {})}, x.ab || abLibre);
     // Los objetos mágicos pueden traer su propia CD o ataque
     if (x.cd || x.atk != null) fila = {...fila, ...(x.cd ? {cd: x.cd} : {}), ...(x.atk != null ? {atk: x.atk} : {}), abNota: ''};
     out.push(fila);

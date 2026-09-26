@@ -211,9 +211,11 @@ describe('Pugilista 2024', () => {
     assert.equal(c.skillProf.percepcion, true);
     assert.equal(c.passive, 10 + c.skill.percepcion);
   });
-  test('El Perro y el Sabueso: el mordisco del sabueso sale en Ataques con CON', () => {
-    const m = pj('lib:pugilista', 3, 'lib:perro-sabueso', { con: 16 }).naturales.find((a: any) => /Mordisco/.test(a.nombre));
+  test('El Perro y el Sabueso: el sabueso tiene su hoja con PG y Mordisco con CON', () => {
+    const c = pj('lib:pugilista', 3, 'lib:perro-sabueso', { con: 16 }, { used: { 'cmp-sabueso': 4 } });
+    const s = c.criaturas.find((x: any) => x.id === 'cmp-sabueso'), m = s?.acciones.find((a: any) => a.n === 'Mordisco');
     assert.deepEqual([m?.atk, m?.expr], [5, '2d4+5']); // competencia 2 + CON 3; 2 + CON 3
+    assert.deepEqual([s.pgMax, s.pg, s.ca], [20, 16, 15]);
   });
   test('Mano del Pavor: Trato con el Diablo deja solo la opción elegida, con su tipo de acción', () => {
     const c = pj(P, 6, 'lib:mano-pavor', {}, { elecciones: { 'trato-diablo': 'paso' } });
@@ -261,7 +263,7 @@ describe('Arcanista (Artífice 2025)', () => {
     const c = pj(A, 9, 'lib:herrero-batalla', {}, { armas: [['espada_larga', 1]] });
     assert.equal(c.armas[0].notas.includes('Sin competencia'), false);
     assert.equal(recurso(c, 'Sacudida Arcana')?.max, 3);
-    assert.equal(c.naturales.find((a: any) => /Desgarro/.test(a.nombre)).expr, '1d8+5');
+    assert.equal(c.criaturas.find((x: any) => x.id === 'cmp-defensor').acciones[0].expr, '1d8+5');
   });
   test('conjuros de subclase: siempre preparados y sin contar en el límite, según el nivel', () => {
     const c = pj(A, 5, 'lib:alquimista');
@@ -992,15 +994,15 @@ describe('Playtest: Unearthed Arcana 2025', () => {
     return pj(clase, nivel, 'lib:' + sub, stats);
   };
   test('las cinco subclases llevan la etiqueta Playtest', () => {
-    for (const [clase, subs] of Object.entries(PLAYTEST_2025)) for (const s of Object.values(subs))
-      assert.equal(fuenteSubclase({ n: s.n, lib: true }, clase).tipo, 'playtest', s.n);
+    for (const [clase, subs] of Object.entries(PLAYTEST_2025)) for (const [key, s] of Object.entries(subs))
+      assert.equal(fuenteSubclase({ n: s.n, lib: true, key: 'lib:' + key }, clase).tipo, 'playtest', s.n);
     assert.notEqual(fuenteSubclase({ n: 'Caballero', lib: true }, 'guerrero').tipo, 'playtest');
   });
   test('Heraldo de la Tormenta: dados según el daño de Furia y CD con CON', () => {
     const c = ua('barbaro', 9, 'heraldo-tormenta', { con: 16 });
     assert.match(entrada(c, 'Aura de Tormenta').texto, new RegExp(`CD ${8 + c.pb + 3}\\).*3d4 de fuego`));
   });
-  test('Caballero (Playtest): Maniobra de Protección con usos = CON', () => {
+  test('Caballero de playtest: Maniobra de Protección con usos = CON', () => {
     assert.equal(recurso(ua('guerrero', 7, 'caballero-playtest', { con: 16 }), 'Maniobra de Protección')?.max, 3);
   });
   test('Rompejuramentos: conjuros siempre preparados y Golpe Sombrío en el nivel 20', () => {
@@ -1009,5 +1011,55 @@ describe('Playtest: Unearthed Arcana 2025', () => {
     assert.ok(!c9.conjurosRasgo.some((s: any) => s.nombre === 'Contagio'));
     const c20 = ua('paladin', 20, 'rompejuramentos', { car: 16 });
     assert.ok(c20.naturales.some((a: any) => a.nombre.startsWith('Golpe Sombrío')));
+  });
+});
+
+describe('Conjuros que dan los rasgos', () => {
+  test('Rompeconjuros: Contrahechizo como reacción y Disipar magia como acción adicional', () => {
+    setLib({ clases: { mago: MAGO_2024 } });
+    const c = pj('mago', 10, 'lib:abjuracion', { int: 16 });
+    const s = (n: string) => c.conjurosRasgo.find((x: any) => x.nombre === n);
+    assert.equal(s('Contrahechizo')?.tiempo, 'reaccion');
+    assert.equal(s('Disipar magia')?.tiempo, 'adicional');
+  });
+  test('Druídico deja Hablar con los animales siempre preparado', () => {
+    assert.ok(pj('druida', 1).conjurosRasgo.some((x: any) => /^hablar con los animales$/i.test(x.nombre)));
+  });
+});
+
+describe('Golpe certero', () => {
+  test('ataca con el arma empuñada usando la característica de conjuros y suma radiante desde el nivel 5', () => {
+    const c = pj('mago', 5, '', { int: 18, fue: 10, des: 10 }, { armas: [['daga', 1]], conjuros: [{ nombre: 'Golpe certero', nivel: 0 }] });
+    const g = c.conjuros.find((s: any) => s.nombre === 'Golpe certero')?.golpes?.[0];
+    assert.ok(g, 'sin fila de ataque');
+    assert.equal(g.atk, 4 + c.pb);
+    assert.match(g.expr, /^1d4\+4\+1d6$/);
+  });
+});
+
+describe('Familiares y criaturas', () => {
+  test('Encontrar familiar deja agregar un familiar con su hoja', () => {
+    const c = pj('mago', 1, '', {}, { conjuros: [{ nombre: 'Encontrar familiar', nivel: 1 }], criaturas: [{ id: 'a', key: 'gato', danio: 1 }] });
+    assert.ok(c.criaturasPuede.some((x: any) => x.key === 'gato'));
+    assert.equal(c.criaturasPuede.some((x: any) => x.key === 'zombi'), false);
+    const g = c.criaturas[0];
+    assert.equal(g.pgMax, 2); assert.equal(g.pg, 1);
+    assert.equal(g.acciones[0].atk, 4);
+  });
+  test('Siervos Muertos Vivientes suma PG y daño necrótico a los zombis', () => {
+    setLib({ clases: { mago: MAGO_2024 } });
+    const c = pj('mago', 6, 'lib:necromancia', { int: 16 }, { criaturas: [{ id: 'z', key: 'zombi' }] });
+    const z = c.criaturas[0];
+    assert.equal(z.pgMax, 15 + 3 + 3);
+    assert.equal(z.acciones[0].expr, '1d8+1+3');
+  });
+});
+
+describe('Compañeros', () => {
+  test('las formas especiales del familiar solo salen con el Pacto de la Cadena', () => {
+    const fam = [{ nombre: 'Encontrar familiar', nivel: 1 }];
+    const con = pj('brujo', 3, '', {}, { conjuros: fam, pactoCadena: true }), sin = pj('mago', 3, '', {}, { conjuros: fam });
+    assert.ok(con.criaturasPuede.some((x: any) => x.key === 'diablillo'));
+    assert.equal(sin.criaturasPuede.some((x: any) => x.key === 'diablillo'), false);
   });
 });

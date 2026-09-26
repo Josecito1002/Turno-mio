@@ -73,7 +73,7 @@ export function CuentasVista() {
                   </span>
                   {temporales[c.id] && (
                     <p role="status" className="m-0 w-full rounded-xl bg-soft p-3 text-sm">
-                      Contraseña temporal de {c.nombre}: <b className="select-all font-mono text-base">{temporales[c.id]}</b>. Pásasela; al entrar, que la cambie en «Cambiar mi contraseña». No se vuelve a mostrar.
+                      Contraseña temporal de {c.nombre}: <b className="select-all font-mono text-base">{temporales[c.id]}</b>. Pásasela; al entrar, que la cambie tocando su nombre, arriba a la derecha. No se vuelve a mostrar.
                     </p>
                   )}
                 </Fila>

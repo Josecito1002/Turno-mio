@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import { S, render, esAdmin, irArriba } from './estado';
-import { guardarLib } from './almacen';
+import { guardarLib, guardarLibExtras } from './almacen';
 import { avisar } from '@/shared/ui/avisos';
-import { mezclarContenido, limpiarBestias } from '@/features/biblioteca/domain/biblioteca';
+import { getLib, mezclarContenido, limpiarBestias } from '@/features/biblioteca/domain/biblioteca';
 import { aprenderBuilder, aprenderPaquete } from '@/features/biblioteca/domain/aprender-builder';
 import { convertBuilder } from '@/features/personajes/domain/importar-personaje';
 import { reparar } from '@/features/personajes/domain/modelo';
@@ -18,12 +18,23 @@ function resumenNuevo(lista: string[]) {
   return ' A la biblioteca: ' + Object.entries(cuenta).map(([t, n]) => `${n} ${n > 1 ? pl[t] : t}`).join(', ') + '.';
 }
 
+/** Las imágenes no viajan con la biblioteca: las nuevas que trajo un archivo se suben aparte (solo el administrador). */
+function subirImagenesNuevas(nuevo: string[]) {
+  if (!esAdmin()) return;
+  const LIB = getLib();
+  const cambios = nuevo.filter(s => s.startsWith('imagen ')).map(s => s.slice(7)).filter(k => LIB.img?.[k]?.startsWith('data:')).flatMap(k => [
+    { tipo: 'img' as const, clave: k, valor: LIB.img![k] },
+    ...(LIB.imgCrop?.[k] ? [{ tipo: 'imgCrop' as const, clave: k, valor: LIB.imgCrop[k] }] : []),
+  ]);
+  guardarLibExtras(cambios).catch((e: Error) => avisar(`No se pudieron subir las imágenes: ${e.message}`, 'error'));
+}
+
 function importar(text: string, archivo: string): { error?: boolean; lib?: boolean; pj?: any; nuevo?: string[] } {
   let d: any;
   try { d = JSON.parse(text); } catch { return { error: true }; }
   if (d && d.tipo === 'miturno-biblioteca') {
     const n = mezclarContenido(d), fuera = limpiarBestias();
-    guardarLib(esAdmin());
+    guardarLib(esAdmin()); subirImagenesNuevas(n);
     return { lib: true, nuevo: n.filter(s => !fuera.includes(s.replace(/^especie /, ''))) };
   }
   let pj: any, nuevo: string[] = [];
@@ -31,7 +42,7 @@ function importar(text: string, archivo: string): { error?: boolean; lib?: boole
   if (d && d.v === 2 && d.gen) { nuevo = mezclarContenido(d.contenido); pj = reparar(d); }
   else if (d && d.stats && (d.classes || d.class)) { nuevo = aprenderBuilder(d); pj = convertBuilder(d); }
   else return { error: true };
-  guardarLib(esAdmin());
+  guardarLib(esAdmin()); subirImagenesNuevas(nuevo);
   S.pj = pj; pj.used = pj.used || {}; savePj();
   return { pj, nuevo };
 }

@@ -12,7 +12,7 @@ import { ARMAS } from '@/features/reglas/data/equipo';
 import { kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
 import { esDoteOrigen } from '@/features/reglas/domain/restricciones';
 import { fuenteClase, fuenteEspecie, fuenteSubclase, fuenteTrasfondo } from '@/features/reglas/data/fuentes';
-import { getLib, getSubs, getT, allDotes, descEspecie, descClase, descSubclase, sinRepetidas, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
+import { getLib, getSubs, getT, allDotes, descEspecie, descSubespecie, descClase, descSubclase, sinRepetidas, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
 import { PanelMedia } from '@/features/biblioteca/components/PanelMedia';
 import { Entrada } from '../piezas';
 import { quitarEquipoTrasfondo, savePj, setVal, tomarEquipoTrasfondo } from '../../acciones';
@@ -35,6 +35,25 @@ function elegirTrasfondo(k: string) {
 }
 
 /* ---------- Especie ---------- */
+/** Linaje, legado o ascendencia: tarjetas con su descripción corta. Pasado el nivel 1 solo queda la elegida. */
+function ElegirSubespecie({ pj, E, fija }: { pj: any; E: any; fija: boolean }) {
+  const subs = Object.entries<any>(E.subs).filter(([k]) => !fija || k === pj.especie.sub);
+  return (
+    <section aria-label={E.subL} className="my-4">
+      <h3 className="m-0 mb-2 text-sm font-bold">{E.subL}</h3>
+      <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-2 p-0">
+        {subs.map(([k, s]) => (
+          <li key={k} className="flex">
+            <Tarjeta on={pj.especie.sub === k} onClick={() => { if (!fija) setVal('especie.sub', k); }}
+              titulo={s.n + (s.dmg ? ` (${s.dmg})` : '')} sub={descSubespecie(pj.especie.key, k)} />
+          </li>
+        ))}
+      </ul>
+      {fija && <Nota>Se eligió a nivel 1 y ya no se puede cambiar.</Nota>}
+    </section>
+  );
+}
+
 export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
   const E = c.E, LIB = getLib();
   const elegir = (k: string) => elegirEspecie(k);
@@ -47,14 +66,7 @@ export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
   return (
     <>
       {E && pj.especie.key !== 'custom' && <PanelMedia k={pj.especie.key} n={E.n} d={descEspecie(pj.especie.key)} fuente={fuenteEspecie(pj.especie.key, E)} />}
-      {E?.subs && (
-        <Campo etiqueta={E.subL} className="max-w-sm">
-          <Selector path="especie.sub" value={pj.especie.sub} disabled={c.lvl > 1 && !!pj.especie.sub}>
-            <option value="">Elige…</option>
-            {Object.entries<any>(E.subs).map(([k, s]) => <option key={k} value={k}>{s.n}{s.dmg ? ` (${s.dmg})` : ''}</option>)}
-          </Selector>
-        </Campo>
-      )}
+      {E?.subs && <ElegirSubespecie pj={pj} E={E} fija={c.lvl > 1 && !!pj.especie.sub} />}
       {pj.especie.key === 'custom' && (
         <div className="grid gap-3 sm:grid-cols-3">
           <Campo etiqueta="Nombre"><CampoTexto path="especie.nombre" value={pj.especie.nombre} /></Campo>

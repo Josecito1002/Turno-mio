@@ -3,7 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 're
 import { S, render, useRender, irArriba, esAdmin, esDM, type Vista } from './estado';
 import { cargarTodo, vaciarPendientes, almacen } from './almacen';
 import { leerArchivos } from './importar';
-import { Aviso, Boton, Insignia, Simbolo, cx, foco } from '@/shared/ui/kit';
+import { Aviso, Boton, Dialogo, Insignia, Simbolo, cx, foco } from '@/shared/ui/kit';
 import { avisar } from '@/shared/ui/avisos';
 import { slug } from '@/shared/utils/texto';
 import { BandejaDados, useDados } from '@/features/dados/components/Bandeja';
@@ -20,6 +20,7 @@ import { Inicio } from '@/features/personajes/components/Inicio';
 import { BibliotecaVista } from '@/features/biblioteca/components/BibliotecaVista';
 import { MesaVista } from '@/features/mesa/components/MesaVista';
 import { CuentasVista } from '@/features/cuentas/components/CuentasVista';
+import { CambiarContrasena } from '@/features/cuentas/components/CambiarContrasena';
 import { cerrarSesion } from '@/features/cuentas/server/acciones';
 
 /* ---------- Íconos de la barra inferior (móvil) ---------- */
@@ -119,7 +120,7 @@ function ItemMenu({ icono, children, onClick, peligro, activo, extra }: { icono:
 const ICONO_SECCION: Record<string, string> = { home: 'groups', lib: 'auto_stories', mesa: 'swords', cuentas: 'manage_accounts' };
 const TituloMenu = ({ children }: { children: ReactNode }) => <p className="m-0 px-3 pb-1 pt-4 text-label-caps uppercase tracking-wider text-outline">{children}</p>;
 
-function MenuCompleto({ invitado, onCerrar }: { invitado: boolean; onCerrar: () => void }) {
+function MenuCompleto({ invitado, onCerrar, onClave }: { invitado: boolean; onCerrar: () => void; onClave: () => void }) {
   const hacer = (f: () => void) => () => { onCerrar(); f(); };
   const pj = S.pj, enFicha = S.view === 'ficha' && pj, enEditor = S.view === 'editor' && pj;
   const c = pj && (enFicha || enEditor) ? compute(pj) : null;
@@ -155,7 +156,7 @@ function MenuCompleto({ invitado, onCerrar }: { invitado: boolean; onCerrar: () 
       {(enFicha || enEditor) && c && (
         <>
           <TituloMenu>{pj.nombre || 'Personaje'}</TituloMenu>
-          {enEditor && <ItemMenu icono="description" onClick={hacer(verHoja)}>Ver la hoja</ItemMenu>}
+          {enEditor && <ItemMenu icono="description" onClick={hacer(verHoja)}>Listo</ItemMenu>}
           {enFicha && <ItemMenu icono="edit" onClick={hacer(editar)}>Editar personaje</ItemMenu>}
           {c.C && c.lvl < 20 && <ItemMenu icono="arrow_upward" onClick={hacer(subir)} extra={falta.length ? <span className="text-label-caps uppercase text-outline">Falta elegir</span> : undefined}>Subir a nivel {c.lvl + 1}</ItemMenu>}
           {c.C && c.lvl > 1 && <ItemMenu icono="arrow_downward" onClick={hacer(bajarNivel)}>Bajar a nivel {c.lvl - 1}</ItemMenu>}
@@ -183,6 +184,7 @@ function MenuCompleto({ invitado, onCerrar }: { invitado: boolean; onCerrar: () 
             <p className="m-0 flex items-center gap-2 px-3 pb-2 text-body-sm text-on-surface-variant" title={S.usuario.email}>
               {S.usuario.nombre}<span className="rounded-full bg-surface-container-high px-2 py-0.5 text-label-caps uppercase text-on-surface">{rol}</span>
             </p>
+            <ItemMenu icono="key" onClick={hacer(onClave)}>Cambiar mi contraseña</ItemMenu>
             <button type="submit" aria-label={`Cerrar sesión (${S.usuario.nombre})`}
               className={cx('flex min-h-11 w-full cursor-pointer items-center gap-3 rounded px-3 text-left text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface', foco)}>
               <Simbolo n="logout" className="text-[20px]" />Cerrar sesión
@@ -198,6 +200,7 @@ function MenuCompleto({ invitado, onCerrar }: { invitado: boolean; onCerrar: () 
 function BarraSuperior({ invitado }: { invitado: boolean }) {
   const tirar = useDados();
   const [menu, setMenu] = useState(false);
+  const [clave, setClave] = useState(false);
   const pj = S.pj, conPj = !!pj && (S.view === 'ficha' || S.view === 'editor');
   const listo = !!S.usuario && !S.cargando;
   const clase = conPj ? getC(pj, pj.clase)?.n : '';
@@ -272,8 +275,12 @@ function BarraSuperior({ invitado }: { invitado: boolean }) {
         </div>
       </div>
       <Cajon abierto={menu} onCerrar={() => setMenu(false)}>
-        {menu && <MenuCompleto invitado={invitado} onCerrar={() => setMenu(false)} />}
+        {menu && <MenuCompleto invitado={invitado} onCerrar={() => setMenu(false)} onClave={() => setClave(true)} />}
       </Cajon>
+      <Dialogo abierto={clave} onCerrar={() => setClave(false)} titulo="Cambiar mi contraseña"
+        descripcion="Si el administrador te dio una contraseña temporal, cámbiala aquí.">
+        <CambiarContrasena alTerminar={() => setClave(false)} />
+      </Dialogo>
     </Cabecera>
   );
 }

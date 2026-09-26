@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { S, render } from '@/app-shell/estado';
 import { esc, modStr, norm, richT, sign } from '@/shared/utils/texto';
 import { Aviso, Boton, Dialogo, Simbolo, cx, foco } from '@/shared/ui/kit';
@@ -16,6 +16,8 @@ import { fijarPool, irAPaso, moverPool, setVal, tocarPip } from '../../acciones'
 import { desglose } from '../../domain/calculo';
 import { extrasAtaque } from '../../domain/lanzar';
 import { Inventario } from '../Inventario';
+import { Criaturas } from './Criaturas';
+import { Herramienta } from './Herramientas';
 
 export const PASO_N: Record<string, string> = { especie: 'Especie', clase: 'Clase', trasfondo: 'Trasfondo', stats: 'Características', habs: 'Habilidades', equipo: 'Equipo', conjuros: 'Conjuros', rasgos: 'Rasgos propios', detalles: 'Detalles' };
 
@@ -516,25 +518,34 @@ function TiradorRapido() {
 
 /** Lo demás que puedes hacer en tu turno (rasgos por tipo de acción); los ataques y los conjuros tienen su propia tarjeta. */
 function OtrasAcciones({ c }: { c: any }) {
+  // Familiares y criaturas van justo debajo de Acción adicional (aunque esa sección no tenga nada)
+  const hayCriaturas = !!((c.criaturasPuede || []).length || c.criaturas?.length);
+  const criaturas = hayCriaturas && (
+    <div key="criaturas" className="rounded-lg bg-surface-container-low p-5 shadow-lg [&>section]:mt-0"><Criaturas c={c} /></div>
+  );
   return (
     <>
       {ORDEN_TIPOS.filter(t => t !== 'pasiva').map(t => {
         const ents = c.entries.filter((e: any) => e.t === t), com = COMUNES[t] || [];
-        if (!ents.length && !com.length) return null;
+        const extra = t === 'adicional' ? criaturas : null;
+        if (!ents.length && !com.length) return <Fragment key={t}>{extra}</Fragment>;
         return (
-          <section key={t} aria-labelledby={`sec-${t}`} className="rounded-lg bg-surface-container-low p-5 shadow-lg">
-            <div className="flex items-center gap-2">
-              <FormaTipo t={t} className="size-4" />
-              <h2 id={`sec-${t}`} className="m-0 font-serif text-headline-md text-on-surface">{TIPOS[t][0]}</h2>
-            </div>
-            {TIPOS[t][1] && <p className="mb-2 ml-6 mt-0.5 text-body-sm text-outline">{TIPOS[t][1]}</p>}
-            {ents.map((e: any, i: number) => <Entrada key={i} e={e} />)}
-            {com.length > 0 && (
-              <Desplegable titulo={t === 'accion' ? 'Acciones que cualquiera puede hacer' : 'Para cualquier personaje'}>
-                {com.map(([n, f]: [string, (c: any) => string]) => <Entrada key={n} e={{ t, nombre: n, texto: f(c), src: 'Reglas básicas' }} />)}
-              </Desplegable>
-            )}
-          </section>
+          <Fragment key={t}>
+            <section aria-labelledby={`sec-${t}`} className="rounded-lg bg-surface-container-low p-5 shadow-lg">
+              <div className="flex items-center gap-2">
+                <FormaTipo t={t} className="size-4" />
+                <h2 id={`sec-${t}`} className="m-0 font-serif text-headline-md text-on-surface">{TIPOS[t][0]}</h2>
+              </div>
+              {TIPOS[t][1] && <p className="mb-2 ml-6 mt-0.5 text-body-sm text-outline">{TIPOS[t][1]}</p>}
+              {ents.map((e: any, i: number) => <Entrada key={i} e={e} />)}
+              {com.length > 0 && (
+                <Desplegable titulo={t === 'accion' ? 'Acciones que cualquiera puede hacer' : 'Para cualquier personaje'}>
+                  {com.map(([n, f]: [string, (c: any) => string]) => <Entrada key={n} e={{ t, nombre: n, texto: f(c), src: 'Reglas básicas' }} />)}
+                </Desplegable>
+              )}
+            </section>
+            {extra}
+          </Fragment>
         );
       })}
     </>
@@ -640,6 +651,7 @@ function Rasgos({ c }: { c: any }) {
           <div key={e.nombre + i} className="rounded-xs bg-surface-container p-2">
             <span className={cx('block text-body-md font-semibold', i === 0 ? 'text-primary' : 'text-on-surface')}>{e.nombre}</span>
             <TextoConDados html={e.raw ? richT(e.texto) : esc(e.texto)} label={e.nombre} className="m-0 mt-0.5 text-body-sm text-on-surface-variant" />
+            <div className="mt-1 flex justify-start empty:hidden"><Herramienta e={e} /></div>
             <div className="flex flex-wrap items-center justify-between gap-x-2">
               {e.src && <span className="text-label-caps text-outline">{e.src}</span>}
               {e.grupo && e.grupo !== 'reglas' && <Mover e={e} />}
