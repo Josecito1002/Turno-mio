@@ -229,7 +229,7 @@ export function Puntos({ nombre, max, usados, onTocar, pequeno }: { nombre: stri
         const libre = i < quedan;
         return (
           <button key={i} type="button" onClick={() => onTocar(i)} aria-pressed={!libre}
-            aria-label={`${nombre} ${i + 1} de ${max}: ${libre ? 'disponible, toca para gastarlo' : 'gastado, toca para recuperarlo'}`}
+            aria-label={`${nombre} ${i + 1} de ${max}: ${libre ? `disponible, toca para gastar desde este (quedarían ${i})` : `gastado, toca para recuperar hasta este (quedarían ${i + 1})`}`}
             className={cx('grid size-11 cursor-pointer place-items-center rounded-full', foco)}>
             <span aria-hidden="true" className={cx('block rounded-full border-[2.5px] border-ink', pequeno ? 'size-5' : 'size-7', libre ? 'bg-ink' : 'bg-transparent')} />
           </button>

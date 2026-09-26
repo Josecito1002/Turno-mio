@@ -18,7 +18,6 @@ import { quitarEquipoClase, savePj, tirarPg, tomarEquipoClase } from '../../acci
 import { AbSel, CampoArea, CampoNumero, CampoTexto, Selector } from './campos';
 import { EquipoTrasfondo } from './PasosOrigen';
 import { ElegirElecciones } from './InfoSubclase';
-import { ElegirManos } from '../Manos';
 
 /* ---------- Características ---------- */
 /* Las acciones cambian el personaje fuera del componente: el componente solo lee y las llama */
@@ -376,8 +375,6 @@ export function PasoEquipo({ pj, c }: { pj: any; c: any }) {
           </label>
           <Boton variante="primario" onClick={agregar}>Agregar</Boton>
         </div>
-        <h3 className="mb-2 mt-5 font-serif text-lg font-bold">En las manos</h3>
-        <ElegirManos pj={pj} c={c} />
       </Seccion>
       {C && <Seccion titulo="Equipo de la clase"><EquipoClase pj={pj} /></Seccion>}
       {c.T && <Seccion titulo="Equipo del trasfondo"><EquipoTrasfondo pj={pj} /></Seccion>}

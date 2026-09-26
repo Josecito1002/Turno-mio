@@ -419,7 +419,7 @@ export function buildAvisos(c){
     if (c.prepUsados > c.prepMax) A.push({nivel:'aviso', t:'Demasiados conjuros', txt:`Tiene ${c.prepUsados} preparados y a nivel ${c.lvl} le tocan ${c.prepMax}.`, paso:'conjuros'});
     else if (c.prepUsados < c.prepMax) A.push({nivel:'info', t:'Conjuros por preparar', txt:`Puede preparar ${c.prepMax - c.prepUsados} más.`, paso:'conjuros'});
   }
-  if (c.T && !pj.trasfondo?.equipo && kitTrasfondo(pj.trasfondo?.key, c.T)) A.push({nivel:'info', t:'Equipo del trasfondo', txt:'Elige entre el kit de tu trasfondo o su oro.', paso:'trasfondo'});
+  if (c.T && !pj.trasfondo?.equipo && kitTrasfondo(pj.trasfondo?.key, c.T)) A.push({nivel:'info', t:'Equipo del trasfondo', txt:'Elige entre el kit de tu trasfondo o su oro.', paso:'equipo'});
   if (C && !pj.inicial && kitClase(pj.clase)) A.push({nivel:'info', t:'Equipo de la clase', txt:'Elige uno de los kits de tu clase o su oro.', paso:'equipo'});
   if (!c.armas.length) A.push({nivel:'aviso', t:'Sin armas', txt:`Solo aparece el golpe sin armas.${C && !pj.inicial && kitClase(pj.clase) ? ' El kit de tu clase trae armas.' : ''}`, paso:'equipo'});
   if (c.sinCompArmadura) A.push({nivel:'aviso', t:'Armadura sin competencia', txt:`No eres competente con ${c.armor.n.toLowerCase()}: desventaja en pruebas, salvaciones y ataques de FUE o DES, y no puedes lanzar conjuros.`, paso:'equipo'});
