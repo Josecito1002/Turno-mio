@@ -5,6 +5,16 @@
       "clase": "mago",
       "subclase": "necromancia",
       "nivel": 6
+    },
+    {
+      "clase": "explorador",
+      "subclase": "bestias",
+      "nivel": 5
+    },
+    {
+      "clase": "lib:pugilista",
+      "subclase": "perro-sabueso",
+      "nivel": 3
     }
   ]
 }

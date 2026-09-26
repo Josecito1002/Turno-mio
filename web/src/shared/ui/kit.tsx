@@ -38,6 +38,9 @@ export function Boton({ variante = 'secundario', tamano = 'md', className, type 
 }
 
 /* ---------- Estructura ---------- */
+/** El botón grande de la derecha de las tarjetas (atacar, lanzar, usar un rasgo): siempre el mismo estilo */
+export const claseBotonGrande = cx('min-h-12 cursor-pointer whitespace-nowrap rounded-xl bg-ink px-3 font-serif text-2xl font-extrabold text-bg transition-colors hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-40', foco);
+
 export function Tarjeta({ className, as: Tag = 'div', ...p }: HTMLAttributes<HTMLElement> & { as?: 'div' | 'section' | 'article' | 'li' }) {
   return <Tag {...p} className={cx('rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-rule/60', className)} />;
 }

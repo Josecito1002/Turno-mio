@@ -2,7 +2,7 @@
 'use client';
 import { S } from '@/app-shell/estado';
 import { esc, modStr, norm, richT, sign } from '@/shared/utils/texto';
-import { Boton, Contador, Dialogo, Puntos, cx, foco } from '@/shared/ui/kit';
+import { Boton, Contador, Dialogo, Puntos, claseBotonGrande, claseCampo, cx, foco } from '@/shared/ui/kit';
 import { TIPOS } from '@/features/reglas/data/caracteristicas';
 import { CRIATURAS_DE_CONJURO } from '@/features/reglas/data/criaturas';
 import { COLOR_TIPO, FormaTipo } from '@/features/reglas/components/TipoAccion';
@@ -10,8 +10,8 @@ import { BotonTirada, TextoConDados } from '@/features/dados/components/BotonTir
 import { useState } from 'react';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { avisar } from '@/shared/ui/avisos';
-import { Herramienta } from './ficha/Herramientas';
-import { descansar, fijarPool, gastarEspacio, gastarRecurso, moverPool, moverRasgo, tocarPip } from '../acciones';
+import { Herramienta, tieneHerramienta } from './ficha/Herramientas';
+import { agregarCriatura, descansar, fijarPool, gastarEspacio, gastarRecurso, moverPool, moverRasgo, tocarPip } from '../acciones';
 import { bonosPara, dadosAlLanzar, espaciosPara, extrasAtaque } from '../domain/lanzar';
 import { desglose } from '../domain/calculo';
 
@@ -59,7 +59,7 @@ export function Entrada({ e }: { e: any }) {
   const color = COLOR_TIPO[e.t] || COLOR_TIPO.pasiva;
   return (
     <article className={cx('my-2 rounded-2xl border-l-4 bg-surface px-4 py-3 shadow-sm ring-1 ring-rule/50 break-inside-avoid', color.borde)}>
-      <div className={cx(e.roll && 'grid grid-cols-[1fr_auto] gap-x-3')}>
+      <div className={cx((e.roll || tieneHerramienta(e)) && 'grid grid-cols-[1fr_auto] gap-x-3')}>
         <div>
           <header className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
             <h3 className="m-0 font-serif text-lg font-bold leading-snug">{e.nombre}</h3>
@@ -76,9 +76,9 @@ export function Entrada({ e }: { e: any }) {
               ariaLabel={`Tirar ataque de ${e.nombre}, ${b}`}>{b}</BotonTirada>
             <small className="mt-0.5 text-xs text-muted" aria-hidden="true">al ataque</small>
           </div>); })()}
+        {!e.roll && <Herramienta e={e} />}
       </div>
       {e.recurso && S.view === 'ficha' && <RecursoInline id={e.recurso} />}
-      <Herramienta e={e} />
       <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
         <p className="m-0 text-xs text-muted">{e.src || ''}{e.revisada && <span className="ml-2 font-bold text-pas">Regla revisada</span>}</p>
         {S.view === 'ficha' && e.grupo && e.grupo !== 'reglas' && <Mover e={e} />}
@@ -166,14 +166,25 @@ function LanzarConjuro({ s, c, d }: { s: any; c: any; d: ReturnType<typeof datos
   const ataque = s.ataque && d.atk != null;
   const esp = nv && S.pj ? espaciosPara(c, nv) : [];
   const rasgo = s.recurso ? c.recursos?.find((r: any) => r.id === s.recurso) : null;
+  // Conjuros que crean criaturas: se elige cuál al lanzarlo y aparece en Familiares y criaturas
+  const tipoCr = CRIATURAS_DE_CONJURO[norm(s.nombre)];
+  const opcionesCr = tipoCr ? (c.criaturasPuede || []).filter((x: any) => x.de === tipoCr) : [];
+  const [cr, setCr] = useState('');
+  const crElegida = opcionesCr.find((x: any) => x.key === cr) || opcionesCr[0];
+  // Siervos Muertos Vivientes: Animar a los muertos cuenta como de un nivel más
+  const nivelMas = tipoCr === 'muerto' && c.entries.some((e: any) => /^siervos muertos vivientes$/.test(norm(e.nombre))) ? 1 : 0;
+  const cuantas = (nivel: number) => tipoCr === 'muerto' ? 1 + 2 * Math.max(0, nivel + nivelMas - 3) : 1;
+  const sinEspacio = tipoCr === 'familiar' && c.chain ? 'Sin espacio (Pacto de la Cadena)' : s.ritual ? 'Como ritual (10 minutos más, sin espacio)' : '';
   if (!ataque && !s.salv && !d.dexpr && !nv) return null;
   const tirarCon = (nivel: number) => {
     const expr = dadosAlLanzar(d.dexpr, nv, nivel, s.desc, bono);
     const label = nv && nivel > nv ? `${s.nombre} (nivel ${nivel})` : s.nombre;
     if (ataque) tirar(`1d20${modStr(d.atk)}`, `${label}: ataque`, { ...(expr ? { dmg: expr, dmgLabel: label, dmgMods: dmgMods(nivel) } : {}), mods: d.atkDesg });
     else if (expr) tirar(expr, label, { mods: dmgMods(nivel) });
-    else avisar(`Lanzaste ${label}.`);
+    else if (!crElegida) avisar(`Lanzaste ${label}.`);
+    if (crElegida) agregarCriatura(crElegida.key, crElegida.n, cuantas(nivel));
   };
+  const gratis = () => { setAbierto(false); tirarCon(nv); };
   const conEspacio = (nivel: number) => { if (gastarEspacio(nivel)) { setAbierto(false); tirarCon(nivel); } };
   const conRasgo = () => { if (rasgo && gastarRecurso(rasgo.id)) { setAbierto(false); tirarCon(nv); } };
   const lanzar = () => (nv && S.pj ? setAbierto(true) : tirarCon(nv));
@@ -186,7 +197,18 @@ function LanzarConjuro({ s, c, d }: { s: any; c: any; d: ReturnType<typeof datos
   const dano = (ataque || s.salv) && d.dexpr ? `${dadosAlLanzar(d.dexpr, nv, nv, '', bono)}${s.tipo ? ' ' + s.tipo : ''}` : '';
   const dialogo = nv > 0 && (
         <Dialogo abierto={abierto} onCerrar={() => setAbierto(false)} titulo={`Lanzar ${s.nombre}`} descripcion="¿Con qué lo lanzas? Se gasta al elegirlo." abajo>
+          {opcionesCr.length > 0 && (
+            <label className="mb-3 flex flex-col gap-1 font-bold">
+              {tipoCr === 'familiar' ? 'Forma del familiar' : 'Criatura'}
+              <select value={crElegida?.key || ''} onChange={e => setCr(e.target.value)} className={claseCampo}>
+                {opcionesCr.map((x: any) => <option key={x.key} value={x.key}>{x.n}{x.cadena ? ' (Pacto de la Cadena)' : ''}</option>)}
+              </select>
+              {tipoCr === 'muerto' && <span className="text-sm font-normal text-muted">Creas 1 con un espacio de nivel {3 - nivelMas} y 2 más por cada nivel por encima{nivelMas ? ' (Siervos Muertos Vivientes lo cuenta como de un nivel más)' : ''}.</span>}
+              {tipoCr === 'familiar' && <span className="text-sm font-normal text-muted">Si ya tenías un familiar, este lo reemplaza.</span>}
+            </label>
+          )}
           <ul className="m-0 grid list-none gap-2 p-0">
+            {sinEspacio && <li><Boton className="w-full justify-between" onClick={gratis}><span>{sinEspacio}</span></Boton></li>}
             {rasgo && (
               <li><Boton className="w-full justify-between" disabled={(S.pj.used?.[rasgo.id] || 0) >= rasgo.max} onClick={conRasgo}>
                 <span>Con {rasgo.nombre}</span><span className="text-sm">quedan {rasgo.max - Math.min(S.pj.used?.[rasgo.id] || 0, rasgo.max)}</span>
@@ -195,11 +217,11 @@ function LanzarConjuro({ s, c, d }: { s: any; c: any; d: ReturnType<typeof datos
             {esp.map((e: any) => (
               <li key={e.nivel}>
                 <Boton className="w-full justify-between" disabled={!e.quedan} onClick={() => conEspacio(e.nivel)}>
-                  <span>{e.nombre}</span><span className="text-sm">{e.quedan ? `quedan ${e.quedan}` : 'sin espacios'}{d.dexpr ? `, ${dadosAlLanzar(d.dexpr, nv, e.nivel, s.desc, bono)}` : ''}</span>
+                  <span>{e.nombre}</span><span className="text-sm">{e.quedan ? `quedan ${e.quedan}` : 'sin espacios'}{d.dexpr ? `, ${dadosAlLanzar(d.dexpr, nv, e.nivel, s.desc, bono)}` : ''}{tipoCr === 'muerto' ? `, crea ${cuantas(e.nivel)}` : ''}</span>
                 </Boton>
               </li>
             ))}
-            {!esp.length && !rasgo && <li className="text-sm text-muted">No tienes espacios de este nivel o más.</li>}
+            {!esp.length && !rasgo && !sinEspacio && <li className="text-sm text-muted">No tienes espacios de este nivel o más.</li>}
           </ul>
         </Dialogo>
       );
@@ -210,7 +232,7 @@ function LanzarConjuro({ s, c, d }: { s: any; c: any; d: ReturnType<typeof datos
   return (
     <div className="flex flex-col items-center justify-center text-center print:hidden">
       <button type="button" onClick={lanzar} aria-label={`Lanzar ${s.nombre}${etiqueta ? ', ' + etiqueta : ''}`}
-        className={cx('min-h-12 cursor-pointer whitespace-nowrap rounded-xl bg-ink px-3 font-serif text-2xl font-extrabold text-bg transition-colors hover:bg-ink/90', foco)}>
+        className={claseBotonGrande}>
         {grande}
       </button>
       {debajo && <small className="mt-0.5 text-xs text-muted" aria-hidden="true">{debajo}</small>}
