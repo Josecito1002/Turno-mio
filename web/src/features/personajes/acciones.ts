@@ -60,8 +60,9 @@ export function setVal(path: string, v: any) {
 
 /* ---- Recursos ---- */
 export function tocarPip(id: string, i: number, max: number) {
+  // Tocar un punto deja disponibles solo los de antes (si estaba disponible) o hasta él (si estaba gastado)
   const pj = S.pj, used = Math.min(pj.used[id] || 0, max), left = max - used;
-  pj.used[id] = i < left ? used + 1 : Math.max(0, used - 1);
+  pj.used[id] = i < left ? max - i : max - (i + 1);
   savePj(); render();
 }
 /** Gasta un espacio de conjuro del nivel dado; devuelve false si no quedaba ninguno. */

@@ -69,6 +69,7 @@ export function Entrada({ e }: { e: any }) {
         {e.roll && (() => { const b = e.roll[0].replace(/^1d20\s*/, '') || '+0'; return (
           <div className="flex flex-col items-center justify-center">
             <BotonTirada expr={e.roll[0]} label={`${e.nombre}: ataque`} dmg={e.roll[1]} dmgLabel={`${e.nombre}: daño`} estilo="grande"
+              gasta={e.recurso && /^1 /.test(e.coste || '') ? e.recurso : undefined}
               {...(S.c && e.roll[0] === `1d20${modStr(S.c.unarmed.atk)}` && e.roll[1] === S.c.unarmed.expr ? { mods: S.c.unarmed.atkDesg, dmgMods: S.c.unarmed.dmgDesg } : {})}
               ariaLabel={`Tirar ataque de ${e.nombre}, ${b}`}>{b}</BotonTirada>
             <small className="mt-0.5 text-xs text-muted" aria-hidden="true">al ataque</small>

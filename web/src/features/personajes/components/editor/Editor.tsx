@@ -8,18 +8,14 @@ import { PASO_N } from '../ficha/Ficha';
 import { PasoClase, PasoEspecie, PasoTrasfondo } from './PasosOrigen';
 import { PasoEquipo, PasoHabs, PasoStats } from './PasosAtributos';
 import { PasoConjuros, PasoDetalles, PasoRasgos } from './PasosMagia';
-import { pasoEquipoEnEditor } from '../../domain/inventario';
-import { kitClase } from '@/features/reglas/data/equipo-clases';
-import { kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
 
 const TODOS = Object.keys(PASO_N);
 const irPaso = (k: string) => { S.step = k; S.sel = null; render(); irArriba(); };
 
 export function Editor({ c }: { c: any }) {
   const pj = S.pj;
-  // Pasada la creación, el equipo se maneja en la pestaña Equipo de la hoja
-  const conEquipo = pasoEquipoEnEditor(pj, c, kitClase, kitTrasfondo);
-  const PASOS = TODOS.filter(k => k !== 'equipo' || conEquipo);
+  // El paso Equipo siempre está: ahí se toman los kits de la clase y del trasfondo
+  const PASOS = TODOS;
   const paso = PASOS.includes(S.step) ? S.step : 'habs', i = PASOS.indexOf(paso);
   const pend = new Set(c.avisos.filter((a: any) => a.nivel === 'aviso').map((a: any) => a.paso));
   const pasos: Record<string, ReactNode> = {

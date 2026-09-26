@@ -251,9 +251,6 @@ export function PasoTrasfondo({ pj, c }: { pj: any; c: any }) {
           ) : <Nota className="self-end sm:col-span-2">+1 a {abs.filter(Boolean).map(k => abInfo(k)[3]).join(', ') || 'las tres que elijas'}.</Nota>}
         </div>
       </Seccion>
-      <Seccion titulo="Equipo inicial" descripcion="El trasfondo te da su kit o el oro para comprar lo tuyo.">
-        <EquipoTrasfondo pj={pj} />
-      </Seccion>
       <Seccion titulo="Dotes de origen">
         <div className="grid gap-3 sm:grid-cols-2">
           <Campo etiqueta="Dote del trasfondo">
