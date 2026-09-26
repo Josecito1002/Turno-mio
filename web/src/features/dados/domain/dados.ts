@@ -3,6 +3,8 @@ export type OpcionesTirada = {
   /** previo: el d20 que ya salió; con ventaja o desventaja se conserva y solo se tira el segundo */
   adv?: number; previo?: number; crit?: boolean; keep?: number; min3?: boolean; neutral?: boolean; noRepeat?: boolean;
   dmg?: string; dmgLabel?: string; dmgMin3?: boolean; conVentaja?: boolean;
+  /** De dónde sale el número fijo de la tirada ("4 DES + 3 competencia") y el del daño que la sigue */
+  mods?: string; dmgMods?: string;
   /** Lo que puede seguir a un ataque (rasgos al acertar, acciones adicionales), para ofrecerlo tras la tirada */
   extras?: { nombre: string; t: string; expr: string; atk?: string; gasta?: string; requiere?: 'ventaja' }[];
 };

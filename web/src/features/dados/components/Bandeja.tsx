@@ -76,7 +76,7 @@ export function BandejaDados({ children, gastar, quedan }: { children: ReactNode
       if (ds.gasta && gastar && !gastar(ds.gasta)) return;
       let extras;
       try { extras = ds.extras ? JSON.parse(ds.extras) : undefined; } catch { extras = undefined; }
-      tirar(ds.roll!, ds.label || 'Tirada', ds.dmg ? { dmg: ds.dmg, dmgLabel: ds.dmglabel, dmgMin3: !!ds.min3, extras } : { min3: !!ds.min3, crit: ds.crit === '1' });
+      tirar(ds.roll!, ds.label || 'Tirada', ds.dmg ? { dmg: ds.dmg, dmgLabel: ds.dmglabel, dmgMin3: !!ds.min3, extras, mods: ds.mods, dmgMods: ds.dmgmods } : { min3: !!ds.min3, crit: ds.crit === '1', mods: ds.mods });
     };
     document.addEventListener('click', onClick);
     return () => document.removeEventListener('click', onClick);
@@ -95,7 +95,9 @@ export function BandejaDados({ children, gastar, quedan }: { children: ReactNode
   let desc = '';
   if (listo) {
     const partes = r.groups.map(g => (g.s < 0 ? '− ' : '') + g.vals.filter((_, i) => g.kept[i]).map(v => (o.min3 && v < 3 ? `${v}→3` : v)).join(' + '));
-    if (r.consts) partes.push((r.consts < 0 ? '− ' : '') + Math.abs(r.consts));
+    // El número fijo, con de dónde sale (solo si las partes suman lo mismo: un rasgo pudo cambiarlo después)
+    const sumaMods = (o.mods || '').replace(/−\s*/g, '-').match(/[+-]?\s*\d+/g)?.reduce((s, x) => s + +x.replace(/\s/g, ''), 0);
+    if (r.consts) partes.push((r.consts < 0 ? '− ' : '') + Math.abs(r.consts) + (o.mods && sumaMods === r.consts ? ` (${o.mods})` : ''));
     desc = partes.join(' + ').replace(/\+ −/g, '−') + (partes.length > 1 || r.consts ? ` = ${r.total}` : '');
     const single20 = r.groups.length === 1 && r.groups[0].d === 20 && !o.keep;
     if (single20) botones.push(['adv', 'Con ventaja'], ['dis', 'Con desventaja']);
@@ -108,7 +110,7 @@ export function BandejaDados({ children, gastar, quedan }: { children: ReactNode
     // Se conserva el d20 que ya salió y solo se tira el segundo
     if (a === 'adv' || a === 'dis') tirar(r.expr, r.label!, { ...o, adv: a === 'adv' ? 1 : -1, previo: r.nat ?? undefined });
     if (a === 'again') tirar(r.expr, r.label!, o);
-    if (a === 'dmg' || a === 'crit') tirar(o.dmg!, o.dmgLabel || 'Daño', { min3: o.dmgMin3, crit: a === 'crit', extras: o.extras, conVentaja: (o.adv || 0) > 0 });
+    if (a === 'dmg' || a === 'crit') tirar(o.dmg!, o.dmgLabel || 'Daño', { min3: o.dmgMin3, crit: a === 'crit', extras: o.extras, conVentaja: (o.adv || 0) > 0, mods: o.dmgMods });
   };
   const titulo = r ? r.label + (o.adv! > 0 ? ' (con ventaja)' : o.adv! < 0 ? ' (con desventaja)' : '') + (o.crit ? ' (crítico)' : '') : 'Tirada';
 

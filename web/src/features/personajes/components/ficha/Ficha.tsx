@@ -11,6 +11,7 @@ import { FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { BotonTirada } from '@/features/dados/components/BotonTirada';
 import { Ataque, ConjuroFila, ConjuroTarjeta, Entrada, Recursos } from '../piezas';
 import { abrirSubida, bajarArchivo, bajarNivel, borrarPj, irAPaso } from '../../acciones';
+import { desglose } from '../../domain/calculo';
 import { faltaParaSubir } from '../../domain/pendientes';
 import { avisar } from '@/shared/ui/avisos';
 import { Inventario } from '../Inventario';
@@ -34,7 +35,7 @@ function Turno({ c }: { c: any }) {
       {ORDEN_TIPOS.map(t => {
         const ents = c.entries.filter((e: any) => e.t === t), sps = sp.filter((s: any) => (s.tiempo || 'accion') === t), com = COMUNES[t] || [];
         if (!ents.length && !sps.length && !com.length && t !== 'accion') return null;
-        const un = { nombre: 'Golpe sin armas', atk: c.unarmed.atk, expr: c.unarmed.expr, dmg: c.unarmed.dmg, notas: [`También puede Agarrar o Empujar (CD ${c.grappleDC})`] };
+        const un = { nombre: 'Golpe sin armas', atk: c.unarmed.atk, expr: c.unarmed.expr, dmg: c.unarmed.dmg, atkDesg: c.unarmed.atkDesg, dmgDesg: c.unarmed.dmgDesg, notas: [`También puede Agarrar o Empujar (CD ${c.grappleDC})`] };
         return (
           <section key={t} aria-labelledby={`sec-${t}`} className="mt-8">
             <div className="flex items-center gap-2.5">
@@ -210,7 +211,7 @@ export function Ficha({ c }: { c: any }) {
         <Stat valor={c.ac} etiqueta="CA" />
         <Stat valor={c.hpMax} etiqueta="PG máximos" />
         <Stat etiqueta="Iniciativa">
-          <BotonTirada expr={`1d20${modStr(c.init)}`} label="Iniciativa" estilo="bloque" className="h-full py-2" ariaLabel={`Tirar iniciativa, ${sign(c.init)}`}>
+          <BotonTirada expr={`1d20${modStr(c.init)}`} label="Iniciativa" mods={desglose(c.initPartes || [])} estilo="bloque" className="h-full py-2" ariaLabel={`Tirar iniciativa, ${sign(c.init)}`}>
             <b className="block font-serif text-3xl font-extrabold leading-none underline decoration-dotted decoration-2 underline-offset-4">{sign(c.init)}</b>
             <span className="mt-1 block text-xs text-muted">Iniciativa</span>
           </BotonTirada>

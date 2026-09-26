@@ -1257,7 +1257,7 @@ export const REGLAS: any[] = [
      Aquí solo lo que necesita cálculo o selector. */
   {de:/^forjado/, n:/^proteccion integrada/, t:'pasiva', efecto: c => { c.ac += 1; },
     texto: () => 'Tienes +1 a la CA (ya sumado), y nadie puede quitarte la armadura que llevas puesta mientras vivas.'},
-  {de:/^harengon$/, n:/^gatillo de liebre/, t:'pasiva', efecto: c => { c.init += c.pb; },
+  {de:/^harengon$/, n:/^gatillo de liebre/, t:'pasiva', efecto: c => { c.init += c.pb; c.initPartes.push([c.pb, 'Gatillo de Liebre']); },
     texto: c => `Sumas tu competencia (${sign(c.pb)}) a la iniciativa (ya sumado).`},
   {de:/^kobold$/, n:/^legado kobold/, t:'pasiva',
     eleccion: {id:'legado-kobold', titulo:'Legado kobold', opciones: [{key:'astucia', nombre:'Astucia', desc:'Competencia en Arcanos, Investigación, Medicina, Juego de Manos o Supervivencia.'}, {key:'desafio', nombre:'Desafío', desc:'Ventaja en las salvaciones para no quedar Asustado o dejar de estarlo.'}, {key:'hechiceria', nombre:'Hechicería Dracónica', desc:'Un truco de hechicero; usa INT, SAB o CAR.'}]},
@@ -1408,9 +1408,9 @@ export const REGLAS: any[] = [
     texto: c => `Con tu libro de conjuros en la mano: con una acción adicional, los muertos vivientes que creaste o invocaste con Necromancia a 60 pies ganan ${c.lvl} PG temporales (tu nivel de mago); una vez por descanso largo. Además, cuando un muerto viviente que ves cae a 0 PG, puedes hacerlo estallar: tiras 1d6 por cada dos dados de golpe que le queden (mínimo 1d6), y cada criatura a 10 pies hace una salvación de DES (CD ${c.dcSpell}): si falla, recibe ese daño necrótico y no puede usar reacciones hasta su siguiente turno; si la pasa, la mitad. Si el muerto viviente no es tuyo, te cuesta tu reacción y un espacio de nivel 5 o más.`},
   {de:/^magia de guerra$/, n:/^manto desviador$/, t:'pasiva',
     texto: c => `Al usar Desvío Arcano, hasta tres criaturas que elijas y veas a 60 pies reciben ${Math.floor(c.lvl / 2)} de daño de fuerza (la mitad de tu nivel de mago).`},
-  {de:/^magia de guerra$/, n:/^ingenio tactico$/, t:'pasiva', efecto: c => { c.init += c.m.int; },
+  {de:/^magia de guerra$/, n:/^ingenio tactico$/, t:'pasiva', efecto: c => { c.init += c.m.int; c.initPartes.push([c.m.int, 'Ingenio Táctico']); },
     texto: c => `Sumas tu INT (${sign(c.m.int)}) a la iniciativa (ya sumado).`},
-  {de:/^magia de cronurgia$/, n:/^conciencia temporal$/, t:'pasiva', efecto: c => { c.init += c.m.int; },
+  {de:/^magia de cronurgia$/, n:/^conciencia temporal$/, t:'pasiva', efecto: c => { c.init += c.m.int; c.initPartes.push([c.m.int, 'Conciencia Temporal']); },
     texto: c => `Sumas tu INT (${sign(c.m.int)}) a la iniciativa (ya sumado).`},
 
   /* ---------- Playtest: Unearthed Arcana 2025 Subclasses Update (scripts/datos/playtest-2025.ts) ---------- */

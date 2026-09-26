@@ -89,8 +89,8 @@ export function Ataque({ a }: { a: any }) {
       <div>
         <p className="m-0 font-serif text-lg font-bold leading-snug">{a.nombre}</p>
         <div className="mt-1 flex flex-wrap items-center gap-2">
-          <BotonTirada expr={a.expr} label={`${n}: daño`} min3={a.min3} gasta={a.gasta} ariaLabel={`Tirar daño de ${n}: ${a.dmg}`}>{a.dmg}</BotonTirada>
-          {a.v && <><span className="text-sm text-muted">o</span><BotonTirada expr={a.v.expr} label={`${n}: daño a dos manos`} min3={a.min3}>{a.v.dmg} a dos manos</BotonTirada></>}
+          <BotonTirada expr={a.expr} label={`${n}: daño`} min3={a.min3} gasta={a.gasta} mods={a.dmgDesg} ariaLabel={`Tirar daño de ${n}: ${a.dmg}`}>{a.dmg}</BotonTirada>
+          {a.v && <><span className="text-sm text-muted">o</span><BotonTirada expr={a.v.expr} label={`${n}: daño a dos manos`} min3={a.min3} mods={a.dmgDesg}>{a.v.dmg} a dos manos</BotonTirada></>}
         </div>
       </div>
       {a.cd != null ? (
@@ -100,7 +100,7 @@ export function Ataque({ a }: { a: any }) {
           <small className="mt-0.5 text-xs text-muted">salvación de {a.salv}</small>
         </div>
       ) : <div className="row-span-2 flex flex-col items-center justify-center">
-        <BotonTirada expr={`1d20${modStr(a.atk)}`} label={`${n}: ataque`} estilo="grande" dmg={a.expr} dmgLabel={`${n}: daño`} min3={a.min3} extras={S.c ? extrasAtaque(S.c, a) : undefined}
+        <BotonTirada expr={`1d20${modStr(a.atk)}`} label={`${n}: ataque`} estilo="grande" dmg={a.expr} dmgLabel={`${n}: daño`} min3={a.min3} extras={S.c ? extrasAtaque(S.c, a) : undefined} mods={a.atkDesg} dmgMods={a.dmgDesg}
           ariaLabel={`Tirar ataque con ${n}, ${sign(a.atk)}`}>{sign(a.atk)}</BotonTirada>
         <small className="mt-0.5 text-xs text-muted" aria-hidden="true">al ataque</small>
       </div>}

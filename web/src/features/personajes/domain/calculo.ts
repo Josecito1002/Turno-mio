@@ -94,6 +94,7 @@ export function compute(pj): any {
   c.speed = baseVel + (C?.velocidad ? C.velocidad(c) : 0) - (c.armor?.fue && sc.fue < c.armor.fue ? 10 : 0);
   c.vision = !E ? 0 : pj.especie.key === 'custom' ? (+pj.especie.vision || 0) : (E.visionSub?.[c.esub] || E.vision || 0);
   c.init = m.des + (has('alerta') ? pb : 0);
+  c.initPartes = [[m.des, 'DES'], [has('alerta') ? pb : 0, 'Alerta']]; // las reglas que suman a la iniciativa agregan su parte
 
   // Habilidades
   c.bgHabs = T ? (T.custom ? (tb.habs || []).filter(Boolean) : T.habs) : [];
@@ -127,14 +128,14 @@ export function compute(pj): any {
   competenciasBase(c, T ? (T.custom ? tb.herr : T.herr) : '');
   c.hasMastery = !!C?.maestrias;
   c.grappleDC = 8 + pb + (c.isMonk ? Math.max(m.fue, m.des) : m.fue);
-  const uMod = c.isMonk ? Math.max(m.fue, m.des) : m.fue;
+  const uMod = c.isMonk ? Math.max(m.fue, m.des) : m.fue, uAb = c.isMonk && m.des > m.fue ? 'DES' : 'FUE';
   let uDice = '';
   if (c.isMonk) uDice = `1d${c.md}`;
   else if (estilo('sinarmas')) uDice = '1d6';
   else if (has('taberna')) uDice = '1d4';
   c.unarmed = uDice
-    ? {atk: pb + uMod, expr: `${uDice}${modStr(uMod)}`, dmg: `${uDice}${fmtMod(uMod)} contundente`}
-    : {atk: pb + uMod, expr: `${Math.max(1, 1 + uMod)}`, dmg: `${Math.max(1, 1 + uMod)} contundente`};
+    ? {atk: pb + uMod, expr: `${uDice}${modStr(uMod)}`, dmg: `${uDice}${fmtMod(uMod)} contundente`, atkDesg: desglose([[uMod, uAb], [pb, 'competencia']]), dmgDesg: desglose([[uMod, uAb]])}
+    : {atk: pb + uMod, expr: `${Math.max(1, 1 + uMod)}`, dmg: `${Math.max(1, 1 + uMod)} contundente`, atkDesg: desglose([[uMod, uAb], [pb, 'competencia']])};
   c.armas = filasArmas(c);
   // Ataque con la otra mano: las dos armas empuñadas ligeras (o cualquiera con Portador Dual)
   c.dosArmas = !!(c.manos.a && c.manos.b && (ARMAS[c.manos.a].p.includes('ligera') || portadorDual(pj)));
@@ -271,6 +272,9 @@ function filasArmas(c){
     return r;
   }).filter(Boolean);
 }
+/** "4 DES + 3 competencia": las partes de un bono, sin las que valen 0. */
+export const desglose = (partes: [number, string][]) =>
+  partes.filter(([v]) => v).map(([v, n], i) => `${i ? (v < 0 ? '− ' : '+ ') : v < 0 ? '−' : ''}${Math.abs(v)} ${n}`).join(' ');
 export function weaponRow(a, c){
   const w = ARMAS[a.k], m = c.m, pj = c.pj;
   const monkW = c.isMonk && !w.dist && (w.cat === 'sencilla' || w.p.includes('ligera'));
@@ -282,10 +286,14 @@ export function weaponRow(a, c){
   const prof = competenteArma(c, a.k) || (c.pactoFilo && !w.dist);
   // Bono de arma mágica (+1, +2, +3); no suma si su objeto pide sintonización y no la tiene
   const bono = c.armasInactivas?.has(a.k) ? 0 : +w.bono || 0;
-  const atk = m[ab] + (prof ? c.pb : 0) + (c.tieneEstilo('arqueria') && w.dist ? 2 : 0) + bono;
+  const arq = c.tieneEstilo('arqueria') && w.dist ? 2 : 0, duelo = c.tieneEstilo('duelo') && !w.dist && !w.p.includes('dos manos') ? 2 : 0;
+  const atk = m[ab] + (prof ? c.pb : 0) + arq + bono;
   let dado = w.d;
   if (monkW) { const [nn, dd] = w.d.split('d').map(Number); if (nn === 1 && c.md > dd) dado = `1d${c.md}`; }
-  const dmgMod = m[ab] + bono + (c.tieneEstilo('duelo') && !w.dist && !w.p.includes('dos manos') ? 2 : 0);
+  const dmgMod = m[ab] + bono + duelo;
+  // De dónde sale cada bono, para el texto pequeño de la bandeja
+  const atkDesg = desglose([[m[ab], ab.toUpperCase()], [prof ? c.pb : 0, 'competencia'], [arq, 'Arquería'], [bono, 'arma mágica']]);
+  const dmgDesg = desglose([[m[ab], ab.toUpperCase()], [bono, 'arma mágica'], [duelo, 'Duelo']]);
   const min3 = c.tieneEstilo('dosmanos') && !w.dist && (w.p.includes('dos manos') || w.p.includes('versátil'));
   const notas = [];
   if (w.r) notas.push(`${w.p.includes('arrojadiza') ? 'Arrojadiza' : 'Alcance'} ${w.r} pies`);
@@ -301,7 +309,7 @@ export function weaponRow(a, c){
     maestria = `${mn}: ${md}${w.ma === 'derribar' ? ` CD ${8 + m[ab] + c.pb}.` : ''}`;
   }
   return {k:a.k, q:a.q, i:a.i, w, nombre: w.n + (a.q > 1 ? ` (${a.q})` : ''), atk, expr:`${dado}${modStr(dmgMod)}`, dmg:`${dado}${fmtMod(dmgMod)} ${w.tipo}`,
-    v: w.v ? {expr:`${w.v}${modStr(dmgMod)}`, dmg:`${w.v}${fmtMod(dmgMod)}`} : null, notas, maestria, min3};
+    v: w.v ? {expr:`${w.v}${modStr(dmgMod)}`, dmg:`${w.v}${fmtMod(dmgMod)}`} : null, notas, maestria, min3, atkDesg, dmgDesg};
 }
 
 export function evalR(r, c, src, grupo){
