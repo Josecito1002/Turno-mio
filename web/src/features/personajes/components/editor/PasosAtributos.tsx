@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
+import { useEffect, useRef, useState } from 'react';
 import { S, render } from '@/app-shell/estado';
 import { avisar } from '@/shared/ui/avisos';
 import { norm, sign } from '@/shared/utils/texto';
@@ -36,6 +37,57 @@ function tocarSlot(g: any, k: string) {
   else if (g.asig[k] != null) delete g.asig[k];
   guardar();
 }
+/** Pone el valor i en la característica destino (null: lo quita). Si el destino ya tenía un valor y el arrastrado
+    venía de otra característica, se intercambian; si venía del montón, el anterior vuelve al montón. */
+function moverValor(g: any, i: number, destino: string | null) {
+  const origen = Object.keys(g.asig).find(x => g.asig[x] === i) || null;
+  if (destino === origen || (!destino && !origen)) return;
+  if (destino) {
+    const previo = g.asig[destino];
+    if (origen) { if (previo != null) g.asig[origen] = previo; else delete g.asig[origen]; }
+    g.asig[destino] = i;
+  } else if (origen) delete g.asig[origen];
+  S.sel = null;
+  guardar();
+}
+
+/* Arrastrar y soltar con eventos de puntero: funciona con ratón, dedo y lápiz (el arrastre nativo de HTML no funciona en el teléfono) */
+type Arrastre = { i: number; x: number; y: number; x0: number; y0: number; activo: boolean; sobre: string | null; dedo: boolean };
+function useArrastre(g: any) {
+  const [a, setA] = useState<Arrastre | null>(null);
+  const ref = useRef<Arrastre | null>(null);
+  const poner = (v: Arrastre | null) => { ref.current = v; setA(v); };
+  const arrastrando = a !== null;
+  useEffect(() => {
+    if (!arrastrando) return;
+    const mover = (e: PointerEvent) => {
+      const cur = ref.current; if (!cur) return;
+      // Unos píxeles de margen para que un toque no cuente como arrastre
+      const activo = cur.activo || Math.hypot(e.clientX - cur.x0, e.clientY - cur.y0) > 4;
+      const casilla = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>('[data-casilla]');
+      poner({ ...cur, x: e.clientX, y: e.clientY, activo, sobre: activo ? casilla?.dataset.casilla ?? null : null });
+    };
+    const fin = (e: PointerEvent) => {
+      const cur = ref.current; poner(null);
+      if (cur?.activo && e.type === 'pointerup') moverValor(g, cur.i, cur.sobre);
+    };
+    window.addEventListener('pointermove', mover);
+    window.addEventListener('pointerup', fin);
+    window.addEventListener('pointercancel', fin);
+    return () => {
+      window.removeEventListener('pointermove', mover);
+      window.removeEventListener('pointerup', fin);
+      window.removeEventListener('pointercancel', fin);
+    };
+  }, [arrastrando, g]);
+  const empezar = (e: React.PointerEvent, i: number) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    poner({ i, x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, activo: false, sobre: null, dedo: e.pointerType === 'touch' });
+  };
+  return { a, empezar };
+}
+
 function comprar(g: any, k: string, d: number) { const v = g.compra[k] + d; if (v >= 8 && v <= 15) { g.compra[k] = v; guardar(); } }
 function reiniciarTiradas(g: any) { g.valores = []; g.dados = []; g.asig = {}; S.sel = null; guardar(); }
 function elegirValor(i: number) { S.sel = S.sel === i ? null : i; render(); }
@@ -43,6 +95,8 @@ function elegirValor(i: number) { S.sel = S.sel === i ? null : i; render(); }
 export function PasoStats({ pj, c }: { pj: any; c: any }) {
   const tirar = useDados();
   const g = pj.gen;
+  const { a: arrastre, empezar } = useArrastre(g);
+  const arrastrando = !!arrastre?.activo;
   const tirarUna = () => {
     if (g.valores.length >= 6) return Promise.resolve();
     return tirar('4d6', `Característica ${g.valores.length + 1} de 6`, { keep: 3, neutral: true, noRepeat: true }).then(r => anotarTirada(g, r));
@@ -70,15 +124,21 @@ export function PasoStats({ pj, c }: { pj: any; c: any }) {
         )}
         {(g.metodo === 'tirar' || g.metodo === 'estandar') && g.valores.length > 0 && (
           <>
-            <Nota className="mt-4">Toca un número y después la característica donde lo quieres.</Nota>
+            <Nota className="mt-4">
+              Arrastra cada número a la característica donde lo quieres. Arrastra uno entre características para intercambiarlos, o sácalo de su casilla para quitarlo.
+              <span className="sr-only"> Con teclado: Intro en un número y luego en la característica.</span>
+            </Nota>
             <div role="group" aria-label="Valores para asignar" className="flex flex-wrap gap-2">
               {g.valores.map((v: number, i: number) => {
                 const k = Object.keys(g.asig).find(x => g.asig[x] === i);
                 return (
-                  <button key={i} type="button" aria-pressed={S.sel === i} onClick={() => elegirValor(i)}
+                  // El clic solo cuenta desde el teclado (detail 0): con ratón o dedo se arrastra
+                  <button key={i} type="button" aria-pressed={S.sel === i} onClick={e => { if (e.detail === 0) elegirValor(i); }}
+                    onPointerDown={e => empezar(e, i)}
                     aria-label={`Valor ${v}${k ? `, asignado a ${nombreAb(k)}` : ''}${S.sel === i ? ', seleccionado' : ''}`}
-                    className={cx('flex min-h-16 min-w-16 cursor-pointer flex-col items-center justify-center rounded-2xl px-2 ring-2', foco,
-                      S.sel === i ? 'bg-rea text-bg ring-rea' : k ? 'bg-soft ring-rule border-dashed' : 'bg-surface ring-rule')}>
+                    className={cx('flex min-h-16 min-w-16 cursor-grab touch-none select-none flex-col items-center justify-center rounded-2xl px-2 ring-2 transition-opacity active:cursor-grabbing', foco,
+                      S.sel === i ? 'bg-rea text-bg ring-rea' : k ? 'bg-soft ring-rule border-dashed' : 'bg-surface ring-rule',
+                      arrastrando && arrastre?.i === i && 'opacity-40')}>
                     <b className="font-serif text-2xl leading-none">{v}</b>
                     {g.dados?.[i] && <small className="text-xs">{g.dados[i].join(' ')}</small>}
                     {k && <small className="text-xs">en {AB.find(a => a[0] === k)![2]}</small>}
@@ -87,16 +147,32 @@ export function PasoStats({ pj, c }: { pj: any; c: any }) {
               })}
             </div>
             <div role="group" aria-label="Características" className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
-              {AB.map(([k, , ab, nm]) => (
-                <button key={k} type="button" onClick={() => tocarSlot(g, k)}
-                  aria-label={`${nm}: ${g.asig[k] != null ? g.valores[g.asig[k]] : 'sin valor'}${S.sel != null ? '. Toca para asignar el valor elegido' : g.asig[k] != null ? '. Toca para quitarlo' : ''}`}
-                  className={cx('min-h-20 cursor-pointer rounded-2xl bg-surface p-2 text-center', foco,
-                    g.asig[k] != null ? 'ring-2 ring-ink' : 'border-2 border-dashed border-rule', S.sel != null && 'ring-2 ring-rea')}>
-                  <span className="block text-sm text-muted">{ab}</span>
-                  <b className="block font-serif text-3xl">{g.asig[k] != null ? g.valores[g.asig[k]] : '—'}</b>
-                </button>
-              ))}
+              {AB.map(([k, , ab, nm]) => {
+                const lleno = g.asig[k] != null, sobre = arrastrando && arrastre?.sobre === k;
+                return (
+                  <button key={k} type="button" data-casilla={k} onClick={e => { if (e.detail === 0) tocarSlot(g, k); }}
+                    onPointerDown={lleno ? e => empezar(e, g.asig[k]) : undefined}
+                    aria-label={`${nm}: ${lleno ? g.valores[g.asig[k]] : 'sin valor'}${S.sel != null ? '. Pulsa para asignar el valor elegido' : lleno ? '. Pulsa para quitarlo' : ''}`}
+                    // Borde y anillo excluyentes: si convivieran dos colores, ganaría el que el CSS genere después
+                    className={cx('min-h-20 rounded-2xl p-2 text-center transition-all', foco,
+                      lleno ? 'cursor-grab touch-none select-none active:cursor-grabbing' : 'border-2 border-dashed',
+                      !lleno && (sobre ? 'border-rea' : arrastrando ? 'border-rea/60' : 'border-rule'),
+                      sobre || S.sel != null ? 'ring-2 ring-rea' : lleno && 'ring-2 ring-ink',
+                      sobre ? 'scale-105 bg-rea/15' : 'bg-surface',
+                      arrastrando && lleno && arrastre?.i === g.asig[k] && 'opacity-40')}>
+                    <span className="block text-sm text-muted">{ab}</span>
+                    <b className="block font-serif text-3xl">{lleno ? g.valores[g.asig[k]] : '—'}</b>
+                  </button>
+                );
+              })}
             </div>
+            {arrastrando && arrastre && (
+              // Con el dedo, el número va por encima para que no lo tape
+              <div aria-hidden="true" style={{ left: arrastre.x, top: arrastre.y - (arrastre.dedo ? 56 : 0) }}
+                className="pointer-events-none fixed z-50 flex min-h-16 min-w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl bg-rea px-2 font-serif text-2xl font-bold text-bg shadow-2xl">
+                {g.valores[arrastre.i]}
+              </div>
+            )}
           </>
         )}
         {g.metodo === 'compra' && (
