@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from 'next';
-import { Alegreya, Alegreya_Sans } from 'next/font/google';
+import { EB_Garamond, Geist } from 'next/font/google';
 import { Toaster } from 'sileo';
 import './globals.css';
 
-const alegreya = Alegreya({ variable: '--font-alegreya', subsets: ['latin'], weight: ['500', '700', '800'] });
-const alegreyaSans = Alegreya_Sans({ variable: '--font-alegreya-sans', subsets: ['latin'], weight: ['400', '500', '700', '800'], style: ['normal', 'italic'] });
+const ebGaramond = EB_Garamond({ variable: '--font-eb-garamond', subsets: ['latin'], weight: 'variable', style: ['normal', 'italic'] });
+const geist = Geist({ variable: '--font-geist', subsets: ['latin'], weight: 'variable' });
 
 export const metadata: Metadata = {
   title: 'Mi turno: creador y hoja de D&D 2024',
@@ -14,10 +14,10 @@ export const viewport: Viewport = { width: 'device-width', initialScale: 1, view
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="es" className={`${alegreya.variable} ${alegreyaSans.variable}`}>
+    <html lang="es" className={`${ebGaramond.variable} ${geist.variable}`}>
       <body>
         {children}
-        <Toaster position="bottom-center" theme="system" />
+        <Toaster position="bottom-center" theme="dark" />
       </body>
     </html>
   );
