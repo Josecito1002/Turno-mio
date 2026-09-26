@@ -4,7 +4,7 @@ import { gql } from '@/shared/graphql/cliente';
 import { avisar } from '@/shared/ui/avisos';
 import { getLib, setLib, limpiarBestias } from '@/features/biblioteca/domain/biblioteca';
 import { filasALib } from '@/features/biblioteca/domain/mapeo';
-import { QUERY_BIBLIOTECA, aportarBiblioteca, guardarBiblioteca, type RespuestaBiblioteca } from '@/features/biblioteca/api';
+import { QUERY_BIBLIOTECA, aportarBiblioteca, guardarBiblioteca, guardarExtras, type CambioExtra, type RespuestaBiblioteca } from '@/features/biblioteca/api';
 import { QUERY_PERSONAJES, borrarPersonaje, guardarPersonaje, marcarUltimo, type PersonajeServidor } from '@/features/personajes/api';
 import { QUERY_CAMPANAS, borrarCampana, guardarCampana, type CampanaServidor } from '@/features/mesa/api';
 import { puedeUsarMesa, type Usuario } from './estado';
@@ -116,4 +116,10 @@ export function guardarLib(admin: boolean) {
   if (invitado) return; // lo que importe un invitado queda solo en esta sesión
   const lib = copia(getLib());
   programar('lib', () => (admin ? guardarBiblioteca(lib) : aportarBiblioteca(lib)), 900);
+}
+
+/** Guarda imágenes o descripciones sueltas (administrador) sin reenviar toda la biblioteca. */
+export function guardarLibExtras(cambios: CambioExtra[]) {
+  if (invitado || !cambios.length) return Promise.resolve();
+  return guardarExtras(cambios).then(() => undefined);
 }

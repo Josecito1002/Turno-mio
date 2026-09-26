@@ -1,6 +1,6 @@
 import { requiereUsuario, type Contexto, type ModuloGraphQL } from '@/shared/graphql/servidor';
 import { exigir } from '@/features/cuentas/server/permisos';
-import { aportarBiblioteca, leerBiblioteca, reemplazarBiblioteca } from './repositorio';
+import { aportarBiblioteca, guardarExtras, leerBiblioteca, leerExtra, reemplazarBiblioteca, type CambioExtra } from './repositorio';
 import type { Biblioteca } from '../domain/biblioteca';
 
 const typeDefs = /* GraphQL */ `
@@ -76,6 +76,7 @@ const typeDefs = /* GraphQL */ `
     clases: [String!]!
   }
   type LibExtra { tipo: String!, clave: String!, valor: JSON }
+  input CambioExtra { tipo: String!, clave: String!, valor: JSON }
   type Biblioteca {
     clases: [Clase!]!
     especies: [Especie!]!
@@ -88,12 +89,16 @@ const typeDefs = /* GraphQL */ `
   extend type Query {
     "Todo el contenido compartido (clases, especies, trasfondos, dotes, conjuros e imágenes/descripciones)."
     biblioteca: Biblioteca!
+    "Una entrada suelta de la biblioteca (p. ej. tipo imgOrig, la imagen sin recortar, que biblioteca no trae)."
+    extraBiblioteca(tipo: String!, clave: String!): JSON
   }
   extend type Mutation {
     "Solo administradores: deja la biblioteca exactamente igual a la enviada (formato LIB de la web)."
     guardarBiblioteca(lib: JSON!): Boolean!
     "Cualquier usuario: agrega lo que no exista todavía (lo que se aprende al importar). Devuelve cuántas filas nuevas hubo."
     aportarBiblioteca(lib: JSON!): Int!
+    "Solo administradores: guarda o borra (valor vacío) imágenes y descripciones sueltas, sin reenviar toda la biblioteca."
+    guardarExtras(cambios: [CambioExtra!]!): Int!
   }
 `;
 
@@ -103,12 +108,17 @@ export const bibliotecaGraphQL: ModuloGraphQL = {
     Query: {
       // Lectura pública: es contenido del juego, y el modo invitado la necesita sin cuenta. Editarla sigue pidiendo permisos.
       biblioteca: (_: unknown, __: unknown, ctx: Contexto) => leerBiblioteca(ctx.db),
+      extraBiblioteca: (_: unknown, { tipo, clave }: { tipo: string; clave: string }, ctx: Contexto) => leerExtra(ctx.db, tipo, clave),
     },
     Mutation: {
       guardarBiblioteca: async (_: unknown, { lib }: { lib: Biblioteca }, ctx: Contexto) => {
         await exigir(ctx, 'editarBiblioteca', 'Solo el administrador puede editar la biblioteca.');
         await reemplazarBiblioteca(ctx.db, lib);
         return true;
+      },
+      guardarExtras: async (_: unknown, { cambios }: { cambios: CambioExtra[] }, ctx: Contexto) => {
+        await exigir(ctx, 'editarBiblioteca', 'Solo el administrador puede editar la biblioteca.');
+        return guardarExtras(ctx.db, cambios);
       },
       aportarBiblioteca: (_: unknown, { lib }: { lib: Biblioteca }, ctx: Contexto) => { requiereUsuario(ctx); return aportarBiblioteca(ctx.db, lib); },
     },

@@ -209,3 +209,35 @@ export const DESC_SUBCLASES: Record<string, any> = {
 
 /* Las de los lotes hechos con Gemini (scripts/gemini/revisar.ts) reemplazan a las de arriba */
 Object.assign(DESC_SUBCLASES, DESCRIPCIONES_GENERADAS);
+
+/* ============ Descripciones cortas de subrazas: linajes, legados, ascendencias (clave "especie:subraza", sin "lib:") ============ */
+export const DESC_SUBESPECIES: Record<string, string> = {
+  'draconido:azul':'Herederos de los dragones azules del desierto: su aliento es un rayo y resisten el relámpago.',
+  'draconido:blanco':'Herederos de los dragones blancos de los hielos: exhalan escarcha y aguantan el frío.',
+  'draconido:bronce':'Herederos de los dragones de bronce de las costas: su aliento chisporrotea con relámpagos.',
+  'draconido:cobre':'Herederos de los bromistas dragones de cobre: escupen ácido y lo resisten.',
+  'draconido:laton':'Herederos de los charlatanes dragones de latón: exhalan fuego y soportan el calor.',
+  'draconido:negro':'Herederos de los dragones negros de los pantanos: su aliento es ácido corrosivo.',
+  'draconido:oro':'Herederos de los nobles dragones de oro: su aliento es fuego y el calor no los daña.',
+  'draconido:plata':'Herederos de los dragones de plata de las cumbres: exhalan un frío cortante.',
+  'draconido:rojo':'Herederos de los orgullosos dragones rojos: escupen llamas y resisten el fuego.',
+  'draconido:verde':'Herederos de los astutos dragones verdes de los bosques: su aliento es una nube de veneno.',
+  'elfo:drow':'Elfos de la Infraoscuridad: ven muy lejos en la oscuridad y dominan la magia de las sombras.',
+  'elfo:alto':'Elfos de tradición mágica: un truco de mago a elección, detectar magia y un paso brumoso.',
+  'elfo:silvano':'Elfos de los bosques: más rápidos que otros elfos y con magia que los ayuda a pasar sin rastro.',
+  'gnomo:bosque':'Gnomos de los bosques: crean ilusiones pequeñas y pueden hablar con los animales.',
+  'gnomo:roca':'Gnomos inventores: arreglan objetos con magia y fabrican pequeños mecanismos de relojería.',
+  'goliat:nubes':'Sangre de gigante de las nubes: se teletransportan unos metros en un parpadeo.',
+  'goliat:fuego':'Sangre de gigante de fuego: sus golpes queman con daño de fuego extra.',
+  'goliat:escarcha':'Sangre de gigante de escarcha: sus golpes congelan y frenan al enemigo.',
+  'goliat:colinas':'Sangre de gigante de las colinas: sus golpes pueden tumbar al enemigo al suelo.',
+  'goliat:piedra':'Sangre de gigante de piedra: aguantan los golpes y reducen el daño que reciben.',
+  'goliat:tormenta':'Sangre de gigante de las tormentas: responden con un trueno a quien los hiere.',
+  'tiefling:abisal':'Marcados por los demonios del Abismo: resisten el veneno y su magia enferma y paraliza.',
+  'tiefling:ctonico':'Marcados por el inframundo de Carceri: resisten el daño necrótico y su magia roba vida.',
+  'tiefling:infernal':'Marcados por los diablos de los Nueve Infiernos: resisten el fuego y su magia arde.',
+  'cambiante-shifter:piel-piedra':'Cambiantes de piel dura como la de un oso: al transformarse aguantan más y se protegen mejor.',
+  'cambiante-shifter:garras-largas':'Cambiantes de colmillos largos como los de un lobo: al transformarse muerden como arma.',
+  'cambiante-shifter:cazador-veloz':'Cambiantes ágiles como un felino: al transformarse corren más y se apartan de quien se les acerca.',
+  'cambiante-shifter:cazador-salvaje':'Cambiantes rastreadores: al transformarse lo perciben todo y es difícil tomarlos con ventaja.',
+};
