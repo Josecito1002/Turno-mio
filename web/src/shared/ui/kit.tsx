@@ -11,6 +11,11 @@ import {
 
 export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(' ');
 
+/** Ícono decorativo de Material Symbols (el nombre es la ligadura, p. ej. "shield"). */
+export function Simbolo({ n, className, relleno }: { n: string; className?: string; relleno?: boolean }) {
+  return <span aria-hidden="true" className={cx('material-symbols-outlined leading-none', relleno && 'relleno', className)}>{n}</span>;
+}
+
 export const foco = 'focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-rea';
 export const claseCampo = cx(
   'min-h-11 w-full rounded-xl border border-rule bg-surface px-3 text-base text-ink placeholder:text-muted/80',
@@ -20,7 +25,7 @@ export const claseCampo = cx(
 /* ---------- Botones ---------- */
 type Variante = 'primario' | 'secundario' | 'fantasma' | 'peligro';
 const VARIANTE: Record<Variante, string> = {
-  primario: 'bg-ink text-bg hover:bg-ink/90 shadow-sm',
+  primario: 'bg-adi text-bg shadow-[0_0_16px_color-mix(in_srgb,var(--adi)_35%,transparent)] hover:brightness-110',
   secundario: 'bg-surface text-ink ring-1 ring-inset ring-rule hover:bg-soft',
   fantasma: 'bg-transparent text-ink hover:bg-soft',
   peligro: 'bg-surface text-acc ring-1 ring-inset ring-acc/50 hover:bg-acc hover:text-bg',
@@ -42,7 +47,7 @@ export function Boton({ variante = 'secundario', tamano = 'md', className, type 
 export const claseBotonGrande = cx('min-h-12 cursor-pointer whitespace-nowrap rounded-xl bg-ink px-3 font-serif text-2xl font-extrabold text-bg transition-colors hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-40', foco);
 
 export function Tarjeta({ className, as: Tag = 'div', ...p }: HTMLAttributes<HTMLElement> & { as?: 'div' | 'section' | 'article' | 'li' }) {
-  return <Tag {...p} className={cx('rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-rule/60', className)} />;
+  return <Tag {...p} className={cx('rounded-2xl bg-surface p-4 shadow-xl ring-1 ring-rule/60', className)} />;
 }
 
 export function EncabezadoPagina({ titulo, subtitulo, children, id }: { titulo: ReactNode; subtitulo?: ReactNode; children?: ReactNode; id?: string }) {

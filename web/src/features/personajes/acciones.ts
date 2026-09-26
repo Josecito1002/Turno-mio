@@ -34,7 +34,7 @@ export function savePj() {
 
 export function abrir(id: string, view: 'ficha' | 'editor' = 'ficha') {
   const p = almacen.pj(id); if (!p) return;
-  S.pj = reparar(p); S.view = view; S.tab = 'turno'; S.sel = null;
+  S.pj = reparar(p); S.view = view; S.tab = 'turno'; S.dialogo = ''; S.sel = null;
   almacen.ultimo(id);
   render(); irArriba();
 }
@@ -142,6 +142,8 @@ export function descansar(tipo: 'corto' | 'largo') {
     if (largo || r.reset === 'corto') pj.used[r.id] = 0;
     else if (r.reset === 'corto1') pj.used[r.id] = Math.max(0, (pj.used[r.id] || 0) - 1);
   });
+  // Reglas de 2024: el descanso largo devuelve todos los dados de golpe; la ficha también lleva las salvaciones contra muerte
+  if (largo) { pj.used['dados-golpe'] = 0; pj.used['muerte-exitos'] = 0; pj.used['muerte-fallos'] = 0; pj.pgTemp = 0; }
   // Con un descanso largo los compañeros de clase recuperan todos sus PG
   if (largo) Object.keys(pj.used).filter(k => k.startsWith('cmp-')).forEach(k => { pj.used[k] = 0; });
   savePj(); render();
@@ -284,8 +286,8 @@ export function tomarEquipoTrasfondo(op: 'A' | 'B') {
 export function irAPaso(paso: string) {
   S.subida = null;
   // Pasada la creación, el equipo está en la pestaña Equipo de la hoja
-  if (paso === 'equipo' && S.pj && !pasoEquipoEnEditor(S.pj, compute(S.pj), kitClase, kitTrasfondo)) { S.view = 'ficha'; S.tab = 'equipo'; }
-  else { S.view = 'editor'; S.step = paso; }
+  if (paso === 'equipo' && S.pj && !pasoEquipoEnEditor(S.pj, compute(S.pj), kitClase, kitTrasfondo)) { S.view = 'ficha'; S.dialogo = 'equipo'; }
+  else { S.view = 'editor'; S.step = paso; S.dialogo = ''; }
   render(); irArriba();
 }
 

@@ -3,12 +3,14 @@ import type { OpcionesTirada } from '../domain/dados';
 import { esc } from '@/shared/utils/texto';
 import { cx, foco } from '@/shared/ui/kit';
 
-type Estilo = 'chip' | 'grande' | 'bloque';
+type Estilo = 'chip' | 'grande' | 'bloque' | 'libre';
 const ESTILO: Record<Estilo, string> = {
   // El color del texto va en cada estilo: si la base llevara text-inherit, le ganaría a text-bg del estilo grande
   chip: 'min-h-11 rounded-lg bg-soft px-2.5 font-bold text-inherit hover:bg-rule/70 sm:min-h-9',
   grande: 'min-h-12 rounded-xl bg-ink px-3 font-serif text-2xl font-extrabold text-bg hover:bg-ink/90',
   bloque: 'w-full rounded-xl text-inherit hover:bg-soft',
+  // Sin aspecto propio: lo pone todo className
+  libre: '',
 };
 
 type Props = {
