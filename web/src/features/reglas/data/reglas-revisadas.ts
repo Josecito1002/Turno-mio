@@ -1455,3 +1455,55 @@ export const REGLAS: any[] = [
   /* Lo generado desde las respuestas de Gemini (scripts/gemini/revisar.ts); las de arriba tienen prioridad */
   ...REGLAS_GENERADAS,
 ];
+
+/* Conjuros que dan los rasgos cuyo texto los nombra pero no los enlazaba (siempre preparados, gratis o como ritual).
+   Se suman aunque el rasgo tenga su propia regla, salvo que esa regla ya traiga `conjuros`; así salen en el Turno,
+   en la categoría de su tiempo de lanzamiento. Los usos gratis siguen contándose en el rasgo. */
+export const CONJUROS_RASGOS: any[] = [
+  {de:/^senda del corazon salvaje$/, n:/^hablante animal$/, conjuros:[
+    {nombre:'Sentidos de la bestia', ab:'sab', nota:'Solo como ritual (Hablante Animal)'},
+    {nombre:'Hablar con los animales', ab:'sab', nota:'Solo como ritual (Hablante Animal)'}]},
+  {de:/^senda del corazon salvaje$/, n:/^hablante de la naturaleza$/, conjuros:[
+    {nombre:'Comunión con la naturaleza', ab:'sab', nota:'Solo como ritual (Hablante de la Naturaleza)'}]},
+  {de:/^senda del guardian espiritual$/, n:/^consultar a los espiritus$/, conjuros:[
+    {nombre:'Augurio', ab:'sab', nota:'Sin espacio ni componentes materiales; comparte el uso de Consultar a los Espíritus'},
+    {nombre:'Clarividencia', ab:'sab', nota:'Sin espacio ni componentes materiales; comparte el uso de Consultar a los Espíritus'}]},
+  {de:/^colegio de los espiritus$/, n:/^canalizador$/, conjuros:[{nombre:'Guía', nota:'Truco del Canalizador, con alcance de 60 pies'}]},
+  {de:/^brujo$/, n:/^contactar al patron$/, conjuros:[
+    {nombre:'Contactar con otro plano', nota:'Siempre preparado. Una vez por descanso largo, sin espacio y superando la salvación (Contactar al Patrón)'}]},
+  {de:/^patron gran antiguo$/, n:/^maleficio sobrenatural$/, conjuros:[{nombre:'Maleficio'}]},
+  {de:/^druida$/, n:/^druidico$/, conjuros:[{nombre:'Hablar con los animales'}]},
+  {de:/^druida$/, n:/^companero salvaje$/, conjuros:[
+    {nombre:'Encontrar familiar', nota:'Con un espacio o un uso de Forma Salvaje, sin componentes materiales (Compañero Salvaje)'}]},
+  {de:/^circulo de los suenos$/, n:/^caminante de los suenos$/, conjuros:[
+    {nombre:'Ensueño', nota:'Sin espacio al terminar un descanso corto; comparte el uso de Caminante de los Sueños'},
+    {nombre:'Escudriñar', nota:'Sin espacio al terminar un descanso corto; comparte el uso de Caminante de los Sueños'},
+    {nombre:'Círculo de teletransportación', nota:'Sin espacio al terminar un descanso corto; comparte el uso de Caminante de los Sueños'}]},
+  {de:/^circulo del pastor$/, n:/^invocacion fiel$/, conjuros:[
+    {nombre:'Conjurar animales', nota:'Como si fuera de nivel 9, al caer a 0 PG o quedar Incapacitado (Invocación Fiel)'}]},
+  {de:/^abanderado$/, n:/^enviado caballeresco$/, conjuros:[{nombre:'Comprender idiomas', ab:'car', nota:'Solo como ritual (Enviado Caballeresco)'}]},
+  {de:/^guerrero psionico$/, n:/^maestro de la telequinesis$/, conjuros:[
+    {nombre:'Telequinesis', ab:'int', nota:'Sin componentes; gratis una vez por descanso largo (Maestro de la Telequinesis) o gastando un dado psiónico'}]},
+  {de:/^hechiceria de las sombras$/, n:/^bestias de mal aguero$/, conjuros:[
+    {nombre:'Invocar bestia', tiempo:'adicional', coste:'3 puntos de hechicería', nota:'Sin espacio ni componentes materiales (Bestias de Mal Agüero)'}]},
+  {de:/^abjurador$/, n:/^rompeconjuros$/, conjuros:[
+    {nombre:'Contrahechizo', nota:'Siempre preparado; sumas tu competencia a la tirada y si falla no gastas el espacio'},
+    {nombre:'Disipar magia', tiempo:'adicional', nota:'Siempre preparado; como acción adicional, sumas tu competencia a la tirada y si falla no gastas el espacio'}]},
+  {de:/^adivino$/, n:/^el tercer ojo$/, conjuros:[{nombre:'Ver invisibilidad', nota:'Gratis una vez si eliges esa opción del Tercer Ojo'}]},
+  {de:/^ilusionista$/, n:/^ilusiones mejoradas$/, conjuros:[{nombre:'Ilusión menor', tiempo:'adicional', nota:'Con sonido e imagen a la vez; como acción adicional (Ilusiones Mejoradas)'}]},
+  {de:/^ilusionista$/, n:/^criaturas fantasmales$/, conjuros:[
+    {nombre:'Invocar bestia', nota:'Siempre preparado; gratis como ilusión con la mitad de PG (Criaturas Fantasmales)'},
+    {nombre:'Invocar feérico', nota:'Siempre preparado; gratis como ilusión con la mitad de PG (Criaturas Fantasmales)'}]},
+  {de:/^transmutador$/, n:/^alteracion maravillosa$/, conjuros:[{nombre:'Alterar el propio aspecto', nota:'Siempre preparado; gratis una vez por descanso largo (Alteración Maravillosa)'}]},
+  {de:/^transmutador$/, n:/^cambiaformas$/, conjuros:[{nombre:'Polimorfar', nota:'Siempre preparado; gratis sobre ti una vez por descanso largo (Cambiaformas)'}]},
+  {de:/^nigromante$/, n:/^libro de necromancia$/, conjuros:[{nombre:'Encontrar familiar', nota:'El familiar puede ser un esqueleto o zombi (Libro de Necromancia)'}]},
+  {de:/^guerrero de la sombra$/, n:/^oscuridad/, conjuros:[{nombre:'Oscuridad', ab:'sab', coste:'1 Focus', nota:'Sin componentes; ves dentro y puedes moverla (Artes de la Sombra)'}]},
+  {de:/^guerrero de la sombra$/, n:/^figuras sombrias$/, conjuros:[{nombre:'Ilusión menor', ab:'sab'}]},
+  {de:/^guerrero de los elementos$/, n:/^sintonia elemental$/, conjuros:[{nombre:'Elementalismo', ab:'sab'}]},
+  {de:/^juramento de los genios nobles$/, n:/^conjuros del genio$/, conjuros:[
+    {nombre:'Orbe cromático'}, {nombre:'Elementalismo'}, {nombre:'Castigo atronador'},
+    {nombre:'Imagen múltiple', desde:5}, {nombre:'Fuerza fantasmal', desde:5},
+    {nombre:'Volar', desde:9}, {nombre:'Forma gaseosa', desde:9},
+    {nombre:'Conjurar elementales menores', desde:13}, {nombre:'Invocar elemental', desde:13},
+    {nombre:'Castigo desterrador', desde:17}, {nombre:'Contactar con otro plano', desde:17}]},
+];

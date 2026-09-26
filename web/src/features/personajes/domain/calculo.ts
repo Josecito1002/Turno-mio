@@ -8,7 +8,7 @@ import { SUBCLASES } from '@/features/reglas/data/subclases';
 import { asiLevels, periciaN, pacto } from '@/features/reglas/data/clases';
 import { trucosN, prepN } from '@/features/reglas/data/conjuros';
 import { FULL_SLOTS } from '@/features/reglas/data/comunes';
-import { REGLAS } from '@/features/reglas/data/reglas-revisadas';
+import { REGLAS, CONJUROS_RASGOS } from '@/features/reglas/data/reglas-revisadas';
 import { doteKey } from '@/features/reglas/data/dotes';
 import { kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
 import { kitClase } from '@/features/reglas/data/equipo-clases';
@@ -459,6 +459,8 @@ export function aplicarReglas(c){
   c.entries.forEach(e => {
     const n = norm(e.nombre), de = norm(e.src || '');
     const R = REGLAS.find(r => r.n.test(n) && (!r.de || r.de.test(de)));
+    // Conjuros que dan los rasgos, aunque el rasgo no tenga regla propia (o tenga una generada)
+    CONJUROS_RASGOS.filter(r => r.n.test(n) && (!r.de || r.de.test(de)) && !(R?.conjuros)).forEach(r => conjuros(r.conjuros, e.nombre));
     if (!R) { out.push(e); return; }
     // Si la biblioteca le puso otro nombre al rasgo, se muestra con el oficial
     if (R.nombre) { c.extraRes = c.extraRes.filter(r => r.nombre !== e.nombre); e.nombre = R.nombre; }
@@ -514,7 +516,7 @@ export function listasDeConjuros(c){
     .flatMap(e => e.texto.split(':').slice(1).join(':').split(',').map(n => ({nombre: n.replace(/\.$/, '').trim(), src: e.src || e.nombre})));
 }
 /* Conjuros que dan los rasgos, con sus datos del catálogo: las listas "Conjuros de…" y los que declaran las reglas
-   (`conjuros` en reglas-revisadas.ts: {nombre, nivel?, desde?, usos?, reset?, nota?, ab?}). Los que tienen usos suman su recurso. */
+   (`conjuros` en reglas-revisadas.ts: {nombre, nivel?, desde?, usos?, reset?, nota?, ab?, tiempo?}). Los que tienen usos suman su recurso. */
 export function conjurosDeRasgos(c){
   const cat = new Map(todosConjuros().map(s => [norm(s.nombre), s]));
   const out = [];
@@ -534,7 +536,7 @@ export function conjurosDeRasgos(c){
     const conEspacios = nv > 0 && (c.slots.some(e => e.nivel >= nv) || (c.pj.clase === 'brujo' && pacto(c.lvl).nivel >= nv));
     const nota = [x.nota || (!max && nv ? 'Siempre preparado' : ''), max && `Sin gastar espacio${conEspacios ? '; también puedes lanzarlo con tus espacios' : ''}`].filter(Boolean).join('. ');
     const recurso = max ? 'cr-' + slug(x.nombre) : x.recurso || '';
-    let fila = conCd({...s, extra: true, rasgo: x.src, nota, coste: max ? usoTxt(max, x.reset) : x.coste || '', recurso}, x.ab || abLibre);
+    let fila = conCd({...s, extra: true, rasgo: x.src, nota, coste: max ? usoTxt(max, x.reset) : x.coste || '', recurso, ...(x.tiempo ? {tiempo: x.tiempo} : {})}, x.ab || abLibre);
     // Los objetos mágicos pueden traer su propia CD o ataque
     if (x.cd || x.atk != null) fila = {...fila, ...(x.cd ? {cd: x.cd} : {}), ...(x.atk != null ? {atk: x.atk} : {}), abNota: ''};
     out.push(fila);

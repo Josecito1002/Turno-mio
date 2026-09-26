@@ -1011,3 +1011,16 @@ describe('Playtest: Unearthed Arcana 2025', () => {
     assert.ok(c20.naturales.some((a: any) => a.nombre.startsWith('Golpe Sombrío')));
   });
 });
+
+describe('Conjuros que dan los rasgos', () => {
+  test('Rompeconjuros: Contrahechizo como reacción y Disipar magia como acción adicional', () => {
+    setLib({ clases: { mago: MAGO_2024 } });
+    const c = pj('mago', 10, 'lib:abjuracion', { int: 16 });
+    const s = (n: string) => c.conjurosRasgo.find((x: any) => x.nombre === n);
+    assert.equal(s('Contrahechizo')?.tiempo, 'reaccion');
+    assert.equal(s('Disipar magia')?.tiempo, 'adicional');
+  });
+  test('Druídico deja Hablar con los animales siempre preparado', () => {
+    assert.ok(pj('druida', 1).conjurosRasgo.some((x: any) => /^hablar con los animales$/i.test(x.nombre)));
+  });
+});
