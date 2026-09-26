@@ -12,6 +12,13 @@ import { BotonTirada } from '@/features/dados/components/BotonTirada';
 import { Ataque, ConjuroFila, ConjuroTarjeta, Entrada, Recursos } from '../piezas';
 import { abrirSubida, bajarArchivo, bajarNivel, borrarPj, irAPaso } from '../../acciones';
 import { desglose } from '../../domain/calculo';
+
+/* De dónde sale el bono de una habilidad: la característica y la competencia (doble con pericia, o la mitad con Polivalente) */
+function desgloseHabilidad(c: any, k: string, a: string) {
+  const bardo = c.pj?.clase === 'bardo' && c.lvl >= 2 && !c.skillProf[k] ? Math.floor(c.pb / 2) : 0;
+  return desglose([[c.m[a], a.toUpperCase()], [c.skillProf[k] ? c.pb * (c.skillPer[k] ? 2 : 1) : bardo,
+    c.skillPer[k] ? 'competencia ×2 (pericia)' : c.skillProf[k] ? 'competencia' : 'Polivalente']]);
+}
 import { faltaParaSubir } from '../../domain/pendientes';
 import { avisar } from '@/shared/ui/avisos';
 import { Inventario } from '../Inventario';
@@ -92,11 +99,12 @@ function Hoja({ c }: { c: any }) {
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
           {AB.map(([k, , ab, nm]) => (
             <Tarjeta key={k} className="flex flex-col items-stretch gap-1 p-2 text-center">
-              <BotonTirada expr={`1d20${modStr(c.m[k])}`} label={`Prueba de ${nm}`} estilo="bloque" className="py-1" ariaLabel={`Prueba de ${nm} (${c.sc[k]}), ${sign(c.m[k])}`}>
+              <BotonTirada expr={`1d20${modStr(c.m[k])}`} label={`Prueba de ${nm}`} mods={desglose([[c.m[k], ab]])} estilo="bloque" className="py-1" ariaLabel={`Prueba de ${nm} (${c.sc[k]}), ${sign(c.m[k])}`}>
                 <span className="block text-xs text-muted">{ab} {c.sc[k]}</span>
                 <b className="block font-serif text-3xl font-extrabold leading-tight">{sign(c.m[k])}</b>
               </BotonTirada>
               <BotonTirada expr={`1d20${modStr(c.saves[k])}`} label={`Salvación de ${nm}`} className="text-sm"
+                mods={desglose([[c.m[k], ab], [c.saveProf.includes(k) ? c.pb : 0, 'competencia']])}
                 ariaLabel={`Salvación de ${nm}, ${sign(c.saves[k])}${c.saveProf.includes(k) ? ', competente' : ''}`}>
                 Salv. {sign(c.saves[k])}{c.saveProf.includes(k) ? ' ●' : ''}
               </BotonTirada>
@@ -110,7 +118,7 @@ function Hoja({ c }: { c: any }) {
             const k = norm(n);
             return (
               <li key={n}>
-                <BotonTirada expr={`1d20${modStr(c.skill[k])}`} label={n} estilo="bloque" className="flex min-h-12 items-center justify-between px-1 text-left"
+                <BotonTirada expr={`1d20${modStr(c.skill[k])}`} label={n} mods={desgloseHabilidad(c, k, a)} estilo="bloque" className="flex min-h-12 items-center justify-between px-1 text-left"
                   ariaLabel={`${n}${c.skillProf[k] ? ', competente' : ''}${c.skillPer[k] ? ', con pericia' : ''}: ${sign(c.skill[k])}`}>
                   <span className="flex items-center gap-2">
                     <span aria-hidden="true" className={cx('size-2.5 rounded-full', c.skillProf[k] ? 'bg-ink' : 'ring-[1.5px] ring-inset ring-rule')} />
@@ -147,7 +155,7 @@ function ConjurosTab({ c }: { c: any }) {
     <div className="grid grid-cols-3 gap-px overflow-hidden rounded-2xl bg-rule ring-1 ring-rule">
       <Stat valor={c.dcSpell} etiqueta="CD de conjuros" />
       <Stat etiqueta="Ataque">
-        <BotonTirada expr={`1d20${modStr(c.atkSpell)}`} label="Ataque de conjuro" estilo="bloque" className="py-1">
+        <BotonTirada expr={`1d20${modStr(c.atkSpell)}`} label="Ataque de conjuro" mods={desglose([[c.mSpell, c.casterAb.toUpperCase()], [c.pb, 'competencia']])} estilo="bloque" className="py-1">
           <b className="block font-serif text-3xl font-extrabold leading-none underline decoration-dotted decoration-2 underline-offset-4">{sign(c.atkSpell)}</b>
           <span className="mt-1 block text-xs text-muted">Ataque</span>
         </BotonTirada>

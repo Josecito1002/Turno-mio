@@ -202,6 +202,8 @@ export function aplicarTextos(c){
   // Armas naturales (garras, cuernos, mordisco): en las reglas actuales son golpes sin armas con otro daño
   // Las filas de reglas que gastan un recurso lo nombran (los recursos se arman después de las reglas)
   (c.ataquesReglas || []).forEach(a => { if (a.gastaNombre) a.gasta = c.recursos.find(r => norm(r.nombre) === a.gastaNombre)?.id; });
+  // Las filas de reglas que usan el ataque de conjuro: su bono se explica igual que el de los conjuros
+  (c.ataquesReglas || []).forEach(a => { if (!a.atkDesg && c.casterAb && a.atk === c.atkSpell) a.atkDesg = desglose([[c.mSpell, c.casterAb.toUpperCase()], [c.pb, 'competencia']]); });
   c.naturales = [...(c.ataquesReglas || [])];
   c.entries.filter(e => e.grupo === 'especie' || e.grupo === 'extra').forEach(e => {
     const frases = String(e.texto).split(/(?<=[.;])\s+/);
@@ -213,6 +215,7 @@ export function aplicarTextos(c){
     const tipo = (nf.match(/cortante|perforante|contundente/) || ['contundente'])[0];
     const mod = m[ab];
     c.naturales.push({nombre: `Golpe sin armas: ${e.nombre}`, atk: c.pb + mod, expr: `${dado}${modStr(mod)}`, dmg: `${dado}${fmtMod(mod)} ${tipo}`,
+      atkDesg: desglose([[mod, ab.toUpperCase()], [c.pb, 'competencia']]), dmgDesg: desglose([[mod, ab.toUpperCase()]]),
       notas: [`Cuenta como golpe sin armas: lo usas con Atacar y con todo lo que te dé golpes sin armas extra${/accion adicional/.test(nf) ? '. Este rasgo además te deja hacerlo con acción adicional' : ''}${nota ? '. ' + nota.trim().replace(/\.$/, '') : ''}`]});
   });
   // CA natural o sin armadura descrita en rasgos (Mentón de Hierro, Armadura Natural, Caparazón)

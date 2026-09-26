@@ -11,6 +11,7 @@ import { useDados } from '@/features/dados/components/Bandeja';
 import { avisar } from '@/shared/ui/avisos';
 import { descansar, fijarPool, gastarEspacio, gastarRecurso, moverPool, moverRasgo, tocarPip } from '../acciones';
 import { bonosPara, dadosAlLanzar, espaciosPara, extrasAtaque } from '../domain/lanzar';
+import { desglose } from '../domain/calculo';
 
 /** Compatibilidad: forma del tipo de acción. */
 export const Shape = ({ t }: { t: string; className?: string }) => <FormaTipo t={t} />;
@@ -68,6 +69,7 @@ export function Entrada({ e }: { e: any }) {
         {e.roll && (() => { const b = e.roll[0].replace(/^1d20\s*/, '') || '+0'; return (
           <div className="flex flex-col items-center justify-center">
             <BotonTirada expr={e.roll[0]} label={`${e.nombre}: ataque`} dmg={e.roll[1]} dmgLabel={`${e.nombre}: daño`} estilo="grande"
+              {...(S.c && e.roll[0] === `1d20${modStr(S.c.unarmed.atk)}` && e.roll[1] === S.c.unarmed.expr ? { mods: S.c.unarmed.atkDesg, dmgMods: S.c.unarmed.dmgDesg } : {})}
               ariaLabel={`Tirar ataque de ${e.nombre}, ${b}`}>{b}</BotonTirada>
             <small className="mt-0.5 text-xs text-muted" aria-hidden="true">al ataque</small>
           </div>); })()}
@@ -125,7 +127,8 @@ function datosConjuro(s: any, c: any) {
   const meta = [s.alcance && `Alcance: ${s.alcance}`, s.dur].filter(Boolean).join('. ');
   // Cómo se lanza, si lo da un rasgo
   const origen = s.rasgo ? [s.nota, s.abNota && `Usa ${s.abNota}`].filter(Boolean).join('. ') : '';
-  return { bits, dexpr, meta, origen, atk: s.atk ?? c.atkSpell, cd: s.cd ?? c.dcSpell };
+  const atk = s.atk ?? c.atkSpell, ab = s.abNota || String(c.casterAb || '').toUpperCase();
+  return { bits, dexpr, meta, origen, atk, cd: s.cd ?? c.dcSpell, mSpell, ab, atkDesg: atk != null ? desglose([[atk - c.pb, ab], [c.pb, 'competencia']]) : '' };
 }
 
 /* Párrafos que ya resuelve el botón Lanzar (subir el conjuro de nivel, la mejora de los trucos): no se muestran */
@@ -163,22 +166,21 @@ function LanzarConjuro({ s, c, d }: { s: any; c: any; d: ReturnType<typeof datos
   const tirarCon = (nivel: number) => {
     const expr = dadosAlLanzar(d.dexpr, nv, nivel, s.desc, bono);
     const label = nv && nivel > nv ? `${s.nombre} (nivel ${nivel})` : s.nombre;
-    if (ataque) tirar(`1d20${modStr(d.atk)}`, `${label}: ataque`, expr ? { dmg: expr, dmgLabel: label } : {});
-    else if (expr) tirar(expr, label);
+    if (ataque) tirar(`1d20${modStr(d.atk)}`, `${label}: ataque`, { ...(expr ? { dmg: expr, dmgLabel: label, dmgMods: dmgMods(nivel) } : {}), mods: d.atkDesg });
+    else if (expr) tirar(expr, label, { mods: dmgMods(nivel) });
     else avisar(`Lanzaste ${label}.`);
   };
   const conEspacio = (nivel: number) => { if (gastarEspacio(nivel)) { setAbierto(false); tirarCon(nivel); } };
   const conRasgo = () => { if (rasgo && gastarRecurso(rasgo.id)) { setAbierto(false); tirarCon(nv); } };
   const lanzar = () => (nv && S.pj ? setAbierto(true) : tirarCon(nv));
+  // De dónde sale el número fijo del daño: la característica (si el conjuro la suma) y los bonos de rasgos
+  function dmgMods(nivel: number) {
+    const expr = dadosAlLanzar(d.dexpr, nv, nivel, s.desc, bono);
+    return expr ? desglose([[s.mod ? d.mSpell : 0, d.ab], ...bonos.map((b: any): [number, string] => [+b.valor || 0, b.nombre])]) : '';
+  }
   const etiqueta = ataque ? `${sign(d.atk)} al ataque` : s.salv ? `CD ${d.cd ?? '?'} de ${s.salv}` : d.dexpr ? dadosAlLanzar(d.dexpr, nv, nv, '', bono) + (s.tipo ? ' ' + s.tipo : '') : '';
-  return (
-    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 print:hidden">
-      <Boton variante="primario" onClick={lanzar} aria-label={`Lanzar ${s.nombre}${etiqueta ? ', ' + etiqueta : ''}`}>
-        Lanzar{etiqueta && <span className="font-serif text-lg font-extrabold">{etiqueta}</span>}
-      </Boton>
-      {(ataque || s.salv) && d.dexpr && <span className="text-sm text-muted">Daño {dadosAlLanzar(d.dexpr, nv, nv, '', bono)}{s.tipo ? ' ' + s.tipo : ''}</span>}
-      {bonos.length > 0 && d.dexpr && <span className="w-full text-xs text-muted">Incluye {bonos.map((b: any) => `${b.nombre} (${sign(+b.valor || 0)})`).join(', ')}</span>}
-      {nv > 0 && (
+  const dano = (ataque || s.salv) && d.dexpr ? `${dadosAlLanzar(d.dexpr, nv, nv, '', bono)}${s.tipo ? ' ' + s.tipo : ''}` : '';
+  const dialogo = nv > 0 && (
         <Dialogo abierto={abierto} onCerrar={() => setAbierto(false)} titulo={`Lanzar ${s.nombre}`} descripcion="¿Con qué lo lanzas? Se gasta al elegirlo." abajo>
           <ul className="m-0 grid list-none gap-2 p-0">
             {rasgo && (
@@ -196,10 +198,31 @@ function LanzarConjuro({ s, c, d }: { s: any; c: any; d: ReturnType<typeof datos
             {!esp.length && !rasgo && <li className="text-sm text-muted">No tienes espacios de este nivel o más.</li>}
           </ul>
         </Dialogo>
-      )}
+      );
+  // Ataque o salvación: el mismo botón grande de Ataques, a la derecha de la tarjeta
+  if (ataque || s.salv) return (
+    <div className="flex flex-col items-center justify-center text-center print:hidden">
+      <button type="button" onClick={lanzar} aria-label={`Lanzar ${s.nombre}, ${etiqueta}`}
+        className={cx('min-h-12 cursor-pointer rounded-xl bg-ink px-3 font-serif text-2xl font-extrabold text-bg transition-colors hover:bg-ink/90', foco)}>
+        {ataque ? sign(d.atk) : `CD ${d.cd ?? '?'}`}
+      </button>
+      <small className="mt-0.5 text-xs text-muted" aria-hidden="true">{ataque ? 'al ataque' : `salvación de ${s.salv}`}</small>
+      {dano && <small className="text-xs text-muted">Daño {dano}</small>}
+      {dialogo}
+    </div>
+  );
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 print:hidden">
+      <Boton variante="primario" onClick={lanzar} aria-label={`Lanzar ${s.nombre}${etiqueta ? ', ' + etiqueta : ''}`}>
+        Lanzar{etiqueta && <span className="font-serif text-lg font-extrabold">{etiqueta}</span>}
+      </Boton>
+      {bonos.length > 0 && d.dexpr && <span className="w-full text-xs text-muted">Incluye {bonos.map((b: any) => `${b.nombre} (${sign(+b.valor || 0)})`).join(', ')}</span>}
+      {dialogo}
     </div>
   );
 }
+/** Si el conjuro se lanza con el botón grande (ataque o salvación), que va en su propia columna */
+const botonGrande = (s: any, d: ReturnType<typeof datosConjuro>) => (s.ataque && d.atk != null) || !!s.salv;
 
 /** Conjuro en la pestaña Conjuros: fila plegable. */
 export function ConjuroFila({ s, c }: { s: any; c: any }) {
@@ -218,7 +241,7 @@ export function ConjuroFila({ s, c }: { s: any; c: any }) {
           {s.rasgo && <p className="m-0 text-xs text-muted">De {s.rasgo}</p>}
         </div>
       </details>
-      <div className="pb-2"><LanzarConjuro s={s} c={c} d={d} /></div>
+      <div className={cx('pb-2', botonGrande(s, d) && 'flex justify-end')}><LanzarConjuro s={s} c={c} d={d} /></div>
     </li>
   );
 }
@@ -228,14 +251,18 @@ export function ConjuroTarjeta({ s, c, t }: { s: any; c: any; t: string }) {
   const d = datosConjuro(s, c), color = COLOR_TIPO[t] || COLOR_TIPO.pasiva;
   return (
     <article className={cx('my-2 rounded-2xl border-l-4 bg-surface px-4 py-3 shadow-sm ring-1 ring-rule/50 break-inside-avoid', color.borde)}>
-      <header className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
-        <h3 className="m-0 font-serif text-lg font-bold leading-snug">{s.nombre}</h3>
-        {s.coste && <span className={cx('text-sm font-bold', color.texto)}>{s.coste}</span>}
-      </header>
-      <p className="m-0 text-sm text-muted">{[d.bits.join(', '), d.meta].filter(Boolean).join('. ')}</p>
-      <DescripcionCorta desc={s.desc} />
-      {d.origen && <p className="mb-0 mt-1">{d.origen}.</p>}
-      <LanzarConjuro s={s} c={c} d={d} />
+      <div className={cx(botonGrande(s, d) && 'grid grid-cols-[1fr_auto] gap-x-3')}>
+        <div>
+          <header className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+            <h3 className="m-0 font-serif text-lg font-bold leading-snug">{s.nombre}</h3>
+            {s.coste && <span className={cx('text-sm font-bold', color.texto)}>{s.coste}</span>}
+          </header>
+          <p className="m-0 text-sm text-muted">{[d.bits.join(', '), d.meta].filter(Boolean).join('. ')}</p>
+          <DescripcionCorta desc={s.desc} />
+          {d.origen && <p className="mb-0 mt-1">{d.origen}.</p>}
+        </div>
+        <LanzarConjuro s={s} c={c} d={d} />
+      </div>
       {s.recurso && S.view === 'ficha' && <RecursoInline id={s.recurso} />}
       <p className="m-0 mt-1 text-xs text-muted">{s.rasgo ? `Conjuro de ${s.rasgo}` : 'Conjuro'}</p>
     </article>
