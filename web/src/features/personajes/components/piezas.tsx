@@ -200,29 +200,24 @@ function LanzarConjuro({ s, c, d }: { s: any; c: any; d: ReturnType<typeof datos
         </Dialogo>
       );
   // Ataque o salvación: el mismo botón grande de Ataques, a la derecha de la tarjeta
-  if (ataque || s.salv) return (
-    <div className="flex flex-col items-center justify-center text-center print:hidden">
-      <button type="button" onClick={lanzar} aria-label={`Lanzar ${s.nombre}, ${etiqueta}`}
-        className={cx('min-h-12 cursor-pointer rounded-xl bg-ink px-3 font-serif text-2xl font-extrabold text-bg transition-colors hover:bg-ink/90', foco)}>
-        {ataque ? sign(d.atk) : `CD ${d.cd ?? '?'}`}
-      </button>
-      <small className="mt-0.5 text-xs text-muted" aria-hidden="true">{ataque ? 'al ataque' : `salvación de ${s.salv}`}</small>
-      {dano && <small className="text-xs text-muted">Daño {dano}</small>}
-      {dialogo}
-    </div>
-  );
+  // Siempre el mismo botón grande de Ataques, a la derecha de la tarjeta: el bono al ataque, la CD, los dados o "Lanzar"
+  const grande = ataque ? sign(d.atk) : s.salv ? `CD ${d.cd ?? '?'}` : d.dexpr ? dadosAlLanzar(d.dexpr, nv, nv, '', bono) : 'Lanzar';
+  const debajo = ataque ? 'al ataque' : s.salv ? `salvación de ${s.salv}` : d.dexpr ? (s.tipo || 'Lanzar') : '';
   return (
-    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 print:hidden">
-      <Boton variante="primario" onClick={lanzar} aria-label={`Lanzar ${s.nombre}${etiqueta ? ', ' + etiqueta : ''}`}>
-        Lanzar{etiqueta && <span className="font-serif text-lg font-extrabold">{etiqueta}</span>}
-      </Boton>
-      {bonos.length > 0 && d.dexpr && <span className="w-full text-xs text-muted">Incluye {bonos.map((b: any) => `${b.nombre} (${sign(+b.valor || 0)})`).join(', ')}</span>}
+    <div className="flex flex-col items-center justify-center text-center print:hidden">
+      <button type="button" onClick={lanzar} aria-label={`Lanzar ${s.nombre}${etiqueta ? ', ' + etiqueta : ''}`}
+        className={cx('min-h-12 cursor-pointer whitespace-nowrap rounded-xl bg-ink px-3 font-serif text-2xl font-extrabold text-bg transition-colors hover:bg-ink/90', foco)}>
+        {grande}
+      </button>
+      {debajo && <small className="mt-0.5 text-xs text-muted" aria-hidden="true">{debajo}</small>}
+      {dano && <small className="text-xs text-muted">Daño {dano}</small>}
+      {bonos.length > 0 && d.dexpr && <small className="max-w-32 text-xs text-muted">Incluye {bonos.map((b: any) => `${b.nombre} (${sign(+b.valor || 0)})`).join(', ')}</small>}
       {dialogo}
     </div>
   );
 }
-/** Si el conjuro se lanza con el botón grande (ataque o salvación), que va en su propia columna */
-const botonGrande = (s: any, d: ReturnType<typeof datosConjuro>) => (s.ataque && d.atk != null) || !!s.salv;
+/** Si el conjuro tiene botón para lanzarlo (va en su propia columna, a la derecha) */
+const botonGrande = (s: any, d: ReturnType<typeof datosConjuro>) => (s.ataque && d.atk != null) || !!s.salv || !!d.dexpr || +s.nivel > 0;
 
 /** Conjuro en la pestaña Conjuros: fila plegable. */
 export function ConjuroFila({ s, c }: { s: any; c: any }) {
