@@ -17,6 +17,7 @@ import { snapshot } from './domain/importar-personaje';
 import { manosDe, aDosManos, puedeIrEnLaOtra } from './domain/manos';
 import { armadurasDe, bolsaDe, guardarBolsa, juntar, nuevaClave, pagar, pasoEquipoEnEditor } from './domain/inventario';
 import { ARMAS, ARMADURAS } from '@/features/reglas/data/equipo';
+import { CRIATURAS } from '@/features/reglas/data/criaturas';
 import { MAX_SINTONIA, armaMagica, armaduraMagica, defDe, sintonizados } from './domain/magicos';
 
 export type Tirar = (expr: string, label: string, o?: OpcionesTirada) => Promise<Resultado>;
@@ -66,15 +67,20 @@ export function tocarPip(id: string, i: number, max: number) {
   savePj(); render();
 }
 /* ---- Familiares y criaturas ---- */
-export function agregarCriatura(key: string, nombre: string) {
+export function agregarCriatura(key: string, nombre: string, cuantas = 1) {
   const pj = S.pj; pj.criaturas = pj.criaturas || [];
-  pj.criaturas.push({ id: 'cr' + Date.now().toString(36), key, danio: 0 });
-  savePj(); render(); avisar(`${nombre} agregado.`);
+  // Solo se puede tener un familiar: uno nuevo reemplaza al anterior
+  if (CRIATURAS[key]?.de === 'familiar') pj.criaturas = pj.criaturas.filter((x: any) => CRIATURAS[x.key]?.de !== 'familiar');
+  for (let i = 0; i < cuantas; i++) pj.criaturas.push({ id: 'cr' + Date.now().toString(36) + i, key, danio: 0 });
+  savePj(); render(); avisar(cuantas > 1 ? `${cuantas} × ${nombre} agregados en Familiares y criaturas.` : `${nombre} agregado en Familiares y criaturas.`);
 }
 export function quitarCriatura(id: string) { S.pj.criaturas = (S.pj.criaturas || []).filter((x: any) => x.id !== id); savePj(); render(); }
 /** Cambia los PG de una criatura: d negativo es daño, positivo curación (sin pasar del máximo ni bajar de 0) */
 export function pgCriatura(id: string, d: number, max: number) {
-  const x = (S.pj.criaturas || []).find((y: any) => y.id === id); if (!x) return;
+  const pj = S.pj;
+  // Los compañeros de clase guardan sus PG gastados como un recurso más
+  if (id.startsWith('cmp-')) { pj.used[id] = Math.min(max, Math.max(0, (pj.used[id] || 0) - d)); savePj(); render(); return; }
+  const x = (pj.criaturas || []).find((y: any) => y.id === id); if (!x) return;
   x.danio = Math.min(max, Math.max(0, (x.danio || 0) - d)); savePj(); render();
 }
 export function nombrarCriatura(id: string, nombre: string) {
@@ -136,6 +142,8 @@ export function descansar(tipo: 'corto' | 'largo') {
     if (largo || r.reset === 'corto') pj.used[r.id] = 0;
     else if (r.reset === 'corto1') pj.used[r.id] = Math.max(0, (pj.used[r.id] || 0) - 1);
   });
+  // Con un descanso largo los compañeros de clase recuperan todos sus PG
+  if (largo) Object.keys(pj.used).filter(k => k.startsWith('cmp-')).forEach(k => { pj.used[k] = 0; });
   savePj(); render();
   avisar(largo ? 'Descanso largo: todo recuperado.' : 'Descanso corto aplicado.');
 }

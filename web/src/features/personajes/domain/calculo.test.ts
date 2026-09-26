@@ -211,9 +211,11 @@ describe('Pugilista 2024', () => {
     assert.equal(c.skillProf.percepcion, true);
     assert.equal(c.passive, 10 + c.skill.percepcion);
   });
-  test('El Perro y el Sabueso: el mordisco del sabueso sale en Ataques con CON', () => {
-    const m = pj('lib:pugilista', 3, 'lib:perro-sabueso', { con: 16 }).naturales.find((a: any) => /Mordisco/.test(a.nombre));
+  test('El Perro y el Sabueso: el sabueso tiene su hoja con PG y Mordisco con CON', () => {
+    const c = pj('lib:pugilista', 3, 'lib:perro-sabueso', { con: 16 }, { used: { 'cmp-sabueso': 4 } });
+    const s = c.criaturas.find((x: any) => x.id === 'cmp-sabueso'), m = s?.acciones.find((a: any) => a.n === 'Mordisco');
     assert.deepEqual([m?.atk, m?.expr], [5, '2d4+5']); // competencia 2 + CON 3; 2 + CON 3
+    assert.deepEqual([s.pgMax, s.pg, s.ca], [20, 16, 15]);
   });
   test('Mano del Pavor: Trato con el Diablo deja solo la opción elegida, con su tipo de acción', () => {
     const c = pj(P, 6, 'lib:mano-pavor', {}, { elecciones: { 'trato-diablo': 'paso' } });
@@ -261,7 +263,7 @@ describe('Arcanista (Artífice 2025)', () => {
     const c = pj(A, 9, 'lib:herrero-batalla', {}, { armas: [['espada_larga', 1]] });
     assert.equal(c.armas[0].notas.includes('Sin competencia'), false);
     assert.equal(recurso(c, 'Sacudida Arcana')?.max, 3);
-    assert.equal(c.naturales.find((a: any) => /Desgarro/.test(a.nombre)).expr, '1d8+5');
+    assert.equal(c.criaturas.find((x: any) => x.id === 'cmp-defensor').acciones[0].expr, '1d8+5');
   });
   test('conjuros de subclase: siempre preparados y sin contar en el límite, según el nivel', () => {
     const c = pj(A, 5, 'lib:alquimista');
@@ -1050,5 +1052,14 @@ describe('Familiares y criaturas', () => {
     const z = c.criaturas[0];
     assert.equal(z.pgMax, 15 + 3 + 3);
     assert.equal(z.acciones[0].expr, '1d8+1+3');
+  });
+});
+
+describe('Compañeros', () => {
+  test('las formas especiales del familiar solo salen con el Pacto de la Cadena', () => {
+    const fam = [{ nombre: 'Encontrar familiar', nivel: 1 }];
+    const con = pj('brujo', 3, '', {}, { conjuros: fam, pactoCadena: true }), sin = pj('mago', 3, '', {}, { conjuros: fam });
+    assert.ok(con.criaturasPuede.some((x: any) => x.key === 'diablillo'));
+    assert.equal(sin.criaturasPuede.some((x: any) => x.key === 'diablillo'), false);
   });
 });

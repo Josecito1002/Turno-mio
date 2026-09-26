@@ -10,7 +10,7 @@ import { trucosN, prepN } from '@/features/reglas/data/conjuros';
 import { FULL_SLOTS } from '@/features/reglas/data/comunes';
 import { REGLAS, CONJUROS_RASGOS } from '@/features/reglas/data/reglas-revisadas';
 import { esClavePlaytest } from '@/features/reglas/data/fuentes';
-import { CRIATURAS, CRIATURAS_DE_CONJURO } from '@/features/reglas/data/criaturas';
+import { CRIATURAS, CRIATURAS_DE_CONJURO, companerosDe } from '@/features/reglas/data/criaturas';
 import { doteKey } from '@/features/reglas/data/dotes';
 import { kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
 import { kitClase } from '@/features/reglas/data/equipo-clases';
@@ -325,18 +325,24 @@ export function weaponRow(a, c){
    (INT + la mitad del nivel) y daño necrótico al acertar (INT, mínimo 1). */
 function criaturas(c){
   const tipos = new Set(c.conjuros.map(s => CRIATURAS_DE_CONJURO[norm(s.nombre)]).filter(Boolean));
-  c.criaturasPuede = Object.entries(CRIATURAS).filter(([, x]) => tipos.has(x.de)).map(([key, x]) => ({key, n: x.n, de: x.de}));
+  // Las formas especiales solo con el Pacto de la Cadena
+  c.criaturasPuede = Object.entries(CRIATURAS).filter(([, x]) => tipos.has(x.de) && (!x.cadena || c.chain)).map(([key, x]) => ({key, n: x.n, de: x.de, cadena: !!x.cadena}));
   const siervos = c.entries.some(e => /^siervos muertos vivientes$/.test(norm(e.nombre)));
-  c.criaturas = (c.pj.criaturas || []).filter(x => CRIATURAS[x.key]).map(x => {
+  const conDanio = a => ({...a, expr: a.expr || a.dmg, dmgTxt: a.dmgTxt || `${a.dmg} ${a.tipo}`});
+  const deConjuro = (c.pj.criaturas || []).filter(x => CRIATURAS[x.key]).map(x => {
     const b = CRIATURAS[x.key], mas = siervos && b.de === 'muerto';
     const pgMas = mas ? Math.max(0, c.m.int + Math.floor(c.lvl / 2)) : 0, nec = mas ? Math.max(1, c.m.int) : 0;
     const pgMax = b.pgMedia + pgMas;
-    const acciones = b.acciones.map(a => a.atk == null ? a : {...a,
+    const acciones = b.acciones.map(a => a.atk == null ? a : conDanio({...a,
       expr: a.dmg + (nec ? '+' + nec : ''), dmgTxt: `${a.dmg} ${a.tipo}${nec ? ` + ${nec} necrótico` : ''}`,
-      dmgDesg: nec ? desglose([[nec, 'Siervos Muertos Vivientes']]) : ''});
+      dmgDesg: nec ? desglose([[nec, 'Siervos Muertos Vivientes']]) : ''}));
     return {...b, ...x, nombre: x.nombre || b.n, pgMax, pg: Math.max(0, pgMax - (x.danio || 0)), acciones,
       nota: mas ? `Siervos Muertos Vivientes (con tu libro en la mano): +${pgMas} PG máximos y +${nec} de daño necrótico al acertar` : ''};
   });
+  // Los compañeros de clase (sabueso, Defensor de Acero, bestia primigenia) van primero; sus PG gastados están en pj.used
+  const deClase = companerosDe(c).map(x => ({...x, nombre: x.n, de: 'clase', fijo: true,
+    pg: Math.max(0, x.pgMax - (c.pj.used?.[x.id] || 0)), acciones: x.acciones.map(a => a.atk == null ? a : conDanio(a))}));
+  c.criaturas = [...deClase, ...deConjuro];
 }
 
 /* Golpe certero: un ataque con cada arma empuñada usando la característica de conjuros; desde el nivel 5 suma

@@ -1,44 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { useId, useState } from 'react';
 import { modOf, modStr, sign } from '@/shared/utils/texto';
-import { Boton, Contador, claseCampo, cx } from '@/shared/ui/kit';
+import { Boton, Contador } from '@/shared/ui/kit';
 import { AB } from '@/features/reglas/data/caracteristicas';
 import { BotonTirada } from '@/features/dados/components/BotonTirada';
-import { agregarCriatura, pgCriatura, quitarCriatura } from '../../acciones';
+import { pgCriatura, quitarCriatura } from '../../acciones';
 
 const REGLA: Record<string, string> = {
   familiar: 'Tira su propia iniciativa y sigue tus órdenes, pero no puede atacar (salvo con el Pacto de la Cadena). Mientras esté a 100 pies, os comunicáis por telepatía; con una acción adicional ves y oyes por sus sentidos, y con su reacción entrega un conjuro de toque que lances. Solo puedes tener un familiar.',
   muerto: 'Con una acción adicional le das órdenes mentales a todas las que tengas a 60 pies o menos. Sin órdenes, solo se defiende. Obedece durante 24 horas; vuelve a lanzar el conjuro antes de que pasen para mantenerla.',
 };
 
-/** Familiares y muertos vivientes del personaje: una mini hoja de cada uno y un selector para agregar más. */
+/** Familiares, muertos vivientes y compañeros de clase del personaje: una mini hoja de cada uno.
+    Las criaturas de conjuro se eligen al lanzar el conjuro (Encontrar familiar, Animar a los muertos). */
 export function Criaturas({ c }: { c: any }) {
-  const id = useId();
-  const [elegida, setElegida] = useState('');
   const puede = c.criaturasPuede || [];
   if (!puede.length && !c.criaturas?.length) return null;
-  const tieneFamiliar = c.criaturas.some((x: any) => x.de === 'familiar');
-  const grupos: [string, any[]][] = [['Familiar', puede.filter((x: any) => x.de === 'familiar')], ['Muertos vivientes', puede.filter((x: any) => x.de === 'muerto')]];
-  const agregar = () => { const x = puede.find((y: any) => y.key === elegida); if (x) agregarCriatura(x.key, x.n); setElegida(''); };
+  const conjuros = [...new Set(puede.map((x: any) => x.de === 'familiar' ? 'Encontrar familiar' : 'Animar a los muertos'))];
   return (
     <section aria-labelledby="sec-criaturas" className="mt-8">
       <h2 id="sec-criaturas" className="m-0 font-serif text-2xl font-bold">Familiares y criaturas</h2>
-      <p className="mb-2 mt-0.5 text-sm text-muted">Las que creaste con tus conjuros, con su propia hoja. Toca cualquier número con fondo para tirarlo.</p>
+      <p className="mb-2 mt-0.5 text-sm text-muted">Tus compañeros, cada uno con su hoja. Toca cualquier número con fondo para tirarlo.</p>
       {c.criaturas.map((x: any) => <HojaCriatura key={x.id} x={x} />)}
-      {puede.length > 0 && (
-        <div className="mt-3 flex flex-wrap items-end gap-2">
-          <label htmlFor={id} className="sr-only">Criatura para agregar</label>
-          <select id={id} value={elegida} onChange={e => setElegida(e.target.value)} className={cx(claseCampo, 'w-auto! min-w-48')}>
-            <option value="">Agregar una criatura…</option>
-            {grupos.filter(([, xs]) => xs.length).map(([g, xs]) => (
-              <optgroup key={g} label={g}>
-                {xs.map((x: any) => <option key={x.key} value={x.key} disabled={x.de === 'familiar' && tieneFamiliar}>{x.n}</option>)}
-              </optgroup>
-            ))}
-          </select>
-          <Boton variante="primario" disabled={!elegida} onClick={agregar}>Agregar</Boton>
-        </div>
+      {!c.criaturas.some((x: any) => !x.fijo) && conjuros.length > 0 && (
+        <p className="mb-0 mt-2 text-sm text-muted">Al lanzar {conjuros.join(' o ')} eliges la criatura y aparece aquí.</p>
       )}
     </section>
   );
@@ -61,7 +46,7 @@ function HojaCriatura({ x }: { x: any }) {
         </span>
         <span className="text-sm"><small className="text-muted">Velocidad</small> {x.vel}</span>
       </div>
-      <ul className="m-0 mt-3 grid list-none grid-cols-6 gap-1 p-0 text-center">
+      {x.ab && <ul className="m-0 mt-3 grid list-none grid-cols-6 gap-1 p-0 text-center">
         {AB.map(([k, , ab, nm]) => {
           const m = modOf(x.ab[k]);
           return (
@@ -74,7 +59,8 @@ function HojaCriatura({ x }: { x: any }) {
             </li>
           );
         })}
-      </ul>
+      </ul>}
+      {x.suma && <p className="mb-0 mt-2 text-sm">{x.suma}.</p>}
       <div className="mt-2 flex flex-wrap gap-2 text-sm">
         {Object.entries(x.salv || {}).map(([k, v]: [string, any]) => (
           <BotonTirada key={k} expr={`1d20${modStr(v)}`} label={`${x.nombre}: salvación de ${k.toUpperCase()}`}>Salv. {k.toUpperCase()} {bono(v)}</BotonTirada>
@@ -96,6 +82,7 @@ function HojaCriatura({ x }: { x: any }) {
                 <div>
                   <p className="m-0 font-serif font-bold">{a.n}</p>
                   <BotonTirada expr={a.expr} label={`${x.nombre}, ${a.n}: daño`} mods={a.dmgDesg} className="mt-1 text-sm">{a.dmgTxt}</BotonTirada>
+                  {a.texto && <p className="m-0 mt-1 text-sm text-muted">{a.texto}</p>}
                 </div>
                 <div className="flex flex-col items-center">
                   <BotonTirada expr={`1d20${modStr(a.atk)}`} label={`${x.nombre}, ${a.n}: ataque`} estilo="grande" dmg={a.expr} dmgLabel={`${x.nombre}, ${a.n}: daño`} dmgMods={a.dmgDesg}
@@ -107,10 +94,13 @@ function HojaCriatura({ x }: { x: any }) {
         </ul>
       )}
       {x.nota && <p className="mb-0 mt-1 text-sm">{x.nota}.</p>}
-      <p className="mb-0 mt-2 text-sm text-muted">{REGLA[x.de]}</p>
-      <div className="mt-2 flex justify-end">
-        <Boton tamano="sm" variante="fantasma" onClick={() => quitarCriatura(x.id)} aria-label={`Quitar a ${x.nombre}`}>Quitar</Boton>
-      </div>
+      {REGLA[x.de] && <p className="mb-0 mt-2 text-sm text-muted">{REGLA[x.de]}</p>}
+      {x.porConfirmar && <p className="mb-0 mt-1 text-xs text-muted">Estadísticas por confirmar con el libro.</p>}
+      {!x.fijo && (
+        <div className="mt-2 flex justify-end">
+          <Boton tamano="sm" variante="fantasma" onClick={() => quitarCriatura(x.id)} aria-label={`Quitar a ${x.nombre}`}>Quitar</Boton>
+        </div>
+      )}
     </article>
   );
 }

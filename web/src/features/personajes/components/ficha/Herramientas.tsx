@@ -3,13 +3,27 @@
 import { useId, useState } from 'react';
 import { S } from '@/app-shell/estado';
 import { norm } from '@/shared/utils/texto';
-import { Boton, Campo, Dialogo, claseCampo } from '@/shared/ui/kit';
+import { Boton, Campo, Dialogo, claseBotonGrande, claseCampo } from '@/shared/ui/kit';
 import { todosConjuros } from '@/features/biblioteca/domain/biblioteca';
 import { conjuroDeLaLista, listaDeConjuros } from '@/features/reglas/domain/restricciones';
 import { cambiarConjuro, recuperarEspacios, recuperarPuntos } from '../../acciones';
 
 /* Rasgos que se usan fuera de combate y hacen algo en la hoja: recuperar espacios o puntos, cambiar un conjuro.
    Cada uno sale como un botón debajo del rasgo. */
+const CON_HERRAMIENTA = new Set(['recuperacion arcana', 'recuperacion natural', 'astucia magica', 'restauracion hechicera', 'memorizar conjuro']);
+/** Si el rasgo tiene botón propio (va a la derecha de su tarjeta) */
+export const tieneHerramienta = (e: any) => S.view === 'ficha' && !!S.c && CON_HERRAMIENTA.has(norm(e.nombre));
+
+/** El botón grande de la derecha, con una línea debajo que dice qué hace */
+function Grande({ texto, debajo, disabled, onClick }: { texto: string; debajo: string; disabled?: boolean; onClick: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center text-center">
+      <button type="button" disabled={disabled} onClick={onClick} className={claseBotonGrande}>{texto}</button>
+      <small className="mt-0.5 max-w-32 text-xs text-muted">{debajo}</small>
+    </div>
+  );
+}
+
 export function Herramienta({ e }: { e: any }) {
   const c = S.c, n = norm(e.nombre);
   if (!c || S.view !== 'ficha') return null;
@@ -39,10 +53,9 @@ function RecuperarEspacios({ max, recurso: rid }: { max: number; recurso?: strin
   };
   const nada = !niveles.some((x: any) => x.gastados > 0);
   return (
-    <div className="mt-2">
-      <Boton tamano="sm" disabled={sinUsos(rid) || nada} onClick={() => setAbierto(true)}>
-        {nada ? 'No tienes espacios gastados' : 'Recuperar espacios'}
-      </Boton>
+    <>
+      <Grande texto="Recuperar" debajo={sinUsos(rid) ? 'ya lo usaste' : nada ? 'no tienes espacios gastados' : `espacios, hasta ${max} niveles`}
+        disabled={sinUsos(rid) || nada} onClick={() => setAbierto(true)} />
       <Dialogo abierto={abierto} onCerrar={() => setAbierto(false)} titulo="Recuperar espacios"
         descripcion={`Elige espacios gastados cuyos niveles sumen ${max} o menos (ninguno de nivel 6 o más).`} abajo>
         <ul className="m-0 grid list-none gap-2 p-0">
@@ -66,7 +79,7 @@ function RecuperarEspacios({ max, recurso: rid }: { max: number; recurso?: strin
           <Boton variante="primario" disabled={!suma} onClick={confirmar}>Recuperar</Boton>
         </div>
       </Dialogo>
-    </div>
+    </>
   );
 }
 
@@ -74,11 +87,8 @@ function RecuperarEspacios({ max, recurso: rid }: { max: number; recurso?: strin
 function RecuperarPuntos({ id, n, recurso: rid, que }: { id: string; n: number; recurso: string; que: string }) {
   const k = Math.min(n, gastados(id));
   return (
-    <div className="mt-2">
-      <Boton tamano="sm" disabled={!k || sinUsos(rid)} onClick={() => recuperarPuntos(id, k, rid)}>
-        {k ? `Recuperar ${k} ${que}` : `No tienes ${que} gastados`}
-      </Boton>
-    </div>
+    <Grande texto={k ? `+${k}` : 'Recuperar'} debajo={sinUsos(rid) ? 'ya lo usaste' : k ? que : `no tienes ${que} gastados`}
+      disabled={!k || sinUsos(rid)} onClick={() => recuperarPuntos(id, k, rid)} />
   );
 }
 
@@ -98,8 +108,8 @@ function MemorizarConjuro() {
     setAbierto(false); setSale(''); setEntra('');
   };
   return (
-    <div className="mt-2">
-      <Boton tamano="sm" disabled={!propios.length} onClick={() => setAbierto(true)}>Cambiar un conjuro</Boton>
+    <>
+      <Grande texto="Cambiar" debajo="un conjuro preparado" disabled={!propios.length} onClick={() => setAbierto(true)} />
       <Dialogo abierto={abierto} onCerrar={() => setAbierto(false)} titulo="Memorizar conjuro" descripcion="Cambias un conjuro preparado por otro de tu libro." abajo>
         <div className="grid gap-3">
           <Campo etiqueta="Dejas de preparar">
@@ -120,6 +130,6 @@ function MemorizarConjuro() {
           <Boton variante="primario" disabled={!sale || !entra} onClick={confirmar}>Cambiar</Boton>
         </div>
       </Dialogo>
-    </div>
+    </>
   );
 }
