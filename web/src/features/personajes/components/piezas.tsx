@@ -4,11 +4,13 @@ import { S } from '@/app-shell/estado';
 import { esc, modStr, norm, richT, sign } from '@/shared/utils/texto';
 import { Boton, Contador, Dialogo, Puntos, cx, foco } from '@/shared/ui/kit';
 import { TIPOS } from '@/features/reglas/data/caracteristicas';
+import { CRIATURAS_DE_CONJURO } from '@/features/reglas/data/criaturas';
 import { COLOR_TIPO, FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { BotonTirada, TextoConDados } from '@/features/dados/components/BotonTirada';
 import { useState } from 'react';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { avisar } from '@/shared/ui/avisos';
+import { Herramienta } from './ficha/Herramientas';
 import { descansar, fijarPool, gastarEspacio, gastarRecurso, moverPool, moverRasgo, tocarPip } from '../acciones';
 import { bonosPara, dadosAlLanzar, espaciosPara, extrasAtaque } from '../domain/lanzar';
 import { desglose } from '../domain/calculo';
@@ -76,6 +78,7 @@ export function Entrada({ e }: { e: any }) {
           </div>); })()}
       </div>
       {e.recurso && S.view === 'ficha' && <RecursoInline id={e.recurso} />}
+      <Herramienta e={e} />
       <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
         <p className="m-0 text-xs text-muted">{e.src || ''}{e.revisada && <span className="ml-2 font-bold text-pas">Regla revisada</span>}</p>
         {S.view === 'ficha' && e.grupo && e.grupo !== 'reglas' && <Mover e={e} />}
@@ -264,6 +267,7 @@ export function ConjuroTarjeta({ s, c, t }: { s: any; c: any; t: string }) {
           <p className="m-0 text-sm text-muted">{[d.bits.join(', '), d.meta].filter(Boolean).join('. ')}</p>
           <DescripcionCorta desc={s.desc} />
           {d.origen && <p className="mb-0 mt-1">{d.origen}.</p>}
+          {CRIATURAS_DE_CONJURO[norm(s.nombre)] && <p className="mb-0 mt-1 text-sm text-muted">Agrega lo que crees en Familiares y criaturas, debajo de Acción adicional: ahí está su hoja.</p>}
         </div>
         <LanzarConjuro s={s} c={c} d={d} />
       </div>

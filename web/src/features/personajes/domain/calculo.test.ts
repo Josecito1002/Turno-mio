@@ -1034,3 +1034,21 @@ describe('Golpe certero', () => {
     assert.match(g.expr, /^1d4\+4\+1d6$/);
   });
 });
+
+describe('Familiares y criaturas', () => {
+  test('Encontrar familiar deja agregar un familiar con su hoja', () => {
+    const c = pj('mago', 1, '', {}, { conjuros: [{ nombre: 'Encontrar familiar', nivel: 1 }], criaturas: [{ id: 'a', key: 'gato', danio: 1 }] });
+    assert.ok(c.criaturasPuede.some((x: any) => x.key === 'gato'));
+    assert.equal(c.criaturasPuede.some((x: any) => x.key === 'zombi'), false);
+    const g = c.criaturas[0];
+    assert.equal(g.pgMax, 2); assert.equal(g.pg, 1);
+    assert.equal(g.acciones[0].atk, 4);
+  });
+  test('Siervos Muertos Vivientes suma PG y daño necrótico a los zombis', () => {
+    setLib({ clases: { mago: MAGO_2024 } });
+    const c = pj('mago', 6, 'lib:necromancia', { int: 16 }, { criaturas: [{ id: 'z', key: 'zombi' }] });
+    const z = c.criaturas[0];
+    assert.equal(z.pgMax, 15 + 3 + 3);
+    assert.equal(z.acciones[0].expr, '1d8+1+3');
+  });
+});
