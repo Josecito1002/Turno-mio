@@ -1,5 +1,5 @@
 /* Pone al día partes de la biblioteca con su versión más reciente, en biblioteca-mi-turno.json y en la base.
-   Uso: npm run db:actualizar-clase -- <pugilista|especies|playtest|barbaro|bardo|brujo|clerigo> [--solo-archivo] [--ver]
+   Uso: npm run db:actualizar-clase -- <clase|pugilista|artifice|especies|playtest> [--solo-archivo] [--ver]
    --solo-archivo: no toca la base.  --ver: muestra lo que cambiaría y no guarda nada.
    Solo reemplaza lo que se actualiza (esa clase, esas especies); el resto de la biblioteca no se toca. */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -8,10 +8,7 @@ import { crearDb } from '../src/shared/db/conectar';
 import { leerBiblioteca, reemplazarClase, reemplazarEspecie } from '../src/features/biblioteca/server/repositorio';
 import { PUGILISTA_2024, ARENA_ROYALE_EXTRA } from './datos/pugilista-2024';
 import { ESPECIES_2025 } from './datos/especies-2025';
-import { BARBARO_2024 } from './datos/barbaro-2024';
-import { BARDO_2024 } from './datos/bardo-2024';
-import { BRUJO_2024 } from './datos/brujo-2024';
-import { CLERIGO_2024 } from './datos/clerigo-2024';
+import { ARTIFICE_2026 } from './datos/artifice-2026';
 import { PLAYTEST_2025 } from './datos/playtest-2025';
 
 const RUTA = '../biblioteca-mi-turno.json';
@@ -31,11 +28,8 @@ const OPCIONES: Record<string, Cambio[]> = {
       return { ...PUGILISTA_2024, subclases: subs };
     },
   }],
-  // Clase del manual: la biblioteca guarda sus rasgos de nivel alto y sus subclases
-  barbaro: [{ seccion: 'clases', id: 'barbaro', nueva: actual => ({ ...actual, ...structuredClone(BARBARO_2024) }) }],
-  bardo: [{ seccion: 'clases', id: 'bardo', nueva: actual => ({ ...actual, ...structuredClone(BARDO_2024) }) }],
-  brujo: [{ seccion: 'clases', id: 'brujo', nueva: actual => ({ ...actual, ...structuredClone(BRUJO_2024) }) }],
-  clerigo: [{ seccion: 'clases', id: 'clerigo', nueva: actual => ({ ...actual, ...structuredClone(CLERIGO_2024) }) }],
+  // Artífice: se suman las subclases nuevas sin tocar las del lote 2
+  artifice: [{ seccion: 'clases', id: 'lib:arcanista', nueva: actual => ({ ...actual, subclases: { ...(actual?.subclases || {}), ...structuredClone(ARTIFICE_2026.subclases) } }) }],
   // Subclases de prueba (Unearthed Arcana): se suman a las de cada clase sin quitar ninguna
   playtest: Object.entries(PLAYTEST_2025).map(([clase, subs]) => ({
     seccion: 'clases' as const, id: clase,

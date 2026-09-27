@@ -28,6 +28,7 @@ import { MONJE_2024 } from '../../../../scripts/datos/monje-2024';
 import { PALADIN_2024 } from '../../../../scripts/datos/paladin-2024';
 import { PICARO_2024 } from '../../../../scripts/datos/picaro-2024';
 import { PLAYTEST_2025 } from '../../../../scripts/datos/playtest-2025';
+import { ARTIFICE_2026 } from '../../../../scripts/datos/artifice-2026';
 import { fuenteSubclase } from '@/features/reglas/data/fuentes';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
 import { ARMAS } from '@/features/reglas/data/equipo';
@@ -1121,5 +1122,53 @@ describe('Pícaro 2024 (Lote 16)', () => {
   test('Ladrón: Usar Objeto Mágico sube la sintonía a 4', () => {
     assert.equal(pic(13, 'lib:ladron').maxSintonia, 4);
     assert.equal(pic(12, 'lib:ladron').maxSintonia, undefined);
+  });
+});
+
+describe('Subclases oficiales que faltaban', () => {
+  const con = (clase: string, datos: any, nivel: number, sub: string, stats: Record<string, number> = {}, extra: Record<string, any> = {}) => {
+    setLib({ clases: { [clase]: datos, ...(clase === 'paladin' ? {} : { paladin: PALADIN_2024 }) } });
+    return pj(clase, nivel, sub, stats, extra);
+  };
+  test('Bárbaro: Guardián Ancestral, Bestia y Heraldo oficial', () => {
+    assert.match(entrada(con('barbaro', BARBARO_2024, 10, 'lib:senda-guardian-ancestral'), 'Escudo Espiritual').texto, /3d6/);
+    const b = con('barbaro', BARBARO_2024, 14, 'lib:senda-bestia', { fue: 16, con: 16 });
+    assert.equal(recurso(b, 'Llamar a la Cacería')?.max, b.pb);
+    assert.ok(b.naturales.some((a: any) => a.nombre.startsWith('Mordisco (Forma') && a.expr === '1d8+3'));
+    const h = con('barbaro', BARBARO_2024, 10, 'lib:senda-heraldo-tormenta', { con: 16 });
+    assert.match(entrada(h, 'Aura de Tormenta').texto, /reciben 3 de fuego.*2d6 de relámpago/);
+  });
+  test('Bardo: Susurros, Elocuencia y el estilo del Colegio de las Espadas', () => {
+    assert.match(entrada(con('bardo', BARDO_2024, 10, 'lib:colegio-susurros'), 'Hojas Psíquicas').texto, /5d6/);
+    assert.equal(recurso(con('bardo', BARDO_2024, 14, 'lib:colegio-elocuencia', { car: 18 }), 'Inspiración Contagiosa')?.max, 4);
+    const armas = { armas: [['estoque', 1]] };
+    const fila = (c: any) => c.armas.find((a: any) => a.k === 'estoque');
+    const sin = con('bardo', BARDO_2024, 3, 'lib:colegio-espadas', {}, armas);
+    const duelo = con('bardo', BARDO_2024, 3, 'lib:colegio-espadas', {}, { ...armas, elecciones: { 'estilo-espadas': 'duelo' } });
+    assert.notEqual(fila(duelo).expr, fila(sin).expr);
+  });
+  test('Compañeros: objeto danzante, draco y compañero reanimado', () => {
+    const d = con('bardo', BARDO_2024, 6, 'lib:colegio-creacion').criaturas.find((x: any) => x.id === 'cmp-danzante');
+    assert.equal(d.pgMax, 40);
+    const dr = con('explorador', EXPLORADOR_2024, 3, 'lib:guardian-draconico').criaturas.find((x: any) => x.id === 'cmp-draco');
+    assert.equal(dr.acciones[0].atk, 5);
+    setLib({ clases: { 'lib:arcanista': { ...arcanista, subclases: { ...arcanista.subclases, ...ARTIFICE_2026.subclases } } } });
+    const a = pj('lib:arcanista', 9, 'lib:reanimador', { int: 16 });
+    const re = a.criaturas.find((x: any) => x.id === 'cmp-reanimado');
+    assert.equal(re.ca, 13);
+    assert.match(re.rasgos.find((x: any) => x[0] === 'Estallido mortal')[1], /4d4/);
+    assert.ok(a.siempre.has('animar a los muertos'));
+    assert.equal(recurso(a, 'Descarga vital')?.max, 3);
+  });
+  test('Paladín: el Rompejuramentos oficial y el de prueba no se mezclan', () => {
+    setLib({ clases: { paladin: { ...PALADIN_2024, subclases: { ...PALADIN_2024.subclases, ...PLAYTEST_2025.paladin } } } });
+    const of = pj('paladin', 20, 'lib:rompejuramentos-dmg', { car: 16 });
+    assert.match(entrada(of, 'Aura de Odio').texto, /30 pies.*\+3/);
+    assert.ok(of.naturales.some((a: any) => a.nombre.startsWith('Sombras (Señor del Pavor)')));
+    assert.ok(of.siempre.has('contagio') && !of.siempre.has('saeta de bruja'));
+    const ua = pj('paladin', 20, 'lib:rompejuramentos', { car: 16 });
+    assert.ok(ua.naturales.some((a: any) => a.nombre.startsWith('Golpe Sombrío')));
+    assert.equal(fuenteSubclase({ n: 'Rompejuramentos', lib: true, key: 'lib:rompejuramentos' }, 'paladin').tipo, 'playtest');
+    assert.notEqual(fuenteSubclase({ n: 'Rompejuramentos', lib: true, key: 'lib:rompejuramentos-dmg' }, 'paladin').tipo, 'playtest');
   });
 });

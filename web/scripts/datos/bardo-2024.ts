@@ -1,5 +1,5 @@
 /* Bardo de la biblioteca (rasgos de nivel alto y subclases) puesto al día: Manual del Jugador 2024,
-   Colegio de la Luna de Heroes of Faerûn (2025) y Colegio de los Espíritus de Ravenloft (2025).
+   Colegio de la Luna de Heroes of Faerûn (2025) y Colegio de los Espíritus de Ravenloft (2025); Creación y Elocuencia de Tasha, Espadas y Susurros de Xanathar (sin versión 2024).
    Textos propios en español; `manual: true` = tipo revisado. Números, opciones y selectores en reglas-revisadas.ts.
    Cuando el rasgo es el mismo, se conserva el nombre que ya tenía la biblioteca. */
 
@@ -49,6 +49,32 @@ export const BARDO_2024 = {
       r(3, 'Espíritus del Más Allá', 'pasiva', 'Al dar un dado de Inspiración Bárdica con acción adicional, canalizas un espíritu al azar (tira el dado en la tabla); queda canalizado hasta que lo liberes o hasta un descanso.'),
       r(6, 'Canalización Potenciada', 'pasiva', 'Una vez por turno, al lanzar con un espacio un conjuro de bardo que daña o cura, sumas 1d6. Siempre tienes preparado Espíritus guardianes y lo lanzas una vez por descanso largo sin espacio; una vez por descanso corto o largo, al lanzarlo tú y tus aliados en su área tenéis cobertura.', { usos: 1, reset: 'largo' }),
       r(14, 'Conexión Mística', 'pasiva', 'Al tirar en la tabla de Espíritus del Más Allá tiras dos veces y eliges; si sacas el mismo número, eliges cualquier espíritu.'),
+    ] },
+    'colegio-creacion': { n: 'Colegio de la Creación', rasgos: [
+      r(3, 'Chispa de Potencial', 'pasiva', 'Cuando das un dado de Inspiración Bárdica, puedes crear una chispa diminuta que flota junto a esa criatura hasta que el dado se pierda. Si el dado va a una prueba, lo tira dos veces y se queda con uno; si va a un ataque, la chispa estalla y el objetivo y las criaturas que elijas a 5 pies de él hacen una salvación de CON o reciben de trueno lo que salió en el dado; si va a una salvación, gana PG temporales iguales al dado + tu CAR.'),
+      r(3, 'Obra de la Creación', 'accion', 'Como acción, creas a 10 pies un objeto no mágico mediano o menor que valga como máximo 20 po por nivel de bardo; dura tantas horas como tu bonificador de competencia y solo puede haber uno. Desde el nivel 6 puede ser Grande, y desde el 14 Enorme. Una vez por descanso largo, o gastando un espacio de nivel 2 o más.', { usos: 1, reset: 'largo' }),
+      r(6, 'Objeto Danzante', 'accion', 'Como acción, animas un objeto no mágico grande o menor a 30 pies que nadie lleve; te obedece durante 1 hora o hasta caer a 0 PG, y actúa justo después de ti. Solo esquiva, salvo que le des otra orden con tu acción adicional (también al dar Inspiración Bárdica). Una vez por descanso largo, o gastando un espacio de nivel 3 o más.', { usos: 1, reset: 'largo' }),
+      r(14, 'Crescendo Creativo', 'pasiva', 'Con Obra de la Creación creas varios objetos a la vez, tantos como tu CAR (mínimo dos); solo uno puede ser del tamaño máximo y los demás pequeños o diminutos. Ya no tienes límite de valor en po.'),
+    ] },
+    'colegio-elocuencia': { n: 'Colegio de la Elocuencia', rasgos: [
+      r(3, 'Lengua de Plata', 'pasiva', 'En las pruebas de Persuasión y Engaño, si sacas 9 o menos en el d20, cuenta como un 10.'),
+      r(3, 'Palabras Inquietantes', 'adicional', 'Gastas una Inspiración Bárdica: tiras el dado y una criatura que ves a 60 pies resta el resultado a la siguiente salvación que haga antes del inicio de tu próximo turno.'),
+      r(6, 'Inspiración Infalible', 'pasiva', 'Si alguien suma tu dado de Inspiración Bárdica a una prueba, un ataque o una salvación y aun así falla, conserva el dado.'),
+      r(6, 'Habla Universal', 'accion', 'Como acción, hasta tu CAR (mínimo 1) criaturas a 60 pies te entienden durante 1 hora, hables el idioma que hables. Una vez por descanso largo, o gastando un espacio de conjuro.', { usos: 1, reset: 'largo' }),
+      r(14, 'Inspiración Contagiosa', 'reaccion', 'Cuando una criatura a 60 pies suma tu dado de Inspiración Bárdica y acierta, das un dado de Inspiración Bárdica a otra criatura (no a ti) que te oiga a 60 pies sin gastar usos. Tantas veces como tu CAR (mínimo 1) por descanso largo.'),
+    ] },
+    'colegio-espadas': { n: 'Colegio de las Espadas', rasgos: [
+      r(3, 'Competencias Adicionales', 'pasiva', 'Entrenamiento con armaduras medias y competencia con la cimitarra. Puedes usar como foco de tus conjuros de bardo un arma cuerpo a cuerpo sencilla o marcial con la que seas competente.'),
+      r(3, 'Estilo de Combate', 'pasiva', 'Eliges un estilo de combate: Duelo o Combate con Dos Armas.'),
+      r(3, 'Floritura de Espada', 'gratis', 'Al usar la acción Atacar, tu velocidad sube 10 pies hasta el final del turno y, si aciertas con un arma, puedes usar una floritura por turno gastando una Inspiración Bárdica: Defensiva, Cortante o Móvil.'),
+      r(6, 'Ataque Extra', 'pasiva', 'Cuando usas la acción Atacar, atacas dos veces.'),
+      r(14, 'Floritura Maestra', 'pasiva', 'Al usar una floritura puedes tirar 1d6 en lugar de gastar un dado de Inspiración Bárdica.'),
+    ] },
+    'colegio-susurros': { n: 'Colegio de los Susurros', rasgos: [
+      r(3, 'Hojas Psíquicas', 'gratis', 'Una vez por ronda en tu turno, al acertar un ataque con arma, gastas una Inspiración Bárdica y haces daño psíquico extra: 2d6 (3d6 desde el nivel 5, 5d6 desde el 10 y 8d6 desde el 15).'),
+      r(3, 'Palabras de Terror', 'accion', 'Tras hablar a solas al menos 1 minuto con un humanoide, este hace una salvación de SAB o queda Asustado de ti o de quien elijas durante 1 hora, o hasta que lo ataquen o dañen a él o a sus aliados delante suyo. Si la pasa, no nota nada. Una vez por descanso corto o largo.', { usos: 1, reset: 'corto' }),
+      r(6, 'Manto de Susurros', 'reaccion', 'Cuando un humanoide muere a 30 pies, capturas su sombra con tu reacción (una vez por descanso corto o largo). Con una acción la usas como disfraz durante 1 hora: te ves como esa persona, sana, y sabes lo que contaría a un conocido. Para descubrirte hace falta una prueba de Perspicacia contra tu Engaño, con +5 para ti.', { usos: 1, reset: 'corto' }),
+      r(14, 'Saber de las Sombras', 'accion', 'Susurras a una criatura a 30 pies que comparta tu idioma y te oiga: salvación de SAB o queda Hechizada por ti 8 horas, convencida de que conoces su peor secreto; te obedece y te hace favores, pero no arriesga la vida. Se acaba si tú o tus aliados la dañáis o atacáis. Una vez por descanso largo.', { usos: 1, reset: 'largo' }),
     ] },
   },
 };

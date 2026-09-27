@@ -77,6 +77,48 @@ export const EXPLORADOR_2024 = {
         r(11, 'Retribución Helada', 'reaccion', 'Cuando te golpean, usas tu Reacción para forzar al atacante a una salvación de Sabiduría; si falla, queda Aturdido hasta el final de tu próximo turno y su velocidad es 0.', { usos: 'max(1, SAB)', reset: 'largo' }),
         r(15, 'Aparición Congelada', 'pasiva', 'Al lanzar Marca del cazador, adoptas una forma fantasmal nevada. Te vuelves inmune al daño de Frío, infliges daño pasivo a tu alrededor, eres inmune a ser Derribado, Agarrado o Apresado y puedes atravesar materia física.', { usos: 1, reset: 'largo' })
       ]
+    },
+    'guardian-draconico': {
+      n: 'Guardián Dracónico',
+      rasgos: [
+        r(3, 'Don Dracónico', 'pasiva', 'Aprendes el truco Taumaturgia, que cuenta como conjuro de explorador para ti, y a hablar, leer y escribir dracónico u otro idioma a tu elección.'),
+        r(3, 'Compañero Dracónico', 'accion', 'Como acción invocas a tu draco a 30 pies (sale en Familiares y criaturas). Al invocarlo eliges su esencia: ácido, frío, fuego, relámpago o veneno. Actúa justo después de ti; si no le ordenas otra cosa con una acción adicional, solo Esquiva. Dura hasta caer a 0 PG, hasta que lo vuelvas a invocar o hasta que mueras. Una vez por descanso largo, o gastando un espacio de nivel 1 o más.', { usos: 1, reset: 'largo' }),
+        r(7, 'Vínculo de Colmillo y Escama', 'pasiva', 'Tu draco invocado crece a tamaño mediano, le salen alas (vuela a su velocidad) y puedes montarlo si eres mediano o menor, aunque montado no puede volar. Su mordisco hace 1d6 extra del tipo de su esencia y tú tienes resistencia a ese daño mientras esté invocado.'),
+        r(11, 'Aliento del Draco', 'accion', 'Como acción, tú o tu draco exhaláis un cono de 30 pies de ácido, frío, fuego, relámpago o veneno: salvación de DES contra tu CD de conjuros, 8d6 de daño (10d6 desde el nivel 15) o la mitad si la superan. Una vez por descanso largo, o gastando un espacio de nivel 3 o más.', { usos: 1, reset: 'largo' }),
+        r(15, 'Vínculo Perfecto', 'reaccion', 'Tu draco crece a tamaño grande (ya puede volar contigo encima) y su mordisco hace 2d6 extra de su esencia. Cuando tú o él recibís daño estando a 30 pies el uno del otro, con tu reacción le das resistencia a ese daño a quien lo recibe.', { usos: 'pb', reset: 'largo' })
+      ]
+    },
+    'caminante-horizonte': {
+      n: 'Caminante del Horizonte',
+      rasgos: [
+        r(3, 'Conjuros del Caminante del Horizonte', 'pasiva', 'Siempre tienes preparados los conjuros de la subclase, que se amplían en los niveles 3, 5, 9, 13 y 17.'),
+        r(3, 'Detectar Portal', 'accion', 'Como acción mágica sabes la distancia y la dirección del portal planar más cercano a 1 milla. Una vez por descanso corto o largo.', { usos: 1, reset: 'corto' }),
+        r(3, 'Guerrero Planar', 'adicional', 'Con una acción adicional eliges una criatura que ves a 30 pies. La próxima vez que la aciertes este turno con un arma, todo el daño del ataque es de fuerza y suma 1d8 de fuerza (2d8 desde el nivel 11).'),
+        r(7, 'Paso Etéreo', 'adicional', 'Con una acción adicional lanzas Excursión etérea sin espacio, pero termina al final del turno. Una vez por descanso corto o largo.', { usos: 1, reset: 'corto' }),
+        r(11, 'Golpe Distante', 'pasiva', 'Cuando usas Atacar, puedes teletransportarte hasta 10 pies antes de cada ataque. Si atacas al menos a dos criaturas distintas, haces un ataque más contra una tercera.'),
+        r(15, 'Defensa Espectral', 'reaccion', 'Cuando un ataque te hace daño, usas tu reacción para tener resistencia a todo el daño de ese ataque este turno.')
+      ]
+    },
+    'cazador-monstruos': {
+      n: 'Cazador de Monstruos',
+      rasgos: [
+        r(3, 'Conjuros del Cazador de Monstruos', 'pasiva', 'Siempre tienes preparados los conjuros de la subclase, que se amplían en los niveles 3, 5, 9, 13 y 17.'),
+        r(3, 'Sentido del Cazador', 'accion', 'Como acción miras a una criatura que ves a 60 pies y sabes si tiene inmunidades, resistencias o vulnerabilidades al daño y cuáles son (si está protegida de la adivinación, parece no tener ninguna).', { usos: 'max(1, SAB)', reset: 'largo' }),
+        r(3, 'Presa del Cazador', 'adicional', 'Con una acción adicional marcas a una criatura que ves a 60 pies. La primera vez en cada turno que la aciertas con un arma, recibe 1d6 de daño extra del arma. Dura hasta tu siguiente descanso corto o largo, o hasta que marques a otra.'),
+        r(7, 'Defensa Sobrenatural', 'pasiva', 'Sumas 1d6 a las salvaciones que te obligue a hacer tu presa y a las pruebas para escapar de su agarre.'),
+        r(11, 'Némesis de los Lanzadores', 'reaccion', 'Cuando ves a una criatura a 60 pies lanzar un conjuro o teletransportarse, usas tu reacción: hace una salvación de SAB contra tu CD de conjuros o el conjuro o el teletransporte fallan y se pierden. Una vez por descanso corto o largo.', { usos: 1, reset: 'corto' }),
+        r(15, 'Contraataque del Cazador', 'reaccion', 'Cuando tu presa te obliga a una salvación, usas tu reacción para hacerle un ataque con arma justo antes de tirarla. Si aciertas, además superas la salvación.')
+      ]
+    },
+    'guardian-enjambre': {
+      n: 'Guardián del Enjambre',
+      rasgos: [
+        r(3, 'Conjuros del Guardián del Enjambre', 'pasiva', 'Aprendes Mano de mago (la mano es tu enjambre) y siempre tienes preparados los conjuros de la subclase, que se amplían en los niveles 3, 5, 9, 13 y 17.'),
+        r(3, 'Enjambre Reunido', 'gratis', 'Una vez en cada uno de tus turnos, justo después de acertar un ataque, tu enjambre de espíritus te ayuda: el objetivo recibe 1d6 de daño perforante (1d8 desde el nivel 11), o hace una salvación de FUE contra tu CD de conjuros o lo mueve hasta 15 pies en horizontal, o te mueve a ti 5 pies en horizontal.'),
+        r(7, 'Marea Retorcida', 'adicional', 'Con una acción adicional tu enjambre te eleva: vuelas 10 pies y puedes flotar durante 1 minuto o hasta quedar Incapacitado.', { usos: 'pb', reset: 'largo' }),
+        r(11, 'Enjambre Poderoso', 'pasiva', 'El daño de Enjambre Reunido pasa a 1d8. Si una criatura falla la salvación para no ser movida, también puedes derribarla. Cuando el enjambre te mueve, tienes media cobertura hasta el inicio de tu siguiente turno.'),
+        r(15, 'Dispersión del Enjambre', 'reaccion', 'Cuando recibes daño, usas tu reacción para tener resistencia a ese daño, desaparecer en tu enjambre y teletransportarte a un espacio libre que veas a 30 pies.', { usos: 'pb', reset: 'largo' })
+      ]
     }
   }
 };
@@ -128,7 +170,19 @@ JSON
   { "donde": "caminante-invierno", "rasgo": "Explorador Gélido", "tipo": "daño", "daño": "1d4; 1d6 desde nivel 11" },
   { "donde": "caminante-invierno", "rasgo": "Escarcha del Cazador", "tipo": "pg", "detalle": "1d10 + nivel" },
   { "donde": "caminante-invierno", "rasgo": "Alma Fortalecedora", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "caminante-invierno", "rasgo": "Retribución Helada", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo" }
+  { "donde": "caminante-invierno", "rasgo": "Retribución Helada", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo" },
+  { "donde": "guardian-draconico", "rasgo": "Compañero Dracónico", "tipo": "usos", "usos": "1", "reset": "largo" },
+  { "donde": "guardian-draconico", "rasgo": "Aliento del Draco", "tipo": "usos", "usos": "1", "reset": "largo" },
+  { "donde": "guardian-draconico", "rasgo": "Vínculo Perfecto", "tipo": "usos", "usos": "pb", "reset": "largo" },
+  { "donde": "caminante-horizonte", "rasgo": "Conjuros del Caminante del Horizonte", "tipo": "conjuros", "por_nivel": { "3": ["Protección contra el bien y el mal"], "5": ["Paso brumoso"], "9": ["Acelerar"], "13": ["Destierro"], "17": ["Círculo de teletransportación"] } },
+  { "donde": "caminante-horizonte", "rasgo": "Detectar Portal", "tipo": "usos", "usos": "1", "reset": "corto" },
+  { "donde": "caminante-horizonte", "rasgo": "Paso Etéreo", "tipo": "usos", "usos": "1", "reset": "corto" },
+  { "donde": "cazador-monstruos", "rasgo": "Conjuros del Cazador de Monstruos", "tipo": "conjuros", "por_nivel": { "3": ["Protección contra el bien y el mal"], "5": ["Zona de la verdad"], "9": ["Círculo mágico"], "13": ["Destierro"], "17": ["Inmovilizar monstruo"] } },
+  { "donde": "cazador-monstruos", "rasgo": "Sentido del Cazador", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo" },
+  { "donde": "cazador-monstruos", "rasgo": "Némesis de los Lanzadores", "tipo": "usos", "usos": "1", "reset": "corto" },
+  { "donde": "guardian-enjambre", "rasgo": "Conjuros del Guardián del Enjambre", "tipo": "conjuros", "por_nivel": { "3": ["Mano de mago", "Fuego feérico"], "5": ["Telaraña"], "9": ["Forma Gaseosa"], "13": ["Ojo arcano"], "17": ["Plaga de insectos"] } },
+  { "donde": "guardian-enjambre", "rasgo": "Marea Retorcida", "tipo": "usos", "usos": "pb", "reset": "largo" },
+  { "donde": "guardian-enjambre", "rasgo": "Dispersión del Enjambre", "tipo": "usos", "usos": "pb", "reset": "largo" }
 ]
 
 === C ===
@@ -140,7 +194,11 @@ JSON
   "sombras": "Manual del Jugador (2024)",
   "guardian-hueco": "Ravenloft: The Horrors Within (2026)",
   "cazador": "Manual del Jugador (2024)",
-  "caminante-invierno": "Forgotten Realms: Heroes of Faerûn (2025)"
+  "caminante-invierno": "Forgotten Realms: Heroes of Faerûn (2025)",
+  "guardian-draconico": "Fizban's Treasury of Dragons (2021)",
+  "caminante-horizonte": "Xanathar's Guide to Everything (2017)",
+  "cazador-monstruos": "Xanathar's Guide to Everything (2017)",
+  "guardian-enjambre": "Tasha's Cauldron of Everything (2020)"
 }
 
 === D ===
@@ -152,7 +210,11 @@ JSON
   "sombras": "Maestros de la oscuridad que operan de manera invisible en las sombras, emboscando brutalmente a los enemigos en el primer turno.",
   "guardian-hueco": "Asumen transformaciones aterradoras potenciadas por horrores antiguos, devorando y aterrorizando a sus oponentes.",
   "cazador": "Especialistas en cazar presas difíciles: eligen tácticas para rematar a enemigos heridos o golpear a varios a la vez, y aprenden a defenderse de grupos.",
-  "caminante-invierno": "Sobrevivientes glaciales que utilizan hielo mágico y frío penetrante para congelar y ralentizar a sus presas."
+  "caminante-invierno": "Sobrevivientes glaciales que utilizan hielo mágico y frío penetrante para congelar y ralentizar a sus presas.",
+  "guardian-draconico": "Exploradores unidos al espíritu de un dragón que se hace carne como un draco: crece con ellos hasta poder montarlo y escupe el aliento de su esencia.",
+  "caminante-horizonte": "Guardianes de los portales entre planos que golpean con fuerza pura, cruzan al plano etéreo y se teletransportan entre enemigos.",
+  "cazador-monstruos": "Cazadores de vampiros, dragones e infernales que estudian las debilidades de su presa y frustran su magia.",
+  "guardian-enjambre": "Exploradores rodeados por un enjambre de espíritus de la naturaleza que hiere, empuja y los lleva volando por el campo."
 }
 
 === E ===
@@ -176,3 +238,4 @@ JSON
     Subclases Mencionadas sin Texto: Las subclases Drakewarden, Horizon Walker, Monster Slayer, y Swarmkeeper estaban listadas en los títulos pero el documento entregado no incluyó sus textos descriptivos. Siguiendo la regla de no inventar y hacer "una subclase por cada subclase del texto oficial", no se generó JSON ni código TypeScript para ellas, pero sus referencias originales deben respetarse si se extraen posteriormente.
 
     Nota [NO CONFIRMADO]: En Guardián Hueco Nivel 3, el texto inglés indica "expend a use of XPHB", probablemente un error tipográfico del material original que refería a la Marca del Cazador u otro recurso; se transcribió literalmente como "[NO CONFIRMADO]".
+* **Subclases viejas (revisión de Claude, después de los lotes 15 y 16):** el encargo no traía su texto; Claude escribió Guardián Dracónico, Caminante del Horizonte, Cazador de Monstruos y Guardián del Enjambre desde el texto oficial. Sus conjuros quedan siempre preparados, como en las demás subclases viejas.

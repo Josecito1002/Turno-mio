@@ -682,6 +682,74 @@
        "reset": "largo"
       }
      ]
+    },
+    "reanimador": {
+     "n": "Reanimador",
+     "rasgos": [
+      {
+       "nombre": "Conjuros de Reanimador",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados: Falsa vida, Piedad con los moribundos, Saeta de bruja (nivel 3); Sordera/Ceguera, Potenciar característica (5); Animar a los muertos, Relámpago (9); Marchitar, Guarda contra la Muerte (13); Caparazón antivida, Alzar a los muertos (17).",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Oficio de Reanimador",
+       "t": "pasiva",
+       "texto": "Competencia con suministros de alquimista (u otras herramientas de artesano si ya la tenías). Al lanzar Piedad con los moribundos puedes dar una descarga que devuelve al objetivo tantos PG como tu nivel de artífice y daña con relámpago a quienes elijas a su alrededor; tantas veces como tu INT por descanso largo.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Compañero Reanimado",
+       "t": "accion",
+       "texto": "Con una acción mágica y tus herramientas creas un compañero muerto viviente a 5 pies que te obedece hasta tu siguiente descanso largo o hasta que lo despidas. Actúa en tu turno y solo Esquiva salvo que le des una orden con tu acción adicional. Si mueres, estalla. Una vez por descanso largo, o gastando un espacio de conjuro; solo uno a la vez.",
+       "n": 3,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Modificaciones Extrañas",
+       "t": "pasiva",
+       "texto": "Al crear a tu compañero eliges una modificación: Conducto Arcano (lanzas conjuros desde su espacio y, una vez por turno, sumas tu INT al daño de un conjuro de evocación o nigromancia) o Ferocidad (su Zarpazo hace 1d6).",
+       "n": 5,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Reanimación Mejorada",
+       "t": "pasiva",
+       "texto": "El Estallido mortal de tu compañero hace 4d4, y su daño necrótico ignora la resistencia.",
+       "n": 9,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Modificaciones Macabras",
+       "t": "pasiva",
+       "texto": "Tu compañero gana dos modificaciones en lugar de una, y puedes elegir también Hinchado (Grande, empuja 10 pies al acertar y suma tu INT al estallido), Enjuto (45 pies de velocidad, trepa por techos y asusta a quien empiece su turno a 10 pies) o Viscoso (nada, se cuela por huecos de una pulgada y quien le acierte a 10 pies recibe ácido igual a tu INT).",
+       "n": 9,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Reanimación Perfeccionada",
+       "t": "pasiva",
+       "texto": "Una vez por descanso largo lanzas Alzar a los muertos sin espacio ni componentes materiales. Cuando tú o tu compañero recibís daño, con tu reacción ganas tantos PG como los que le queden y él muere (y estalla). Tu compañero gana tres modificaciones.",
+       "n": 15,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      }
+     ]
     }
    }
   },
@@ -865,6 +933,270 @@
        "n": 14,
        "manual": true,
        "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "senda-guardian-ancestral": {
+     "n": "Senda del Guardián Ancestral",
+     "rasgos": [
+      {
+       "nombre": "Protectores Ancestrales",
+       "t": "gratis",
+       "texto": "Con la Furia activa, la primera criatura que aciertas en tu turno queda acosada por guerreros espectrales hasta el inicio de tu siguiente turno: tiene desventaja en los ataques que no sean contra ti, y quien reciba un ataque suyo que no seas tú tiene resistencia a ese daño. Termina antes si acaba tu Furia.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Escudo Espiritual",
+       "t": "reaccion",
+       "texto": "Con la Furia activa, cuando otra criatura que ves a 30 pies recibe daño, usas tu reacción para reducirlo en 2d6 (3d6 desde el nivel 10 y 4d6 desde el 14).",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Consultar a los Espíritus",
+       "t": "fuera",
+       "texto": "Lanzas Augurio o Clarividencia sin espacio ni componentes materiales, con SAB; con Clarividencia, en lugar del sensor mandas a uno de tus espíritus invisible. Una vez por descanso corto o largo.",
+       "n": 10,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
+      },
+      {
+       "nombre": "Ancestros Vengativos",
+       "t": "pasiva",
+       "texto": "Cuando Escudo Espiritual reduce el daño de un ataque, el atacante recibe tanto daño de fuerza como el que evitaste.",
+       "n": 14,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "senda-rabioso-batalla": {
+     "n": "Senda del Rabioso de Batalla",
+     "rasgos": [
+      {
+       "nombre": "Armadura de Rabioso",
+       "t": "adicional",
+       "texto": "Con armadura con pinchos y la Furia activa, con una acción adicional atacas cuerpo a cuerpo con los pinchos a una criatura a 5 pies: 1d4 perforante con FUE. Además, cuando usas Atacar para agarrar a una criatura y lo logras, recibe 3 de daño perforante. En los Reinos Olvidados es una senda solo de enanos, salvo que el DM diga otra cosa.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Abandono Temerario",
+       "t": "pasiva",
+       "texto": "Cuando usas Ataque Temerario con la Furia activa, ganas PG temporales iguales a tu mod. de CON (mínimo 1), que se pierden al terminar la Furia.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Carga del Rabioso",
+       "t": "adicional",
+       "texto": "Con la Furia activa puedes usar la acción Correr como acción adicional.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Represalia de Pinchos",
+       "t": "pasiva",
+       "texto": "Con la Furia activa, sin estar Incapacitado y con armadura con pinchos, quien te acierte con un ataque cuerpo a cuerpo a 5 pies recibe 3 de daño perforante.",
+       "n": 14,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "senda-bestia": {
+     "n": "Senda de la Bestia",
+     "rasgos": [
+      {
+       "nombre": "Forma de la Bestia",
+       "t": "gratis",
+       "texto": "Al entrar en Furia puedes transformarte y ganar un arma natural (arma sencilla cuerpo a cuerpo con FUE) hasta que acabe: Mordisco (1d8 perforante; una vez por turno, si tienes menos de la mitad de tus PG, al dañar recuperas tu bonificador de competencia en PG), Garras (1d6 cortante; al atacar con Atacar, un ataque de garra más) o Cola (1d8 perforante con alcance; con tu reacción sumas 1d8 a tu CA contra un ataque de alguien a 10 pies).",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Alma Bestial",
+       "t": "fuera",
+       "texto": "Tus armas naturales cuentan como mágicas. Al terminar un descanso corto o largo eliges hasta el siguiente: nadar a tu velocidad y respirar bajo el agua; trepar a tu velocidad, incluso por techos; o, una vez por turno, alargar un salto tantos pies como saques en una prueba de Fuerza (Atletismo).",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Furia Contagiosa",
+       "t": "gratis",
+       "texto": "Al acertar con tus armas naturales en Furia, el objetivo hace una salvación de SAB (CD 8 + CON + competencia) o, a tu elección, usa su reacción para atacar cuerpo a cuerpo a otra criatura que elijas, o recibe 2d12 de daño psíquico.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Llamar a la Cacería",
+       "t": "gratis",
+       "texto": "Al entrar en Furia eliges hasta tu mod. de CON (mínimo 1) criaturas dispuestas a 30 pies: ganas 5 PG temporales por cada una, y hasta que acabe la Furia, una vez en cada uno de sus turnos, al acertar y dañar pueden sumar 1d6 al daño.",
+       "n": 14,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "senda-gigante": {
+     "n": "Senda del Gigante",
+     "rasgos": [
+      {
+       "nombre": "Poder de Gigante",
+       "t": "pasiva",
+       "texto": "Aprendes gigante (u otro idioma si ya lo sabías) y el truco Druidismo o Taumaturgia, a tu elección, con SAB.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Estrago de Gigante",
+       "t": "pasiva",
+       "texto": "Con la Furia activa, tu alcance aumenta 5 pies y, si eres menor que Grande, pasas a Grande con lo que lleves (si hay sitio). Además, al acertar un ataque a distancia con un arma arrojadiza usando FUE, sumas tu bonificador de daño de Furia.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Hendedor Elemental",
+       "t": "adicional",
+       "texto": "Al entrar en Furia imbuyes un arma que empuñas con ácido, frío, fuego, relámpago o trueno: su daño pasa a ese tipo, hace 1d6 extra de ese tipo (2d6 desde el nivel 14) y gana la propiedad Arrojadiza (20/60), volviendo a tu mano tras cada lanzamiento. Con una acción adicional cambias el tipo.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Impulso Poderoso",
+       "t": "adicional",
+       "texto": "Con la Furia activa, con una acción adicional mueves a una criatura mediana o menor a tu alcance hasta un espacio libre que veas a 30 pies (grande o menor desde el nivel 14). Si no quiere, hace una salvación de FUE (CD 8 + FUE + competencia). Si no cae sobre algo firme, cae y queda Derribada.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Coloso Demiúrgico",
+       "t": "pasiva",
+       "texto": "Al entrar en Furia tu alcance aumenta 10 pies en lugar de 5, puedes pasar a Grande o Enorme, Impulso Poderoso mueve criaturas grandes o menores, y Hendedor Elemental hace 2d6.",
+       "n": 14,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "senda-heraldo-tormenta": {
+     "n": "Senda del Heraldo de la Tormenta",
+     "rasgos": [
+      {
+       "nombre": "Aura de Tormenta",
+       "t": "adicional",
+       "texto": "Con la Furia activa emanas un aura de 10 pies que se activa al entrar en Furia y, después, con una acción adicional en cada turno. Eliges desierto, mar o tundra (puedes cambiarlo al subir de nivel). Desierto: las demás criaturas del aura reciben 2 de fuego (3 en el nivel 5, 4 en el 10, 5 en el 15 y 6 en el 20). Mar: una criatura del aura hace una salvación de DES (CD 8 + CON + competencia) o recibe 1d6 de relámpago (2d6 en el 10, 3d6 en el 15, 4d6 en el 20), la mitad si la supera. Tundra: las criaturas que elijas del aura ganan 2 PG temporales (sube igual que el desierto).",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Alma de Tormenta",
+       "t": "pasiva",
+       "texto": "Según tu entorno. Desierto: resistencia al fuego, el calor extremo no te afecta, y con una acción prendes fuego a un objeto inflamable que toques y nadie lleve. Mar: resistencia al relámpago, respiras bajo el agua y nadas 30 pies. Tundra: resistencia al frío, el frío extremo no te afecta, y con una acción conviertes en hielo un cubo de agua de 5 pies durante 1 minuto.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Tormenta Protectora",
+       "t": "pasiva",
+       "texto": "Las criaturas que elijas tienen la resistencia de tu Alma de Tormenta mientras estén en tu aura.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Tormenta Furiosa",
+       "t": "reaccion",
+       "texto": "Según tu entorno. Desierto: cuando una criatura del aura te acierta, con tu reacción hace una salvación de DES o recibe fuego igual a la mitad de tu nivel de bárbaro. Mar: cuando aciertas a una criatura del aura, con tu reacción hace una salvación de FUE o queda Derribada. Tundra: cada vez que se activa el aura, una criatura que ves en ella hace una salvación de FUE o su velocidad queda en 0 hasta el inicio de tu siguiente turno.",
+       "n": 14,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "senda-magia-salvaje": {
+     "n": "Senda de la Magia Salvaje",
+     "rasgos": [
+      {
+       "nombre": "Percepción Mágica",
+       "t": "accion",
+       "texto": "Como acción, hasta el final de tu siguiente turno sabes dónde hay conjuros u objetos mágicos a 60 pies que no estén tras cobertura total, y de qué escuela es cada conjuro.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Oleada Salvaje",
+       "t": "gratis",
+       "texto": "Al entrar en Furia tiras 1d8 (CD 8 + CON + competencia): 1, zarcillos de sombra (salvación de CON o 1d12 necrótico a quien elijas a 30 pies) y ganas 1d12 PG temporales; 2, te teletransportas 30 pies, repetible con acción adicional; 3, un espíritu estalla junto a una criatura a 30 pies (salvación de DES o 1d6 de fuerza a 5 pies), repetible con acción adicional; 4, un arma tuya hace daño de fuerza y gana Ligera y Arrojadiza (20/60); 5, quien te acierte recibe 1d6 de fuerza; 6, luces que te dan +1 a la CA a ti y a tus aliados a 10 pies; 7, el suelo a 15 pies es terreno difícil para tus enemigos; 8, un rayo de luz: una criatura a 30 pies hace una salvación de CON o recibe 1d6 radiante y queda Cegada hasta tu siguiente turno, repetible con acción adicional. Todo dura hasta que acabe la Furia.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Magia Reforzante",
+       "t": "accion",
+       "texto": "Como acción tocas a una criatura (tú incluido) y eliges: durante 10 minutos suma 1d3 a sus tiradas de ataque y pruebas de característica, o recupera un espacio de conjuro de nivel 1d3 o menor (una vez por descanso largo cada criatura).",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Contragolpe Inestable",
+       "t": "reaccion",
+       "texto": "Con la Furia activa, justo después de recibir daño o fallar una salvación, usas tu reacción para tirar en la tabla de Oleada Salvaje; el nuevo efecto reemplaza al actual.",
+       "n": 10,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Oleada Controlada",
+       "t": "pasiva",
+       "texto": "Cuando tiras en la tabla de Oleada Salvaje, tiras dos veces y eliges el efecto; si sale el mismo número, eliges cualquiera.",
+       "n": 14,
+       "manual": true,
+       "usos": 0,
        "reset": "largo"
       }
      ]
@@ -1282,6 +1614,188 @@
        "n": 14,
        "manual": true,
        "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "colegio-creacion": {
+     "n": "Colegio de la Creación",
+     "rasgos": [
+      {
+       "nombre": "Chispa de Potencial",
+       "t": "pasiva",
+       "texto": "Cuando das un dado de Inspiración Bárdica, puedes crear una chispa diminuta que flota junto a esa criatura hasta que el dado se pierda. Si el dado va a una prueba, lo tira dos veces y se queda con uno; si va a un ataque, la chispa estalla y el objetivo y las criaturas que elijas a 5 pies de él hacen una salvación de CON o reciben de trueno lo que salió en el dado; si va a una salvación, gana PG temporales iguales al dado + tu CAR.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Obra de la Creación",
+       "t": "accion",
+       "texto": "Como acción, creas a 10 pies un objeto no mágico mediano o menor que valga como máximo 20 po por nivel de bardo; dura tantas horas como tu bonificador de competencia y solo puede haber uno. Desde el nivel 6 puede ser Grande, y desde el 14 Enorme. Una vez por descanso largo, o gastando un espacio de nivel 2 o más.",
+       "n": 3,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Objeto Danzante",
+       "t": "accion",
+       "texto": "Como acción, animas un objeto no mágico grande o menor a 30 pies que nadie lleve; te obedece durante 1 hora o hasta caer a 0 PG, y actúa justo después de ti. Solo esquiva, salvo que le des otra orden con tu acción adicional (también al dar Inspiración Bárdica). Una vez por descanso largo, o gastando un espacio de nivel 3 o más.",
+       "n": 6,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Crescendo Creativo",
+       "t": "pasiva",
+       "texto": "Con Obra de la Creación creas varios objetos a la vez, tantos como tu CAR (mínimo dos); solo uno puede ser del tamaño máximo y los demás pequeños o diminutos. Ya no tienes límite de valor en po.",
+       "n": 14,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "colegio-elocuencia": {
+     "n": "Colegio de la Elocuencia",
+     "rasgos": [
+      {
+       "nombre": "Lengua de Plata",
+       "t": "pasiva",
+       "texto": "En las pruebas de Persuasión y Engaño, si sacas 9 o menos en el d20, cuenta como un 10.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Palabras Inquietantes",
+       "t": "adicional",
+       "texto": "Gastas una Inspiración Bárdica: tiras el dado y una criatura que ves a 60 pies resta el resultado a la siguiente salvación que haga antes del inicio de tu próximo turno.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Inspiración Infalible",
+       "t": "pasiva",
+       "texto": "Si alguien suma tu dado de Inspiración Bárdica a una prueba, un ataque o una salvación y aun así falla, conserva el dado.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Habla Universal",
+       "t": "accion",
+       "texto": "Como acción, hasta tu CAR (mínimo 1) criaturas a 60 pies te entienden durante 1 hora, hables el idioma que hables. Una vez por descanso largo, o gastando un espacio de conjuro.",
+       "n": 6,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Inspiración Contagiosa",
+       "t": "reaccion",
+       "texto": "Cuando una criatura a 60 pies suma tu dado de Inspiración Bárdica y acierta, das un dado de Inspiración Bárdica a otra criatura (no a ti) que te oiga a 60 pies sin gastar usos. Tantas veces como tu CAR (mínimo 1) por descanso largo.",
+       "n": 14,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "colegio-espadas": {
+     "n": "Colegio de las Espadas",
+     "rasgos": [
+      {
+       "nombre": "Competencias Adicionales",
+       "t": "pasiva",
+       "texto": "Entrenamiento con armaduras medias y competencia con la cimitarra. Puedes usar como foco de tus conjuros de bardo un arma cuerpo a cuerpo sencilla o marcial con la que seas competente.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Estilo de Combate",
+       "t": "pasiva",
+       "texto": "Eliges un estilo de combate: Duelo o Combate con Dos Armas.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Floritura de Espada",
+       "t": "gratis",
+       "texto": "Al usar la acción Atacar, tu velocidad sube 10 pies hasta el final del turno y, si aciertas con un arma, puedes usar una floritura por turno gastando una Inspiración Bárdica: Defensiva, Cortante o Móvil.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Ataque Extra",
+       "t": "pasiva",
+       "texto": "Cuando usas la acción Atacar, atacas dos veces.",
+       "n": 6,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Floritura Maestra",
+       "t": "pasiva",
+       "texto": "Al usar una floritura puedes tirar 1d6 en lugar de gastar un dado de Inspiración Bárdica.",
+       "n": 14,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "colegio-susurros": {
+     "n": "Colegio de los Susurros",
+     "rasgos": [
+      {
+       "nombre": "Hojas Psíquicas",
+       "t": "gratis",
+       "texto": "Una vez por ronda en tu turno, al acertar un ataque con arma, gastas una Inspiración Bárdica y haces daño psíquico extra: 2d6 (3d6 desde el nivel 5, 5d6 desde el 10 y 8d6 desde el 15).",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Palabras de Terror",
+       "t": "accion",
+       "texto": "Tras hablar a solas al menos 1 minuto con un humanoide, este hace una salvación de SAB o queda Asustado de ti o de quien elijas durante 1 hora, o hasta que lo ataquen o dañen a él o a sus aliados delante suyo. Si la pasa, no nota nada. Una vez por descanso corto o largo.",
+       "n": 3,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
+      },
+      {
+       "nombre": "Manto de Susurros",
+       "t": "reaccion",
+       "texto": "Cuando un humanoide muere a 30 pies, capturas su sombra con tu reacción (una vez por descanso corto o largo). Con una acción la usas como disfraz durante 1 hora: te ves como esa persona, sana, y sabes lo que contaría a un conocido. Para descubrirte hace falta una prueba de Perspicacia contra tu Engaño, con +5 para ti.",
+       "n": 6,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
+      },
+      {
+       "nombre": "Saber de las Sombras",
+       "t": "accion",
+       "texto": "Susurras a una criatura a 30 pies que comparta tu idioma y te oiga: salvación de SAB o queda Hechizada por ti 8 horas, convencida de que conoces su peor secreto; te obedece y te hace favores, pero no arriesga la vida. Se acaba si tú o tus aliados la dañáis o atacáis. Una vez por descanso largo.",
+       "n": 14,
+       "manual": true,
+       "usos": 1,
        "reset": "largo"
       }
      ]
@@ -3831,6 +4345,224 @@
        "n": 15,
        "manual": true,
        "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "guardian-draconico": {
+     "n": "Guardián Dracónico",
+     "rasgos": [
+      {
+       "nombre": "Don Dracónico",
+       "t": "pasiva",
+       "texto": "Aprendes el truco Taumaturgia, que cuenta como conjuro de explorador para ti, y a hablar, leer y escribir dracónico u otro idioma a tu elección.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Compañero Dracónico",
+       "t": "accion",
+       "texto": "Como acción invocas a tu draco a 30 pies (sale en Familiares y criaturas). Al invocarlo eliges su esencia: ácido, frío, fuego, relámpago o veneno. Actúa justo después de ti; si no le ordenas otra cosa con una acción adicional, solo Esquiva. Dura hasta caer a 0 PG, hasta que lo vuelvas a invocar o hasta que mueras. Una vez por descanso largo, o gastando un espacio de nivel 1 o más.",
+       "n": 3,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Vínculo de Colmillo y Escama",
+       "t": "pasiva",
+       "texto": "Tu draco invocado crece a tamaño mediano, le salen alas (vuela a su velocidad) y puedes montarlo si eres mediano o menor, aunque montado no puede volar. Su mordisco hace 1d6 extra del tipo de su esencia y tú tienes resistencia a ese daño mientras esté invocado.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Aliento del Draco",
+       "t": "accion",
+       "texto": "Como acción, tú o tu draco exhaláis un cono de 30 pies de ácido, frío, fuego, relámpago o veneno: salvación de DES contra tu CD de conjuros, 8d6 de daño (10d6 desde el nivel 15) o la mitad si la superan. Una vez por descanso largo, o gastando un espacio de nivel 3 o más.",
+       "n": 11,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Vínculo Perfecto",
+       "t": "reaccion",
+       "texto": "Tu draco crece a tamaño grande (ya puede volar contigo encima) y su mordisco hace 2d6 extra de su esencia. Cuando tú o él recibís daño estando a 30 pies el uno del otro, con tu reacción le das resistencia a ese daño a quien lo recibe.",
+       "n": 15,
+       "manual": true,
+       "usos": "pb",
+       "reset": "largo"
+      }
+     ]
+    },
+    "caminante-horizonte": {
+     "n": "Caminante del Horizonte",
+     "rasgos": [
+      {
+       "nombre": "Conjuros del Caminante del Horizonte",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros de la subclase, que se amplían en los niveles 3, 5, 9, 13 y 17.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Detectar Portal",
+       "t": "accion",
+       "texto": "Como acción mágica sabes la distancia y la dirección del portal planar más cercano a 1 milla. Una vez por descanso corto o largo.",
+       "n": 3,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
+      },
+      {
+       "nombre": "Guerrero Planar",
+       "t": "adicional",
+       "texto": "Con una acción adicional eliges una criatura que ves a 30 pies. La próxima vez que la aciertes este turno con un arma, todo el daño del ataque es de fuerza y suma 1d8 de fuerza (2d8 desde el nivel 11).",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Paso Etéreo",
+       "t": "adicional",
+       "texto": "Con una acción adicional lanzas Excursión etérea sin espacio, pero termina al final del turno. Una vez por descanso corto o largo.",
+       "n": 7,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
+      },
+      {
+       "nombre": "Golpe Distante",
+       "t": "pasiva",
+       "texto": "Cuando usas Atacar, puedes teletransportarte hasta 10 pies antes de cada ataque. Si atacas al menos a dos criaturas distintas, haces un ataque más contra una tercera.",
+       "n": 11,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Defensa Espectral",
+       "t": "reaccion",
+       "texto": "Cuando un ataque te hace daño, usas tu reacción para tener resistencia a todo el daño de ese ataque este turno.",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "cazador-monstruos": {
+     "n": "Cazador de Monstruos",
+     "rasgos": [
+      {
+       "nombre": "Conjuros del Cazador de Monstruos",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros de la subclase, que se amplían en los niveles 3, 5, 9, 13 y 17.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Sentido del Cazador",
+       "t": "accion",
+       "texto": "Como acción miras a una criatura que ves a 60 pies y sabes si tiene inmunidades, resistencias o vulnerabilidades al daño y cuáles son (si está protegida de la adivinación, parece no tener ninguna).",
+       "n": 3,
+       "manual": true,
+       "usos": "max(1, SAB)",
+       "reset": "largo"
+      },
+      {
+       "nombre": "Presa del Cazador",
+       "t": "adicional",
+       "texto": "Con una acción adicional marcas a una criatura que ves a 60 pies. La primera vez en cada turno que la aciertas con un arma, recibe 1d6 de daño extra del arma. Dura hasta tu siguiente descanso corto o largo, o hasta que marques a otra.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Defensa Sobrenatural",
+       "t": "pasiva",
+       "texto": "Sumas 1d6 a las salvaciones que te obligue a hacer tu presa y a las pruebas para escapar de su agarre.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Némesis de los Lanzadores",
+       "t": "reaccion",
+       "texto": "Cuando ves a una criatura a 60 pies lanzar un conjuro o teletransportarse, usas tu reacción: hace una salvación de SAB contra tu CD de conjuros o el conjuro o el teletransporte fallan y se pierden. Una vez por descanso corto o largo.",
+       "n": 11,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
+      },
+      {
+       "nombre": "Contraataque del Cazador",
+       "t": "reaccion",
+       "texto": "Cuando tu presa te obliga a una salvación, usas tu reacción para hacerle un ataque con arma justo antes de tirarla. Si aciertas, además superas la salvación.",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "guardian-enjambre": {
+     "n": "Guardián del Enjambre",
+     "rasgos": [
+      {
+       "nombre": "Conjuros del Guardián del Enjambre",
+       "t": "pasiva",
+       "texto": "Aprendes Mano de mago (la mano es tu enjambre) y siempre tienes preparados los conjuros de la subclase, que se amplían en los niveles 3, 5, 9, 13 y 17.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Enjambre Reunido",
+       "t": "gratis",
+       "texto": "Una vez en cada uno de tus turnos, justo después de acertar un ataque, tu enjambre de espíritus te ayuda: el objetivo recibe 1d6 de daño perforante (1d8 desde el nivel 11), o hace una salvación de FUE contra tu CD de conjuros o lo mueve hasta 15 pies en horizontal, o te mueve a ti 5 pies en horizontal.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Marea Retorcida",
+       "t": "adicional",
+       "texto": "Con una acción adicional tu enjambre te eleva: vuelas 10 pies y puedes flotar durante 1 minuto o hasta quedar Incapacitado.",
+       "n": 7,
+       "manual": true,
+       "usos": "pb",
+       "reset": "largo"
+      },
+      {
+       "nombre": "Enjambre Poderoso",
+       "t": "pasiva",
+       "texto": "El daño de Enjambre Reunido pasa a 1d8. Si una criatura falla la salvación para no ser movida, también puedes derribarla. Cuando el enjambre te mueve, tienes media cobertura hasta el inicio de tu siguiente turno.",
+       "n": 11,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Dispersión del Enjambre",
+       "t": "reaccion",
+       "texto": "Cuando recibes daño, usas tu reacción para tener resistencia a ese daño, desaparecer en tu enjambre y teletransportarte a un espacio libre que veas a 30 pies.",
+       "n": 15,
+       "manual": true,
+       "usos": "pb",
        "reset": "largo"
       }
      ]
@@ -6797,6 +7529,65 @@
        "n": 20,
        "manual": true,
        "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "rompejuramentos-dmg": {
+     "n": "Rompejuramentos",
+     "rasgos": [
+      {
+       "nombre": "Conjuros del Rompejuramentos",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros del juramento roto, que se amplían en los niveles 3, 5, 9, 13 y 17.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Controlar Muertos Vivientes",
+       "t": "accion",
+       "texto": "Como acción y con un uso de Canalizar Divinidad, un muerto viviente que veas a 30 pies hace una salvación de SAB o te obedece durante 24 horas, o hasta que vuelvas a usar esta opción. No afecta a los que tengan un valor de desafío igual o mayor que tu nivel de paladín.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Aspecto Temible",
+       "t": "accion",
+       "texto": "Como acción y con un uso de Canalizar Divinidad, las criaturas que elijas a 30 pies que te vean hacen una salvación de SAB o quedan Asustadas de ti 1 minuto; si alguna termina su turno a más de 30 pies de ti, repite la salvación.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Aura de Odio",
+       "t": "pasiva",
+       "texto": "Tú y los infernales y muertos vivientes a 10 pies de ti (30 desde el nivel 18) sumáis tu mod. de CAR (mínimo +1) al daño con armas cuerpo a cuerpo. Nadie recibe este beneficio de más de un paladín a la vez.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Resistencia Sobrenatural",
+       "t": "pasiva",
+       "texto": "Resistencia al daño contundente, cortante y perforante de armas no mágicas.",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Señor del Pavor",
+       "t": "accion",
+       "texto": "Como acción te rodea durante 1 minuto un aura de penumbra de 30 pies: la luz brillante pasa a tenue, los enemigos Asustados de ti que empiezan su turno en ella reciben 4d10 psíquico, y quienes dependen de la vista atacan con desventaja a ti y a quienes elijas dentro. Mientras dure, con una acción adicional las sombras atacan a una criatura. Una vez por descanso largo.",
+       "n": 20,
+       "manual": true,
+       "usos": 0,
        "reset": "largo"
       }
      ]

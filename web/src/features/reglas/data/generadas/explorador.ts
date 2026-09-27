@@ -49,6 +49,18 @@ export const reglas = [
   {de:/^caminante del invierno$/, n:/^conjuros del caminante del invierno$/, texto: siempre([[3,["Cuchillo de hielo"]],[5,["Inmovilizar persona"]],[9,["Levantar maldición"]],[13,["Tormenta de hielo"]],[17,["Cono de frío"]]])},
   {de:/^caminante del invierno$/, n:/^alma fortalecedora$/, usos: c => 1, reset: "largo"},
   {de:/^caminante del invierno$/, n:/^retribucion helada$/, usos: c => Math.max(1, c.m.sab), reset: "largo"},
+  {de:/^guardian draconico$/, n:/^companero draconico$/, usos: c => 1, reset: "largo"},
+  {de:/^guardian draconico$/, n:/^aliento del draco$/, usos: c => 1, reset: "largo"},
+  {de:/^guardian draconico$/, n:/^vinculo perfecto$/, usos: 'pb', reset: "largo"},
+  {de:/^caminante del horizonte$/, n:/^conjuros del caminante del horizonte$/, texto: siempre([[3,["Protección contra el bien y el mal"]],[5,["Paso brumoso"]],[9,["Acelerar"]],[13,["Destierro"]],[17,["Círculo de teletransportación"]]])},
+  {de:/^caminante del horizonte$/, n:/^detectar portal$/, usos: c => 1, reset: "corto"},
+  {de:/^caminante del horizonte$/, n:/^paso etereo$/, usos: c => 1, reset: "corto"},
+  {de:/^cazador de monstruos$/, n:/^conjuros del cazador de monstruos$/, texto: siempre([[3,["Protección contra el bien y el mal"]],[5,["Zona de la verdad"]],[9,["Círculo mágico"]],[13,["Destierro"]],[17,["Inmovilizar monstruo"]]])},
+  {de:/^cazador de monstruos$/, n:/^sentido del cazador$/, usos: c => Math.max(1, c.m.sab), reset: "largo"},
+  {de:/^cazador de monstruos$/, n:/^nemesis de los lanzadores$/, usos: c => 1, reset: "corto"},
+  {de:/^guardian del enjambre$/, n:/^conjuros del guardian del enjambre$/, texto: siempre([[3,["Mano de mago","Fuego feérico"]],[5,["Telaraña"]],[9,["Forma Gaseosa"]],[13,["Ojo arcano"]],[17,["Plaga de insectos"]]])},
+  {de:/^guardian del enjambre$/, n:/^marea retorcida$/, usos: 'pb', reset: "largo"},
+  {de:/^guardian del enjambre$/, n:/^dispersion del enjambre$/, usos: 'pb', reset: "largo"},
 ];
 
 /* Para hacer a mano en reglas-revisadas.ts:
@@ -68,7 +80,11 @@ export const fuentes: Record<string, string> = {
   "acechador de las sombras": "Manual del Jugador (2024)",
   "guardian hueco": "Ravenloft: The Horrors Within (2026)",
   "cazador": "Manual del Jugador (2024)",
-  "caminante del invierno": "Forgotten Realms: Heroes of Faerûn (2025)"
+  "caminante del invierno": "Forgotten Realms: Heroes of Faerûn (2025)",
+  "guardian draconico": "Fizban's Treasury of Dragons (2021)",
+  "caminante del horizonte": "Xanathar's Guide to Everything (2017)",
+  "cazador de monstruos": "Xanathar's Guide to Everything (2017)",
+  "guardian del enjambre": "Tasha's Cauldron of Everything (2020)"
 };
 
 export const descripciones: Record<string, string> = {
@@ -77,5 +93,9 @@ export const descripciones: Record<string, string> = {
   "sombras": "Maestros de la oscuridad que operan de manera invisible en las sombras, emboscando brutalmente a los enemigos en el primer turno.",
   "guardian-hueco": "Asumen transformaciones aterradoras potenciadas por horrores antiguos, devorando y aterrorizando a sus oponentes.",
   "cazador": "Especialistas en cazar presas difíciles: eligen tácticas para rematar a enemigos heridos o golpear a varios a la vez, y aprenden a defenderse de grupos.",
-  "caminante-invierno": "Sobrevivientes glaciales que utilizan hielo mágico y frío penetrante para congelar y ralentizar a sus presas."
+  "caminante-invierno": "Sobrevivientes glaciales que utilizan hielo mágico y frío penetrante para congelar y ralentizar a sus presas.",
+  "guardian-draconico": "Exploradores unidos al espíritu de un dragón que se hace carne como un draco: crece con ellos hasta poder montarlo y escupe el aliento de su esencia.",
+  "caminante-horizonte": "Guardianes de los portales entre planos que golpean con fuerza pura, cruzan al plano etéreo y se teletransportan entre enemigos.",
+  "cazador-monstruos": "Cazadores de vampiros, dragones e infernales que estudian las debilidades de su presa y frustran su magia.",
+  "guardian-enjambre": "Exploradores rodeados por un enjambre de espíritus de la naturaleza que hiere, empuja y los lleva volando por el campo."
 };

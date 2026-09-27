@@ -69,8 +69,10 @@ export function compute(pj): any {
   (pj.dotesExtra || []).forEach(d => d.key ? addD(d.key, 'Dote') : c.dotes.push({...d, src:'Dote'}));
   const has = k => c.dotes.some(d => d.key === k); c.has = has;
   c.estilo = C?.estilo && lvl >= C.estilo ? pj.estilo : '';
-  // El Campeón gana un segundo estilo en el nivel 7 (se elige en el paso Clase)
-  c.estilos = [c.estilo, norm(c.SD?.n || '') === 'campeon' && lvl >= 7 ? pj.elecciones?.['estilo-campeon'] : ''].filter(Boolean);
+  // El Campeón gana un segundo estilo en el nivel 7 y el Colegio de las Espadas uno en el 3 (se eligen en el paso Clase)
+  const sub = norm(c.SD?.n || '');
+  c.estilos = [c.estilo, sub === 'campeon' && lvl >= 7 ? pj.elecciones?.['estilo-campeon'] : '',
+    sub === 'colegio de las espadas' && lvl >= 3 ? pj.elecciones?.['estilo-espadas'] : ''].filter(Boolean);
   const estilo = k => c.estilos.includes(k); c.tieneEstilo = estilo;
 
   c.isMonk = pj.clase === 'monje';

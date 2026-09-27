@@ -155,5 +155,37 @@ export function companerosDe(c: any): any[] {
         tipo: cielo ? 'cortante' : mar ? 'contundente o perforante' : 'contundente, cortante o perforante',
         texto: mar ? `Al acertar, el objetivo queda Agarrado (escapar CD ${c.dcSpell ?? 8 + pb + m.sab}).` : '' }] });
   }
+  // Guardián Dracónico (Explorador, Fizban's Treasury of Dragons): el draco, con la esencia que se elige al invocarlo
+  if (quien(c, /^companero draconico/)) {
+    const atk = 3 + pb, extra = c.lvl >= 15 ? '2d6' : c.lvl >= 7 ? '1d6' : '';
+    out.push({ id: 'cmp-draco', n: 'Draco', tipo: `Dragón ${c.lvl >= 15 ? 'grande' : c.lvl >= 7 ? 'mediano' : 'pequeño'} (tu compañero)`,
+      ca: 14 + pb, pgMax: 5 + 5 * c.lvl, vel: c.lvl >= 7 ? '40 pies, volar 40 pies' : '40 pies',
+      ab: { fue: 16, des: 12, con: 15, int: 8, sab: 14, car: 8 }, salv: { des: 1 + pb, sab: 2 + pb },
+      sentidos: 'Visión en la oscuridad 60 pies', inmune: 'El daño de su esencia (ácido, frío, fuego, relámpago o veneno)',
+      rasgos: [['Órdenes', 'Actúa justo después de ti. Con una acción adicional le ordenas una acción; si no, solo Esquiva. Si estás Incapacitado, actúa solo.'],
+        ['Golpes imbuidos (reacción)', 'Cuando una criatura que ve a 30 pies acierta con un ataque con arma, ese ataque hace 1d6 extra del daño de su esencia.']],
+      acciones: [{ n: 'Mordisco', atk, dmg: `1d6${mas(pb)}`, tipo: 'perforante', texto: extra ? `Hace ${extra} extra del daño de su esencia.` : '' }] });
+  }
+  // Colegio de la Creación (Bardo, Tasha's Cauldron of Everything): el objeto danzante
+  if (quien(c, /^objeto danzante/)) {
+    out.push({ id: 'cmp-danzante', n: 'Objeto Danzante', tipo: 'Constructo grande o menor (tu compañero)', ca: 16, pgMax: 10 + 5 * c.lvl, vel: '30 pies, volar 30 pies (flota)',
+      ab: { fue: 18, des: 14, con: 16, int: 4, sab: 10, car: 6 }, sentidos: 'Visión en la oscuridad 60 pies', inmune: 'Psíquico, veneno; Hechizado, Agotamiento, Envenenado, Asustado',
+      rasgos: [['Órdenes', 'Actúa justo después de ti. Con una acción adicional (también al dar Inspiración Bárdica) le ordenas una acción; si no, solo Esquiva. Si estás Incapacitado, actúa solo.'],
+        ['Forma inmutable', 'Ningún conjuro ni efecto puede cambiar su forma.'],
+        ['Baile irresistible', 'Cuando una criatura empieza su turno a 10 pies de él, puede subirle o bajarle 10 pies la velocidad (tú eliges) hasta el final de ese turno.']],
+      acciones: [{ n: 'Golpe de fuerza', atk: c.atkSpell ?? pb + m.car, dmg: `1d10${mas(pb)}`, tipo: 'fuerza' }] });
+  }
+  // Reanimador (Artífice, Ravenloft: The Horrors Within): el compañero reanimado
+  if (quien(c, /^companero reanimado/)) {
+    const cd = c.dcSpell ?? 8 + pb + m.int, estallido = c.lvl >= 9 ? '4d4' : '2d4';
+    out.push({ id: 'cmp-reanimado', n: 'Compañero Reanimado', tipo: 'Muerto viviente mediano (tu compañero)', ca: 10 + m.int, pgMax: 5 + 5 * c.lvl, vel: '30 pies',
+      ab: { fue: 11, des: 10, con: 16, int: 4, sab: 10, car: 6 }, sentidos: 'Vista ciega 60 pies', inmune: 'Relámpago; Hechizado, Agotamiento, Envenenado. Resistencia al necrótico y al veneno',
+      suma: 'Sus modificaciones (Modificaciones Extrañas) se eligen al crearlo',
+      rasgos: [['Órdenes', 'Actúa en tu turno. Con una acción adicional le ordenas una acción; si no, solo Esquiva. Si estás Incapacitado, actúa solo.'],
+        ['Estallido mortal', `Al morir explota: cada criatura a 10 pies hace una salvación de DES (CD ${cd}) o recibe ${estallido} de necrótico, la mitad si la pasa.`],
+        ['Absorber relámpagos', 'Cuando recibe daño de relámpago, recupera esos PG en lugar de perderlos.']],
+      acciones: [{ n: 'Zarpazo terrible', atk: c.atkSpell ?? pb + m.int, dmg: `1d4${mas(m.int)}`, tipo: 'necrótico',
+        texto: `El objetivo no puede hacer ataques de oportunidad hasta el inicio de su siguiente turno. Con Ferocidad el dado es 1d6.${c.lvl >= 9 ? ' Su daño necrótico ignora la resistencia.' : ''}` }] });
+  }
   return out;
 }
