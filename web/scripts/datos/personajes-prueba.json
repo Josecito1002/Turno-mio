@@ -45,6 +45,36 @@
       "clase": "paladin",
       "subclase": "devocion",
       "nivel": 17
+    },
+    {
+      "clase": "picaro",
+      "subclase": "cuchillo-mental",
+      "nivel": 13
+    },
+    {
+      "clase": "picaro",
+      "subclase": "vastago-tres",
+      "nivel": 9
+    },
+    {
+      "clase": "picaro",
+      "subclase": "batidor",
+      "nivel": 13
+    },
+    {
+      "clase": "picaro",
+      "subclase": "espadachin",
+      "nivel": 17
+    },
+    {
+      "clase": "picaro",
+      "subclase": "mente-maestra",
+      "nivel": 17
+    },
+    {
+      "clase": "picaro",
+      "subclase": "ladron",
+      "nivel": 13
     }
   ]
 }

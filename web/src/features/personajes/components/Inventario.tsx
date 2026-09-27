@@ -8,7 +8,7 @@ import { ARMAS, ARMADURAS } from '@/features/reglas/data/equipo';
 import { ElegirManos } from './Manos';
 import { CampoArea } from './editor/campos';
 import { MONEDAS, armadurasDe, bolsaDe, esPropia, puedeJuntar } from '../domain/inventario';
-import { MAX_SINTONIA } from '../domain/magicos';
+import { maxSintonia } from '../domain/magicos';
 import { OBJETOS_MAGICOS, RAREZAS, type ObjetoMagico } from '@/features/reglas/data/objetos-magicos';
 import { ORDEN_TIPOS, TIPOS } from '@/features/reglas/data/caracteristicas';
 import { norm } from '@/shared/utils/texto';
@@ -172,7 +172,7 @@ function ListaMagicos({ c }: { c: any }) {
   if (!c.magicos?.length) return <p className="m-0 text-sm text-muted">No llevas objetos mágicos.</p>;
   return (
     <>
-      <p className="mb-2 mt-0 text-sm">Sintonizados: <b>{c.sintonizados} de {MAX_SINTONIA}</b>. Los que piden sintonización solo funcionan sintonizados.</p>
+      <p className="mb-2 mt-0 text-sm">Sintonizados: <b>{c.sintonizados} de {maxSintonia(c)}</b>. Los que piden sintonización solo funcionan sintonizados.</p>
       <Lista etiqueta="Objetos mágicos">
         {c.magicos.map(({ m, d, activo }: any) => (
           <Fila key={m.id} q={+m.q || 1} texto={d.n} menos={() => cambiarCantidadMagico(m.id, -1)} mas={() => cambiarCantidadMagico(m.id, 1)}

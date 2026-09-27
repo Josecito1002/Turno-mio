@@ -21,7 +21,7 @@ import { mejoraDeDote } from '@/features/reglas/domain/mejora-dote';
 import { baseScores } from './modelo';
 import { manosDe, aDosManos, portadorDual } from './manos';
 import { registrarPropias } from './inventario';
-import { MAX_SINTONIA, aplicarFijas, aplicarMagicos, armasInactivas } from './magicos';
+import { maxSintonia, aplicarFijas, aplicarMagicos, armasInactivas } from './magicos';
 
 export function compute(pj): any {
   registrarPropias(pj);
@@ -476,7 +476,7 @@ export function buildAvisos(c){
   if (c.sinCompArmadura) A.push({nivel:'aviso', t:'Armadura sin competencia', txt:`No eres competente con ${c.armor.n.toLowerCase()}: desventaja en pruebas, salvaciones y ataques de FUE o DES, y no puedes lanzar conjuros.`, paso:'equipo'});
   if (c.sinCompEscudo) A.push({nivel:'aviso', t:'Escudo sin competencia', txt:'No eres competente con escudos: el escudo no suma a tu CA.', paso:'equipo'});
   if (c.armor?.fue && c.sc.fue < c.armor.fue) A.push({nivel:'aviso', t:'Armadura muy pesada', txt:`${c.armor.n} pide FUE ${c.armor.fue}: velocidad −10 pies.`, paso:'equipo'});
-  if ((c.sintonizados || 0) > MAX_SINTONIA) A.push({nivel:'aviso', t:'Demasiados objetos sintonizados', txt:`Tienes ${c.sintonizados} y el límite es ${MAX_SINTONIA}: deja de sintonizar alguno.`, paso:'equipo'});
+  if ((c.sintonizados || 0) > maxSintonia(c)) A.push({nivel:'aviso', t:'Demasiados objetos sintonizados', txt:`Tienes ${c.sintonizados} y el límite es ${maxSintonia(c)}: deja de sintonizar alguno.`, paso:'equipo'});
   if (c.futuros.length) A.push({nivel:'info', t:'Llegan más adelante', txt: c.futuros.map(f => `${f.nombre} (nivel ${f.nivel})`).join(', ') + '.'});
   return A;
 }

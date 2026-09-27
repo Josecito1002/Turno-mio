@@ -18,7 +18,7 @@ import { manosDe, aDosManos, puedeIrEnLaOtra } from './domain/manos';
 import { armadurasDe, bolsaDe, guardarBolsa, juntar, nuevaClave, pagar, pasoEquipoEnEditor } from './domain/inventario';
 import { ARMAS, ARMADURAS } from '@/features/reglas/data/equipo';
 import { CRIATURAS } from '@/features/reglas/data/criaturas';
-import { MAX_SINTONIA, armaMagica, armaduraMagica, defDe, sintonizados } from './domain/magicos';
+import { maxSintonia, armaMagica, armaduraMagica, defDe, sintonizados } from './domain/magicos';
 
 export type Tirar = (expr: string, label: string, o?: OpcionesTirada) => Promise<Resultado>;
 
@@ -430,10 +430,10 @@ export function quitarMagico(id: string) {
   pj.magicos = pj.magicos.filter((x: any) => x.id !== id);
   savePj(); render();
 }
-/** Sintoniza o deja de sintonizar; no deja pasar del límite de 3. */
+/** Sintoniza o deja de sintonizar; no deja pasar del límite (3, o 4 con Usar Objeto Mágico). */
 export function sintonizar(id: string) {
   const pj = S.pj, m = (pj.magicos || []).find((x: any) => x.id === id); if (!m) return;
-  if (!m.sint && sintonizados(pj) >= MAX_SINTONIA) return avisar(`Ya tienes ${MAX_SINTONIA} objetos sintonizados, el máximo. Deja de sintonizar uno primero.`, 'info');
+  if (!m.sint && sintonizados(pj) >= maxSintonia(S.c)) return avisar(`Ya tienes ${maxSintonia(S.c)} objetos sintonizados, el máximo. Deja de sintonizar uno primero.`, 'info');
   m.sint = !m.sint;
   savePj(); render();
 }

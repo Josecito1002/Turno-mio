@@ -128,7 +128,7 @@ export const elixiresN = c => c.lvl >= 15 ? 5 : c.lvl >= 9 ? 4 : c.lvl >= 5 ? 3 
 export const danoCanon = c => c.lvl >= 9 ? '3d8' : '2d8';
 /* Conjuros de subclase, siempre preparados: [nivel de artífice, nombres como están en el catálogo] */
 /* Rompejuramentos (Unearthed Arcana 2025): los que están en el catálogo */
-const CONJUROS_ROMPE = [[3, ['Reprensión infernal']], [5, ['Corona de la locura', 'Oscuridad']], [9, ['Miedo', 'Invocar muerto viviente']], [13, ['Marchitar', 'Asesino fantasmal']], [17, ['Contagio']]];
+const CONJUROS_ROMPE = [[3, ['Reprensión infernal', 'Saeta de bruja']], [5, ['Corona de la locura', 'Oscuridad']], [9, ['Miedo', 'Invocar muerto viviente']], [13, ['Marchitar', 'Asesino fantasmal']], [17, ['Contagio', 'Golpe de viento de acero']]];
 const conjurosSub = (nombre, tabla) => ({nombre, t:'pasiva',
   texto: c => `Siempre preparados, sin contar en tu límite: ${tabla.filter(([n]) => c.lvl >= n).flatMap(([, s]) => s).join(', ')}.`});
 /* Armas especiales de la Armadura Arcana: usan INT, y Armero Mejorado suma +1 desde nivel 9 */
@@ -1428,13 +1428,35 @@ export const REGLAS: any[] = [
   {de:/^rompejuramentos$/, n:/^aspecto temible$/, t:'gratis', coste:'1 Canalizar',
     texto: c => `Justo después de lanzar Castigo divino, puedes gastar un uso de Canalizar Divinidad: las criaturas que elijas a 30 pies hacen una salvación de SAB (CD ${c.dcSpell}) o quedan Asustadas 1 minuto (repiten la salvación al final de cada turno suyo).`},
   {de:/^rompejuramentos$/, n:/^conjuros del rompejuramentos$/, t:'pasiva',
-    texto: c => `Saeta de bruja (nivel 3) y Golpe de viento de acero (nivel 17) también son del juramento, pero la app todavía no los tiene y hay que escribirlos a mano. Siempre preparados, sin contar en tu límite: ${CONJUROS_ROMPE.filter(([n]) => c.lvl >= n).flatMap(([, x]) => x).join(', ')}.`},
+    texto: c => `Siempre preparados, sin contar en tu límite: ${CONJUROS_ROMPE.filter(([n]) => c.lvl >= n).flatMap(([, x]) => x).join(', ')}.`},
   {de:/^rompejuramentos$/, n:/^aura de odio$/, t:'pasiva',
     texto: c => `Cuando tú, o un infernal o muerto viviente aliado dentro de tu Aura de Protección, acertáis a una criatura con un ataque cuerpo a cuerpo, hace ${Math.max(0, c.m.car)} de daño necrótico extra (tu CAR).`},
   {de:/^rompejuramentos$/, n:/^senor del terror$/, t:'adicional', usos:1, reset:'largo',
     ataques: c => [{nombre:'Golpe Sombrío (Señor del Terror)', atk: c.atkSpell, expr: `3d10${modStr(c.m.car)}`, dmg: `3d10${fmtMod(c.m.car)} necrótico`,
       notas:['Con Señor del Terror activo: acción adicional, contra una criatura dentro de tu Aura de Protección']}],
     texto: () => 'Con una acción adicional llenas tu Aura de Protección de penumbra durante 10 minutos: oscuridad mágica en la que tú y tus aliados veis; las criaturas Asustadas que empiezan su turno en ella reciben 4d10 de daño psíquico; y con una acción adicional haces el Golpe Sombrío (sale en Ataques). Una vez por descanso largo, o gastando un espacio de nivel 5.'},
+
+  /* ---------- Pícaro (lote 16): dados y hojas del Cuchillo Mental, Lealtad Temible y números de Batidor y Espadachín ---------- */
+  {de:/^cuchillo mental$/, n:/^poder psionico$/, t:'pasiva', usos: c => c.lvl >= 17 ? 12 : c.lvl >= 13 ? 10 : c.lvl >= 9 ? 8 : c.lvl >= 5 ? 6 : 4, reset:'corto1', coste:'1 vuelve con descanso corto, todos con uno largo',
+    texto: c => `Tus dados de energía psiónica son ${dadoPsi(c)}; recuperas uno al terminar un descanso corto y todos con uno largo. Si fallas una prueba con una habilidad o herramienta en la que eres competente, sumas 1${dadoPsi(c)} y solo lo gastas si así la superas. Con una acción mágica enlazas por telepatía a hasta ${c.pb} criaturas durante 1${dadoPsi(c)} horas (a 1 milla); la primera vez tras cada descanso largo no gastas el dado.`},
+  {de:/^cuchillo mental$/, n:/^hojas psiquicas$/, t:'pasiva',
+    ataques: c => { const m = Math.max(c.m.fue, c.m.des), atk = m + c.pb;
+      return [{nombre:'Hoja psíquica', atk, expr:`1d6${modStr(m)}`, dmg:`1d6${fmtMod(m)} psíquico`, notas:['Con Atacar o un ataque de oportunidad, en tu mano libre', 'Sutil, Arrojadiza (60/120), maestría Molestar']},
+        {nombre:'Segunda hoja psíquica', atk, expr:`1d4${modStr(m)}`, dmg:`1d4${fmtMod(m)} psíquico`, notas:['Acción adicional, después de atacar con una hoja y con la otra mano libre']}]; },
+    texto: () => 'Cuando usas Atacar o haces un ataque de oportunidad, puedes atacar con una hoja psíquica en tu mano libre (sale en Ataques). Después, con una acción adicional, puedes atacar con una segunda hoja de 1d4 si tienes la otra mano libre. Las hojas desaparecen al acertar o fallar.'},
+  {de:/^vastago de los tres$/, n:/^lealtad temible$/, t:'pasiva',
+    eleccion: {id:'lealtad-tres', titulo:'Lealtad Temible', opciones: [
+      {key:'bane', nombre:'Bane', desc:'Resistencia al daño psíquico y el truco Ilusión menor.'},
+      {key:'bhaal', nombre:'Bhaal', desc:'Resistencia al daño de veneno y el truco Guardia de cuchillas.'},
+      {key:'myrkul', nombre:'Myrkul', desc:'Resistencia al daño necrótico y el truco Toque helado.'}]},
+    conjuros: c => { const t = {bane:'Ilusión menor', bhaal:'Guardia de cuchillas', myrkul:'Toque helado'}[elegido(c, 'lealtad-tres')]; return t ? [{nombre: t, ab:'int', nota:'Lealtad Temible'}] : []; },
+    texto: c => { const d = {bane:['Bane', 'psíquico', 'Ilusión menor'], bhaal:['Bhaal', 'de veneno', 'Guardia de cuchillas'], myrkul:['Myrkul', 'necrótico', 'Toque helado']}[elegido(c, 'lealtad-tres')];
+      return d ? `Sirves a ${d[0]}: tienes resistencia al daño ${d[1]} y lanzas el truco ${d[2]} con INT. Puedes cambiar de dios al terminar un descanso largo.` : 'Elige a uno de los Tres Muertos en el paso Clase: Bane (psíquico e Ilusión menor), Bhaal (veneno y Guardia de cuchillas) o Myrkul (necrótico y Toque helado).'; }},
+  {de:/^batidor$/, n:/^superviviente$/, t:'pasiva',
+    efecto: c => ['naturaleza', 'supervivencia'].forEach(k => { if (!c.skillProf[k]) { c.skill[k] += c.pb; c.skillProf[k] = true; } if (!c.skillPer[k]) { c.skill[k] += c.pb; c.skillPer[k] = true; } })},
+  {de:/^batidor$/, n:/^movilidad superior$/, t:'pasiva', efecto: c => { c.speed += 10; }},
+  {de:/^ladron$/, n:/^usar objeto magico$/, t:'pasiva', efecto: c => { c.maxSintonia = 4; }},
+  {de:/^espadachin$/, n:/^audacia temeraria$/, t:'pasiva', efecto: c => { c.init += c.m.car; c.initPartes.push([c.m.car, 'Audacia Temeraria']); }},
 
   /* ---------- Paladín (lote 15): rasgos que gastan Canalizar Divinidad, Golpes Radiantes y Esplendor del Genio ---------- */
   {de:/^paladin$/, n:/^abjurar enemigos$/, t:'accion', coste:'1 Canalizar'},

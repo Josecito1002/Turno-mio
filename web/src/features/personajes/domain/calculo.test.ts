@@ -26,6 +26,7 @@ import { HECHICERO_2024 } from '../../../../scripts/datos/hechicero-2024';
 import { MAGO_2024 } from '../../../../scripts/datos/mago-2024';
 import { MONJE_2024 } from '../../../../scripts/datos/monje-2024';
 import { PALADIN_2024 } from '../../../../scripts/datos/paladin-2024';
+import { PICARO_2024 } from '../../../../scripts/datos/picaro-2024';
 import { PLAYTEST_2025 } from '../../../../scripts/datos/playtest-2025';
 import { fuenteSubclase } from '@/features/reglas/data/fuentes';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
@@ -1090,5 +1091,35 @@ describe('Paladín 2024 (Lote 15)', () => {
     assert.match(entrada(pal(17, 'venganza'), 'Conjuros del juramento').texto, /Escudriñar/);
     assert.doesNotMatch(entrada(pal(5, 'venganza'), 'Conjuros del juramento').texto, /Acelerar/);
     assert.match(entrada(pal(9, 'lib:corona'), 'Conjuros de la Corona').texto, /Espíritus guardianes/);
+    assert.ok(pal(9, 'devocion').conjuros.some((x: any) => x.nombre === 'Faro de esperanza'));
+  });
+});
+
+describe('Pícaro 2024 (Lote 16)', () => {
+  const pic = (nivel: number, sub = '', extra: Record<string, any> = {}) => { setLib({ clases: { picaro: PICARO_2024 } }); return pj('picaro', nivel, sub, { des: 16, int: 14, sab: 12, car: 14 }, extra); };
+  test('Cuchillo Mental: dados por nivel y filas de las hojas psíquicas', () => {
+    assert.equal(recurso(pic(3, 'lib:cuchillo-mental'), 'Poder Psiónico')?.max, 4);
+    assert.equal(recurso(pic(13, 'lib:cuchillo-mental'), 'Poder Psiónico')?.max, 10);
+    const filas = pic(3, 'lib:cuchillo-mental').ataquesReglas;
+    assert.deepEqual(filas.map((a: any) => a.expr), ['1d6+3', '1d4+3']);
+    assert.equal(filas[0].atk, 5);
+  });
+  test('Vástago de los Tres: el truco de Lealtad Temible sale según el dios elegido', () => {
+    const c = pic(3, 'lib:vastago-tres', { elecciones: { 'lealtad-tres': 'myrkul' } });
+    assert.ok(c.conjurosRasgo.some((s: any) => s.nombre === 'Toque helado'));
+    assert.match(entrada(c, 'Lealtad Temible').texto, /necrótico/);
+  });
+  test('Batidor, Espadachín e Inquisitivo: pericias, velocidad, iniciativa y usos', () => {
+    const b = pic(9, 'lib:batidor');
+    assert.equal(b.skillPer.naturaleza, true);
+    assert.equal(b.skill.supervivencia, 1 + 2 * b.pb);
+    assert.equal(b.speed, pic(9).speed + 10);
+    assert.equal(pic(3, 'lib:espadachin').init, pic(3).init + 2);
+    assert.equal(recurso(pic(13, 'lib:inquisitivo'), 'Ojo Infalible')?.max, 1);
+    assert.equal(recurso(pic(20), 'Golpe de Suerte')?.reset, 'corto');
+  });
+  test('Ladrón: Usar Objeto Mágico sube la sintonía a 4', () => {
+    assert.equal(pic(13, 'lib:ladron').maxSintonia, 4);
+    assert.equal(pic(12, 'lib:ladron').maxSintonia, undefined);
   });
 });

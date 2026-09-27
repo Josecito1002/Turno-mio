@@ -7,6 +7,8 @@ import { ARMAS, ARMADURAS } from '@/features/reglas/data/equipo';
    Las armas y armaduras mágicas (+1, +2, +3 o del catálogo con `base`) crean su propia arma o armadura 'x:…'
    en el inventario, con el bono ya puesto; el objeto guarda su clave para quitarla junto con él. */
 export const MAX_SINTONIA = 3;
+/** Límite de sintonía del personaje: 3, o más si un rasgo lo sube (Usar Objeto Mágico del Ladrón pone `c.maxSintonia`). */
+export const maxSintonia = (c: any) => c?.maxSintonia || MAX_SINTONIA;
 
 export const defDe = (m: any): ObjetoMagico | null => m.def || OBJETOS_MAGICOS[m.k] || null;
 /** Cuenta si no pide sintonización o si está sintonizado. */

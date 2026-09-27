@@ -1,6 +1,7 @@
-=== A ===
+/* Pícaro de la biblioteca puesto al día con su versión oficial más reciente (texto oficial de 5etools, redactado por
+   Gemini y revisado con scripts/gemini/revisar.ts). Libros: Manual del Jugador (2024); Ravenloft: The Horrors Within (2026); Forgotten Realms: Heroes of Faerûn (2025); Xanathar's Guide to Everything (2017).
+   Lo aplica scripts/actualizar-clase.ts (opción "picaro"). */
 
-```ts
 const r = (n: number, nombre: string, t: string, texto: string, extra: Record<string, unknown> = {}) => ({ nombre, t, texto, n, manual: true, usos: 0, reset: 'largo', ...extra });
 
 export const PICARO_2024 = {
@@ -120,85 +121,3 @@ export const PICARO_2024 = {
     }
   }
 };
-
-```
-
-=== B ===
-
-```json
-[
-  { "donde": "clase", "rasgo": "Golpe de Suerte", "tipo": "usos", "usos": "1", "reset": "corto" },
-  { "donde": "embaucador", "rasgo": "Ladrón de Conjuros", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "fantasma", "rasgo": "Lamentos de la Tumba", "tipo": "usos", "usos": "max(1, DES)", "reset": "largo" },
-  { "donde": "fantasma", "rasgo": "Voz de la Muerte", "tipo": "usos", "usos": "1", "reset": "corto" },
-  { "donde": "fantasma", "rasgo": "Caminar Fantasma", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "vastago-tres", "rasgo": "Sed de Sangre", "tipo": "usos", "usos": "max(1, INT)", "reset": "largo" },
-  { "donde": "vastago-tres", "rasgo": "Lealtad Temible", "tipo": "eleccion", "id": "lealtad-tres", "cuantas": "1",
-    "opciones": [
-      { "key": "bane", "nombre": "Bane", "desc": "Resistencia al daño psíquico y el truco Ilusión menor.", "nivel": 3, "requiere": null },
-      { "key": "bhaal", "nombre": "Bhaal", "desc": "Resistencia al daño de veneno y el truco Guardia de cuchillas.", "nivel": 3, "requiere": null },
-      { "key": "myrkul", "nombre": "Myrkul", "desc": "Resistencia al daño necrótico y el truco Toque helado.", "nivel": 3, "requiere": null }
-    ]
-  },
-  { "donde": "cuchillo-mental", "rasgo": "Poder Psiónico", "tipo": "otro", "detalle": "dados 4/6/8/10/12 en los niveles 3/5/9/13/17, d6/d8/d10/d12 en 3/5/11/17; uno vuelve con descanso corto" },
-  { "donde": "cuchillo-mental", "rasgo": "Hojas Psíquicas", "tipo": "otro", "detalle": "filas de ataque: 1d6 + DES psíquico, y 1d4 con la acción adicional" },
-  { "donde": "cuchillo-mental", "rasgo": "Velo Psíquico", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "cuchillo-mental", "rasgo": "Desgarrar la Mente", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "inquisitivo", "rasgo": "Ojo Infalible", "tipo": "usos", "usos": "max(1, SAB)", "reset": "largo" },
-  { "donde": "batidor", "rasgo": "Superviviente", "tipo": "otro", "detalle": "competencia y pericia en Naturaleza y Supervivencia" },
-  { "donde": "batidor", "rasgo": "Movilidad Superior", "tipo": "otro", "detalle": "velocidad +10" },
-  { "donde": "espadachin", "rasgo": "Audacia Temeraria", "tipo": "otro", "detalle": "iniciativa + CAR" },
-  { "donde": "espadachin", "rasgo": "Maestro Duelista", "tipo": "usos", "usos": "1", "reset": "corto" }
-]
-
-```
-
-=== C ===
-
-```json
-{
-  "embaucador": "Manual del Jugador (2024)",
-  "asesino": "Manual del Jugador (2024)",
-  "fantasma": "Ravenloft: The Horrors Within (2026)",
-  "vastago-tres": "Forgotten Realms: Heroes of Faerûn (2025)",
-  "cuchillo-mental": "Manual del Jugador (2024)",
-  "ladron": "Manual del Jugador (2024)",
-  "inquisitivo": "Xanathar's Guide to Everything (2017)",
-  "mente-maestra": "Xanathar's Guide to Everything (2017)",
-  "batidor": "Xanathar's Guide to Everything (2017)",
-  "espadachin": "Xanathar's Guide to Everything (2017)"
-}
-
-```
-
-=== D ===
-
-```json
-{
-  "embaucador": "Pícaros que suman a su sigilo trucos de magia arcana: una mano invisible, ilusiones y hasta conjuros robados a otros lanzadores.",
-  "asesino": "Especialistas en el veneno, el disfraz y la emboscada que eliminan a sus objetivos antes de que puedan reaccionar.",
-  "fantasma": "Pícaros ligados a la muerte que roban recuerdos de las almas, toman forma espectral y hieren con lamentos necróticos.",
-  "vastago-tres": "Agentes tocados por los Tres Muertos que saltan sobre los enemigos heridos para rematarlos y siembran el terror.",
-  "cuchillo-mental": "Pícaros con poder psiónico que atacan con hojas de energía mental y se comunican por telepatía.",
-  "ladron": "El aventurero clásico: trepa cualquier pared, usa objetos mágicos como nadie y actúa dos veces al empezar el combate.",
-  "inquisitivo": "Investigadores que leen las mentiras y los gestos de los demás, encuentran lo oculto y castigan al enemigo que entienden.",
-  "mente-maestra": "Espías y cortesanos para quienes las palabras y los secretos son armas: dirigen a sus aliados y engañan hasta a la magia.",
-  "batidor": "Exploradores de la naturaleza que se adelantan al grupo, esquivan a los enemigos y preparan emboscadas.",
-  "espadachin": "Duelistas elegantes y temerarios que pelean cuerpo a cuerpo con estilo, encantan a sus rivales y se escurren sin castigo."
-}
-
-```
-
-=== E ===
-
-* **Pericia (Nivel 6):** En 2024 la clase base recibe su segunda selección de Pericia en nivel 6 (en la app solo figuraba la de nivel 1). Se añadió a `rasgosAltos`.
-* **Golpe de Suerte (Nivel 20):** En 2024 ya no es por descanso largo exclusivamente; se recupera con Descanso Corto o Largo (`reset: 'corto'`), y convierte cualquier prueba de d20 en un 20 en vez de solo impactar o dar un 20 en habilidad.
-* **Golpe Astuto (Nivel 5 integrado):** El texto oficial especifica que la CD de las salvaciones de Golpe Astuto es `8 + DES + PB`. La app tenía un valor fijo `CD 17` que debe corregirse dinámicamente.
-* **Embaucador Arcano:** En 2024 se eliminó la restricción de escuelas clásicas (Ilusión y Encantamiento); ahora prepara cualquier conjuro de la lista de Mago. A nivel 13, *Pícaro Versátil* ya no da ventaja con la Mano de Mago como Acción Adicional, sino que duplica el efecto de Tropiezo de Golpe Astuto usando la mano espectral.
-* **Asesino:** A nivel 3, el daño adicional de sorpresa en el primer asalto es exactamente igual a tu nivel de Pícaro (`Rogue level`). A nivel 9 se incluye *Puntería Móvil (Roving Aim)*, permitiendo no perder velocidad tras usar Puntería Firme. A nivel 13 recibe *Armas Envenenadas* (+2d6 veneno en Golpe Astuto), reemplazando al antiguo Impostor. A nivel 17 (*Golpe Mortal*), la CD de salvación es `8 + DES + PB`.
-* **Fantasma:** Actualizado a la versión más reciente (*Ravenloft: The Horrors Within 2026*). *Lamentos de la Tumba* ahora tiene usos iguales a `max(1, DES)` (antes usaba PB). *Fichas de Alma* ahora escala en cantidad fija (2 a nivel 9, 3 a nivel 13, 4 a nivel 17), permite lanzar Augurio, y se añade el rasgo complementario *Voz de la Muerte* a nivel 9 (lanzar Hablar con los Muertos usando Destreza). A nivel 17 (*Amigo de la Muerte*), recupera una ficha de alma al tirar Iniciativa si no le quedaba ninguna.
-* **Vástago de los Tres:** Actualizado a *Forgotten Realms: Heroes of Faerûn (2025)*. En nivel 3 se añade el selector *Lealtad Temible* con los Tres Muertos (Bane, Bhaal, Myrkul). A nivel 9 incorpora *Infundir Miedo* como opción de Golpe Astuto (Aterrorizar).
-* **Cuchillo Mental:** A nivel 17, el rasgo de aturdimiento se llama *Desgarrar la Mente (Rend Mind)*, mientras que la invisibilidad (*Velo Psíquico*) pertenece formalmente al nivel 13.
-* **Ladrón:** A nivel 3, *Manos Rápidas* permite realizar la Acción Mágica para activar objetos mágicos. A nivel 9 gana *Sigilo Supremo* integrado con Golpe Astuto (Ataque Sigiloso). A nivel 13 (*Usar Objeto Mágico*) permite una 4.ª sintonización, da probabilidad (1 en 1d6) de no consumir cargas y permite leer cualquier pergamino de conjuro.
-* **Subclases no incluidas:** *Inquisitive*, *Mastermind*, *Scout* y *Swashbuckler* venían mencionadas en los encabezados pero carecían de texto oficial en el documento provisto; por lo tanto, no se generó código para ellas siguiendo la Regla 1.
-* **Revisión de Claude:** el encargo original no traía el texto de Mente Maestra, Batidor y Espadachín; Claude las escribió desde el texto oficial del encargo regenerado. Inquisitivo se conserva con textos propios. Los usos por nivel del Poder Psiónico, las filas de las Hojas Psíquicas, Superviviente, Movilidad Superior y Audacia Temeraria van a mano en reglas-revisadas. Sed de Sangre solo recupera un uso con descanso corto desde el nivel 17 (no todos).
