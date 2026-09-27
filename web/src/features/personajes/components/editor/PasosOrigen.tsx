@@ -105,13 +105,39 @@ function CuadroEspecie({ pj, E }: { pj: any; E: any }) {
   );
 }
 
+/* Especies que en los libros son separadas pero se muestran juntas en una sola tarjeta: cada una conserva sus reglas */
+const FAMILIAS: { key: string; n: string; d: string; de: (k: string) => boolean }[] = [
+  { key: 'genasi', n: 'Genasi', d: 'Descendientes de los genios: aire, agua, fuego o tierra.', de: k => k.startsWith('genasi-') },
+  { key: 'elfos', n: 'Elfos', d: 'El Elfo del Manual y los elfos de otros libros: eladrin, marino, shadar-kai y astral.', de: k => ['elfo', 'eladrin', 'elfo-marino', 'shadar-kai', 'elfo-astral'].includes(k) },
+];
+const familiaDe = (k: string) => FAMILIAS.find(f => f.de(k.replace(/^lib:/, '')));
+
+/** Tarjeta de una familia de especies: al tocarla se ven las que la forman */
+function TarjetaFamilia({ n, d, miembros, on, abrir }: { n: string; d: string; miembros: string[]; on: boolean; abrir: () => void }) {
+  const LIB = getLib(), imgs = miembros.map(k => LIB.img?.[k]).filter(Boolean) as string[], i = useRotar(imgs.length);
+  return <Tarjeta on={on} onClick={abrir} img={imgs[i]} titulo={n} sub={`${d} Elige cuál (${miembros.length}).`} clampSub />;
+}
+
 export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
   const E = c.E, LIB = getLib();
+  const [familia, setFamilia] = useState('');
   const lista: [string, any][] = [...Object.entries(ESPECIES).filter(([k]) => k !== 'custom'), ...sinRepetidas(LIB.especies, ESPECIES, pj.especie.key), ['custom', ESPECIES.custom]];
-  const items = lista.map(([k, e]) => {
+  const tarjeta = ([k, e]: [string, any]) => {
     const d = k === 'custom' ? e.r : (descEspecie(k) || (e.lib ? '' : e.r));
     return { key: k, q: norm(e.n + ' ' + d), node: <TarjetaEspecie k={k} e={e} d={d} on={pj.especie.key === k} sub={pj.especie.sub} /> };
+  };
+  // Las especies de una familia van en una sola tarjeta, en el lugar de la primera; solo si la familia tiene más de una
+  const miembros = (f: string) => lista.filter(([k]) => familiaDe(k)?.key === f);
+  const vistas = new Set<string>();
+  const items = lista.flatMap(([k, e]) => {
+    const f = familiaDe(k), ms = f ? miembros(f.key) : [];
+    if (!f || ms.length < 2) return [tarjeta([k, e])];
+    if (vistas.has(f.key)) return [];
+    vistas.add(f.key);
+    return [{ key: 'familia:' + f.key, q: norm([f.n, f.d, ...ms.map(([, x]) => x.n)].join(' ')),
+      node: <TarjetaFamilia n={f.n} d={f.d} miembros={ms.map(([x]) => x)} on={ms.some(([x]) => x === pj.especie.key)} abrir={() => setFamilia(f.key)} /> }];
   });
+  const F = FAMILIAS.find(f => f.key === familia);
   const ents = c.entries.filter((e: any) => e.grupo === 'especie');
   return (
     <>
@@ -129,7 +155,16 @@ export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
       {ents.length > 0 && <Seccion titulo="Rasgos de tu especie">{ents.map((e: any, i: number) => <Entrada key={i} e={e} />)}</Seccion>}
       {E && c.lvl > 1
         ? <Nota>La especie se elige a nivel 1 y ya no se puede cambiar.</Nota>
-        : <Seccion titulo={E ? 'Cambiar de especie' : 'Elige tu especie'}><TarjetasBuscables que="especie" items={items} /></Seccion>}
+        : F
+          ? (
+            <Seccion titulo={F.n}>
+              <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-2 p-0">
+                {miembros(F.key).map(x => { const it = tarjeta(x); return <li key={it.key} className="flex">{it.node}</li>; })}
+              </ul>
+              <Boton className="mt-3" onClick={() => setFamilia('')}>← Todas las especies</Boton>
+            </Seccion>
+          )
+          : <Seccion titulo={E ? 'Cambiar de especie' : 'Elige tu especie'}><TarjetasBuscables que="especie" items={items} /></Seccion>}
     </>
   );
 }
