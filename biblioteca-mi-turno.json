@@ -6506,39 +6506,297 @@
   },
   "paladin": {
    "subclases": {
-    "genios-nobles": {
-     "n": "Juramento de los Genios Nobles",
+    "conquista": {
+     "n": "Juramento de Conquista",
      "rasgos": [
       {
-       "nombre": "Castigo Elemental",
+       "nombre": "Conjuros de Conquista",
        "t": "pasiva",
-       "texto": "Inmediatamente después de lanzar Castigo Divino, puedes gastar un uso de tu Canalizar Divinidad e invocar uno de los siguientes efectos. Aplastamiento del Dao: la tierra se alza alrededor del objetivo de tu Castigo Divino. El objetivo queda Agarrado (CD para escapar igual a tu CD de salvación de conjuros). Mientras está Agarrado, el objetivo queda Apresado. Escape del Djinn: te teletransportas a un espacio desocupado que puedas ver a 30 pies o menos de ti y adoptas una forma semi-incorpórea, que dura hasta el final de tu siguiente turno. Mientras estás en esta forma, tienes Resistencia al daño contundente, perforante y cortante, y tienes Inmunidad a los estados Agarrado, Derribado y Apresado. Furia del Efreeti: el objetivo de tu Castigo Divino recibe 2d4 de daño de Fuego adicional, y el fuego salta del objetivo a otra criatura que puedas ver a 30 pies o menos de ti. La segunda criatura también recibe 2d4 de daño de Fuego. Oleada de la Marid: el objetivo de tu Castigo Divino y cada criatura de tu elección en una emanación de 10 pies originada en ti hacen una tirada de salvación de Fuerza contra tu CD de salvación de conjuros. Si falla, la criatura es empujada 15 pies en línea recta alejándose de ti y queda Derribada.",
+       "texto": "Siempre tienes preparados los conjuros del juramento, que se amplían en los niveles 3, 5, 9, 13 y 17.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
+       "nombre": "Presencia Conquistadora",
+       "t": "accion",
+       "texto": "Como acción mágica y con un uso de Canalizar Divinidad, las criaturas que elijas a 30 pies que te vean hacen una salvación de SAB o quedan Asustadas de ti 1 minuto. Repiten la salvación al final de cada turno suyo.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Golpe Guiado",
+       "t": "gratis",
+       "texto": "Cuando haces una tirada de ataque, después de verla pero antes de saber si acierta, puedes gastar un uso de Canalizar Divinidad para sumarle +10.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Aura de Conquista",
+       "t": "pasiva",
+       "texto": "Mientras no estés Incapacitado, una criatura Asustada de ti que esté a 10 pies (30 desde el nivel 18) tiene velocidad 0, y si empieza su turno ahí recibe daño psíquico igual a la mitad de tu nivel de paladín.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Réplica Desdeñosa",
+       "t": "pasiva",
+       "texto": "Mientras no estés Incapacitado, toda criatura que te acierte con un ataque recibe daño psíquico igual a tu mod. de CAR (mínimo 1).",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Conquistador Invencible",
+       "t": "accion",
+       "texto": "Como acción mágica te vuelves un avatar de la conquista durante 1 minuto: resistencia a todo el daño, un ataque más cuando usas la acción Atacar, y tus ataques con arma cuerpo a cuerpo son crítico con 19 o 20. Una vez por descanso largo.",
+       "n": 20,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "redencion": {
+     "n": "Juramento de Redención",
+     "rasgos": [
+      {
+       "nombre": "Conjuros de Redención",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros del juramento, que se amplían en los niveles 3, 5, 9, 13 y 17.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Emisario de Paz",
+       "t": "adicional",
+       "texto": "Como acción adicional y con un uso de Canalizar Divinidad, te das +5 a las pruebas de Carisma (Persuasión) durante 10 minutos.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Reprender a los Violentos",
+       "t": "reaccion",
+       "texto": "Justo después de que un atacante a 30 pies haga daño con un ataque a otra criatura, gastas un uso de Canalizar Divinidad y tu reacción: el atacante hace una salvación de SAB y recibe daño radiante igual al que acaba de hacer, o la mitad si la supera.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Aura del Guardián",
+       "t": "reaccion",
+       "texto": "Cuando una criatura a 10 pies (30 desde el nivel 18) recibe daño, puedes usar tu reacción para recibir tú ese daño en su lugar. No te pasan otros efectos del ataque y ese daño no se puede reducir de ninguna forma.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Espíritu Protector",
+       "t": "pasiva",
+       "texto": "Si terminas tu turno en combate con menos de la mitad de tus PG y no estás Incapacitado, recuperas 1d6 + la mitad de tu nivel de paladín en PG.",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Emisario de la Redención",
+       "t": "pasiva",
+       "texto": "Tienes resistencia a todo el daño que te hagan otras criaturas, y quien te acierte con un ataque recibe daño radiante igual a la mitad del daño que te hizo. Si atacas a una criatura, le lanzas un conjuro o le haces daño de otra forma, estos beneficios no sirven contra ella hasta tu siguiente descanso largo.",
+       "n": 20,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "corona": {
+     "n": "Juramento de la Corona",
+     "rasgos": [
+      {
+       "nombre": "Conjuros de la Corona",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros del juramento, que se amplían en los niveles 3, 5, 9, 13 y 17.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Desafío del Campeón",
+       "t": "adicional",
+       "texto": "Como acción adicional y con un uso de Canalizar Divinidad, las criaturas que elijas a 30 pies que veas hacen una salvación de SAB; si fallan, no pueden alejarse voluntariamente a más de 30 pies de ti. Termina si quedas Incapacitado o mueres, o si la criatura acaba a más de 30 pies.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Cambiar las Tornas",
+       "t": "adicional",
+       "texto": "Como acción adicional y con un uso de Canalizar Divinidad, cada criatura que elijas a 30 pies que te oiga y tenga la mitad de sus PG o menos recupera 1d6 + tu mod. de CAR (mínimo 1) PG.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Lealtad Divina",
+       "t": "reaccion",
+       "texto": "Cuando una criatura a 5 pies de ti recibe daño, puedes usar tu reacción para recibirlo tú en su lugar. Ese daño no se puede reducir ni evitar de ninguna forma.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Espíritu Inquebrantable",
+       "t": "pasiva",
+       "texto": "Tienes ventaja en las salvaciones para no quedar Paralizado ni Aturdido.",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Campeón Exaltado",
+       "t": "accion",
+       "texto": "Como acción, durante 1 hora: resistencia al daño contundente, cortante y perforante de armas no mágicas; tus aliados a 30 pies tienen ventaja en las salvaciones contra la muerte; y tú y tus aliados a 30 pies tenéis ventaja en las salvaciones de SAB. Termina antes si quedas Incapacitado o mueres. Una vez por descanso largo.",
+       "n": 20,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "genios-nobles": {
+     "n": "Juramento de los Genios Nobles",
+     "rasgos": [
+      {
        "nombre": "Conjuros del Genio",
        "t": "pasiva",
-       "texto": "Cuando alcanzas un nivel de Paladín indicado en la tabla Conjuros del Genio, a partir de ese momento siempre tienes preparados los conjuros indicados. Nivel 3: Orbe Cromático, Elementalismo, Castigo Atronador. Nivel 5: Imagen Espejo, Fuerza Fantasmal. Nivel 9: Volar, Forma Gaseosa. Nivel 13: Conjurar Elementales Menores, Invocar Elemental. Nivel 17: Castigo Desterrador, Contactar con Otro Plano. Al inicio de cada uno de tus turnos, puedes cambiar el tipo de daño afectado por este rasgo a una de las otras opciones indicadas (sin requerir acción).",
+       "texto": "Siempre tienes preparados los conjuros del juramento, que se amplían en los niveles 3, 5, 9, 13 y 17.",
        "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Esplendor del Genio",
+       "t": "pasiva",
+       "texto": "Sin armadura, tu CA base es 10 + tu mod. de DES + tu mod. de CAR, y puedes usar escudo. Además ganas competencia en una de estas habilidades: Acrobacias, Intimidación, Interpretación o Persuasión.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Castigo Elemental",
+       "t": "gratis",
+       "texto": "Justo después de lanzar Castigo divino, puedes gastar un uso de Canalizar Divinidad para uno de estos efectos. Dao: el objetivo queda Agarrado (escapa con tu CD de conjuros) y Apresado mientras siga agarrado. Djinn: te teletransportas 30 pies y hasta el final de tu siguiente turno resistes el daño contundente, cortante y perforante, y eres inmune a Agarrado, Derribado y Apresado. Efreet: el objetivo recibe 2d4 de fuego extra y otra criatura que veas a 30 pies también 2d4 de fuego. Marid: el objetivo y quienes elijas a 10 pies hacen una salvación de FUE contra tu CD o son empujados 15 pies y quedan Derribados.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Aura de Escudo Elemental",
+       "t": "pasiva",
+       "texto": "Eliges ácido, frío, fuego, relámpago o trueno: tú y tus aliados tenéis resistencia a ese daño en tu Aura de Protección. Al inicio de cada uno de tus turnos puedes cambiar el tipo, sin gastar acción.",
+       "n": 7,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Reprimenda Elemental",
        "t": "reaccion",
-       "texto": "Cuando recibes el impacto de una tirada de ataque, puedes usar una Reacción para reducir a la mitad (redondeando hacia abajo) el daño del ataque contra ti y forzar al atacante a hacer una tirada de salvación de Destreza contra tu CD de salvación de conjuros. Si falla, el atacante recibe daño igual a 2d10 + tu modificador de Carisma de uno de los siguientes tipos (a tu elección): Ácido, Frío, Fuego, Relámpago o Trueno. Si la supera, el atacante recibe la mitad de ese daño. Puedes usar este rasgo una cantidad de veces igual a tu modificador de Carisma (mínimo una), y recuperas todos los usos gastados cuando terminas un Descanso Largo.",
+       "texto": "Cuando te aciertan con una tirada de ataque, usas tu reacción para recibir la mitad del daño (redondeando hacia abajo). El atacante hace una salvación de DES contra tu CD de conjuros: si falla recibe 2d10 + tu mod. de CAR de daño de ácido, frío, fuego, relámpago o trueno (tú eliges), y la mitad si la supera.",
        "n": 15,
-       "usos": 0,
+       "manual": true,
+       "usos": "max(1, CAR)",
        "reset": "largo"
       },
       {
        "nombre": "Vástago Noble",
        "t": "adicional",
-       "texto": "Como Acción Adicional, obtienes los beneficios indicados a continuación durante 10 minutos o hasta que los termines (sin requerir acción). Una vez que uses este rasgo, no puedes volver a usarlo hasta que termines un Descanso Largo. También puedes restaurar su uso gastando un espacio de conjuro de nivel 5 (sin requerir acción). Vuelo: tienes velocidad de vuelo de 60 pies y puedes flotar. Deseo Menor: cuando tú o un aliado en tu Aura de Protección falla una prueba de d20, puedes usar una Reacción para que tú o ese aliado tengáis éxito en su lugar.",
+       "texto": "Como acción adicional, durante 10 minutos: vuelo de 60 pies (puedes flotar), y cuando tú o un aliado en tu Aura de Protección fallan una prueba de d20, puedes usar tu reacción para que la supere. Una vez por descanso largo, o gastando un espacio de nivel 5.",
        "n": 20,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "vigilantes": {
+     "n": "Juramento de los Vigilantes",
+     "rasgos": [
+      {
+       "nombre": "Conjuros de los Vigilantes",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros del juramento, que se amplían en los niveles 3, 5, 9, 13 y 17.",
+       "n": 3,
+       "manual": true,
        "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Voluntad del Vigilante",
+       "t": "accion",
+       "texto": "Como acción mágica y con un uso de Canalizar Divinidad, eliges tantas criaturas que veas a 30 pies como tu mod. de CAR (mínimo 1): durante 1 minuto, ellas y tú tenéis ventaja en las salvaciones de INT, SAB y CAR.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Abjurar lo Extraplanar",
+       "t": "accion",
+       "texto": "Como acción mágica y con un uso de Canalizar Divinidad, cada aberración, celestial, elemental, feérico o infernal a 30 pies que te oiga hace una salvación de SAB. Si falla, queda expulsada 1 minuto o hasta recibir daño: huye de ti, no puede acabar su movimiento a 30 pies de ti y solo puede Correr o intentar liberarse (o Esquivar si no tiene adónde ir).",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Aura del Centinela",
+       "t": "pasiva",
+       "texto": "Mientras no estés Incapacitado, tú y las criaturas que elijas a 10 pies (30 desde el nivel 18) sumáis tu bonificador de competencia a la iniciativa.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Reprimenda Vigilante",
+       "t": "reaccion",
+       "texto": "Cuando tú o una criatura que ves a 30 pies superáis una salvación de INT, SAB o CAR, puedes usar tu reacción para hacer 2d8 + tu mod. de CAR de daño de fuerza a quien la provocó.",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Baluarte Mortal",
+       "t": "adicional",
+       "texto": "Como acción adicional, durante 1 minuto: visión verdadera a 120 pies, ventaja en los ataques contra aberraciones, celestiales, elementales, feéricos e infernales, y cuando aciertas y haces daño con un ataque puedes obligar al objetivo a una salvación de CAR contra tu CD: si falla y no está en su plano natal, vuelve a él. Una vez por descanso largo, o gastando un espacio de nivel 5.",
+       "n": 20,
+       "manual": true,
+       "usos": 1,
        "reset": "largo"
       }
      ]
@@ -6605,26 +6863,47 @@
    },
    "rasgosAltos": [
     {
-     "nombre": "Castigo Radiante",
-     "t": "pasiva",
-     "texto": "Todos tus ataques con arma infligen 1d8 radiante extra permanentemente.",
-     "n": 11,
+     "nombre": "Abjurar Enemigos",
+     "t": "accion",
+     "texto": "Como acción mágica y con un uso de Canalizar Divinidad, alzas tu símbolo sagrado o tu arma ante tantas criaturas como tu mod. de CAR (mínimo 1) a 60 pies. Las que fallen una salvación de SAB quedan Asustadas 1 minuto o hasta recibir daño, y mientras tanto en su turno solo pueden moverse, o usar su acción, o su acción adicional.",
+     "n": 9,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
-     "nombre": "Ahuyentar Enemigos",
-     "t": "accion",
-     "texto": "Acción Mágica. Gasta Canalizar Divinidad para asustar enemigos a 60 pies (Salvación SAB).",
-     "n": 9,
+     "nombre": "Aura de Valor",
+     "t": "pasiva",
+     "texto": "Tú y tus aliados sois inmunes a la condición Asustado mientras estéis en tu Aura de Protección. Un aliado que entra al aura ya asustado ignora esa condición mientras siga dentro.",
+     "n": 10,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Golpes Radiantes",
+     "t": "pasiva",
+     "texto": "Cuando aciertas una tirada de ataque con un arma cuerpo a cuerpo o un golpe sin armas, el objetivo recibe 1d8 de daño radiante extra.",
+     "n": 11,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
      "nombre": "Toque Restaurador",
-     "t": "pasiva",
-     "texto": "Cuando usas Imposición de Manos, puedes eliminar condiciones: Cegado, Encantado, Ensordecido, Asustado, Paralizado o Aturdido (Coste 5 PG).",
+     "t": "adicional",
+     "texto": "Al usar Imposición de Manos también puedes quitarle al objetivo Cegado, Hechizado, Ensordecido, Asustado, Paralizado o Aturdido. Cada condición cuesta 5 puntos de la reserva, que no curan PG.",
      "n": 14,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Expansión del Aura",
+     "t": "pasiva",
+     "texto": "Tu Aura de Protección pasa a ser una emanación de 30 pies.",
+     "n": 18,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     }
@@ -6634,77 +6913,86 @@
      {
       "nombre": "Aura de Devoción",
       "t": "pasiva",
-      "texto": "Aliados en tu aura no pueden ser hechizados.",
+      "texto": "Tú y tus aliados sois inmunes a la condición Hechizado mientras estéis en tu Aura de Protección. Un aliado que entra al aura ya hechizado ignora esa condición mientras siga dentro.",
       "n": 7,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
-      "nombre": "Pureza de Espíritu",
+      "nombre": "Castigo Protector",
       "t": "pasiva",
-      "texto": "Protección contra el Bien y el Mal constante.",
+      "texto": "Cada vez que lanzas Castigo divino, tú y tus aliados en tu Aura de Protección tenéis media cobertura (+2 a la CA y a las salvaciones de DES) hasta el inicio de tu siguiente turno.",
       "n": 15,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
       "nombre": "Halo Sagrado",
-      "t": "pasiva",
-      "texto": "Emanas luz solar que daña enemigos y te da ventaja contra conjuros de infernales/no-muertos.",
+      "t": "adicional",
+      "texto": "Como acción adicional llenas tu Aura de Protección de poder sagrado durante 10 minutos: ventaja en las salvaciones contra conjuros de infernales y muertos vivientes, el aura da luz solar brillante, y cada enemigo que empieza su turno en ella recibe daño radiante igual a tu mod. de CAR + tu bonificador de competencia. Una vez por descanso largo, o gastando un espacio de nivel 5.",
       "n": 20,
-      "usos": 0,
+      "manual": true,
+      "usos": 1,
       "reset": "largo"
      }
     ],
     "gloria": [
      {
-      "nombre": "Aura de Alacridad",
+      "nombre": "Aura de Presteza",
       "t": "pasiva",
-      "texto": "Aumenta la velocidad de movimiento de aliados cercanos.",
+      "texto": "Tu velocidad aumenta 10 pies. Además, cuando un aliado entra en tu Aura de Protección por primera vez en un turno o empieza su turno en ella, su velocidad aumenta 10 pies hasta el final de su siguiente turno.",
       "n": 7,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
       "nombre": "Defensa Gloriosa",
       "t": "reaccion",
-      "texto": "Reacción para sumar CA a un aliado y contraatacar.",
+      "texto": "Cuando a ti o a una criatura que ves a 10 pies os aciertan con una tirada de ataque, usas tu reacción para sumar tu mod. de CAR (mínimo +1) a su CA contra ese ataque. Si así falla, puedes atacar con un arma al atacante si está a tu alcance, como parte de la misma reacción.",
       "n": 15,
-      "usos": 0,
+      "manual": true,
+      "usos": "max(1, CAR)",
       "reset": "largo"
      },
      {
-      "nombre": "Leyenda Viva",
-      "t": "pasiva",
-      "texto": "Ventaja en CAR, un fallo se vuelve éxito y ataques siempre impactan.",
+      "nombre": "Leyenda Viviente",
+      "t": "adicional",
+      "texto": "Como acción adicional, durante 10 minutos: ventaja en todas las pruebas de CAR; una vez en cada uno de tus turnos, si fallas un ataque con arma o golpe sin armas, puedes hacer que acierte; y si fallas una salvación, puedes repetirla con tu reacción. Una vez por descanso largo, o gastando un espacio de nivel 5.",
       "n": 20,
-      "usos": 0,
+      "manual": true,
+      "usos": 1,
       "reset": "largo"
      }
     ],
     "antiguos": [
      {
-      "nombre": "Aura de Resistencia",
+      "nombre": "Aura de Protección Arcana",
       "t": "pasiva",
-      "texto": "Tú y aliados tenéis resistencia al daño de conjuros.",
+      "texto": "Tú y tus aliados tenéis resistencia al daño necrótico, psíquico y radiante mientras estéis en tu Aura de Protección.",
       "n": 7,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
-      "nombre": "Centinela Inmortal",
+      "nombre": "Centinela Imperecedero",
       "t": "pasiva",
-      "texto": "Cuando caes a 0 PG, quedas a 1 PG en su lugar (1/día).",
+      "texto": "Si caes a 0 PG sin morir en el acto, puedes quedarte a 1 PG y recuperar PG iguales al triple de tu nivel de paladín. Una vez por descanso largo. Además, la magia no puede envejecerte y dejas de envejecer a la vista.",
       "n": 15,
-      "usos": 0,
+      "manual": true,
+      "usos": 1,
       "reset": "largo"
      },
      {
       "nombre": "Campeón Antiguo",
       "t": "adicional",
-      "texto": "Transformación: curación constante y lanzas conjuros como acción adicional.",
+      "texto": "Como acción adicional llenas tu Aura de Protección de poder primigenio durante 1 minuto: los enemigos en ella tienen desventaja en las salvaciones contra tus conjuros y tu Canalizar Divinidad, recuperas 10 PG al inicio de cada uno de tus turnos, y los conjuros de paladín que se lanzan con una acción los puedes lanzar con una acción adicional. Una vez por descanso largo, o gastando un espacio de nivel 5.",
       "n": 20,
-      "usos": 0,
+      "manual": true,
+      "usos": 1,
       "reset": "largo"
      }
     ],
@@ -6712,25 +7000,28 @@
      {
       "nombre": "Vengador Implacable",
       "t": "gratis",
-      "texto": "Cuando golpeas con ataque de oportunidad, puedes moverte tras el enemigo.",
+      "texto": "Cuando aciertas a una criatura con un ataque de oportunidad, puedes dejar su velocidad en 0 hasta el final del turno y moverte hasta la mitad de tu velocidad como parte de esa misma reacción, sin provocar ataques de oportunidad.",
       "n": 7,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
       "nombre": "Alma de Venganza",
       "t": "reaccion",
-      "texto": "Cuando tu objetivo de Voto te ataca, puedes contraatacar como reacción.",
+      "texto": "Justo después de que la criatura bajo tu Voto de Enemistad haga una tirada de ataque, acierte o falle, puedes usar tu reacción para hacerle un ataque cuerpo a cuerpo si está a tu alcance.",
       "n": 15,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
       "nombre": "Ángel Vengador",
-      "t": "pasiva",
-      "texto": "Vuelo y aura de miedo que inmoviliza a los enemigos.",
+      "t": "adicional",
+      "texto": "Como acción adicional, durante 10 minutos te salen alas espectrales (vuelo 60 pies, puedes flotar) y cada enemigo que empieza su turno en tu Aura de Protección hace una salvación de SAB o queda Asustado 1 minuto o hasta recibir daño; las tiradas de ataque contra esa criatura asustada tienen ventaja. Una vez por descanso largo, o gastando un espacio de nivel 5.",
       "n": 20,
-      "usos": 0,
+      "manual": true,
+      "usos": 1,
       "reset": "largo"
      }
     ]

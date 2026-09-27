@@ -155,11 +155,11 @@ Se agregan en el lote de su clase, con su versión oficial más reciente. Las ma
 
 ### Lote 15: Paladín
 
-- [ ] **Juramento de Conquista** (Xanathar's Guide to Everything) <!-- agregar|juramento de conquista -->
-- [ ] **Juramento de Redención** (Xanathar's Guide to Everything) <!-- agregar|juramento de redencion -->
-- [ ] **Juramento de los Vigilantes** (Tasha's Cauldron of Everything) <!-- agregar|juramento de los vigilantes -->
-- [ ] **Juramento de la Corona** (Sword Coast Adventurer's Guide) <!-- agregar|juramento de la corona -->
-- [ ] **Rompejuramentos** (Guía del Dungeon Master 2014) <!-- agregar|rompejuramentos -->
+- [x] **Juramento de Conquista** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). <!-- agregar|juramento de conquista -->
+- [x] **Juramento de Redención** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). <!-- agregar|juramento de redencion -->
+- [x] **Juramento de los Vigilantes** (Tasha's Cauldron of Everything): agregado, versión de Tasha's Cauldron of Everything (2020). <!-- agregar|juramento de los vigilantes -->
+- [x] **Juramento de la Corona** (Sword Coast Adventurer's Guide): agregado, versión de Sword Coast Adventurer's Guide (2015). <!-- agregar|juramento de la corona -->
+- ⚠ **Rompejuramentos** (Guía del Dungeon Master 2014): la app tiene la versión de prueba (UA 2025) con esa misma clave y nombre, y se conserva; la de 2014 no se agregó para no tener dos "Rompejuramentos". <!-- agregar|rompejuramentos -->
 
 ### Lote 16: Pícaro
 
@@ -1199,38 +1199,58 @@ Playtest junto a las subclases oficiales, sin reemplazar ninguna. Datos en `web/
 
 ## Lote 15: Paladín (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 13. Con tipo claro: 6. Ya revisados: 0.
+Dudosos: 0. Con tipo claro: 0. Ya revisados: 53.
 
-### Paladín
 
-- [ ] **Castigo Radiante** (nivel 11): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- paladin|castigo radiante -->
-- [ ] **Toque Restaurador** (nivel 14): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- paladin|toque restaurador -->
+### Revisados
 
-### Juramento de los Genios Nobles
-
-- [ ] **Castigo Elemental** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse <!-- juramento de los genios nobles|castigo elemental -->
-- [ ] **Conjuros del Genio** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse <!-- juramento de los genios nobles|conjuros del genio -->
-
-### Juramento de Devoción
-
-- [ ] **Aura de Devoción** (nivel 7): hoy `pasiva`, no menciona tipo de acción <!-- juramento de devocion|aura de devocion -->
-- [ ] **Pureza de Espíritu** (nivel 15): hoy `pasiva`, no menciona tipo de acción <!-- juramento de devocion|pureza de espiritu -->
-- [ ] **Halo Sagrado** (nivel 20): hoy `pasiva`, no menciona tipo de acción <!-- juramento de devocion|halo sagrado -->
-
-### Juramento de la Gloria
-
-- [ ] **Aura de Alacridad** (nivel 7): hoy `pasiva`, no menciona tipo de acción <!-- juramento de la gloria|aura de alacridad -->
-- [ ] **Leyenda Viva** (nivel 20): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- juramento de la gloria|leyenda viva -->
-
-### Juramento de los Antiguos
-
-- [ ] **Aura de Resistencia** (nivel 7): hoy `pasiva`, no menciona tipo de acción <!-- juramento de los antiguos|aura de resistencia -->
-- [ ] **Centinela Inmortal** (nivel 15): hoy `pasiva`, no menciona tipo de acción <!-- juramento de los antiguos|centinela inmortal -->
-
-### Juramento de Venganza
-
-- [ ] **Vengador Implacable** (nivel 7): hoy `gratis`, no menciona tipo de acción <!-- juramento de venganza|vengador implacable -->
-- [ ] **Ángel Vengador** (nivel 20): hoy `pasiva`, no menciona tipo de acción <!-- juramento de venganza|angel vengador -->
+- [x] **Abjurar Enemigos** (nivel 9): `accion`. Manual del Jugador (2024). <!-- paladin|abjurar enemigos -->
+- [x] **Aura de Valor** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- paladin|aura de valor -->
+- [x] **Golpes Radiantes** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- paladin|golpes radiantes -->
+- [x] **Toque Restaurador** (nivel 14): `adicional`. Manual del Jugador (2024). <!-- paladin|toque restaurador -->
+- [x] **Expansión del Aura** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- paladin|expansion del aura -->
+- [x] **Conjuros de Conquista** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de conquista|conjuros de conquista -->
+- [x] **Presencia Conquistadora** (nivel 3): `accion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de conquista|presencia conquistadora -->
+- [x] **Golpe Guiado** (nivel 3): `gratis`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de conquista|golpe guiado -->
+- [x] **Aura de Conquista** (nivel 7): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de conquista|aura de conquista -->
+- [x] **Réplica Desdeñosa** (nivel 15): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de conquista|replica desdenosa -->
+- [x] **Conquistador Invencible** (nivel 20): `accion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de conquista|conquistador invencible -->
+- [x] **Conjuros de Redención** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de redencion|conjuros de redencion -->
+- [x] **Emisario de Paz** (nivel 3): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de redencion|emisario de paz -->
+- [x] **Reprender a los Violentos** (nivel 3): `reaccion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de redencion|reprender a los violentos -->
+- [x] **Aura del Guardián** (nivel 7): `reaccion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de redencion|aura del guardian -->
+- [x] **Espíritu Protector** (nivel 15): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de redencion|espiritu protector -->
+- [x] **Emisario de la Redención** (nivel 20): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de redencion|emisario de la redencion -->
+- [x] **Conjuros de la Corona** (nivel 3): `pasiva`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- juramento de la corona|conjuros de la corona -->
+- [x] **Desafío del Campeón** (nivel 3): `adicional`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- juramento de la corona|desafio del campeon -->
+- [x] **Cambiar las Tornas** (nivel 3): `adicional`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- juramento de la corona|cambiar las tornas -->
+- [x] **Lealtad Divina** (nivel 7): `reaccion`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- juramento de la corona|lealtad divina -->
+- [x] **Espíritu Inquebrantable** (nivel 15): `pasiva`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- juramento de la corona|espiritu inquebrantable -->
+- [x] **Campeón Exaltado** (nivel 20): `accion`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- juramento de la corona|campeon exaltado -->
+- [x] **Conjuros del Genio** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- juramento de los genios nobles|conjuros del genio -->
+- [x] **Esplendor del Genio** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- juramento de los genios nobles|esplendor del genio -->
+- [x] **Castigo Elemental** (nivel 3): `gratis`. Forgotten Realms: Heroes of Faerûn (2025). <!-- juramento de los genios nobles|castigo elemental -->
+- [x] **Aura de Escudo Elemental** (nivel 7): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- juramento de los genios nobles|aura de escudo elemental -->
+- [x] **Reprimenda Elemental** (nivel 15): `reaccion`. Forgotten Realms: Heroes of Faerûn (2025). <!-- juramento de los genios nobles|reprimenda elemental -->
+- [x] **Vástago Noble** (nivel 20): `adicional`. Forgotten Realms: Heroes of Faerûn (2025). <!-- juramento de los genios nobles|vastago noble -->
+- [x] **Conjuros de los Vigilantes** (nivel 3): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- juramento de los vigilantes|conjuros de los vigilantes -->
+- [x] **Voluntad del Vigilante** (nivel 3): `accion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- juramento de los vigilantes|voluntad del vigilante -->
+- [x] **Abjurar lo Extraplanar** (nivel 3): `accion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- juramento de los vigilantes|abjurar lo extraplanar -->
+- [x] **Aura del Centinela** (nivel 7): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- juramento de los vigilantes|aura del centinela -->
+- [x] **Reprimenda Vigilante** (nivel 15): `reaccion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- juramento de los vigilantes|reprimenda vigilante -->
+- [x] **Baluarte Mortal** (nivel 20): `adicional`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- juramento de los vigilantes|baluarte mortal -->
+- [x] **Aura de Devoción** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- juramento de devocion|aura de devocion -->
+- [x] **Castigo Protector** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- juramento de devocion|castigo protector -->
+- [x] **Halo Sagrado** (nivel 20): `adicional`. Manual del Jugador (2024). <!-- juramento de devocion|halo sagrado -->
+- [x] **Aura de Presteza** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- juramento de la gloria|aura de presteza -->
+- [x] **Defensa Gloriosa** (nivel 15): `reaccion`. Manual del Jugador (2024). <!-- juramento de la gloria|defensa gloriosa -->
+- [x] **Leyenda Viviente** (nivel 20): `adicional`. Manual del Jugador (2024). <!-- juramento de la gloria|leyenda viviente -->
+- [x] **Aura de Protección Arcana** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- juramento de los antiguos|aura de proteccion arcana -->
+- [x] **Centinela Imperecedero** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- juramento de los antiguos|centinela imperecedero -->
+- [x] **Campeón Antiguo** (nivel 20): `adicional`. Manual del Jugador (2024). <!-- juramento de los antiguos|campeon antiguo -->
+- [x] **Vengador Implacable** (nivel 7): `gratis`. Manual del Jugador (2024). <!-- juramento de venganza|vengador implacable -->
+- [x] **Alma de Venganza** (nivel 15): `reaccion`. Manual del Jugador (2024). <!-- juramento de venganza|alma de venganza -->
+- [x] **Ángel Vengador** (nivel 20): `adicional`. Manual del Jugador (2024). <!-- juramento de venganza|angel vengador -->
 
 ## Lote 16: Pícaro (subclases y rasgos de nivel alto de la biblioteca)
 

@@ -316,8 +316,10 @@ export function weaponRow(a, c){
     const [mn, md] = MAESTRIAS[w.ma];
     maestria = `${mn}: ${md}${w.ma === 'derribar' ? ` CD ${8 + m[ab] + c.pb}.` : ''}`;
   }
-  return {k:a.k, q:a.q, i:a.i, w, nombre: w.n + (a.q > 1 ? ` (${a.q})` : ''), atk, expr:`${dado}${modStr(dmgMod)}`, dmg:`${dado}${fmtMod(dmgMod)} ${w.tipo}`,
-    v: w.v ? {expr:`${w.v}${modStr(dmgMod)}`, dmg:`${w.v}${fmtMod(dmgMod)}`} : null, notas, maestria, min3, atkDesg, dmgDesg, dado, partesAtk, partesDmg};
+  // Golpes Radiantes del paladín (nivel 11): 1d8 radiante extra con las armas cuerpo a cuerpo
+  const rad = c.golpesRadiantes && !w.dist ? ['+1d8', ' + 1d8 radiante'] : ['', ''];
+  return {k:a.k, q:a.q, i:a.i, w, nombre: w.n + (a.q > 1 ? ` (${a.q})` : ''), atk, expr:`${dado}${modStr(dmgMod)}${rad[0]}`, dmg:`${dado}${fmtMod(dmgMod)} ${w.tipo}${rad[1]}`,
+    v: w.v ? {expr:`${w.v}${modStr(dmgMod)}${rad[0]}`, dmg:`${w.v}${fmtMod(dmgMod)}${rad[1]}`} : null, notas, maestria, min3, atkDesg, dmgDesg, dado, partesAtk, partesDmg};
 }
 
 /* Familiares y muertos vivientes: qué puede crear el personaje (según sus conjuros) y la hoja de cada uno que tiene

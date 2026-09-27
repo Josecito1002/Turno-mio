@@ -15,6 +15,7 @@ import { SUBCLASES } from '../../src/features/reglas/data/subclases';
 import { CATALOGO } from '../../src/features/reglas/data/conjuros';
 import { oficial } from './oficial';
 import { LOTES, archivoLote } from './encargo';
+import { PLAYTEST_2025 } from '../datos/playtest-2025';
 
 const TIPOS_T = ['accion', 'adicional', 'reaccion', 'gratis', 'pasiva', 'fuera'];
 const GENERADAS = 'src/features/reglas/data/generadas/';
@@ -101,7 +102,7 @@ async function main() {
     else if (r.texto.length > 600) avisos.push(`${donde_}: texto muy largo (${r.texto.length} caracteres); ¿copiado del libro?`);
   }
   for (const k of Object.keys(A.subAltos)) if (!integradas.some((s: any) => s.key === k)) errores.push(`subAltos.${k}: no es una subclase integrada (${integradas.map((s: any) => s.key).join(', ') || 'no hay'}).`);
-  for (const k of Object.keys(lib.subclases || {})) if (!A.subclases[k]) errores.push(`La subclase \`${k}\` (${lib.subclases[k].n}) de la app no está en A: se borraría.`);
+  for (const k of Object.keys(lib.subclases || {})) if (!A.subclases[k] && !PLAYTEST_2025[clase]?.[k]) errores.push(`La subclase \`${k}\` (${lib.subclases[k].n}) de la app no está en A: se borraría.`);
 
   // Subclases y niveles contra el texto oficial
   const niveles = (rs: any[]) => [...new Set(rs.map(r => r.n))].sort((a, b) => a - b).join(',');

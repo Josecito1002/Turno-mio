@@ -25,6 +25,7 @@ import { GUERRERO_2024 } from '../../../../scripts/datos/guerrero-2024';
 import { HECHICERO_2024 } from '../../../../scripts/datos/hechicero-2024';
 import { MAGO_2024 } from '../../../../scripts/datos/mago-2024';
 import { MONJE_2024 } from '../../../../scripts/datos/monje-2024';
+import { PALADIN_2024 } from '../../../../scripts/datos/paladin-2024';
 import { PLAYTEST_2025 } from '../../../../scripts/datos/playtest-2025';
 import { fuenteSubclase } from '@/features/reglas/data/fuentes';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
@@ -1061,5 +1062,33 @@ describe('Compañeros', () => {
     const con = pj('brujo', 3, '', {}, { conjuros: fam, pactoCadena: true }), sin = pj('mago', 3, '', {}, { conjuros: fam });
     assert.ok(con.criaturasPuede.some((x: any) => x.key === 'diablillo'));
     assert.equal(sin.criaturasPuede.some((x: any) => x.key === 'diablillo'), false);
+  });
+});
+
+describe('Paladín 2024 (Lote 15)', () => {
+  const pal = (nivel: number, sub = '', extra: Record<string, any> = {}) => { setLib({ clases: { paladin: PALADIN_2024 } }); return pj('paladin', nivel, sub, { fue: 16, des: 14, car: 16 }, extra); };
+  test('Golpes Radiantes: 1d8 radiante extra con armas cuerpo a cuerpo desde el nivel 11', () => {
+    const armas = { armas: [['espada_larga', 1], ['arco_largo', 1]] };
+    const fila = (c: any, k: string) => c.armas.find((a: any) => a.k === k);
+    assert.match(fila(pal(11, '', armas), 'espada_larga').expr, /\+1d8$/);
+    assert.match(fila(pal(11, '', armas), 'espada_larga').dmg, /1d8 radiante/);
+    assert.doesNotMatch(fila(pal(11, '', armas), 'arco_largo').expr, /1d8$/);
+    assert.doesNotMatch(fila(pal(10, '', armas), 'espada_larga').expr, /\+1d8$/);
+  });
+  test('Esplendor del Genio: CA 10 + DES + CAR sin armadura y la habilidad elegida', () => {
+    const c = pal(3, 'lib:genios-nobles', { elecciones: { 'esplendor-genio': 'persuasion' } });
+    assert.equal(c.ac, 15);
+    assert.equal(c.skillProf.persuasion, true);
+    assert.equal(pal(3, 'lib:genios-nobles', { armadura: 'mallas' }).ac, 16);
+  });
+  test('Usos y costes: Defensa Gloriosa = CAR, Abjurar Enemigos gasta Canalizar Divinidad', () => {
+    assert.equal(recurso(pal(15, 'gloria'), 'Defensa Gloriosa')?.max, 3);
+    assert.equal(entrada(pal(9), 'Abjurar Enemigos').coste, '1 Canalizar');
+    assert.equal(entrada(pal(3, 'lib:conquista'), 'Golpe Guiado').coste, '1 Canalizar');
+  });
+  test('Conjuros del juramento hasta el nivel 17', () => {
+    assert.match(entrada(pal(17, 'venganza'), 'Conjuros del juramento').texto, /Escudriñar/);
+    assert.doesNotMatch(entrada(pal(5, 'venganza'), 'Conjuros del juramento').texto, /Acelerar/);
+    assert.match(entrada(pal(9, 'lib:corona'), 'Conjuros de la Corona').texto, /Espíritus guardianes/);
   });
 });

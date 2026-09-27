@@ -1436,6 +1436,22 @@ export const REGLAS: any[] = [
       notas:['Con Señor del Terror activo: acción adicional, contra una criatura dentro de tu Aura de Protección']}],
     texto: () => 'Con una acción adicional llenas tu Aura de Protección de penumbra durante 10 minutos: oscuridad mágica en la que tú y tus aliados veis; las criaturas Asustadas que empiezan su turno en ella reciben 4d10 de daño psíquico; y con una acción adicional haces el Golpe Sombrío (sale en Ataques). Una vez por descanso largo, o gastando un espacio de nivel 5.'},
 
+  /* ---------- Paladín (lote 15): rasgos que gastan Canalizar Divinidad, Golpes Radiantes y Esplendor del Genio ---------- */
+  {de:/^paladin$/, n:/^abjurar enemigos$/, t:'accion', coste:'1 Canalizar'},
+  // El d8 radiante se suma a las filas de las armas cuerpo a cuerpo (weaponRow)
+  {de:/^paladin$/, n:/^golpes radiantes$/, t:'pasiva', efecto: c => { c.golpesRadiantes = true; c.rehacerArmas = true; }},
+  {de:/^juramento de los genios nobles$/, n:/^castigo elemental$/, t:'gratis', coste:'1 Canalizar'},
+  {de:/^juramento de los genios nobles$/, n:/^esplendor del genio$/, t:'pasiva',
+    eleccion: {id:'esplendor-genio', titulo:'Esplendor del Genio', opciones: [['acrobacias', 'Acrobacias'], ['intimidacion', 'Intimidación'], ['interpretacion', 'Interpretación'], ['persuasion', 'Persuasión']]
+      .map(([key, nombre]) => ({key, nombre, desc:`Competencia en ${nombre}.`}))},
+    efecto: c => {
+      if (!c.armor) c.ac = Math.max(c.ac, 10 + c.m.des + c.m.car + (c.shield ? 2 : 0));
+      const k = elegido(c, 'esplendor-genio'); if (k && !c.skillProf[k]) { c.skill[k] += c.pb; c.skillProf[k] = true; }
+    }},
+  ...[['conquista', ['presencia conquistadora', 'golpe guiado']], ['redencion', ['emisario de paz', 'reprender a los violentos']],
+    ['la corona', ['desafio del campeon', 'cambiar las tornas']], ['los vigilantes', ['voluntad del vigilante', 'abjurar lo extraplanar']]]
+    .flatMap(([j, rs]) => rs.map(n => ({de: new RegExp(`^juramento de ${j}$`), n: new RegExp(`^${n}$`), coste:'1 Canalizar'}))),
+
   /* ---------- Lanzadores de un tercio: Caballero Arcano, Embaucador Arcano (Manual del Jugador 2024) y Guerrero de las Artes Místicas (Arcana Unleashed 2026) ---------- */
   {de:/^caballero arcano$/, n:/^lanzamiento de conjuros$/, t:'pasiva', ...lanzadorTercio('int', 'mago', c => c.lvl >= 10 ? 3 : 2)},
   {de:/^embaucador arcano$/, n:/^lanzamiento de conjuros$/, t:'pasiva', ...lanzadorTercio('int', 'mago', c => c.lvl >= 10 ? 4 : 3)},

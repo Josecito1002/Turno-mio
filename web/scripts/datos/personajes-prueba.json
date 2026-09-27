@@ -15,6 +15,36 @@
       "clase": "lib:pugilista",
       "subclase": "perro-sabueso",
       "nivel": 3
+    },
+    {
+      "clase": "paladin",
+      "subclase": "genios-nobles",
+      "nivel": 11
+    },
+    {
+      "clase": "paladin",
+      "subclase": "conquista",
+      "nivel": 20
+    },
+    {
+      "clase": "paladin",
+      "subclase": "redencion",
+      "nivel": 20
+    },
+    {
+      "clase": "paladin",
+      "subclase": "corona",
+      "nivel": 20
+    },
+    {
+      "clase": "paladin",
+      "subclase": "vigilantes",
+      "nivel": 20
+    },
+    {
+      "clase": "paladin",
+      "subclase": "devocion",
+      "nivel": 17
     }
   ]
 }
