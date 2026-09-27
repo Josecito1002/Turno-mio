@@ -1731,7 +1731,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Floritura de Espada",
+       "nombre": "Floritura con la Espada",
        "t": "gratis",
        "texto": "Al usar la acción Atacar, tu velocidad sube 10 pies hasta el final del turno y, si aciertas con un arma, puedes usar una floritura por turno gastando una Inspiración Bárdica: Defensiva, Cortante o Móvil.",
        "n": 3,

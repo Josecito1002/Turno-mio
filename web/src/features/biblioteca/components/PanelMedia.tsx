@@ -132,14 +132,16 @@ function Recorte({ nombre }: { nombre: string }) {
   );
 }
 
-/** Imagen y descripción de una especie o clase; el administrador las edita. */
-export function PanelMedia({ k, n, d, fuente }: { k: string; n: string; d: string; fuente?: Fuente }) {
+/** Imagen y descripción de una especie, subraza o clase; el administrador las edita.
+    `verImg`: clave de la imagen que se muestra si es otra (la de la subraza elegida); `sinImagen`: no la muestra. */
+export function PanelMedia({ k, n, d, fuente, verImg, sinImagen }: { k: string; n: string; d: string; fuente?: Fuente; verImg?: string; sinImagen?: boolean }) {
   const LIB = getLib(), img = LIB.img?.[k], editando = S.crop && S.crop.k === k;
+  const mostrada = sinImagen ? '' : (verImg && LIB.img?.[verImg]) || img;
   const idArchivo = useId();
   return (
     <Tarjeta as="section" aria-label={`Sobre ${n}`} className="my-4 flex flex-wrap gap-4">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      {editando ? <Recorte nombre={n} /> : img ? <img className="aspect-square w-full max-w-80 shrink-0 rounded-xl object-cover sm:w-60 md:w-72" src={img} alt={`Ilustración de ${n}`} /> : null}
+      {editando ? <Recorte nombre={n} /> : mostrada ? <img className="aspect-square w-full max-w-80 shrink-0 rounded-xl object-cover sm:w-60 md:w-72" src={mostrada} alt={`Ilustración de ${n}`} /> : null}
       <div className="min-w-56 flex-1">
         <h2 className="m-0 font-serif text-2xl font-bold">{n}{fuente && <EtiquetaFuente fuente={fuente} className="ml-2 align-middle" />}</h2>
         {d ? <p className="mb-0 mt-1">{d}</p> : <p className="mb-0 mt-1 text-sm text-muted">Sin descripción todavía.</p>}

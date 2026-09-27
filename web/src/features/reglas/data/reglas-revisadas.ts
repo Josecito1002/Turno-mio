@@ -1456,7 +1456,7 @@ export const REGLAS: any[] = [
     texto: () => 'Eliges Duelo o Combate con Dos Armas en el paso Clase; su efecto ya se suma.',
     eleccion: {id:'estilo-espadas', titulo:'Estilo de combate (Colegio de las Espadas)',
       opciones: () => ['duelo', 'dosarmas'].map(k => ({key:k, nombre:ESTILOS[k][0], desc:ESTILOS[k][2]}))}},
-  {de:/^colegio de las espadas$/, n:/^floritura de espada$/, t:'gratis', coste: c => c.lvl >= 14 ? '1 Inspiración Bárdica, o tira 1d6' : '1 Inspiración Bárdica',
+  {de:/^colegio de las espadas$/, n:/^floritura con la espada$/, t:'gratis', coste: c => c.lvl >= 14 ? '1 Inspiración Bárdica, o tira 1d6' : '1 Inspiración Bárdica',
     texto: c => `Al usar la acción Atacar, tu velocidad sube 10 pies hasta el final del turno. Una vez por turno, al acertar con un arma, tiras ${dadoInsp(c)}${c.lvl >= 14 ? ' (o 1d6 sin gastarla, por Floritura Maestra)' : ''}: el arma hace ese daño extra y eliges un efecto.`,
     opciones: [
       {nombre:'Floritura Defensiva', t:'gratis', texto: () => 'Además sumas el resultado a tu CA hasta el inicio de tu siguiente turno.'},

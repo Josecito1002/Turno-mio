@@ -66,7 +66,7 @@ export const BARDO_2024 = {
     'colegio-espadas': { n: 'Colegio de las Espadas', rasgos: [
       r(3, 'Competencias Adicionales', 'pasiva', 'Entrenamiento con armaduras medias y competencia con la cimitarra. Puedes usar como foco de tus conjuros de bardo un arma cuerpo a cuerpo sencilla o marcial con la que seas competente.'),
       r(3, 'Estilo de Combate', 'pasiva', 'Eliges un estilo de combate: Duelo o Combate con Dos Armas.'),
-      r(3, 'Floritura de Espada', 'gratis', 'Al usar la acción Atacar, tu velocidad sube 10 pies hasta el final del turno y, si aciertas con un arma, puedes usar una floritura por turno gastando una Inspiración Bárdica: Defensiva, Cortante o Móvil.'),
+      r(3, 'Floritura con la Espada', 'gratis', 'Al usar la acción Atacar, tu velocidad sube 10 pies hasta el final del turno y, si aciertas con un arma, puedes usar una floritura por turno gastando una Inspiración Bárdica: Defensiva, Cortante o Móvil.'),
       r(6, 'Ataque Extra', 'pasiva', 'Cuando usas la acción Atacar, atacas dos veces.'),
       r(14, 'Floritura Maestra', 'pasiva', 'Al usar una floritura puedes tirar 1d6 en lugar de gastar un dado de Inspiración Bárdica.'),
     ] },

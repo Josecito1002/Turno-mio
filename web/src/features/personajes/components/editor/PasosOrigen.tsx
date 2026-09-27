@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { S, render } from '@/app-shell/estado';
 import { norm } from '@/shared/utils/texto';
 import { Boton, Campo, Nota, Plegable, Seccion } from '@/shared/ui/kit';
@@ -19,6 +19,7 @@ import { quitarEquipoTrasfondo, savePj, setVal, tomarEquipoTrasfondo } from '../
 import { TarjetasBuscables, Tarjeta } from './Tarjetas';
 import { ElegirElecciones, InfoSubclase } from './InfoSubclase';
 import { faltaParaSubir } from '../../domain/pendientes';
+import { compute } from '../../domain/calculo';
 import { AbSel, Casilla, CampoNumero, CampoTexto, Selector } from './campos';
 
 /* Elegir especie, clase o trasfondo reinicia lo que dependía de la anterior. Cambian el personaje fuera del componente. */
@@ -35,37 +36,79 @@ function elegirTrasfondo(k: string) {
 }
 
 /* ---------- Especie ---------- */
-/** Linaje, legado o ascendencia: tarjetas con su descripción corta. Pasado el nivel 1 solo queda la elegida. */
+/** Clave de una subraza en la biblioteca (su descripción y su imagen): "e:especie:sub" */
+const claveSub = (e: string, sub: string) => `e:${e}:${sub}`;
+/** Imágenes de las subrazas que tienen una */
+const imgsSubs = (k: string, E: any): string[] => {
+  const LIB = getLib();
+  return Object.keys(E?.subs || {}).map(s => LIB.img?.[claveSub(k, s)]).filter(Boolean) as string[];
+};
+/** Pasa de una imagen a otra cada pocos segundos (la miniatura de una especie alterna entre sus subrazas) */
+function useRotar(n: number) {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    if (n < 2) return;
+    const t = setInterval(() => setI(x => x + 1), 2500);
+    return () => clearInterval(t);
+  }, [n]);
+  return n ? i % n : 0;
+}
+function TarjetaEspecie({ k, e, d, on, sub }: { k: string; e: any; d: string; on: boolean; sub: string }) {
+  const LIB = getLib(), fija = on && sub ? LIB.img?.[claveSub(k, sub)] : '';
+  const imgs = fija ? [] : imgsSubs(k, e), i = useRotar(imgs.length);
+  return <Tarjeta on={on} onClick={() => elegirEspecie(k)} img={fija || imgs[i] || LIB.img?.[k]} titulo={e.n} sub={d} clampSub
+    fuente={k === 'custom' ? undefined : fuenteEspecie(k, e)} />;
+}
+
+/** Qué da una subraza: los rasgos de la especie que cambian o aparecen al elegirla */
+function rasgosDeSubespecie(pj: any, sub: string) {
+  const con = compute({ ...structuredClone(pj), especie: { ...pj.especie, sub } }), sin = compute({ ...structuredClone(pj), especie: { ...pj.especie, sub: '' } });
+  const clave = (e: any) => `${e.nombre}|${typeof e.texto === 'string' ? e.texto : ''}`;
+  const base = new Set(sin.entries.filter((e: any) => e.grupo === 'especie').map(clave));
+  return con.entries.filter((e: any) => e.grupo === 'especie' && !base.has(clave(e)));
+}
+
+/** Linaje, legado o ascendencia: su propio cajón, con una tarjeta por subraza (con su imagen) y, la elegida,
+    con su descripción y lo que da. Pasado el nivel 1 solo queda la elegida. */
 function ElegirSubespecie({ pj, E, fija }: { pj: any; E: any; fija: boolean }) {
-  const subs = Object.entries<any>(E.subs).filter(([k]) => !fija || k === pj.especie.sub);
+  const k = pj.especie.key, LIB = getLib(), sel = E.subs[pj.especie.sub];
+  const subs = Object.entries<any>(E.subs).filter(([s]) => !fija || s === pj.especie.sub);
+  const rasgos = sel ? rasgosDeSubespecie(pj, pj.especie.sub) : [];
   return (
-    <section aria-label={E.subL} className="my-4">
-      <h3 className="m-0 mb-2 text-sm font-bold">{E.subL}</h3>
-      <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-2 p-0">
-        {subs.map(([k, s]) => (
-          <li key={k} className="flex">
-            <Tarjeta on={pj.especie.sub === k} onClick={() => { if (!fija) setVal('especie.sub', k); }}
-              titulo={s.n + (s.dmg ? ` (${s.dmg})` : '')} sub={descSubespecie(pj.especie.key, k)} />
+    <Seccion titulo={E.subL || 'Subraza'}>
+      <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-2 p-0">
+        {subs.map(([s, x]) => (
+          <li key={s} className="flex">
+            <Tarjeta on={pj.especie.sub === s} onClick={() => { if (!fija) setVal('especie.sub', s); }} img={LIB.img?.[claveSub(k, s)]}
+              titulo={x.n + (x.dmg ? ` (${x.dmg})` : '')} sub={descSubespecie(k, s)} clampSub />
           </li>
         ))}
       </ul>
       {fija && <Nota>Se eligió a nivel 1 y ya no se puede cambiar.</Nota>}
-    </section>
+      {sel ? (
+        <>
+          <PanelMedia k={claveSub(k, pj.especie.sub)} n={sel.n + (sel.dmg ? ` (${sel.dmg})` : '')} d={descSubespecie(k, pj.especie.sub)} sinImagen={!(S.crop && S.crop.k === claveSub(k, pj.especie.sub))} />
+          <h4 className="m-0 font-serif text-lg font-bold">Lo que te da</h4>
+          {rasgos.length ? rasgos.map((e: any, i: number) => <Entrada key={i} e={e} />)
+            : <Nota>Sus rasgos son los de la especie; solo cambia lo que dice cada uno.</Nota>}
+        </>
+      ) : <Nota>Elige {String(E.subL || 'una subraza').toLowerCase()} para ver qué te da.</Nota>}
+    </Seccion>
   );
 }
 
 export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
   const E = c.E, LIB = getLib();
-  const elegir = (k: string) => elegirEspecie(k);
   const lista: [string, any][] = [...Object.entries(ESPECIES).filter(([k]) => k !== 'custom'), ...sinRepetidas(LIB.especies, ESPECIES, pj.especie.key), ['custom', ESPECIES.custom]];
   const items = lista.map(([k, e]) => {
     const d = k === 'custom' ? e.r : (descEspecie(k) || (e.lib ? '' : e.r));
-    return { key: k, q: norm(e.n + ' ' + d), node: <Tarjeta on={pj.especie.key === k} onClick={() => elegir(k)} img={LIB.img?.[k]} titulo={e.n} sub={d} clampSub fuente={k === 'custom' ? undefined : fuenteEspecie(k, e)} /> };
+    return { key: k, q: norm(e.n + ' ' + d), node: <TarjetaEspecie k={k} e={e} d={d} on={pj.especie.key === k} sub={pj.especie.sub} /> };
   });
   const ents = c.entries.filter((e: any) => e.grupo === 'especie');
   return (
     <>
-      {E && pj.especie.key !== 'custom' && <PanelMedia k={pj.especie.key} n={E.n} d={descEspecie(pj.especie.key)} fuente={fuenteEspecie(pj.especie.key, E)} />}
+      {E && pj.especie.key !== 'custom' && <PanelMedia k={pj.especie.key} n={E.n} d={descEspecie(pj.especie.key)} fuente={fuenteEspecie(pj.especie.key, E)}
+        verImg={pj.especie.sub ? claveSub(pj.especie.key, pj.especie.sub) : undefined} />}
       {E?.subs && <ElegirSubespecie pj={pj} E={E} fija={c.lvl > 1 && !!pj.especie.sub} />}
       {pj.especie.key === 'custom' && (
         <div className="grid gap-3 sm:grid-cols-3">
