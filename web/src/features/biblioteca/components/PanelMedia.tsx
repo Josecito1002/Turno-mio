@@ -8,6 +8,7 @@ import { getLib } from '../domain/biblioteca';
 import { leerImagenOriginal } from '../api';
 import type { Fuente } from '@/features/reglas/data/fuentes';
 import { EtiquetaFuente } from '@/features/personajes/components/editor/Tarjetas';
+import { Imagen } from '@/shared/ui/imagen';
 
 function cargarImagen(src: string) {
   return new Promise<HTMLImageElement>((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
@@ -181,8 +182,7 @@ export function PanelMedia({ k, n, d, fuente, sub, azar, children }: { k: string
   const mostrada = (sub && LIB.img?.[sub.k]) || (!sub && conImg.length ? LIB.img![conImg[Math.floor(suerte * conImg.length)]] : '') || LIB.img?.[k];
   return (
     <Tarjeta as="section" aria-label={`Sobre ${n}`} className="my-4 flex flex-wrap gap-4">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      {editando ? <Recorte nombre={S.crop.k === k ? n : sub!.n} /> : mostrada ? <img className="aspect-square w-full max-w-80 shrink-0 rounded-xl object-cover sm:w-60 md:w-72" src={mostrada} alt={`Ilustración de ${sub ? sub.n : n}`} /> : null}
+      {editando ? <Recorte nombre={S.crop.k === k ? n : sub!.n} /> : mostrada ? <Imagen className="aspect-square w-full max-w-80 shrink-0 rounded-xl object-cover sm:w-60 md:w-72" src={mostrada} alt={`Ilustración de ${sub ? sub.n : n}`} /> : null}
       <div className="min-w-56 flex-1">
         <h2 className="m-0 font-serif text-2xl font-bold">{n}{fuente && <EtiquetaFuente fuente={fuente} className="ml-2 align-middle" />}</h2>
         {d ? <p className="mb-0 mt-1">{d}</p> : <p className="mb-0 mt-1 text-sm text-muted">Sin descripción todavía.</p>}
