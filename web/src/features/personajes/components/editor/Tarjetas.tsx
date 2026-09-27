@@ -3,6 +3,7 @@ import { useId, useState, type ReactNode } from 'react';
 import { norm } from '@/shared/utils/texto';
 import { claseCampo, cx, foco } from '@/shared/ui/kit';
 import { ETIQUETA_FUENTE, type Fuente } from '@/features/reglas/data/fuentes';
+import { Imagen } from '@/shared/ui/imagen';
 
 export type Tarjeta = { key: string; q: string; node: ReactNode };
 
@@ -30,8 +31,7 @@ export function Tarjeta({ on, onClick, img, titulo, sub, clampSub, fuente }: { o
     <button type="button" aria-pressed={on} onClick={onClick}
       className={cx('flex w-full cursor-pointer flex-col rounded-2xl bg-surface p-3 text-left ring-1 transition-shadow hover:shadow-md', foco,
         on ? 'ring-[2.5px] ring-ink' : 'ring-rule')}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      {img && <img src={img} alt="" className="mb-2 aspect-square w-full rounded-xl bg-soft object-cover" />}
+      {img && <Imagen src={img} className="mb-2 aspect-square w-full rounded-xl bg-soft object-cover" />}
       <b className="flex items-center gap-1.5 font-serif text-[1.08rem] leading-tight">{on && <span aria-hidden="true">✓</span>}{titulo}</b>
       {sub && <span className={cx('mt-0.5 text-sm text-muted', clampSub && 'line-clamp-3')}>{sub}</span>}
       {fuente && <EtiquetaFuente fuente={fuente} className="mt-auto self-start pt-2" />}
