@@ -88,6 +88,17 @@ export const PALADIN_2024 = {
         r(15, 'Reprimenda Vigilante', 'reaccion', 'Cuando tú o una criatura que ves a 30 pies superáis una salvación de INT, SAB o CAR, puedes usar tu reacción para hacer 2d8 + tu mod. de CAR de daño de fuerza a quien la provocó.'),
         r(20, 'Baluarte Mortal', 'adicional', 'Como acción adicional, durante 1 minuto: visión verdadera a 120 pies, ventaja en los ataques contra aberraciones, celestiales, elementales, feéricos e infernales, y cuando aciertas y haces daño con un ataque puedes obligar al objetivo a una salvación de CAR contra tu CD: si falla y no está en su plano natal, vuelve a él. Una vez por descanso largo, o gastando un espacio de nivel 5.', { usos: 1, reset: 'largo' })
       ]
+    },
+    'rompejuramentos-dmg': {
+      n: 'Rompejuramentos',
+      rasgos: [
+        r(3, 'Conjuros del Rompejuramentos', 'pasiva', 'Siempre tienes preparados los conjuros del juramento roto, que se amplían en los niveles 3, 5, 9, 13 y 17.'),
+        r(3, 'Controlar Muertos Vivientes', 'accion', 'Como acción y con un uso de Canalizar Divinidad, un muerto viviente que veas a 30 pies hace una salvación de SAB o te obedece durante 24 horas, o hasta que vuelvas a usar esta opción. No afecta a los que tengan un valor de desafío igual o mayor que tu nivel de paladín.'),
+        r(3, 'Aspecto Temible', 'accion', 'Como acción y con un uso de Canalizar Divinidad, las criaturas que elijas a 30 pies que te vean hacen una salvación de SAB o quedan Asustadas de ti 1 minuto; si alguna termina su turno a más de 30 pies de ti, repite la salvación.'),
+        r(7, 'Aura de Odio', 'pasiva', 'Tú y los infernales y muertos vivientes a 10 pies de ti (30 desde el nivel 18) sumáis tu mod. de CAR (mínimo +1) al daño con armas cuerpo a cuerpo. Nadie recibe este beneficio de más de un paladín a la vez.'),
+        r(15, 'Resistencia Sobrenatural', 'pasiva', 'Resistencia al daño contundente, cortante y perforante de armas no mágicas.'),
+        r(20, 'Señor del Pavor', 'accion', 'Como acción te rodea durante 1 minuto un aura de penumbra de 30 pies: la luz brillante pasa a tenue, los enemigos Asustados de ti que empiezan su turno en ella reciben 4d10 psíquico, y quienes dependen de la vista atacan con desventaja a ti y a quienes elijas dentro. Mientras dure, con una acción adicional las sombras atacan a una criatura. Una vez por descanso largo.'),
+      ]
     }
   }
 };
@@ -115,7 +126,9 @@ export const PALADIN_2024 = {
   { "donde": "genios-nobles", "rasgo": "Reprimenda Elemental", "tipo": "usos", "usos": "max(1, CAR)", "reset": "largo" },
   { "donde": "genios-nobles", "rasgo": "Vástago Noble", "tipo": "usos", "usos": "1", "reset": "largo" },
   { "donde": "vigilantes", "rasgo": "Conjuros de los Vigilantes", "tipo": "conjuros", "por_nivel": { "3": ["Alarma", "Detectar magia"], "5": ["Rayo de luna", "Ver lo invisible"], "9": ["Contrahechizo", "Indetectable"], "13": ["Aura de pureza", "Destierro"], "17": ["Inmovilizar monstruo", "Escudriñar"] } },
-  { "donde": "vigilantes", "rasgo": "Baluarte Mortal", "tipo": "usos", "usos": "1", "reset": "largo" }
+  { "donde": "vigilantes", "rasgo": "Baluarte Mortal", "tipo": "usos", "usos": "1", "reset": "largo" },
+  { "donde": "rompejuramentos-dmg", "rasgo": "Conjuros del Rompejuramentos", "tipo": "conjuros", "por_nivel": { "3": ["Reprensión infernal", "Infligir heridas"], "5": ["Corona de la locura", "Oscuridad"], "9": ["Animar a los muertos", "Imponer maldición"], "13": ["Marchitar", "Confusión"], "17": ["Contagio", "Dominar persona"] } },
+  { "donde": "rompejuramentos-dmg", "rasgo": "Señor del Pavor", "tipo": "usos", "usos": "1", "reset": "largo" }
 ]
 
 ```
@@ -132,7 +145,8 @@ export const PALADIN_2024 = {
   "redencion": "Xanathar's Guide to Everything (2017)",
   "corona": "Sword Coast Adventurer's Guide (2015)",
   "genios-nobles": "Forgotten Realms: Heroes of Faerûn (2025)",
-  "vigilantes": "Tasha's Cauldron of Everything (2020)"
+  "vigilantes": "Tasha's Cauldron of Everything (2020)",
+  "rompejuramentos-dmg": "Guía del Dungeon Master (2014)"
 }
 
 ```
@@ -149,7 +163,8 @@ export const PALADIN_2024 = {
   "redencion": "Paladines que usan la violencia solo como último recurso: calman, protegen a otros con su propio cuerpo y devuelven el daño a los violentos.",
   "corona": "Guardianes de la ley y la civilización, leales a su señor: retan a los enemigos a pelear con ellos y levantan a sus aliados heridos.",
   "genios-nobles": "Paladines exóticos con poderes elementales; no visten armadura y canalizan fuego, hielo, roca o viento al golpear y castigar.",
-  "vigilantes": "Centinelas contra las amenazas de otros planos: siempre alerta, protegen la mente de sus aliados y devuelven a su plano a los intrusos."
+  "vigilantes": "Centinelas contra las amenazas de otros planos: siempre alerta, protegen la mente de sus aliados y devuelven a su plano a los intrusos.",
+  "rompejuramentos-dmg": "Paladines que rompieron su juramento para servir a una ambición oscura: dominan a los muertos vivientes, siembran el pavor y refuerzan a sus aliados infernales."
 }
 
 ```
@@ -165,4 +180,4 @@ export const PALADIN_2024 = {
 * **Restaurar Puntos a Nivel 20:** Todas las transformaciones de Nivel 20 para las subclases 2024 y 2025 ahora pueden ser reactivadas después del primer uso pagando un espacio de conjuro de Nivel 5.
 * **Traducciones de Conjuros:** "Beacon of Hope" (Faro de esperanza) y "Guardian of Faith" (Guardián de la fe) no figuran en la lista de Conjuros de la App, los marqué con (NO ESTÁ EN LA APP). "Acelerar" por "Haste" está OK, "Golpe Apresador" por "Ensnaring Strike" también, basándome en el listado exacto de tu App.
 * **Subclases no incluidas:** "Oath of Conquest", "Oath of Redemption", "Oath of the Crown", "Oath of the Watchers" y "Oathbreaker" solo figuraban con títulos y referencias de libros pero no se proporcionó el texto con sus reglas, por lo tanto fueron omitidas en JSON y Typescript (regla 1).
-* **Revisión de Claude:** el encargo original no traía el texto de Conquista, Redención, Corona y Vigilantes; Claude las escribió desde el texto oficial del encargo regenerado. Las subclases integradas (Devoción, Gloria, Antiguos, Venganza) iban repetidas en `subclases`: se quitaron y sus conjuros hasta el nivel 17 se pusieron a mano en `subclases.ts`. Abjurar Enemigos no tiene usos propios (gasta Canalizar Divinidad). Rompejuramentos es la versión de prueba (UA 2025) y se conserva aparte.
+* **Revisión de Claude:** el encargo original no traía el texto de Conquista, Redención, Corona y Vigilantes; Claude las escribió desde el texto oficial del encargo regenerado. Las subclases integradas (Devoción, Gloria, Antiguos, Venganza) iban repetidas en `subclases`: se quitaron y sus conjuros hasta el nivel 17 se pusieron a mano en `subclases.ts`. Abjurar Enemigos no tiene usos propios (gasta Canalizar Divinidad). Rompejuramentos: la versión oficial es la de la Guía del Dungeon Master 2014 (clave rompejuramentos-dmg, escrita por Claude en la revisión de completitud); la de prueba (UA 2025) se conserva aparte con su clave.

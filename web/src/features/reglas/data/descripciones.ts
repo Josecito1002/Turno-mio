@@ -110,6 +110,7 @@ export const DESC_SUBCLASES: Record<string, any> = {
   armero:'Convierte su armadura en una armadura arcana con armas propias: un gigante, un defensor o un infiltrador.',
   artillero:'Crea cañones mágicos que lanzan fuego, disparan fuerza o protegen, y usa un arma de fuego arcana.',
   'herrero-batalla':'Combate con armas mágicas junto a su Defensor de Acero, un compañero mecánico que lo protege.',
+  reanimador:'Científicos de la nigromancia: cosen un compañero muerto viviente, reviven a los caídos con descargas y experimentan con la muerte.',
   cartografo:'Hace mapas mágicos que guían a sus aliados, los teletransportan y los salvan de la muerte.',
   // Pugilista
   'arena-royale':'Luchadores enmascarados de espectáculo: un personaje de ring, saltos acrobáticos y un público que los adora o los teme.',
@@ -125,6 +126,12 @@ export const DESC_SUBCLASES: Record<string, any> = {
   'senda-corazon-salvaje':'Tu furia canaliza espíritus animales que te dan poderes de oso, águila, lobo y más.',
   'senda-arbol-mundo':'Tu furia conecta con el Árbol del Mundo: das vida temporal a aliados y te teletransportas entre sus ramas.',
   'senda-fanatico':'Guerreros de un dios: su furia hace daño divino, curan a aliados y cuesta mucho matarlos.',
+  'senda-guardian-ancestral':'Sus antepasados protegen a sus aliados: distraen al enemigo que ataca, reducen el daño y lo devuelven.',
+  'senda-rabioso-batalla':'Enanos salvajes con armadura de pinchos: embisten, se lanzan al combate sin miedo y hieren a quien los agarra.',
+  'senda-bestia':'Su furia los transforma: les salen garras, mandíbulas o cola, y su ferocidad se contagia a los enemigos.',
+  'senda-gigante':'Crecen en su furia como los gigantes, lanzan armas imbuidas de los elementos y arrojan enemigos por el aire.',
+  'senda-heraldo-tormenta':'Envueltos en una tormenta de desierto, mar o tundra que quema, electrocuta o protege a los suyos.',
+  'senda-magia-salvaje':'La magia se desborda en su furia con efectos al azar, y pueden sentir y avivar la magia de otros.',
   // Bardo
   'colegio-conocimiento':'Eruditos que saben un poco de todo: más habilidades, magia de otras listas y palabras cortantes.',
   'colegio-valor':'Bardos guerreros que inspiran en combate, con armadura media y ataque extra.',
@@ -132,6 +139,10 @@ export const DESC_SUBCLASES: Record<string, any> = {
   'colegio-danza':'Bailarines que pelean sin armas con gracia, esquivando y moviendo a sus aliados.',
   'colegio-luna':'Bardos de la luna y la naturaleza: su inspiración cura y su magia viene de lo primigenio.',
   'colegio-espiritus':'Narradores que invocan relatos de los muertos, con efectos al azar.',
+  'colegio-creacion':'Cantan la Canción de la Creación: crean objetos de la nada, animan uno para que baile y luche, y su inspiración chispea.',
+  'colegio-elocuencia':'Oradores de lengua de plata: nunca fallan al persuadir, hacen dudar al enemigo y su inspiración no se pierde.',
+  'colegio-espadas':'Artistas del filo: pelean con estilo, añaden florituras a sus golpes y atacan dos veces.',
+  'colegio-susurros':'Espías y chantajistas: hieren la mente con sus armas, siembran el miedo y roban la identidad de los muertos.',
   // Brujo
   'no-muerto':'Pactaste con un ser no muerto: tomas una forma aterradora y dominas la necromancia.',
   vestigio:'Tu patrón es un dios caído o un ser en decadencia que te acompaña como un espíritu y te presta su dominio divino.',

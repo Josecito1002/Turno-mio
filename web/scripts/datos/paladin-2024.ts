@@ -1,5 +1,5 @@
 /* Paladín de la biblioteca puesto al día con su versión oficial más reciente (texto oficial de 5etools, redactado por
-   Gemini y revisado con scripts/gemini/revisar.ts). Libros: Manual del Jugador (2024); Xanathar's Guide to Everything (2017); Sword Coast Adventurer's Guide (2015); Forgotten Realms: Heroes of Faerûn (2025); Tasha's Cauldron of Everything (2020).
+   Gemini y revisado con scripts/gemini/revisar.ts). Libros: Manual del Jugador (2024); Xanathar's Guide to Everything (2017); Sword Coast Adventurer's Guide (2015); Forgotten Realms: Heroes of Faerûn (2025); Tasha's Cauldron of Everything (2020); Guía del Dungeon Master (2014).
    Lo aplica scripts/actualizar-clase.ts (opción "paladin"). */
 
 const r = (n: number, nombre: string, t: string, texto: string, extra: Record<string, unknown> = {}) => ({ nombre, t, texto, n, manual: true, usos: 0, reset: 'largo', ...extra });
@@ -88,6 +88,17 @@ export const PALADIN_2024 = {
         r(7, 'Aura del Centinela', 'pasiva', 'Mientras no estés Incapacitado, tú y las criaturas que elijas a 10 pies (30 desde el nivel 18) sumáis tu bonificador de competencia a la iniciativa.'),
         r(15, 'Reprimenda Vigilante', 'reaccion', 'Cuando tú o una criatura que ves a 30 pies superáis una salvación de INT, SAB o CAR, puedes usar tu reacción para hacer 2d8 + tu mod. de CAR de daño de fuerza a quien la provocó.'),
         r(20, 'Baluarte Mortal', 'adicional', 'Como acción adicional, durante 1 minuto: visión verdadera a 120 pies, ventaja en los ataques contra aberraciones, celestiales, elementales, feéricos e infernales, y cuando aciertas y haces daño con un ataque puedes obligar al objetivo a una salvación de CAR contra tu CD: si falla y no está en su plano natal, vuelve a él. Una vez por descanso largo, o gastando un espacio de nivel 5.', { usos: 1, reset: 'largo' })
+      ]
+    },
+    'rompejuramentos-dmg': {
+      n: 'Rompejuramentos',
+      rasgos: [
+        r(3, 'Conjuros del Rompejuramentos', 'pasiva', 'Siempre tienes preparados los conjuros del juramento roto, que se amplían en los niveles 3, 5, 9, 13 y 17.'),
+        r(3, 'Controlar Muertos Vivientes', 'accion', 'Como acción y con un uso de Canalizar Divinidad, un muerto viviente que veas a 30 pies hace una salvación de SAB o te obedece durante 24 horas, o hasta que vuelvas a usar esta opción. No afecta a los que tengan un valor de desafío igual o mayor que tu nivel de paladín.'),
+        r(3, 'Aspecto Temible', 'accion', 'Como acción y con un uso de Canalizar Divinidad, las criaturas que elijas a 30 pies que te vean hacen una salvación de SAB o quedan Asustadas de ti 1 minuto; si alguna termina su turno a más de 30 pies de ti, repite la salvación.'),
+        r(7, 'Aura de Odio', 'pasiva', 'Tú y los infernales y muertos vivientes a 10 pies de ti (30 desde el nivel 18) sumáis tu mod. de CAR (mínimo +1) al daño con armas cuerpo a cuerpo. Nadie recibe este beneficio de más de un paladín a la vez.'),
+        r(15, 'Resistencia Sobrenatural', 'pasiva', 'Resistencia al daño contundente, cortante y perforante de armas no mágicas.'),
+        r(20, 'Señor del Pavor', 'accion', 'Como acción te rodea durante 1 minuto un aura de penumbra de 30 pies: la luz brillante pasa a tenue, los enemigos Asustados de ti que empiezan su turno en ella reciben 4d10 psíquico, y quienes dependen de la vista atacan con desventaja a ti y a quienes elijas dentro. Mientras dure, con una acción adicional las sombras atacan a una criatura. Una vez por descanso largo.'),
       ]
     }
   }

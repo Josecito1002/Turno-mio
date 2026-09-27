@@ -80,22 +80,32 @@ const SUBCLASES_DNDB: Record<string, string> = {
   'fantasma': "Tasha's Cauldron of Everything",
   'vastago de los tres': 'Forgotten Realms: Heroes of Faerûn (2025)',
   'inquisitivo': "Xanathar's Guide to Everything",
+  'senda del guardian ancestral': "Xanathar's Guide to Everything",
+  'senda del rabioso de batalla': "Sword Coast Adventurer's Guide",
+  'senda de la bestia': "Tasha's Cauldron of Everything",
+  'senda del gigante': "Bigby Presents: Glory of the Giants",
+  'senda del heraldo de la tormenta': "Xanathar's Guide to Everything",
+  'senda de la magia salvaje': "Tasha's Cauldron of Everything",
+  'colegio de la creacion': "Tasha's Cauldron of Everything",
+  'colegio de la elocuencia': "Tasha's Cauldron of Everything",
+  'colegio de las espadas': "Xanathar's Guide to Everything",
+  'colegio de los susurros': "Xanathar's Guide to Everything",
 };
 /* Material de prueba de Unearthed Arcana (web/scripts/datos/playtest-2025.ts) */
 const UA_2025 = 'Unearthed Arcana 2025: Subclasses Update';
 const SUBCLASES_PLAYTEST: Record<string, string> = {
-  'senda del guardian espiritual': UA_2025, 'senda del heraldo de la tormenta': UA_2025,
-  'guerrero de la embriaguez': UA_2025, 'rompejuramentos': UA_2025,
+  'senda del guardian espiritual': UA_2025, 'guerrero de la embriaguez': UA_2025,
 };
-/* Las de playtest que se llaman igual que una subclase publicada (el Caballero): se distinguen por su clave */
-export const CLAVES_PLAYTEST: Record<string, string> = { 'caballero-playtest': UA_2025 };
+/* Las de playtest que se llaman igual que una subclase publicada (Caballero, Heraldo de la Tormenta, Rompejuramentos):
+   se distinguen por su clave */
+export const CLAVES_PLAYTEST: Record<string, string> = { 'caballero-playtest': UA_2025, 'heraldo-tormenta': UA_2025, rompejuramentos: UA_2025 };
 export const esClavePlaytest = (key = '') => !!CLAVES_PLAYTEST[key.replace(/^lib:/, '')];
 /** s: subclase como la da getSubs (lib: si viene de la biblioteca); clase: clave de la clase. */
 export function fuenteSubclase(s: { n: string; lib?: boolean; key?: string }, clase: string): Fuente {
-  const deClase = fuenteClase(clase);
+  const deClase = fuenteClase(clase), k = (s.key || '').replace(/^lib:/, '');
+  if (k === 'reanimador') return dndb('Ravenloft: The Horrors Within (2026)'); // Artífice publicado después de su clase
   if (deClase.tipo !== 'basicas') return deClase; // las de Artífice, Cazador de Sangre y Pugilista van con su clase
   if (!s.lib) return PHB;
-  const k = (s.key || '').replace(/^lib:/, '');
   if (CLAVES_PLAYTEST[k]) return playtest(CLAVES_PLAYTEST[k]);
   const n = norm(s.n);
   if (SUBCLASES_PLAYTEST[n]) return playtest(SUBCLASES_PLAYTEST[n]);

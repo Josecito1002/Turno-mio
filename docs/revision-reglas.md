@@ -76,20 +76,20 @@ Se agregan en el lote de su clase, con su versión oficial más reciente. Las ma
 
 ### Lote 5: Bárbaro
 
-- [ ] **Senda de la Bestia** (Tasha's Cauldron of Everything) <!-- agregar|senda de la bestia -->
-- [ ] **Senda de la Magia Salvaje** (Tasha's Cauldron of Everything) <!-- agregar|senda de la magia salvaje -->
-- [ ] **Senda del Guardián Ancestral** (Xanathar's Guide to Everything) <!-- agregar|senda del guardian ancestral -->
-- [ ] **Senda del Heraldo de la Tormenta** (Xanathar's Guide to Everything) <!-- agregar|senda del heraldo de la tormenta -->
-- [ ] **Senda del Gigante** (Bigby Presents: Glory of the Giants) <!-- agregar|senda del gigante -->
-- [ ] **Senda del Rabioso de Batalla** (Sword Coast Adventurer's Guide) <!-- agregar|senda del rabioso de batalla -->
+- [x] **Senda de la Bestia** (Tasha's Cauldron of Everything): agregado, versión de Tasha's Cauldron of Everything (2020). <!-- agregar|senda de la bestia -->
+- [x] **Senda de la Magia Salvaje** (Tasha's Cauldron of Everything): agregado, versión de Tasha's Cauldron of Everything (2020). <!-- agregar|senda de la magia salvaje -->
+- [x] **Senda del Guardián Ancestral** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). <!-- agregar|senda del guardian ancestral -->
+- [x] **Senda del Heraldo de la Tormenta** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). La versión de prueba (UA 2025) se conserva aparte. <!-- agregar|senda del heraldo de la tormenta -->
+- [x] **Senda del Gigante** (Bigby Presents: Glory of the Giants): agregado, versión de Bigby Presents: Glory of the Giants (2023). <!-- agregar|senda del gigante -->
+- [x] **Senda del Rabioso de Batalla** (Sword Coast Adventurer's Guide): agregado, versión de Sword Coast Adventurer's Guide (2015). <!-- agregar|senda del rabioso de batalla -->
 - [x] **Senda del Guerrero Totémico** (Manual del Jugador 2014): no se agrega, la reemplaza la Senda del Corazón Salvaje (2024), que ya está. <!-- agregar|senda del guerrero totemico -->
 
 ### Lote 6: Bardo
 
-- [ ] **Colegio de la Creación** (Tasha's Cauldron of Everything) <!-- agregar|colegio de la creacion -->
-- [ ] **Colegio de la Elocuencia** (Tasha's Cauldron of Everything) <!-- agregar|colegio de la elocuencia -->
-- [ ] **Colegio de las Espadas** (Xanathar's Guide to Everything) <!-- agregar|colegio de las espadas -->
-- [ ] **Colegio de los Susurros** (Xanathar's Guide to Everything) <!-- agregar|colegio de los susurros -->
+- [x] **Colegio de la Creación** (Tasha's Cauldron of Everything): agregado, versión de Tasha's Cauldron of Everything (2020). <!-- agregar|colegio de la creacion -->
+- [x] **Colegio de la Elocuencia** (Tasha's Cauldron of Everything): agregado, versión de Tasha's Cauldron of Everything (2020). <!-- agregar|colegio de la elocuencia -->
+- [x] **Colegio de las Espadas** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). <!-- agregar|colegio de las espadas -->
+- [x] **Colegio de los Susurros** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). <!-- agregar|colegio de los susurros -->
 
 ### Lote 7: Brujo
 
@@ -119,9 +119,9 @@ Se agregan en el lote de su clase, con su versión oficial más reciente. Las ma
 ### Lote 10: Explorador
 
 - [ ] **Trotamundos del Horizonte** (Xanathar's Guide to Everything) <!-- agregar|trotamundos del horizonte -->
-- [ ] **Cazador de Monstruos** (Xanathar's Guide to Everything) <!-- agregar|cazador de monstruos -->
-- [ ] **Guardián del Enjambre** (Tasha's Cauldron of Everything) <!-- agregar|guardian del enjambre -->
-- [ ] **Guardián Dracónico** (Fizban's Treasury of Dragons) <!-- agregar|guardian draconico -->
+- [x] **Cazador de Monstruos** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). <!-- agregar|cazador de monstruos -->
+- [x] **Guardián del Enjambre** (Tasha's Cauldron of Everything): agregado, versión de Tasha's Cauldron of Everything (2020). <!-- agregar|guardian del enjambre -->
+- [x] **Guardián Dracónico** (Fizban's Treasury of Dragons): agregado, versión de Fizban's Treasury of Dragons (2021). <!-- agregar|guardian draconico -->
 
 ### Lote 11: Guerrero
 
@@ -159,7 +159,7 @@ Se agregan en el lote de su clase, con su versión oficial más reciente. Las ma
 - [x] **Juramento de Redención** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). <!-- agregar|juramento de redencion -->
 - [x] **Juramento de los Vigilantes** (Tasha's Cauldron of Everything): agregado, versión de Tasha's Cauldron of Everything (2020). <!-- agregar|juramento de los vigilantes -->
 - [x] **Juramento de la Corona** (Sword Coast Adventurer's Guide): agregado, versión de Sword Coast Adventurer's Guide (2015). <!-- agregar|juramento de la corona -->
-- ⚠ **Rompejuramentos** (Guía del Dungeon Master 2014): la app tiene la versión de prueba (UA 2025) con esa misma clave y nombre, y se conserva; la de 2014 no se agregó para no tener dos "Rompejuramentos". <!-- agregar|rompejuramentos -->
+- [x] **Rompejuramentos** (Guía del Dungeon Master 2014): agregado, versión de Guía del Dungeon Master (2014). <!-- agregar|rompejuramentos -->
 
 ### Lote 16: Pícaro
 
@@ -234,6 +234,8 @@ Dudosos: 0. Con tipo claro: 0. Ya revisados: 35.
 ## Lote 2: Arcanista (clase y sus 5 subclases)
 
 Fuente: Artífice de Eberron: Forge of the Artificer (2025), vía los datos de 5etools (fuente EFA). Las subclases valen también para el Artífice de las reglas (clases.ts).
+
+Después se agregó el **Reanimador** (Ravenloft: The Horrors Within, 2026), que faltaba: `scripts/datos/artifice-2026.ts`, opción `artifice` de `actualizar-clase`, con su compañero reanimado en Familiares y criaturas.
 
 Dudosos: 0. Con tipo claro: 0. Ya revisados: 35.
 
@@ -841,7 +843,7 @@ Dudosos: 0. Con tipo claro: 0. Ya revisados: 44.
 
 ## Lote 10: Explorador (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 0. Con tipo claro: 0. Ya revisados: 40.
+Dudosos: 0. Con tipo claro: 0. Ya revisados: 62.
 
 
 ### Revisados
@@ -886,6 +888,28 @@ Dudosos: 0. Con tipo claro: 0. Ya revisados: 40.
 - [x] **Alma Fortalecedora** (nivel 7): `accion`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|alma fortalecedora -->
 - [x] **Retribución Helada** (nivel 11): `reaccion`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|retribucion helada -->
 - [x] **Aparición Congelada** (nivel 15): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- caminante del invierno|aparicion congelada -->
+- [x] **Don Dracónico** (nivel 3): `pasiva`. subclase nueva; Fizban's Treasury of Dragons (2021). <!-- guardian draconico|don draconico -->
+- [x] **Compañero Dracónico** (nivel 3): `accion`. subclase nueva; Fizban's Treasury of Dragons (2021). <!-- guardian draconico|companero draconico -->
+- [x] **Vínculo de Colmillo y Escama** (nivel 7): `pasiva`. subclase nueva; Fizban's Treasury of Dragons (2021). <!-- guardian draconico|vinculo de colmillo y escama -->
+- [x] **Aliento del Draco** (nivel 11): `accion`. subclase nueva; Fizban's Treasury of Dragons (2021). <!-- guardian draconico|aliento del draco -->
+- [x] **Vínculo Perfecto** (nivel 15): `reaccion`. subclase nueva; Fizban's Treasury of Dragons (2021). <!-- guardian draconico|vinculo perfecto -->
+- [x] **Conjuros del Caminante del Horizonte** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- caminante del horizonte|conjuros del caminante del horizonte -->
+- [x] **Detectar Portal** (nivel 3): `accion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- caminante del horizonte|detectar portal -->
+- [x] **Guerrero Planar** (nivel 3): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- caminante del horizonte|guerrero planar -->
+- [x] **Paso Etéreo** (nivel 7): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- caminante del horizonte|paso etereo -->
+- [x] **Golpe Distante** (nivel 11): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- caminante del horizonte|golpe distante -->
+- [x] **Defensa Espectral** (nivel 15): `reaccion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- caminante del horizonte|defensa espectral -->
+- [x] **Conjuros del Cazador de Monstruos** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- cazador de monstruos|conjuros del cazador de monstruos -->
+- [x] **Sentido del Cazador** (nivel 3): `accion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- cazador de monstruos|sentido del cazador -->
+- [x] **Presa del Cazador** (nivel 3): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- cazador de monstruos|presa del cazador -->
+- [x] **Defensa Sobrenatural** (nivel 7): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- cazador de monstruos|defensa sobrenatural -->
+- [x] **Némesis de los Lanzadores** (nivel 11): `reaccion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- cazador de monstruos|nemesis de los lanzadores -->
+- [x] **Contraataque del Cazador** (nivel 15): `reaccion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- cazador de monstruos|contraataque del cazador -->
+- [x] **Conjuros del Guardián del Enjambre** (nivel 3): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- guardian del enjambre|conjuros del guardian del enjambre -->
+- [x] **Enjambre Reunido** (nivel 3): `gratis`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- guardian del enjambre|enjambre reunido -->
+- [x] **Marea Retorcida** (nivel 7): `adicional`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- guardian del enjambre|marea retorcida -->
+- [x] **Enjambre Poderoso** (nivel 11): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- guardian del enjambre|enjambre poderoso -->
+- [x] **Dispersión del Enjambre** (nivel 15): `reaccion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- guardian del enjambre|dispersion del enjambre -->
 
 ## Lote 11: Guerrero (subclases y rasgos de nivel alto de la biblioteca)
 
@@ -1200,7 +1224,7 @@ Playtest junto a las subclases oficiales, sin reemplazar ninguna. Datos en `web/
 
 ## Lote 15: Paladín (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 0. Con tipo claro: 0. Ya revisados: 53.
+Dudosos: 0. Con tipo claro: 0. Ya revisados: 59.
 
 
 ### Revisados
@@ -1240,6 +1264,12 @@ Dudosos: 0. Con tipo claro: 0. Ya revisados: 53.
 - [x] **Aura del Centinela** (nivel 7): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- juramento de los vigilantes|aura del centinela -->
 - [x] **Reprimenda Vigilante** (nivel 15): `reaccion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- juramento de los vigilantes|reprimenda vigilante -->
 - [x] **Baluarte Mortal** (nivel 20): `adicional`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- juramento de los vigilantes|baluarte mortal -->
+- [x] **Conjuros del Rompejuramentos** (nivel 3): `pasiva`. subclase nueva; Guía del Dungeon Master (2014). <!-- rompejuramentos|conjuros del rompejuramentos -->
+- [x] **Controlar Muertos Vivientes** (nivel 3): `accion`. subclase nueva; Guía del Dungeon Master (2014). <!-- rompejuramentos|controlar muertos vivientes -->
+- [x] **Aspecto Temible** (nivel 3): `accion`. subclase nueva; Guía del Dungeon Master (2014). <!-- rompejuramentos|aspecto temible -->
+- [x] **Aura de Odio** (nivel 7): `pasiva`. subclase nueva; Guía del Dungeon Master (2014). <!-- rompejuramentos|aura de odio -->
+- [x] **Resistencia Sobrenatural** (nivel 15): `pasiva`. subclase nueva; Guía del Dungeon Master (2014). <!-- rompejuramentos|resistencia sobrenatural -->
+- [x] **Señor del Pavor** (nivel 20): `accion`. subclase nueva; Guía del Dungeon Master (2014). <!-- rompejuramentos|senor del pavor -->
 - [x] **Aura de Devoción** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- juramento de devocion|aura de devocion -->
 - [x] **Castigo Protector** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- juramento de devocion|castigo protector -->
 - [x] **Halo Sagrado** (nivel 20): `adicional`. Manual del Jugador (2024). <!-- juramento de devocion|halo sagrado -->

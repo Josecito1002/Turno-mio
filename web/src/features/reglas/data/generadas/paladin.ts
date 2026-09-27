@@ -23,6 +23,8 @@ export const reglas = [
   {de:/^juramento de los genios nobles$/, n:/^vastago noble$/, usos: c => 1, reset: "largo"},
   {de:/^juramento de los vigilantes$/, n:/^conjuros de los vigilantes$/, texto: siempre([[3,["Alarma","Detectar magia"]],[5,["Rayo de luna","Ver lo invisible"]],[9,["Contrahechizo","Indetectable"]],[13,["Aura de pureza","Destierro"]],[17,["Inmovilizar monstruo","Escudriñar"]]])},
   {de:/^juramento de los vigilantes$/, n:/^baluarte mortal$/, usos: c => 1, reset: "largo"},
+  {de:/^rompejuramentos$/, n:/^conjuros del rompejuramentos$/, texto: siempre([[3,["Reprensión infernal","Infligir heridas"]],[5,["Corona de la locura","Oscuridad"]],[9,["Animar a los muertos","Imponer maldición"]],[13,["Marchitar","Confusión"]],[17,["Contagio","Dominar persona"]]])},
+  {de:/^rompejuramentos$/, n:/^senor del pavor$/, usos: c => 1, reset: "largo"},
 ];
 
 /* Para hacer a mano en reglas-revisadas.ts:
@@ -39,7 +41,8 @@ export const fuentes: Record<string, string> = {
   "juramento de redencion": "Xanathar's Guide to Everything (2017)",
   "juramento de la corona": "Sword Coast Adventurer's Guide (2015)",
   "juramento de los genios nobles": "Forgotten Realms: Heroes of Faerûn (2025)",
-  "juramento de los vigilantes": "Tasha's Cauldron of Everything (2020)"
+  "juramento de los vigilantes": "Tasha's Cauldron of Everything (2020)",
+  "rompejuramentos": "Guía del Dungeon Master (2014)"
 };
 
 export const descripciones: Record<string, string> = {
@@ -51,5 +54,6 @@ export const descripciones: Record<string, string> = {
   "redencion": "Paladines que usan la violencia solo como último recurso: calman, protegen a otros con su propio cuerpo y devuelven el daño a los violentos.",
   "corona": "Guardianes de la ley y la civilización, leales a su señor: retan a los enemigos a pelear con ellos y levantan a sus aliados heridos.",
   "genios-nobles": "Paladines exóticos con poderes elementales; no visten armadura y canalizan fuego, hielo, roca o viento al golpear y castigar.",
-  "vigilantes": "Centinelas contra las amenazas de otros planos: siempre alerta, protegen la mente de sus aliados y devuelven a su plano a los intrusos."
+  "vigilantes": "Centinelas contra las amenazas de otros planos: siempre alerta, protegen la mente de sus aliados y devuelven a su plano a los intrusos.",
+  "rompejuramentos-dmg": "Paladines que rompieron su juramento para servir a una ambición oscura: dominan a los muertos vivientes, siembran el pavor y refuerzan a sus aliados infernales."
 };

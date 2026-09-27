@@ -75,6 +75,86 @@
       "clase": "picaro",
       "subclase": "ladron",
       "nivel": 13
+    },
+    {
+      "clase": "barbaro",
+      "subclase": "senda-guardian-ancestral",
+      "nivel": 14
+    },
+    {
+      "clase": "barbaro",
+      "subclase": "senda-rabioso-batalla",
+      "nivel": 14
+    },
+    {
+      "clase": "barbaro",
+      "subclase": "senda-bestia",
+      "nivel": 14
+    },
+    {
+      "clase": "barbaro",
+      "subclase": "senda-gigante",
+      "nivel": 14
+    },
+    {
+      "clase": "barbaro",
+      "subclase": "senda-heraldo-tormenta",
+      "nivel": 14
+    },
+    {
+      "clase": "barbaro",
+      "subclase": "senda-magia-salvaje",
+      "nivel": 14
+    },
+    {
+      "clase": "bardo",
+      "subclase": "colegio-creacion",
+      "nivel": 14
+    },
+    {
+      "clase": "bardo",
+      "subclase": "colegio-elocuencia",
+      "nivel": 14
+    },
+    {
+      "clase": "bardo",
+      "subclase": "colegio-espadas",
+      "nivel": 14
+    },
+    {
+      "clase": "bardo",
+      "subclase": "colegio-susurros",
+      "nivel": 14
+    },
+    {
+      "clase": "explorador",
+      "subclase": "guardian-draconico",
+      "nivel": 15
+    },
+    {
+      "clase": "explorador",
+      "subclase": "caminante-horizonte",
+      "nivel": 15
+    },
+    {
+      "clase": "explorador",
+      "subclase": "cazador-monstruos",
+      "nivel": 15
+    },
+    {
+      "clase": "explorador",
+      "subclase": "guardian-enjambre",
+      "nivel": 15
+    },
+    {
+      "clase": "lib:arcanista",
+      "subclase": "reanimador",
+      "nivel": 15
+    },
+    {
+      "clase": "paladin",
+      "subclase": "rompejuramentos-dmg",
+      "nivel": 20
     }
   ]
 }
