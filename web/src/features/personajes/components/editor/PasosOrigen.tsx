@@ -68,12 +68,11 @@ function rasgosDeSubespecie(pj: any, sub: string) {
   return con.entries.filter((e: any) => e.grupo === 'especie' && !base.has(clave(e)));
 }
 
-/** Linaje, legado o ascendencia: su propio cajón, con una tarjeta por subraza (con su imagen) y, la elegida,
-    con su descripción y lo que da. Pasado el nivel 1 solo queda la elegida. */
+/** Linaje, legado o ascendencia: una tarjeta por subraza, con su imagen. La elegida se describe en el cuadro de la
+    especie. Pasado el nivel 1 solo queda la elegida. */
 function ElegirSubespecie({ pj, E, fija }: { pj: any; E: any; fija: boolean }) {
-  const k = pj.especie.key, LIB = getLib(), sel = E.subs[pj.especie.sub];
+  const k = pj.especie.key, LIB = getLib();
   const subs = Object.entries<any>(E.subs).filter(([s]) => !fija || s === pj.especie.sub);
-  const rasgos = sel ? rasgosDeSubespecie(pj, pj.especie.sub) : [];
   return (
     <Seccion titulo={E.subL || 'Subraza'}>
       <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-2 p-0">
@@ -85,15 +84,24 @@ function ElegirSubespecie({ pj, E, fija }: { pj: any; E: any; fija: boolean }) {
         ))}
       </ul>
       {fija && <Nota>Se eligió a nivel 1 y ya no se puede cambiar.</Nota>}
-      {sel ? (
-        <>
-          <PanelMedia k={claveSub(k, pj.especie.sub)} n={sel.n + (sel.dmg ? ` (${sel.dmg})` : '')} d={descSubespecie(k, pj.especie.sub)} sinImagen={!(S.crop && S.crop.k === claveSub(k, pj.especie.sub))} />
-          <h4 className="m-0 font-serif text-lg font-bold">Lo que te da</h4>
-          {rasgos.length ? rasgos.map((e: any, i: number) => <Entrada key={i} e={e} />)
-            : <Nota>Sus rasgos son los de la especie; solo cambia lo que dice cada uno.</Nota>}
-        </>
-      ) : <Nota>Elige {String(E.subL || 'una subraza').toLowerCase()} para ver qué te da.</Nota>}
     </Seccion>
+  );
+}
+
+/** El cuadro de la especie; con subraza elegida, también su descripción y lo que da */
+function CuadroEspecie({ pj, E }: { pj: any; E: any }) {
+  const k = pj.especie.key, s = pj.especie.sub, x = s && E.subs?.[s];
+  const rasgos = x ? rasgosDeSubespecie(pj, s) : [];
+  return (
+    <PanelMedia k={k} n={E.n} d={descEspecie(k)} fuente={fuenteEspecie(k, E)} azar={Object.keys(E.subs || {}).map(y => claveSub(k, y))}
+      sub={x ? { k: claveSub(k, s), n: x.n + (x.dmg ? ` (${x.dmg})` : ''), d: descSubespecie(k, s) } : undefined}>
+      {rasgos.length > 0 && (
+        <div className="mt-2">
+          <h4 className="m-0 text-sm font-bold">Lo que te da</h4>
+          {rasgos.map((e: any, i: number) => <Entrada key={i} e={e} />)}
+        </div>
+      )}
+    </PanelMedia>
   );
 }
 
@@ -107,8 +115,7 @@ export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
   const ents = c.entries.filter((e: any) => e.grupo === 'especie');
   return (
     <>
-      {E && pj.especie.key !== 'custom' && <PanelMedia k={pj.especie.key} n={E.n} d={descEspecie(pj.especie.key)} fuente={fuenteEspecie(pj.especie.key, E)}
-        verImg={pj.especie.sub ? claveSub(pj.especie.key, pj.especie.sub) : undefined} />}
+      {E && pj.especie.key !== 'custom' && <CuadroEspecie pj={pj} E={E} />}
       {E?.subs && <ElegirSubespecie pj={pj} E={E} fija={c.lvl > 1 && !!pj.especie.sub} />}
       {pj.especie.key === 'custom' && (
         <div className="grid gap-3 sm:grid-cols-3">
