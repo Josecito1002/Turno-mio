@@ -105,10 +105,10 @@ function CuadroEspecie({ pj, E }: { pj: any; E: any }) {
   );
 }
 
-/* Especies que en los libros son separadas pero se muestran juntas en una sola tarjeta: cada una conserva sus reglas */
+/* Especies que en los libros son separadas pero comparten nombre (Genasí de…, Elfo…): se muestran en una sola tarjeta y cada una conserva sus reglas */
 const FAMILIAS: { key: string; n: string; d: string; de: (k: string) => boolean }[] = [
   { key: 'genasi', n: 'Genasi', d: 'Descendientes de los genios: aire, agua, fuego o tierra.', de: k => k.startsWith('genasi-') },
-  { key: 'elfos', n: 'Elfos', d: 'El Elfo del Manual y los elfos de otros libros: eladrin, marino, shadar-kai y astral.', de: k => ['elfo', 'eladrin', 'elfo-marino', 'shadar-kai', 'elfo-astral'].includes(k) },
+  { key: 'elfos', n: 'Elfos', d: 'El Elfo del Manual, el Elfo Marino y el Elfo Astral.', de: k => ['elfo', 'elfo-marino', 'elfo-astral'].includes(k) },
 ];
 const familiaDe = (k: string) => FAMILIAS.find(f => f.de(k.replace(/^lib:/, '')));
 
