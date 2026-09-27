@@ -1,6 +1,7 @@
-=== A ===
+/* Paladín de la biblioteca puesto al día con su versión oficial más reciente (texto oficial de 5etools, redactado por
+   Gemini y revisado con scripts/gemini/revisar.ts). Libros: Manual del Jugador (2024); Xanathar's Guide to Everything (2017); Sword Coast Adventurer's Guide (2015); Forgotten Realms: Heroes of Faerûn (2025); Tasha's Cauldron of Everything (2020).
+   Lo aplica scripts/actualizar-clase.ts (opción "paladin"). */
 
-```ts
 const r = (n: number, nombre: string, t: string, texto: string, extra: Record<string, unknown> = {}) => ({ nombre, t, texto, n, manual: true, usos: 0, reset: 'largo', ...extra });
 
 export const PALADIN_2024 = {
@@ -91,78 +92,3 @@ export const PALADIN_2024 = {
     }
   }
 };
-
-```
-
-=== B ===
-
-```json
-[
-  { "donde": "clase", "rasgo": "Golpes Radiantes", "tipo": "daño", "daño": "1d8 Radiante" },
-  { "donde": "devocion", "rasgo": "Halo Sagrado", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "gloria", "rasgo": "Defensa Gloriosa", "tipo": "usos", "usos": "max(1, CAR)", "reset": "largo" },
-  { "donde": "gloria", "rasgo": "Leyenda Viviente", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "antiguos", "rasgo": "Centinela Imperecedero", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "antiguos", "rasgo": "Campeón Antiguo", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "venganza", "rasgo": "Ángel Vengador", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "conquista", "rasgo": "Conjuros de Conquista", "tipo": "conjuros", "por_nivel": { "3": ["Armadura de Agathys", "Orden imperiosa"], "5": ["Inmovilizar persona", "Arma espiritual"], "9": ["Imponer maldición", "Miedo"], "13": ["Dominar bestia", "Piel pétrea"], "17": ["Nube aniquiladora", "Dominar persona"] } },
-  { "donde": "conquista", "rasgo": "Conquistador Invencible", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "redencion", "rasgo": "Conjuros de Redención", "tipo": "conjuros", "por_nivel": { "3": ["Santuario", "Dormir"], "5": ["Calmar emociones", "Inmovilizar persona"], "9": ["Contrahechizo", "Patrón hipnótico"], "13": ["Esfera elástica de Otiluke", "Piel pétrea"], "17": ["Inmovilizar monstruo", "Muro de fuerza"] } },
-  { "donde": "corona", "rasgo": "Conjuros de la Corona", "tipo": "conjuros", "por_nivel": { "3": ["Orden imperiosa", "Duelo forzado"], "5": ["Vínculo protector", "Zona de la verdad"], "9": ["Aura de vitalidad", "Espíritus guardianes"], "13": ["Destierro", "Guardián de la Fe"], "17": ["Círculo de poder", "Geas"] } },
-  { "donde": "corona", "rasgo": "Campeón Exaltado", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "genios-nobles", "rasgo": "Conjuros del Genio", "tipo": "conjuros", "por_nivel": { "3": ["Orbe cromático", "Elementalismo", "Castigo atronador"], "5": ["Imagen múltiple", "Fuerza fantasmal"], "9": ["Volar", "Forma Gaseosa"], "13": ["Conjurar elementales menores", "Invocar elemental"], "17": ["Castigo desterrador", "Contactar con otro plano"] } },
-  { "donde": "genios-nobles", "rasgo": "Esplendor del Genio", "tipo": "ca", "detalle": "sin armadura, 10 + DES + CAR (con escudo); competencia en Acrobacias, Intimidación, Interpretación o Persuasión" },
-  { "donde": "genios-nobles", "rasgo": "Reprimenda Elemental", "tipo": "usos", "usos": "max(1, CAR)", "reset": "largo" },
-  { "donde": "genios-nobles", "rasgo": "Vástago Noble", "tipo": "usos", "usos": "1", "reset": "largo" },
-  { "donde": "vigilantes", "rasgo": "Conjuros de los Vigilantes", "tipo": "conjuros", "por_nivel": { "3": ["Alarma", "Detectar magia"], "5": ["Rayo de luna", "Ver lo invisible"], "9": ["Contrahechizo", "Indetectable"], "13": ["Aura de pureza", "Destierro"], "17": ["Inmovilizar monstruo", "Escudriñar"] } },
-  { "donde": "vigilantes", "rasgo": "Baluarte Mortal", "tipo": "usos", "usos": "1", "reset": "largo" }
-]
-
-```
-
-=== C ===
-
-```json
-{
-  "devocion": "Manual del Jugador (2024)",
-  "gloria": "Manual del Jugador (2024)",
-  "antiguos": "Manual del Jugador (2024)",
-  "venganza": "Manual del Jugador (2024)",
-  "conquista": "Xanathar's Guide to Everything (2017)",
-  "redencion": "Xanathar's Guide to Everything (2017)",
-  "corona": "Sword Coast Adventurer's Guide (2015)",
-  "genios-nobles": "Forgotten Realms: Heroes of Faerûn (2025)",
-  "vigilantes": "Tasha's Cauldron of Everything (2020)"
-}
-
-```
-
-=== D ===
-
-```json
-{
-  "devocion": "El caballero de armadura brillante clásico, enfocado en purificar maldad, brillar con luz divina y sanar a los aliados.",
-  "gloria": "Héroes impulsados por el atletismo y el orgullo, dotan de velocidad y vigor asombroso a su equipo para aplastar a la oposición.",
-  "antiguos": "Guardianes de la luz y el bosque, repelen el daño mágico y atrapan enemigos con la fuerza latente de la naturaleza.",
-  "venganza": "Cazadores implacables que juran destruir a un enemigo por encima de todo, persiguiéndolos y apabullándolos con el poder de su venganza.",
-  "conquista": "Caballeros que buscan aplastar al enemigo hasta quebrar su voluntad: siembran miedo y castigan a quien se les resiste.",
-  "redencion": "Paladines que usan la violencia solo como último recurso: calman, protegen a otros con su propio cuerpo y devuelven el daño a los violentos.",
-  "corona": "Guardianes de la ley y la civilización, leales a su señor: retan a los enemigos a pelear con ellos y levantan a sus aliados heridos.",
-  "genios-nobles": "Paladines exóticos con poderes elementales; no visten armadura y canalizan fuego, hielo, roca o viento al golpear y castigar.",
-  "vigilantes": "Centinelas contra las amenazas de otros planos: siempre alerta, protegen la mente de sus aliados y devuelven a su plano a los intrusos."
-}
-
-```
-
-=== E ===
-
-* **Ahuyentar Enemigos (Nivel 9):** Reemplaza y generaliza los rasgos antiguos de subclases como "Turn the Unholy". Ahora es una habilidad base del Paladín a Nivel 9 (Abjure Foes) que gasta Canalizar Divinidad para Asustar (y limitar acciones) a criaturas enemigas, sin importar el tipo.
-* **Canalizar Divinidad (Nivel 3):** Los Paladines ahora obtienen dos usos de base a Nivel 3.
-* **Castigo Divino (Nivel 2):** Se indica que el Paladín tiene *Castigo Divino (Divine Smite)* siempre preparado como un conjuro y puede lanzarlo sin gastar espacio una vez por Descanso Largo. Es un cambio mayor de reglas 2024 respecto a su funcionamiento pasivo, pero al depender de conjuro ahora cuesta Acción Adicional.
-* **Devocion:** Nivel 15 (*Smite of Protection*) cambió completamente: ya no es "Protección contra el bien y el mal" pasivo, ahora provee Cobertura Media en el aura al usar Castigo Divino. *Arma Sagrada* ahora se activa como parte de la Acción de Atacar, no como Acción completa.
-* **Antiguos:** Nivel 7 (*Aura de Resistencia*) antes reducía el daño de conjuros a la mitad; ahora dicta específicamente Resistencia al daño Necrótico, Psíquico y Radiante, no daño "de conjuros".
-* **Venganza:** Nivel 7 (*Vengador Implacable*) ya no te mueve ignorando Oportunidad simplemente; ahora también reduce a 0 la velocidad del enemigo al impactarle en Oportunidad. *Voto de Enemistad* ahora puede ser transferido si matas al objetivo y no requiere Acción Bonus pura, es parte de la Acción de Atacar.
-* **Restaurar Puntos a Nivel 20:** Todas las transformaciones de Nivel 20 para las subclases 2024 y 2025 ahora pueden ser reactivadas después del primer uso pagando un espacio de conjuro de Nivel 5.
-* **Traducciones de Conjuros:** "Beacon of Hope" (Faro de esperanza) y "Guardian of Faith" (Guardián de la fe) no figuran en la lista de Conjuros de la App, los marqué con (NO ESTÁ EN LA APP). "Acelerar" por "Haste" está OK, "Golpe Apresador" por "Ensnaring Strike" también, basándome en el listado exacto de tu App.
-* **Subclases no incluidas:** "Oath of Conquest", "Oath of Redemption", "Oath of the Crown", "Oath of the Watchers" y "Oathbreaker" solo figuraban con títulos y referencias de libros pero no se proporcionó el texto con sus reglas, por lo tanto fueron omitidas en JSON y Typescript (regla 1).
-* **Revisión de Claude:** el encargo original no traía el texto de Conquista, Redención, Corona y Vigilantes; Claude las escribió desde el texto oficial del encargo regenerado. Las subclases integradas (Devoción, Gloria, Antiguos, Venganza) iban repetidas en `subclases`: se quitaron y sus conjuros hasta el nivel 17 se pusieron a mano en `subclases.ts`. Abjurar Enemigos no tiene usos propios (gasta Canalizar Divinidad). Rompejuramentos es la versión de prueba (UA 2025) y se conserva aparte.

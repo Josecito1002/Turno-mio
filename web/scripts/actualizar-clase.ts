@@ -62,7 +62,12 @@ async function deDatos(op: string): Promise<Cambio[] | undefined> {
   const ruta = `./datos/${op}-2024`;
   if (!/^[a-z]+$/.test(op) || !existsSync(`scripts/datos/${op}-2024.ts`)) return undefined;
   const datos = (await import(ruta))[`${op.toUpperCase()}_2024`];
-  return datos && [{ seccion: 'clases', id: op, nueva: actual => ({ ...actual, ...structuredClone(datos) }) }];
+  // Las subclases de prueba (Unearthed Arcana) no vienen en el lote: se conservan
+  const playtest = (actual: any) => Object.fromEntries(Object.keys(PLAYTEST_2025[op] || {}).filter(k => actual?.subclases?.[k]).map(k => [k, actual.subclases[k]]));
+  return datos && [{ seccion: 'clases', id: op, nueva: actual => {
+    const n = { ...actual, ...structuredClone(datos) };
+    return { ...n, subclases: { ...n.subclases, ...playtest(actual) } };
+  } }];
 }
 
 async function main() {

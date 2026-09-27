@@ -21,7 +21,7 @@ import { mejoraDeDote } from '@/features/reglas/domain/mejora-dote';
 import { baseScores } from './modelo';
 import { manosDe, aDosManos, portadorDual } from './manos';
 import { registrarPropias } from './inventario';
-import { MAX_SINTONIA, aplicarFijas, aplicarMagicos, armasInactivas } from './magicos';
+import { maxSintonia, aplicarFijas, aplicarMagicos, armasInactivas } from './magicos';
 
 export function compute(pj): any {
   registrarPropias(pj);
@@ -316,8 +316,10 @@ export function weaponRow(a, c){
     const [mn, md] = MAESTRIAS[w.ma];
     maestria = `${mn}: ${md}${w.ma === 'derribar' ? ` CD ${8 + m[ab] + c.pb}.` : ''}`;
   }
-  return {k:a.k, q:a.q, i:a.i, w, nombre: w.n + (a.q > 1 ? ` (${a.q})` : ''), atk, expr:`${dado}${modStr(dmgMod)}`, dmg:`${dado}${fmtMod(dmgMod)} ${w.tipo}`,
-    v: w.v ? {expr:`${w.v}${modStr(dmgMod)}`, dmg:`${w.v}${fmtMod(dmgMod)}`} : null, notas, maestria, min3, atkDesg, dmgDesg, dado, partesAtk, partesDmg};
+  // Golpes Radiantes del paladín (nivel 11): 1d8 radiante extra con las armas cuerpo a cuerpo
+  const rad = c.golpesRadiantes && !w.dist ? ['+1d8', ' + 1d8 radiante'] : ['', ''];
+  return {k:a.k, q:a.q, i:a.i, w, nombre: w.n + (a.q > 1 ? ` (${a.q})` : ''), atk, expr:`${dado}${modStr(dmgMod)}${rad[0]}`, dmg:`${dado}${fmtMod(dmgMod)} ${w.tipo}${rad[1]}`,
+    v: w.v ? {expr:`${w.v}${modStr(dmgMod)}${rad[0]}`, dmg:`${w.v}${fmtMod(dmgMod)}${rad[1]}`} : null, notas, maestria, min3, atkDesg, dmgDesg, dado, partesAtk, partesDmg};
 }
 
 /* Familiares y muertos vivientes: qué puede crear el personaje (según sus conjuros) y la hoja de cada uno que tiene
@@ -474,7 +476,7 @@ export function buildAvisos(c){
   if (c.sinCompArmadura) A.push({nivel:'aviso', t:'Armadura sin competencia', txt:`No eres competente con ${c.armor.n.toLowerCase()}: desventaja en pruebas, salvaciones y ataques de FUE o DES, y no puedes lanzar conjuros.`, paso:'equipo'});
   if (c.sinCompEscudo) A.push({nivel:'aviso', t:'Escudo sin competencia', txt:'No eres competente con escudos: el escudo no suma a tu CA.', paso:'equipo'});
   if (c.armor?.fue && c.sc.fue < c.armor.fue) A.push({nivel:'aviso', t:'Armadura muy pesada', txt:`${c.armor.n} pide FUE ${c.armor.fue}: velocidad −10 pies.`, paso:'equipo'});
-  if ((c.sintonizados || 0) > MAX_SINTONIA) A.push({nivel:'aviso', t:'Demasiados objetos sintonizados', txt:`Tienes ${c.sintonizados} y el límite es ${MAX_SINTONIA}: deja de sintonizar alguno.`, paso:'equipo'});
+  if ((c.sintonizados || 0) > maxSintonia(c)) A.push({nivel:'aviso', t:'Demasiados objetos sintonizados', txt:`Tienes ${c.sintonizados} y el límite es ${maxSintonia(c)}: deja de sintonizar alguno.`, paso:'equipo'});
   if (c.futuros.length) A.push({nivel:'info', t:'Llegan más adelante', txt: c.futuros.map(f => `${f.nombre} (nivel ${f.nivel})`).join(', ') + '.'});
   return A;
 }

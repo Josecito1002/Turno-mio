@@ -53,6 +53,7 @@ export const CATALOGO: any[] = [
   {nombre:'Maleficio',nivel:1,tiempo:'adicional',alcance:'90 pies',conc:true,dados:'1d6',tipo:'necrótico',clases:[_W],desc:'+1d6 necrótico cada vez que golpeas a la criatura, y desventaja en pruebas de una característica que elijas.'},
   {nombre:'Manos ardientes',nivel:1,tiempo:'accion',alcance:'Cono de 15 pies',salv:'DES',dados:'3d6',tipo:'fuego',clases:[_H,_M],desc:'Mitad de daño si pasan la salvación.'},
   {nombre:'Marca del cazador',nivel:1,tiempo:'adicional',alcance:'90 pies',conc:true,dados:'1d6',tipo:'fuerza',clases:[_E],desc:'+1d6 de fuerza al golpear a la criatura marcada, y ventaja para encontrarla.'},
+  {nombre:'Saeta de bruja',nivel:1,tiempo:'accion',alcance:'60 pies',ataque:true,conc:true,dados:'2d12',tipo:'relámpago',clases:[_H,_W,_M],desc:'Un arco de relámpago te une al objetivo si aciertas. Mientras dure, en cada turno tuyo puedes hacerle 1d12 de relámpago con una acción adicional, sin tirar. Termina si se aleja a más de 60 pies o queda tras cobertura total. +1d12 al daño inicial por nivel de espacio extra.'},
   {nombre:'Niebla',nivel:1,tiempo:'accion',alcance:'120 pies',conc:true,clases:[_D,_E,_H,_M],desc:'Esfera de niebla de 20 pies de radio que bloquea la vista durante 1 hora.'},
   {nombre:'Onda atronadora',nivel:1,tiempo:'accion',alcance:'Cubo de 15 pies',salv:'CON',dados:'2d8',tipo:'trueno',clases:[_B,_D,_H,_M],desc:'Empuja 10 pies a quien falle; mitad de daño si la pasa.'},
   {nombre:'Orbe cromático',nivel:1,tiempo:'accion',alcance:'90 pies',ataque:true,dados:'3d8',clases:[_H,_M],desc:'Eliges ácido, frío, fuego, relámpago, veneno o trueno.'},
@@ -88,6 +89,7 @@ export const CATALOGO: any[] = [
   {nombre:'Ver lo invisible',nivel:2,tiempo:'accion',alcance:'Tú',clases:[_B,_H,_M,_A],desc:'Durante 1 hora ves criaturas y objetos invisibles.'},
 
   {nombre:'Acelerar',nivel:3,tiempo:'accion',alcance:'30 pies',conc:true,clases:[_H,_M,_A],desc:'+2 a la CA, ventaja en salvaciones de DES, velocidad doble y una acción extra limitada. Al terminar, pierde un turno.'},
+  {nombre:'Faro de esperanza',nivel:3,tiempo:'accion',alcance:'30 pies',conc:true,clases:[_C],desc:'Las criaturas que elijas tienen ventaja en las salvaciones de SAB y contra la muerte, y cuando se curan recuperan el máximo posible de PG. Dura hasta 1 minuto.'},
   {nombre:'Bola de fuego',nivel:3,tiempo:'accion',alcance:'150 pies',salv:'DES',dados:'8d6',tipo:'fuego',clases:[_H,_M],desc:'Explosión de 20 pies de radio; mitad de daño si pasan. +1d6 por nivel de espacio extra.'},
   {nombre:'Contrahechizo',nivel:3,tiempo:'reaccion',alcance:'60 pies',clases:[_H,_W,_M],desc:'Cuando ves a alguien lanzar un conjuro, hace una salvación de CON; si falla, el conjuro no tiene efecto.'},
   {nombre:'Disipar magia',nivel:3,tiempo:'accion',alcance:'120 pies',clases:[_B,_C,_D,_P,_E,_H,_W,_M,_A],desc:'Terminas conjuros de nivel 3 o menos sobre un objetivo; los de nivel mayor piden una prueba.'},
@@ -101,6 +103,7 @@ export const CATALOGO: any[] = [
   {nombre:'Revivir',nivel:3,tiempo:'accion',alcance:'Toque',clases:[_C,_D,_P,_E,_A],desc:'Una criatura que murió hace menos de 1 minuto vuelve con 1 PG. Consume un diamante de 300 po.'},
   {nombre:'Toque vampírico',nivel:3,tiempo:'accion',alcance:'Tú',conc:true,ataque:true,dados:'3d6',tipo:'necrótico',clases:[_H,_W,_M],desc:'Ataque de conjuro cuerpo a cuerpo que te cura la mitad del daño; puedes repetirlo cada turno.'},
   {nombre:'Volar',nivel:3,tiempo:'accion',alcance:'Toque',conc:true,clases:[_H,_W,_M,_A],desc:'Velocidad de vuelo de 60 pies durante 10 minutos.'},
+  {nombre:'Golpe de viento de acero',nivel:5,tiempo:'accion',alcance:'30 pies',ataque:true,dados:'6d10',tipo:'fuerza',clases:[_E,_M],desc:'Eliges hasta cinco criaturas que veas y haces un ataque de conjuro cuerpo a cuerpo contra cada una. Después puedes teletransportarte a un espacio libre a 5 pies de una de ellas.'},
 ];
 export const TIEMPO_N: Record<string, any> = {accion:'Acción', adicional:'Acción adicional', reaccion:'Reacción', fuera:'1 minuto o más'};
 /* Trucos y conjuros preparados por nivel (2024) */

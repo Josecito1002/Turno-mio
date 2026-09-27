@@ -68,7 +68,7 @@ Las que se deciden al usar el rasgo (a quién, qué efecto) no llevan selector: 
 
 ### Lote 16: Pícaro
 
-- [ ] **Vástago de los Tres: Lealtad Temible**: Bane, Bhaal o Myrkul: su resistencia y su truco. <!-- selector|lealtad-tres -->
+- [x] **Vástago de los Tres: Lealtad Temible**: Bane, Bhaal o Myrkul: su resistencia y su truco. Lote 16: se elige en el paso Clase; la resistencia sale en el texto del rasgo y el truco en Conjuros. <!-- selector|lealtad-tres -->
 
 ## Por agregar (faltan respecto a D&D Beyond)
 
@@ -155,16 +155,17 @@ Se agregan en el lote de su clase, con su versión oficial más reciente. Las ma
 
 ### Lote 15: Paladín
 
-- [ ] **Juramento de Conquista** (Xanathar's Guide to Everything) <!-- agregar|juramento de conquista -->
-- [ ] **Juramento de Redención** (Xanathar's Guide to Everything) <!-- agregar|juramento de redencion -->
-- [ ] **Juramento de los Vigilantes** (Tasha's Cauldron of Everything) <!-- agregar|juramento de los vigilantes -->
-- [ ] **Juramento de la Corona** (Sword Coast Adventurer's Guide) <!-- agregar|juramento de la corona -->
-- [ ] **Rompejuramentos** (Guía del Dungeon Master 2014) <!-- agregar|rompejuramentos -->
+- [x] **Juramento de Conquista** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). <!-- agregar|juramento de conquista -->
+- [x] **Juramento de Redención** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). <!-- agregar|juramento de redencion -->
+- [x] **Juramento de los Vigilantes** (Tasha's Cauldron of Everything): agregado, versión de Tasha's Cauldron of Everything (2020). <!-- agregar|juramento de los vigilantes -->
+- [x] **Juramento de la Corona** (Sword Coast Adventurer's Guide): agregado, versión de Sword Coast Adventurer's Guide (2015). <!-- agregar|juramento de la corona -->
+- ⚠ **Rompejuramentos** (Guía del Dungeon Master 2014): la app tiene la versión de prueba (UA 2025) con esa misma clave y nombre, y se conserva; la de 2014 no se agregó para no tener dos "Rompejuramentos". <!-- agregar|rompejuramentos -->
 
 ### Lote 16: Pícaro
 
-- [ ] **Mente Maestra** (Xanathar's Guide to Everything) <!-- agregar|mente maestra -->
-- [ ] **Espadachín** (Xanathar's Guide to Everything) <!-- agregar|espadachin -->
+- [x] **Mente Maestra** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). <!-- agregar|mente maestra -->
+- [x] **Espadachín** (Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). <!-- agregar|espadachin -->
+- [x] **Batidor** (Scout, Xanathar's Guide to Everything): agregado, versión de Xanathar's Guide to Everything (2017). Se llama Batidor para no confundirlo con la clase Explorador. <!-- agregar|batidor -->
 - [ ] **Explorador (Scout)** (Xanathar's Guide to Everything) <!-- agregar|explorador (scout) -->
 
 ### Especies
@@ -1195,98 +1196,130 @@ Playtest junto a las subclases oficiales, sin reemplazar ninguna. Datos en `web/
 - [x] **Senda del Heraldo de la Tormenta** (bárbaro; la app no la tenía): dados del aura según el daño de Furia y CD con CON.
 - [x] **Caballero (Playtest)** (guerrero): convive con el Caballero de Xanathar (lote 11). Marca Inquebrantable sin límite de usos y Carga Feroz nueva.
 - [x] **Guerrero de la Embriaguez** (monje): nueva versión del Maestro Borracho, que se conserva. Brebaje Místico con su CD y su dado.
-- [x] **Rompejuramentos** (paladín; antes de la Guía del DM 2014, que la app no tenía): conjuros siempre preparados. Saeta de bruja y Golpe de viento de acero no están en el catálogo. Golpe Sombrío en Ataques.
+- [x] **Rompejuramentos** (paladín; antes de la Guía del DM 2014, que la app no tenía): conjuros siempre preparados. Saeta de bruja y Golpe de viento de acero se agregaron al catálogo en el lote 16. Golpe Sombrío en Ataques.
 
 ## Lote 15: Paladín (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 13. Con tipo claro: 6. Ya revisados: 0.
+Dudosos: 0. Con tipo claro: 0. Ya revisados: 53.
 
-### Paladín
 
-- [ ] **Castigo Radiante** (nivel 11): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- paladin|castigo radiante -->
-- [ ] **Toque Restaurador** (nivel 14): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- paladin|toque restaurador -->
+### Revisados
 
-### Juramento de los Genios Nobles
-
-- [ ] **Castigo Elemental** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse <!-- juramento de los genios nobles|castigo elemental -->
-- [ ] **Conjuros del Genio** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse <!-- juramento de los genios nobles|conjuros del genio -->
-
-### Juramento de Devoción
-
-- [ ] **Aura de Devoción** (nivel 7): hoy `pasiva`, no menciona tipo de acción <!-- juramento de devocion|aura de devocion -->
-- [ ] **Pureza de Espíritu** (nivel 15): hoy `pasiva`, no menciona tipo de acción <!-- juramento de devocion|pureza de espiritu -->
-- [ ] **Halo Sagrado** (nivel 20): hoy `pasiva`, no menciona tipo de acción <!-- juramento de devocion|halo sagrado -->
-
-### Juramento de la Gloria
-
-- [ ] **Aura de Alacridad** (nivel 7): hoy `pasiva`, no menciona tipo de acción <!-- juramento de la gloria|aura de alacridad -->
-- [ ] **Leyenda Viva** (nivel 20): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- juramento de la gloria|leyenda viva -->
-
-### Juramento de los Antiguos
-
-- [ ] **Aura de Resistencia** (nivel 7): hoy `pasiva`, no menciona tipo de acción <!-- juramento de los antiguos|aura de resistencia -->
-- [ ] **Centinela Inmortal** (nivel 15): hoy `pasiva`, no menciona tipo de acción <!-- juramento de los antiguos|centinela inmortal -->
-
-### Juramento de Venganza
-
-- [ ] **Vengador Implacable** (nivel 7): hoy `gratis`, no menciona tipo de acción <!-- juramento de venganza|vengador implacable -->
-- [ ] **Ángel Vengador** (nivel 20): hoy `pasiva`, no menciona tipo de acción <!-- juramento de venganza|angel vengador -->
+- [x] **Abjurar Enemigos** (nivel 9): `accion`. Manual del Jugador (2024). <!-- paladin|abjurar enemigos -->
+- [x] **Aura de Valor** (nivel 10): `pasiva`. Manual del Jugador (2024). <!-- paladin|aura de valor -->
+- [x] **Golpes Radiantes** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- paladin|golpes radiantes -->
+- [x] **Toque Restaurador** (nivel 14): `adicional`. Manual del Jugador (2024). <!-- paladin|toque restaurador -->
+- [x] **Expansión del Aura** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- paladin|expansion del aura -->
+- [x] **Conjuros de Conquista** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de conquista|conjuros de conquista -->
+- [x] **Presencia Conquistadora** (nivel 3): `accion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de conquista|presencia conquistadora -->
+- [x] **Golpe Guiado** (nivel 3): `gratis`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de conquista|golpe guiado -->
+- [x] **Aura de Conquista** (nivel 7): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de conquista|aura de conquista -->
+- [x] **Réplica Desdeñosa** (nivel 15): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de conquista|replica desdenosa -->
+- [x] **Conquistador Invencible** (nivel 20): `accion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de conquista|conquistador invencible -->
+- [x] **Conjuros de Redención** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de redencion|conjuros de redencion -->
+- [x] **Emisario de Paz** (nivel 3): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de redencion|emisario de paz -->
+- [x] **Reprender a los Violentos** (nivel 3): `reaccion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de redencion|reprender a los violentos -->
+- [x] **Aura del Guardián** (nivel 7): `reaccion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de redencion|aura del guardian -->
+- [x] **Espíritu Protector** (nivel 15): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de redencion|espiritu protector -->
+- [x] **Emisario de la Redención** (nivel 20): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- juramento de redencion|emisario de la redencion -->
+- [x] **Conjuros de la Corona** (nivel 3): `pasiva`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- juramento de la corona|conjuros de la corona -->
+- [x] **Desafío del Campeón** (nivel 3): `adicional`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- juramento de la corona|desafio del campeon -->
+- [x] **Cambiar las Tornas** (nivel 3): `adicional`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- juramento de la corona|cambiar las tornas -->
+- [x] **Lealtad Divina** (nivel 7): `reaccion`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- juramento de la corona|lealtad divina -->
+- [x] **Espíritu Inquebrantable** (nivel 15): `pasiva`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- juramento de la corona|espiritu inquebrantable -->
+- [x] **Campeón Exaltado** (nivel 20): `accion`. subclase nueva; Sword Coast Adventurer's Guide (2015). <!-- juramento de la corona|campeon exaltado -->
+- [x] **Conjuros del Genio** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- juramento de los genios nobles|conjuros del genio -->
+- [x] **Esplendor del Genio** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- juramento de los genios nobles|esplendor del genio -->
+- [x] **Castigo Elemental** (nivel 3): `gratis`. Forgotten Realms: Heroes of Faerûn (2025). <!-- juramento de los genios nobles|castigo elemental -->
+- [x] **Aura de Escudo Elemental** (nivel 7): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- juramento de los genios nobles|aura de escudo elemental -->
+- [x] **Reprimenda Elemental** (nivel 15): `reaccion`. Forgotten Realms: Heroes of Faerûn (2025). <!-- juramento de los genios nobles|reprimenda elemental -->
+- [x] **Vástago Noble** (nivel 20): `adicional`. Forgotten Realms: Heroes of Faerûn (2025). <!-- juramento de los genios nobles|vastago noble -->
+- [x] **Conjuros de los Vigilantes** (nivel 3): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- juramento de los vigilantes|conjuros de los vigilantes -->
+- [x] **Voluntad del Vigilante** (nivel 3): `accion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- juramento de los vigilantes|voluntad del vigilante -->
+- [x] **Abjurar lo Extraplanar** (nivel 3): `accion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- juramento de los vigilantes|abjurar lo extraplanar -->
+- [x] **Aura del Centinela** (nivel 7): `pasiva`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- juramento de los vigilantes|aura del centinela -->
+- [x] **Reprimenda Vigilante** (nivel 15): `reaccion`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- juramento de los vigilantes|reprimenda vigilante -->
+- [x] **Baluarte Mortal** (nivel 20): `adicional`. subclase nueva; Tasha's Cauldron of Everything (2020). <!-- juramento de los vigilantes|baluarte mortal -->
+- [x] **Aura de Devoción** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- juramento de devocion|aura de devocion -->
+- [x] **Castigo Protector** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- juramento de devocion|castigo protector -->
+- [x] **Halo Sagrado** (nivel 20): `adicional`. Manual del Jugador (2024). <!-- juramento de devocion|halo sagrado -->
+- [x] **Aura de Presteza** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- juramento de la gloria|aura de presteza -->
+- [x] **Defensa Gloriosa** (nivel 15): `reaccion`. Manual del Jugador (2024). <!-- juramento de la gloria|defensa gloriosa -->
+- [x] **Leyenda Viviente** (nivel 20): `adicional`. Manual del Jugador (2024). <!-- juramento de la gloria|leyenda viviente -->
+- [x] **Aura de Protección Arcana** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- juramento de los antiguos|aura de proteccion arcana -->
+- [x] **Centinela Imperecedero** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- juramento de los antiguos|centinela imperecedero -->
+- [x] **Campeón Antiguo** (nivel 20): `adicional`. Manual del Jugador (2024). <!-- juramento de los antiguos|campeon antiguo -->
+- [x] **Vengador Implacable** (nivel 7): `gratis`. Manual del Jugador (2024). <!-- juramento de venganza|vengador implacable -->
+- [x] **Alma de Venganza** (nivel 15): `reaccion`. Manual del Jugador (2024). <!-- juramento de venganza|alma de venganza -->
+- [x] **Ángel Vengador** (nivel 20): `adicional`. Manual del Jugador (2024). <!-- juramento de venganza|angel vengador -->
 
 ## Lote 16: Pícaro (subclases y rasgos de nivel alto de la biblioteca)
 
-Dudosos: 28. Con tipo claro: 8. Ya revisados: 0.
+Dudosos: 0. Con tipo claro: 0. Ya revisados: 60.
 
-### Pícaro
 
-- [ ] **Evasión** (nivel 7): hoy `pasiva`, no menciona tipo de acción <!-- picaro|evasion -->
-- [ ] **Talento Fiable** (nivel 7): hoy `pasiva`, no menciona tipo de acción <!-- picaro|talento fiable -->
-- [ ] **Golpe Astuto Mejorado** (nivel 11): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- picaro|golpe astuto mejorado -->
-- [ ] **Golpe Astuto Taimado** (nivel 14): hoy `pasiva`, no menciona tipo de acción <!-- picaro|golpe astuto taimado -->
-- [ ] **Golpe de Suerte** (nivel 20): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- picaro|golpe de suerte -->
+### Revisados
 
-### Embaucador Arcano
-
-- [ ] **Lanzamiento de Conjuros** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- embaucador arcano|lanzamiento de conjuros -->
-- [ ] **Mano de Mago Legeramente** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- embaucador arcano|mano de mago legeramente -->
-- [ ] **Emboscada Mágica** (nivel 9): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- embaucador arcano|emboscada magica -->
-
-### Asesino
-
-- [ ] **Asesinar** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- asesino|asesinar -->
-- [ ] **Competencia en Infiltración** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- asesino|competencia en infiltracion -->
-- [ ] **Maestro de la Suplantación** (nivel 9): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- asesino|maestro de la suplantacion -->
-- [ ] **Golpe Mortal** (nivel 17): hoy `gratis`, no menciona tipo de acción <!-- asesino|golpe mortal -->
-
-### Cuchillo Mental
-
-- [ ] **Hojas Psiónicas** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- cuchillo mental|hojas psionicas -->
-- [ ] **Poder Psiónico** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- cuchillo mental|poder psionico -->
-- [ ] **Hojas de Rastreo** (nivel 9): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- cuchillo mental|hojas de rastreo -->
-- [ ] **Velo Psíquico** (nivel 17): hoy `pasiva`, no menciona tipo de acción <!-- cuchillo mental|velo psiquico -->
-
-### Ladrón
-
-- [ ] **Trabajo en Segundo Piso** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- ladron|trabajo en segundo piso -->
-- [ ] **Usar Objeto Mágico** (nivel 13): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- ladron|usar objeto magico -->
-- [ ] **Reflejos de Ladrón** (nivel 17): hoy `pasiva`, no menciona tipo de acción <!-- ladron|reflejos de ladron -->
-
-### Fantasma
-
-- [ ] **Susurros de los Muertos** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- fantasma|susurros de los muertos -->
-- [ ] **Lamentos de la Tumba** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- fantasma|lamentos de la tumba -->
-- [ ] **Amigo de la Muerte** (nivel 17): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- fantasma|amigo de la muerte -->
-
-### Vástago de los Tres
-
-- [ ] **Lealtad Temible** (nivel 3): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- vastago de los tres|lealtad temible -->
-- [ ] **Aura de Malevolencia** (nivel 13): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- vastago de los tres|aura de malevolencia -->
-- [ ] **Encarnación del Terror** (nivel 17): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- vastago de los tres|encarnacion del terror -->
-
-### Inquisitivo
-
-- [ ] **Oído para el Engaño** (nivel 3): hoy `pasiva`, no menciona tipo de acción <!-- inquisitivo|oido para el engano -->
-- [ ] **Mirada Firme** (nivel 9): hoy `pasiva`, no menciona tipo de acción <!-- inquisitivo|mirada firme -->
-- [ ] **Ojo para las Debilidades** (nivel 17): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- inquisitivo|ojo para las debilidades -->
+- [x] **Pericia** (nivel 6): `pasiva`. Manual del Jugador (2024). <!-- picaro|pericia -->
+- [x] **Evasión** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- picaro|evasion -->
+- [x] **Talento Fiable** (nivel 7): `pasiva`. Manual del Jugador (2024). <!-- picaro|talento fiable -->
+- [x] **Golpe Astuto Mejorado** (nivel 11): `pasiva`. Manual del Jugador (2024). <!-- picaro|golpe astuto mejorado -->
+- [x] **Golpes Taimados** (nivel 14): `pasiva`. Manual del Jugador (2024). <!-- picaro|golpes taimados -->
+- [x] **Mente Escurridiza** (nivel 15): `pasiva`. Manual del Jugador (2024). <!-- picaro|mente escurridiza -->
+- [x] **Escurridizo** (nivel 18): `pasiva`. Manual del Jugador (2024). <!-- picaro|escurridizo -->
+- [x] **Golpe de Suerte** (nivel 20): `gratis`. Manual del Jugador (2024). <!-- picaro|golpe de suerte -->
+- [x] **Lanzamiento de Conjuros** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- embaucador arcano|lanzamiento de conjuros -->
+- [x] **Mano de Mago Prestidigitadora** (nivel 3): `adicional`. Manual del Jugador (2024). <!-- embaucador arcano|mano de mago prestidigitadora -->
+- [x] **Emboscada Mágica** (nivel 9): `pasiva`. Manual del Jugador (2024). <!-- embaucador arcano|emboscada magica -->
+- [x] **Embaucador Versátil** (nivel 13): `pasiva`. Manual del Jugador (2024). <!-- embaucador arcano|embaucador versatil -->
+- [x] **Ladrón de Conjuros** (nivel 17): `reaccion`. Manual del Jugador (2024). <!-- embaucador arcano|ladron de conjuros -->
+- [x] **Asesinar** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- asesino|asesinar -->
+- [x] **Herramientas de Asesino** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- asesino|herramientas de asesino -->
+- [x] **Experto en Infiltración** (nivel 9): `pasiva`. Manual del Jugador (2024). <!-- asesino|experto en infiltracion -->
+- [x] **Envenenar Armas** (nivel 13): `pasiva`. Manual del Jugador (2024). <!-- asesino|envenenar armas -->
+- [x] **Golpe Mortal** (nivel 17): `pasiva`. Manual del Jugador (2024). <!-- asesino|golpe mortal -->
+- [x] **Lamentos de la Tumba** (nivel 3): `gratis`. Ravenloft: The Horrors Within (2026). <!-- fantasma|lamentos de la tumba -->
+- [x] **Susurros de los Muertos** (nivel 3): `fuera`. Ravenloft: The Horrors Within (2026). <!-- fantasma|susurros de los muertos -->
+- [x] **Recuerdos de los Difuntos** (nivel 9): `reaccion`. Ravenloft: The Horrors Within (2026). <!-- fantasma|recuerdos de los difuntos -->
+- [x] **Voz de la Muerte** (nivel 9): `fuera`. Ravenloft: The Horrors Within (2026). <!-- fantasma|voz de la muerte -->
+- [x] **Caminar Fantasma** (nivel 13): `adicional`. Ravenloft: The Horrors Within (2026). <!-- fantasma|caminar fantasma -->
+- [x] **Amigo de la Muerte** (nivel 17): `pasiva`. Ravenloft: The Horrors Within (2026). <!-- fantasma|amigo de la muerte -->
+- [x] **Sed de Sangre** (nivel 3): `reaccion`. Forgotten Realms: Heroes of Faerûn (2025). <!-- vastago de los tres|sed de sangre -->
+- [x] **Lealtad Temible** (nivel 3): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- vastago de los tres|lealtad temible -->
+- [x] **Infundir Miedo** (nivel 9): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- vastago de los tres|infundir miedo -->
+- [x] **Aura de Malevolencia** (nivel 13): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- vastago de los tres|aura de malevolencia -->
+- [x] **Encarnación del Terror** (nivel 17): `pasiva`. Forgotten Realms: Heroes of Faerûn (2025). <!-- vastago de los tres|encarnacion del terror -->
+- [x] **Poder Psiónico** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- cuchillo mental|poder psionico -->
+- [x] **Hojas Psíquicas** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- cuchillo mental|hojas psiquicas -->
+- [x] **Hojas del Alma** (nivel 9): `pasiva`. Manual del Jugador (2024). <!-- cuchillo mental|hojas del alma -->
+- [x] **Velo Psíquico** (nivel 13): `accion`. Manual del Jugador (2024). <!-- cuchillo mental|velo psiquico -->
+- [x] **Desgarrar la Mente** (nivel 17): `gratis`. Manual del Jugador (2024). <!-- cuchillo mental|desgarrar la mente -->
+- [x] **Manos Rápidas** (nivel 3): `adicional`. Manual del Jugador (2024). <!-- ladron|manos rapidas -->
+- [x] **Trabajo en Segundo Piso** (nivel 3): `pasiva`. Manual del Jugador (2024). <!-- ladron|trabajo en segundo piso -->
+- [x] **Sigilo Supremo** (nivel 9): `pasiva`. Manual del Jugador (2024). <!-- ladron|sigilo supremo -->
+- [x] **Usar Objeto Mágico** (nivel 13): `pasiva`. Manual del Jugador (2024). <!-- ladron|usar objeto magico -->
+- [x] **Reflejos de Ladrón** (nivel 17): `pasiva`. Manual del Jugador (2024). <!-- ladron|reflejos de ladron -->
+- [x] **Oído para el Engaño** (nivel 3): `pasiva`. Xanathar's Guide to Everything (2017). <!-- inquisitivo|oido para el engano -->
+- [x] **Ojo para el Detalle** (nivel 3): `adicional`. Xanathar's Guide to Everything (2017). <!-- inquisitivo|ojo para el detalle -->
+- [x] **Lucha Perspicaz** (nivel 3): `adicional`. Xanathar's Guide to Everything (2017). <!-- inquisitivo|lucha perspicaz -->
+- [x] **Mirada Firme** (nivel 9): `pasiva`. Xanathar's Guide to Everything (2017). <!-- inquisitivo|mirada firme -->
+- [x] **Ojo Infalible** (nivel 13): `accion`. Xanathar's Guide to Everything (2017). <!-- inquisitivo|ojo infalible -->
+- [x] **Ojo para las Debilidades** (nivel 17): `pasiva`. Xanathar's Guide to Everything (2017). <!-- inquisitivo|ojo para las debilidades -->
+- [x] **Maestro de la Intriga** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- mente maestra|maestro de la intriga -->
+- [x] **Maestro de la Táctica** (nivel 3): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- mente maestra|maestro de la tactica -->
+- [x] **Manipulador Perspicaz** (nivel 9): `fuera`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- mente maestra|manipulador perspicaz -->
+- [x] **Desvío** (nivel 13): `reaccion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- mente maestra|desvio -->
+- [x] **Alma del Engaño** (nivel 17): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- mente maestra|alma del engano -->
+- [x] **Hostigador** (nivel 3): `reaccion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- batidor|hostigador -->
+- [x] **Superviviente** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- batidor|superviviente -->
+- [x] **Movilidad Superior** (nivel 9): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- batidor|movilidad superior -->
+- [x] **Maestro de Emboscadas** (nivel 13): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- batidor|maestro de emboscadas -->
+- [x] **Golpe Repentino** (nivel 17): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- batidor|golpe repentino -->
+- [x] **Juego de Pies** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- espadachin|juego de pies -->
+- [x] **Audacia Temeraria** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- espadachin|audacia temeraria -->
+- [x] **Encanto Arrollador** (nivel 9): `accion`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- espadachin|encanto arrollador -->
+- [x] **Maniobra Elegante** (nivel 13): `adicional`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- espadachin|maniobra elegante -->
+- [x] **Maestro Duelista** (nivel 17): `gratis`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- espadachin|maestro duelista -->
 
 ## Lote 17: dotes generales
 

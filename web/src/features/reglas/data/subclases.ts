@@ -18,20 +18,20 @@ export const SUBCLASES: any[] = [
   ]},
   {key:'devocion', clase:'paladin', n:'Juramento de Devoción', match:/devocion|entrega|devotion/, hasta:6, rasgos:[
     {n:3,t:'gratis',nombre:'Arma Sagrada',coste:'1 Canalizar',texto:c=>`Al usar la acción Atacar, imbuyes un arma cuerpo a cuerpo 10 minutos: ${sign(Math.max(1,c.m.car))} al ataque con ella, puede hacer daño radiante y da luz a 20 pies.`},
-    {n:3,t:'pasiva',nombre:'Conjuros del juramento',texto:c=>`Siempre preparados: Protección contra el bien y el mal, Escudo de fe${c.lvl>=5?', Ayuda, Zona de verdad':''}.`},
+    {n:3,t:'pasiva',nombre:'Conjuros del juramento',texto:c=>`Siempre preparados: Protección contra el bien y el mal, Escudo de fe${c.lvl>=5?', Ayuda, Zona de la verdad':''}${c.lvl>=9?', Faro de esperanza, Disipar magia':''}${c.lvl>=13?', Libertad de movimiento, Guardián de la Fe':''}${c.lvl>=17?', Comunión, Golpe Flamígero':''}.`},
   ]},
   {key:'gloria', clase:'paladin', n:'Juramento de la Gloria', match:/gloria|glory/, hasta:6, rasgos:[
     {n:3,t:'adicional',nombre:'Atleta Inigualable',coste:'1 Canalizar',texto:()=>'1 hora: ventaja en Atletismo y Acrobacias, y tus saltos aumentan 10 pies.'},
     {n:3,t:'gratis',nombre:'Castigo Inspirador',coste:'1 Canalizar',texto:c=>`Justo después de lanzar Castigo Divino, repartes 2d8 + ${c.lvl} PG temporales entre criaturas a 30 pies.`},
-    {n:3,t:'pasiva',nombre:'Conjuros del juramento',texto:c=>`Siempre preparados: Rayo guía, Heroísmo${c.lvl>=5?', Mejorar característica, Arma mágica':''}.`},
+    {n:3,t:'pasiva',nombre:'Conjuros del juramento',texto:c=>`Siempre preparados: Rayo guía, Heroísmo${c.lvl>=5?', Mejorar característica, Arma mágica':''}${c.lvl>=9?', Acelerar, Protección contra energía':''}${c.lvl>=13?', Compulsión, Libertad de movimiento':''}${c.lvl>=17?', Conocer las leyendas, Presencia regia de Yolande':''}.`},
   ]},
   {key:'antiguos', clase:'paladin', n:'Juramento de los Antiguos', match:/antiguos|ancients/, hasta:6, rasgos:[
     {n:3,t:'accion',nombre:'Ira de la Naturaleza',coste:'1 Canalizar',texto:c=>`Criaturas que elijas a 15 pies: salvación de FUE CD ${c.dcSpell} o Apresadas 1 minuto (repiten al final de sus turnos).`},
-    {n:3,t:'pasiva',nombre:'Conjuros del juramento',texto:c=>`Siempre preparados: Hablar con los animales, Golpe atrapador${c.lvl>=5?', Rayo de luna, Paso brumoso':''}.`},
+    {n:3,t:'pasiva',nombre:'Conjuros del juramento',texto:c=>`Siempre preparados: Golpe Apresador, Hablar con los Animales${c.lvl>=5?', Paso brumoso, Rayo de luna':''}${c.lvl>=9?', Crecimiento vegetal, Protección contra energía':''}${c.lvl>=13?', Tormenta de hielo, Piel pétrea':''}${c.lvl>=17?', Comunión con la naturaleza, Paso arbóreo':''}.`},
   ]},
   {key:'venganza', clase:'paladin', n:'Juramento de Venganza', match:/venganza|vengeance/, hasta:6, rasgos:[
     {n:3,t:'gratis',nombre:'Voto de Enemistad',coste:'1 Canalizar',texto:()=>'Al usar la acción Atacar, eliges una criatura a 30 pies: ventaja en tus ataques contra ella durante 1 minuto.'},
-    {n:3,t:'pasiva',nombre:'Conjuros del juramento',texto:c=>`Siempre preparados: Perdición, Marca del cazador${c.lvl>=5?', Inmovilizar persona, Paso brumoso':''}.`},
+    {n:3,t:'pasiva',nombre:'Conjuros del juramento',texto:c=>`Siempre preparados: Perdición, Marca del cazador${c.lvl>=5?', Inmovilizar persona, Paso brumoso':''}${c.lvl>=9?', Acelerar, Protección contra energía':''}${c.lvl>=13?', Destierro, Puerta dimensional':''}${c.lvl>=17?', Inmovilizar monstruo, Escudriñar':''}.`},
   ]},
   {key:'cadena', clase:'brujo', n:'Pacto de la Cadena', match:/cadena|chain/, hasta:20, rasgos:[
     {n:1,t:'accion',nombre:'Pacto de la Cadena',texto:()=>'Lanzas Encontrar familiar como acción mágica sin espacio. Formas especiales: diablillo, pseudodragón, quasit, esqueleto, renacuajo de slaad, esfinge de las maravillas, duendecillo o serpiente venenosa.'},

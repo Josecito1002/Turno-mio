@@ -6506,39 +6506,297 @@
   },
   "paladin": {
    "subclases": {
-    "genios-nobles": {
-     "n": "Juramento de los Genios Nobles",
+    "conquista": {
+     "n": "Juramento de Conquista",
      "rasgos": [
       {
-       "nombre": "Castigo Elemental",
+       "nombre": "Conjuros de Conquista",
        "t": "pasiva",
-       "texto": "Inmediatamente después de lanzar Castigo Divino, puedes gastar un uso de tu Canalizar Divinidad e invocar uno de los siguientes efectos. Aplastamiento del Dao: la tierra se alza alrededor del objetivo de tu Castigo Divino. El objetivo queda Agarrado (CD para escapar igual a tu CD de salvación de conjuros). Mientras está Agarrado, el objetivo queda Apresado. Escape del Djinn: te teletransportas a un espacio desocupado que puedas ver a 30 pies o menos de ti y adoptas una forma semi-incorpórea, que dura hasta el final de tu siguiente turno. Mientras estás en esta forma, tienes Resistencia al daño contundente, perforante y cortante, y tienes Inmunidad a los estados Agarrado, Derribado y Apresado. Furia del Efreeti: el objetivo de tu Castigo Divino recibe 2d4 de daño de Fuego adicional, y el fuego salta del objetivo a otra criatura que puedas ver a 30 pies o menos de ti. La segunda criatura también recibe 2d4 de daño de Fuego. Oleada de la Marid: el objetivo de tu Castigo Divino y cada criatura de tu elección en una emanación de 10 pies originada en ti hacen una tirada de salvación de Fuerza contra tu CD de salvación de conjuros. Si falla, la criatura es empujada 15 pies en línea recta alejándose de ti y queda Derribada.",
+       "texto": "Siempre tienes preparados los conjuros del juramento, que se amplían en los niveles 3, 5, 9, 13 y 17.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
+       "nombre": "Presencia Conquistadora",
+       "t": "accion",
+       "texto": "Como acción mágica y con un uso de Canalizar Divinidad, las criaturas que elijas a 30 pies que te vean hacen una salvación de SAB o quedan Asustadas de ti 1 minuto. Repiten la salvación al final de cada turno suyo.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Golpe Guiado",
+       "t": "gratis",
+       "texto": "Cuando haces una tirada de ataque, después de verla pero antes de saber si acierta, puedes gastar un uso de Canalizar Divinidad para sumarle +10.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Aura de Conquista",
+       "t": "pasiva",
+       "texto": "Mientras no estés Incapacitado, una criatura Asustada de ti que esté a 10 pies (30 desde el nivel 18) tiene velocidad 0, y si empieza su turno ahí recibe daño psíquico igual a la mitad de tu nivel de paladín.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Réplica Desdeñosa",
+       "t": "pasiva",
+       "texto": "Mientras no estés Incapacitado, toda criatura que te acierte con un ataque recibe daño psíquico igual a tu mod. de CAR (mínimo 1).",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Conquistador Invencible",
+       "t": "accion",
+       "texto": "Como acción mágica te vuelves un avatar de la conquista durante 1 minuto: resistencia a todo el daño, un ataque más cuando usas la acción Atacar, y tus ataques con arma cuerpo a cuerpo son crítico con 19 o 20. Una vez por descanso largo.",
+       "n": 20,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "redencion": {
+     "n": "Juramento de Redención",
+     "rasgos": [
+      {
+       "nombre": "Conjuros de Redención",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros del juramento, que se amplían en los niveles 3, 5, 9, 13 y 17.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Emisario de Paz",
+       "t": "adicional",
+       "texto": "Como acción adicional y con un uso de Canalizar Divinidad, te das +5 a las pruebas de Carisma (Persuasión) durante 10 minutos.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Reprender a los Violentos",
+       "t": "reaccion",
+       "texto": "Justo después de que un atacante a 30 pies haga daño con un ataque a otra criatura, gastas un uso de Canalizar Divinidad y tu reacción: el atacante hace una salvación de SAB y recibe daño radiante igual al que acaba de hacer, o la mitad si la supera.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Aura del Guardián",
+       "t": "reaccion",
+       "texto": "Cuando una criatura a 10 pies (30 desde el nivel 18) recibe daño, puedes usar tu reacción para recibir tú ese daño en su lugar. No te pasan otros efectos del ataque y ese daño no se puede reducir de ninguna forma.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Espíritu Protector",
+       "t": "pasiva",
+       "texto": "Si terminas tu turno en combate con menos de la mitad de tus PG y no estás Incapacitado, recuperas 1d6 + la mitad de tu nivel de paladín en PG.",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Emisario de la Redención",
+       "t": "pasiva",
+       "texto": "Tienes resistencia a todo el daño que te hagan otras criaturas, y quien te acierte con un ataque recibe daño radiante igual a la mitad del daño que te hizo. Si atacas a una criatura, le lanzas un conjuro o le haces daño de otra forma, estos beneficios no sirven contra ella hasta tu siguiente descanso largo.",
+       "n": 20,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "corona": {
+     "n": "Juramento de la Corona",
+     "rasgos": [
+      {
+       "nombre": "Conjuros de la Corona",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros del juramento, que se amplían en los niveles 3, 5, 9, 13 y 17.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Desafío del Campeón",
+       "t": "adicional",
+       "texto": "Como acción adicional y con un uso de Canalizar Divinidad, las criaturas que elijas a 30 pies que veas hacen una salvación de SAB; si fallan, no pueden alejarse voluntariamente a más de 30 pies de ti. Termina si quedas Incapacitado o mueres, o si la criatura acaba a más de 30 pies.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Cambiar las Tornas",
+       "t": "adicional",
+       "texto": "Como acción adicional y con un uso de Canalizar Divinidad, cada criatura que elijas a 30 pies que te oiga y tenga la mitad de sus PG o menos recupera 1d6 + tu mod. de CAR (mínimo 1) PG.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Lealtad Divina",
+       "t": "reaccion",
+       "texto": "Cuando una criatura a 5 pies de ti recibe daño, puedes usar tu reacción para recibirlo tú en su lugar. Ese daño no se puede reducir ni evitar de ninguna forma.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Espíritu Inquebrantable",
+       "t": "pasiva",
+       "texto": "Tienes ventaja en las salvaciones para no quedar Paralizado ni Aturdido.",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Campeón Exaltado",
+       "t": "accion",
+       "texto": "Como acción, durante 1 hora: resistencia al daño contundente, cortante y perforante de armas no mágicas; tus aliados a 30 pies tienen ventaja en las salvaciones contra la muerte; y tú y tus aliados a 30 pies tenéis ventaja en las salvaciones de SAB. Termina antes si quedas Incapacitado o mueres. Una vez por descanso largo.",
+       "n": 20,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "genios-nobles": {
+     "n": "Juramento de los Genios Nobles",
+     "rasgos": [
+      {
        "nombre": "Conjuros del Genio",
        "t": "pasiva",
-       "texto": "Cuando alcanzas un nivel de Paladín indicado en la tabla Conjuros del Genio, a partir de ese momento siempre tienes preparados los conjuros indicados. Nivel 3: Orbe Cromático, Elementalismo, Castigo Atronador. Nivel 5: Imagen Espejo, Fuerza Fantasmal. Nivel 9: Volar, Forma Gaseosa. Nivel 13: Conjurar Elementales Menores, Invocar Elemental. Nivel 17: Castigo Desterrador, Contactar con Otro Plano. Al inicio de cada uno de tus turnos, puedes cambiar el tipo de daño afectado por este rasgo a una de las otras opciones indicadas (sin requerir acción).",
+       "texto": "Siempre tienes preparados los conjuros del juramento, que se amplían en los niveles 3, 5, 9, 13 y 17.",
        "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Esplendor del Genio",
+       "t": "pasiva",
+       "texto": "Sin armadura, tu CA base es 10 + tu mod. de DES + tu mod. de CAR, y puedes usar escudo. Además ganas competencia en una de estas habilidades: Acrobacias, Intimidación, Interpretación o Persuasión.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Castigo Elemental",
+       "t": "gratis",
+       "texto": "Justo después de lanzar Castigo divino, puedes gastar un uso de Canalizar Divinidad para uno de estos efectos. Dao: el objetivo queda Agarrado (escapa con tu CD de conjuros) y Apresado mientras siga agarrado. Djinn: te teletransportas 30 pies y hasta el final de tu siguiente turno resistes el daño contundente, cortante y perforante, y eres inmune a Agarrado, Derribado y Apresado. Efreet: el objetivo recibe 2d4 de fuego extra y otra criatura que veas a 30 pies también 2d4 de fuego. Marid: el objetivo y quienes elijas a 10 pies hacen una salvación de FUE contra tu CD o son empujados 15 pies y quedan Derribados.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Aura de Escudo Elemental",
+       "t": "pasiva",
+       "texto": "Eliges ácido, frío, fuego, relámpago o trueno: tú y tus aliados tenéis resistencia a ese daño en tu Aura de Protección. Al inicio de cada uno de tus turnos puedes cambiar el tipo, sin gastar acción.",
+       "n": 7,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Reprimenda Elemental",
        "t": "reaccion",
-       "texto": "Cuando recibes el impacto de una tirada de ataque, puedes usar una Reacción para reducir a la mitad (redondeando hacia abajo) el daño del ataque contra ti y forzar al atacante a hacer una tirada de salvación de Destreza contra tu CD de salvación de conjuros. Si falla, el atacante recibe daño igual a 2d10 + tu modificador de Carisma de uno de los siguientes tipos (a tu elección): Ácido, Frío, Fuego, Relámpago o Trueno. Si la supera, el atacante recibe la mitad de ese daño. Puedes usar este rasgo una cantidad de veces igual a tu modificador de Carisma (mínimo una), y recuperas todos los usos gastados cuando terminas un Descanso Largo.",
+       "texto": "Cuando te aciertan con una tirada de ataque, usas tu reacción para recibir la mitad del daño (redondeando hacia abajo). El atacante hace una salvación de DES contra tu CD de conjuros: si falla recibe 2d10 + tu mod. de CAR de daño de ácido, frío, fuego, relámpago o trueno (tú eliges), y la mitad si la supera.",
        "n": 15,
-       "usos": 0,
+       "manual": true,
+       "usos": "max(1, CAR)",
        "reset": "largo"
       },
       {
        "nombre": "Vástago Noble",
        "t": "adicional",
-       "texto": "Como Acción Adicional, obtienes los beneficios indicados a continuación durante 10 minutos o hasta que los termines (sin requerir acción). Una vez que uses este rasgo, no puedes volver a usarlo hasta que termines un Descanso Largo. También puedes restaurar su uso gastando un espacio de conjuro de nivel 5 (sin requerir acción). Vuelo: tienes velocidad de vuelo de 60 pies y puedes flotar. Deseo Menor: cuando tú o un aliado en tu Aura de Protección falla una prueba de d20, puedes usar una Reacción para que tú o ese aliado tengáis éxito en su lugar.",
+       "texto": "Como acción adicional, durante 10 minutos: vuelo de 60 pies (puedes flotar), y cuando tú o un aliado en tu Aura de Protección fallan una prueba de d20, puedes usar tu reacción para que la supere. Una vez por descanso largo, o gastando un espacio de nivel 5.",
        "n": 20,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "vigilantes": {
+     "n": "Juramento de los Vigilantes",
+     "rasgos": [
+      {
+       "nombre": "Conjuros de los Vigilantes",
+       "t": "pasiva",
+       "texto": "Siempre tienes preparados los conjuros del juramento, que se amplían en los niveles 3, 5, 9, 13 y 17.",
+       "n": 3,
+       "manual": true,
        "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Voluntad del Vigilante",
+       "t": "accion",
+       "texto": "Como acción mágica y con un uso de Canalizar Divinidad, eliges tantas criaturas que veas a 30 pies como tu mod. de CAR (mínimo 1): durante 1 minuto, ellas y tú tenéis ventaja en las salvaciones de INT, SAB y CAR.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Abjurar lo Extraplanar",
+       "t": "accion",
+       "texto": "Como acción mágica y con un uso de Canalizar Divinidad, cada aberración, celestial, elemental, feérico o infernal a 30 pies que te oiga hace una salvación de SAB. Si falla, queda expulsada 1 minuto o hasta recibir daño: huye de ti, no puede acabar su movimiento a 30 pies de ti y solo puede Correr o intentar liberarse (o Esquivar si no tiene adónde ir).",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Aura del Centinela",
+       "t": "pasiva",
+       "texto": "Mientras no estés Incapacitado, tú y las criaturas que elijas a 10 pies (30 desde el nivel 18) sumáis tu bonificador de competencia a la iniciativa.",
+       "n": 7,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Reprimenda Vigilante",
+       "t": "reaccion",
+       "texto": "Cuando tú o una criatura que ves a 30 pies superáis una salvación de INT, SAB o CAR, puedes usar tu reacción para hacer 2d8 + tu mod. de CAR de daño de fuerza a quien la provocó.",
+       "n": 15,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Baluarte Mortal",
+       "t": "adicional",
+       "texto": "Como acción adicional, durante 1 minuto: visión verdadera a 120 pies, ventaja en los ataques contra aberraciones, celestiales, elementales, feéricos e infernales, y cuando aciertas y haces daño con un ataque puedes obligar al objetivo a una salvación de CAR contra tu CD: si falla y no está en su plano natal, vuelve a él. Una vez por descanso largo, o gastando un espacio de nivel 5.",
+       "n": 20,
+       "manual": true,
+       "usos": 1,
        "reset": "largo"
       }
      ]
@@ -6605,26 +6863,47 @@
    },
    "rasgosAltos": [
     {
-     "nombre": "Castigo Radiante",
-     "t": "pasiva",
-     "texto": "Todos tus ataques con arma infligen 1d8 radiante extra permanentemente.",
-     "n": 11,
+     "nombre": "Abjurar Enemigos",
+     "t": "accion",
+     "texto": "Como acción mágica y con un uso de Canalizar Divinidad, alzas tu símbolo sagrado o tu arma ante tantas criaturas como tu mod. de CAR (mínimo 1) a 60 pies. Las que fallen una salvación de SAB quedan Asustadas 1 minuto o hasta recibir daño, y mientras tanto en su turno solo pueden moverse, o usar su acción, o su acción adicional.",
+     "n": 9,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
-     "nombre": "Ahuyentar Enemigos",
-     "t": "accion",
-     "texto": "Acción Mágica. Gasta Canalizar Divinidad para asustar enemigos a 60 pies (Salvación SAB).",
-     "n": 9,
+     "nombre": "Aura de Valor",
+     "t": "pasiva",
+     "texto": "Tú y tus aliados sois inmunes a la condición Asustado mientras estéis en tu Aura de Protección. Un aliado que entra al aura ya asustado ignora esa condición mientras siga dentro.",
+     "n": 10,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Golpes Radiantes",
+     "t": "pasiva",
+     "texto": "Cuando aciertas una tirada de ataque con un arma cuerpo a cuerpo o un golpe sin armas, el objetivo recibe 1d8 de daño radiante extra.",
+     "n": 11,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
      "nombre": "Toque Restaurador",
-     "t": "pasiva",
-     "texto": "Cuando usas Imposición de Manos, puedes eliminar condiciones: Cegado, Encantado, Ensordecido, Asustado, Paralizado o Aturdido (Coste 5 PG).",
+     "t": "adicional",
+     "texto": "Al usar Imposición de Manos también puedes quitarle al objetivo Cegado, Hechizado, Ensordecido, Asustado, Paralizado o Aturdido. Cada condición cuesta 5 puntos de la reserva, que no curan PG.",
      "n": 14,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Expansión del Aura",
+     "t": "pasiva",
+     "texto": "Tu Aura de Protección pasa a ser una emanación de 30 pies.",
+     "n": 18,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     }
@@ -6634,77 +6913,86 @@
      {
       "nombre": "Aura de Devoción",
       "t": "pasiva",
-      "texto": "Aliados en tu aura no pueden ser hechizados.",
+      "texto": "Tú y tus aliados sois inmunes a la condición Hechizado mientras estéis en tu Aura de Protección. Un aliado que entra al aura ya hechizado ignora esa condición mientras siga dentro.",
       "n": 7,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
-      "nombre": "Pureza de Espíritu",
+      "nombre": "Castigo Protector",
       "t": "pasiva",
-      "texto": "Protección contra el Bien y el Mal constante.",
+      "texto": "Cada vez que lanzas Castigo divino, tú y tus aliados en tu Aura de Protección tenéis media cobertura (+2 a la CA y a las salvaciones de DES) hasta el inicio de tu siguiente turno.",
       "n": 15,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
       "nombre": "Halo Sagrado",
-      "t": "pasiva",
-      "texto": "Emanas luz solar que daña enemigos y te da ventaja contra conjuros de infernales/no-muertos.",
+      "t": "adicional",
+      "texto": "Como acción adicional llenas tu Aura de Protección de poder sagrado durante 10 minutos: ventaja en las salvaciones contra conjuros de infernales y muertos vivientes, el aura da luz solar brillante, y cada enemigo que empieza su turno en ella recibe daño radiante igual a tu mod. de CAR + tu bonificador de competencia. Una vez por descanso largo, o gastando un espacio de nivel 5.",
       "n": 20,
-      "usos": 0,
+      "manual": true,
+      "usos": 1,
       "reset": "largo"
      }
     ],
     "gloria": [
      {
-      "nombre": "Aura de Alacridad",
+      "nombre": "Aura de Presteza",
       "t": "pasiva",
-      "texto": "Aumenta la velocidad de movimiento de aliados cercanos.",
+      "texto": "Tu velocidad aumenta 10 pies. Además, cuando un aliado entra en tu Aura de Protección por primera vez en un turno o empieza su turno en ella, su velocidad aumenta 10 pies hasta el final de su siguiente turno.",
       "n": 7,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
       "nombre": "Defensa Gloriosa",
       "t": "reaccion",
-      "texto": "Reacción para sumar CA a un aliado y contraatacar.",
+      "texto": "Cuando a ti o a una criatura que ves a 10 pies os aciertan con una tirada de ataque, usas tu reacción para sumar tu mod. de CAR (mínimo +1) a su CA contra ese ataque. Si así falla, puedes atacar con un arma al atacante si está a tu alcance, como parte de la misma reacción.",
       "n": 15,
-      "usos": 0,
+      "manual": true,
+      "usos": "max(1, CAR)",
       "reset": "largo"
      },
      {
-      "nombre": "Leyenda Viva",
-      "t": "pasiva",
-      "texto": "Ventaja en CAR, un fallo se vuelve éxito y ataques siempre impactan.",
+      "nombre": "Leyenda Viviente",
+      "t": "adicional",
+      "texto": "Como acción adicional, durante 10 minutos: ventaja en todas las pruebas de CAR; una vez en cada uno de tus turnos, si fallas un ataque con arma o golpe sin armas, puedes hacer que acierte; y si fallas una salvación, puedes repetirla con tu reacción. Una vez por descanso largo, o gastando un espacio de nivel 5.",
       "n": 20,
-      "usos": 0,
+      "manual": true,
+      "usos": 1,
       "reset": "largo"
      }
     ],
     "antiguos": [
      {
-      "nombre": "Aura de Resistencia",
+      "nombre": "Aura de Protección Arcana",
       "t": "pasiva",
-      "texto": "Tú y aliados tenéis resistencia al daño de conjuros.",
+      "texto": "Tú y tus aliados tenéis resistencia al daño necrótico, psíquico y radiante mientras estéis en tu Aura de Protección.",
       "n": 7,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
-      "nombre": "Centinela Inmortal",
+      "nombre": "Centinela Imperecedero",
       "t": "pasiva",
-      "texto": "Cuando caes a 0 PG, quedas a 1 PG en su lugar (1/día).",
+      "texto": "Si caes a 0 PG sin morir en el acto, puedes quedarte a 1 PG y recuperar PG iguales al triple de tu nivel de paladín. Una vez por descanso largo. Además, la magia no puede envejecerte y dejas de envejecer a la vista.",
       "n": 15,
-      "usos": 0,
+      "manual": true,
+      "usos": 1,
       "reset": "largo"
      },
      {
       "nombre": "Campeón Antiguo",
       "t": "adicional",
-      "texto": "Transformación: curación constante y lanzas conjuros como acción adicional.",
+      "texto": "Como acción adicional llenas tu Aura de Protección de poder primigenio durante 1 minuto: los enemigos en ella tienen desventaja en las salvaciones contra tus conjuros y tu Canalizar Divinidad, recuperas 10 PG al inicio de cada uno de tus turnos, y los conjuros de paladín que se lanzan con una acción los puedes lanzar con una acción adicional. Una vez por descanso largo, o gastando un espacio de nivel 5.",
       "n": 20,
-      "usos": 0,
+      "manual": true,
+      "usos": 1,
       "reset": "largo"
      }
     ],
@@ -6712,25 +7000,28 @@
      {
       "nombre": "Vengador Implacable",
       "t": "gratis",
-      "texto": "Cuando golpeas con ataque de oportunidad, puedes moverte tras el enemigo.",
+      "texto": "Cuando aciertas a una criatura con un ataque de oportunidad, puedes dejar su velocidad en 0 hasta el final del turno y moverte hasta la mitad de tu velocidad como parte de esa misma reacción, sin provocar ataques de oportunidad.",
       "n": 7,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
       "nombre": "Alma de Venganza",
       "t": "reaccion",
-      "texto": "Cuando tu objetivo de Voto te ataca, puedes contraatacar como reacción.",
+      "texto": "Justo después de que la criatura bajo tu Voto de Enemistad haga una tirada de ataque, acierte o falle, puedes usar tu reacción para hacerle un ataque cuerpo a cuerpo si está a tu alcance.",
       "n": 15,
+      "manual": true,
       "usos": 0,
       "reset": "largo"
      },
      {
       "nombre": "Ángel Vengador",
-      "t": "pasiva",
-      "texto": "Vuelo y aura de miedo que inmoviliza a los enemigos.",
+      "t": "adicional",
+      "texto": "Como acción adicional, durante 10 minutos te salen alas espectrales (vuelo 60 pies, puedes flotar) y cada enemigo que empieza su turno en tu Aura de Protección hace una salvación de SAB o queda Asustado 1 minuto o hasta recibir daño; las tiradas de ataque contra esa criatura asustada tienen ventaja. Una vez por descanso largo, o gastando un espacio de nivel 5.",
       "n": 20,
-      "usos": 0,
+      "manual": true,
+      "usos": 1,
       "reset": "largo"
      }
     ]
@@ -6744,33 +7035,46 @@
       {
        "nombre": "Lanzamiento de Conjuros",
        "t": "pasiva",
-       "texto": "Usa Inteligencia. Conjuros de Mago (Ilusión/Encantamiento).",
+       "texto": "Lanzas conjuros de mago con INT y puedes usar un foco arcano. Conoces Mano de mago y otros dos trucos de mago (uno más en el nivel 10), y preparas conjuros de mago de nivel 1 o más según tu tabla de espacios.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Mano de Mago Legeramente",
-       "t": "pasiva",
-       "texto": "Tu mano de mago es invisible y puede robar o desactivar trampas.",
+       "nombre": "Mano de Mago Prestidigitadora",
+       "t": "adicional",
+       "texto": "Puedes lanzar Mano de mago como acción adicional y hacer invisible la mano. La controlas con una acción adicional y a través de ella puedes hacer pruebas de Destreza (Juego de Manos).",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Emboscada Mágica",
        "t": "pasiva",
-       "texto": "Si lanzas conjuro estando escondido, el enemigo tiene desventaja en la salvación.",
+       "texto": "Si estás Invisible cuando lanzas un conjuro sobre una criatura, tiene desventaja en las salvaciones contra ese conjuro en ese mismo turno.",
        "n": 9,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Embaucador Versátil",
+       "t": "pasiva",
+       "texto": "Cuando usas la opción Tropiezo de Golpe Astuto contra una criatura, también puedes aplicarla a otra criatura a 5 pies de tu mano espectral.",
+       "n": 13,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Ladrón de Conjuros",
        "t": "reaccion",
-       "texto": "Reacción para anular un conjuro enemigo y aprender a lanzarlo tú mismo.",
+       "texto": "Justo después de que una criatura lance un conjuro que te tenga como objetivo o te incluya en su área, usas tu reacción: hace una salvación de INT contra tu CD de conjuros. Si falla, el conjuro no te afecta y, si es de nivel 1 o más y de un nivel que puedes lanzar, se lo robas: lo tienes preparado 8 horas y ella no puede lanzarlo mientras tanto. Una vez por descanso largo.",
        "n": 17,
-       "usos": 0,
+       "manual": true,
+       "usos": 1,
        "reset": "largo"
       }
      ]
@@ -6781,106 +7085,45 @@
       {
        "nombre": "Asesinar",
        "t": "pasiva",
-       "texto": "Ventaja en Iniciativa. Ventaja en ataques contra criaturas que no han actuado. El primer golpe contra ellas inflige daño extra igual a tu Nivel de Pícaro.",
+       "texto": "Tienes ventaja en la iniciativa. En la primera ronda de cada combate tienes ventaja en los ataques contra quien todavía no haya actuado, y si tu Ataque Furtivo acierta esa ronda, el objetivo recibe daño extra igual a tu nivel de pícaro, del tipo del arma.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Competencia en Infiltración",
+       "nombre": "Herramientas de Asesino",
        "t": "pasiva",
-       "texto": "Competencia con kit de disfraz y venenos.",
+       "texto": "Ganas un útil de disfraz y un útil de envenenador, y competencia con ambos.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Maestro de la Suplantación",
+       "nombre": "Experto en Infiltración",
        "t": "pasiva",
-       "texto": "Puedes crear identidades falsas perfectas.",
+       "texto": "Tras estudiar al menos 1 hora a alguien, imitas sin fallos su forma de hablar, su letra o ambas. Además, usar Puntería Firme ya no deja tu velocidad en 0.",
        "n": 9,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Envenenar Armas",
+       "t": "pasiva",
+       "texto": "Cuando usas la opción Veneno de Golpe Astuto, el objetivo que falla la salvación también recibe 2d6 de daño de veneno, que ignora la resistencia al veneno.",
+       "n": 13,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Golpe Mortal",
-       "t": "gratis",
-       "texto": "Al golpear por sorpresa, el daño puede duplicarse si fallan salvación CON.",
+       "t": "pasiva",
+       "texto": "Cuando aciertas con tu Ataque Furtivo en la primera ronda de un combate, el objetivo hace una salvación de CON (CD 8 + DES + competencia) o el daño de ese ataque se duplica contra él.",
        "n": 17,
-       "usos": 0,
-       "reset": "largo"
-      }
-     ]
-    },
-    "cuchillo-mental": {
-     "n": "Cuchillo Mental",
-     "rasgos": [
-      {
-       "nombre": "Hojas Psiónicas",
-       "t": "pasiva",
-       "texto": "Creas dagas de energía mental que desaparecen tras impactar.",
-       "n": 3,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Poder Psiónico",
-       "t": "pasiva",
-       "texto": "Dados de energía para telepatía y mejorar pruebas de habilidad.",
-       "n": 3,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Hojas de Rastreo",
-       "t": "pasiva",
-       "texto": "Tus dagas psíquicas pueden teletransportarte o buscar objetivos.",
-       "n": 9,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Velo Psíquico",
-       "t": "pasiva",
-       "texto": "Invisibilidad total por 1 hora.",
-       "n": 17,
-       "usos": 0,
-       "reset": "largo"
-      }
-     ]
-    },
-    "ladron": {
-     "n": "Ladrón",
-     "rasgos": [
-      {
-       "nombre": "Manos Rápidas",
-       "t": "adicional",
-       "texto": "Usa objetos o herramientas de ladrón como acción adicional.",
-       "n": 3,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Trabajo en Segundo Piso",
-       "t": "pasiva",
-       "texto": "Velocidad de trepar igual a tu velocidad normal.",
-       "n": 3,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Usar Objeto Mágico",
-       "t": "pasiva",
-       "texto": "Ignoras requisitos de clase/raza para usar objetos mágicos.",
-       "n": 13,
-       "usos": 0,
-       "reset": "largo"
-      },
-      {
-       "nombre": "Reflejos de Ladrón",
-       "t": "pasiva",
-       "texto": "Tienes dos turnos en el primer asalto del combate.",
-       "n": 17,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
@@ -6890,42 +7133,56 @@
      "n": "Fantasma",
      "rasgos": [
       {
-       "nombre": "Susurros de los Muertos",
-       "t": "pasiva",
-       "texto": "Los ecos de aquellos que han muerto se aferran a ti. Cada vez que terminas un Descanso Corto o Largo, puedes obtener una competencia en una habilidad o herramienta a tu elección, mientras una presencia fantasmal comparte su conocimiento contigo. Pierdes esta competencia cuando usas este rasgo para elegir una competencia diferente de la que carezcas.",
-       "n": 3,
-       "usos": 0,
-       "reset": "corto"
-      },
-      {
        "nombre": "Lamentos de la Tumba",
-       "t": "pasiva",
-       "texto": "Al acercar a alguien a la tumba, puedes canalizar el poder de la muerte para dañar a otra persona también. Inmediatamente después de infligir tu daño de Ataque Furtivo a una criatura en tu turno, puedes elegir como objetivo a una segunda criatura que puedas ver a 30 pies o menos de la primera. Tira la mitad del número de dados de Ataque Furtivo correspondientes a tu nivel (redondeando hacia arriba), y la segunda criatura recibe daño necrótico igual al total de la tirada, mientras los lamentos de los muertos suenan a su alrededor por un momento. Puedes usar este rasgo una cantidad de veces igual a tu bonificador de competencia, y recuperas todos los usos gastados cuando terminas un Descanso Largo.",
+       "t": "gratis",
+       "texto": "Justo después de hacer daño de Ataque Furtivo en tu turno, eliges otra criatura que veas a 30 pies de la primera: tiras la mitad de tus dados de Ataque Furtivo (redondeando hacia arriba) y recibe ese daño necrótico.",
        "n": 3,
+       "manual": true,
+       "usos": "max(1, DES)",
+       "reset": "largo"
+      },
+      {
+       "nombre": "Susurros de los Muertos",
+       "t": "fuera",
+       "texto": "Al terminar un descanso corto o largo, eliges una habilidad o herramienta en la que no seas competente y ganas competencia en ella, hasta que vuelvas a usar este rasgo para elegir otra.",
+       "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Fichas de Alma",
+       "nombre": "Recuerdos de los Difuntos",
        "t": "reaccion",
-       "texto": "Cuando una vida termina en tu presencia, eres capaz de arrebatar una ficha del alma que parte, una porción de su esencia vital que toma forma física: como reacción, cuando una criatura que puedas ver muere a 30 pies o menos de ti, puedes abrir tu mano libre y hacer que aparezca allí un pequeño abalorio (una ficha de alma). El DM determina su forma. Puedes tener un máximo de fichas de alma igual a tu bonificador de competencia, y no puedes crear una mientras estés en tu máximo. Puedes usar las fichas de alma de las siguientes maneras: mientras llevas una ficha de alma contigo, tienes ventaja en tiradas de salvación contra la muerte y en tiradas de salvación de Constitución; cuando infliges daño de Ataque Furtivo en tu turno, puedes destruir una de tus fichas de alma que lleves contigo y usar inmediatamente Lamentos de la Tumba, sin gastar un uso de ese rasgo; como acción, puedes destruir una de tus fichas de alma, sin importar dónde esté, y preguntar al espíritu asociado una pregunta. El espíritu aparece y responde en un idioma que conocía en vida. No está obligado a ser veraz y responde de la forma más concisa posible.",
+       "texto": "Tienes dos baratijas de alma (máximo 2; 3 desde el nivel 13 y 4 desde el 17) y vuelves a tener al menos dos al terminar un descanso largo. Con al menos una tienes ventaja en las salvaciones contra la muerte y de CON. Puedes romper una al hacer daño de Ataque Furtivo para usar Lamentos de la Tumba gratis, o con una acción mágica para lanzar Augurio (con CON) o hacerle una pregunta a su espíritu. Cuando muere una criatura que ves a 30 pies, con tu reacción ganas otra.",
        "n": 9,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
+      },
+      {
+       "nombre": "Voz de la Muerte",
+       "t": "fuera",
+       "texto": "Lanzas Hablar con los muertos sin espacio ni componentes, con DES, una vez por descanso corto o largo. Puedes elegir como objetivo una de tus baratijas de alma en lugar de un cadáver.",
+       "n": 9,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
       },
       {
        "nombre": "Caminar Fantasma",
        "t": "adicional",
-       "texto": "Puedes atravesar parcialmente el reino de los muertos, volviéndote como un fantasma. Como Acción Adicional, asumes una forma espectral. Mientras estás en esta forma, tienes velocidad de vuelo de 10 pies, puedes flotar, y las tiradas de ataque contra ti tienen desventaja. También puedes moverte a través de criaturas y objetos como si fueran terreno difícil, pero recibes 1d10 de daño de Fuerza si terminas tu turno dentro de una criatura o un objeto. Permaneces en esta forma durante 10 minutos o hasta que la termines como Acción Adicional. Para volver a usar este rasgo, debes terminar un Descanso Largo o destruir una de tus fichas de alma como parte de la Acción Adicional que usas para activarlo.",
+       "texto": "Como acción adicional tomas forma espectral durante 10 minutos: vuelas 10 pies y puedes flotar, los ataques contra ti tienen desventaja, y atraviesas criaturas y objetos como terreno difícil (1d10 de daño de fuerza si terminas tu turno dentro de uno). Una vez por descanso largo, o rompiendo una baratija de alma.",
        "n": 13,
-       "usos": 0,
+       "manual": true,
+       "usos": 1,
        "reset": "largo"
       },
       {
        "nombre": "Amigo de la Muerte",
        "t": "pasiva",
-       "texto": "Tu asociación con la muerte se ha vuelto tan estrecha que obtienes los siguientes beneficios. Cuando usas Lamentos de la Tumba, ahora puedes infligir el daño necrótico tanto a la primera como a la segunda criatura. Al final de un Descanso Largo, aparece una ficha de alma en tu mano si no tienes ninguna, pues los espíritus de los muertos se sienten atraídos por ti.",
+       "texto": "Lamentos de la Tumba puede hacer su daño necrótico a la primera criatura y a la segunda. Además, al tirar iniciativa ganas una baratija de alma si no te queda ninguna.",
        "n": 17,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       }
@@ -6937,34 +7194,147 @@
       {
        "nombre": "Sed de Sangre",
        "t": "reaccion",
-       "texto": "Cuando un enemigo que puedas ver a 30 pies o menos de ti recibe daño y queda Malherido después de recibirlo, pero no muere de inmediato, puedes usar una Reacción y teletransportarte a un espacio desocupado que puedas ver a 5 pies o menos de ese enemigo. Luego puedes hacer un ataque cuerpo a cuerpo. Puedes usar este rasgo una cantidad de veces igual a tu modificador de Inteligencia (mínimo una), y recuperas todos los usos gastados cuando terminas un Descanso Largo.",
+       "texto": "Cuando un enemigo que ves a 30 pies recibe daño y queda Malherido sin morir, usas tu reacción para teletransportarte a un espacio libre a 5 pies de él y hacerle un ataque cuerpo a cuerpo.",
        "n": 3,
-       "usos": 0,
+       "manual": true,
+       "usos": "max(1, INT)",
        "reset": "largo"
       },
       {
        "nombre": "Lealtad Temible",
        "t": "pasiva",
-       "texto": "Elige uno de los Tres Muertos: Bane, Bhaal o Myrkul. Obtienes Resistencia a un tipo de daño y la capacidad de lanzar un truco, como se detalla a continuación; Inteligencia es tu característica de lanzamiento para este truco. Cuando terminas un Descanso Largo, puedes cambiar tu elección. Bane: Resistencia a daño Psíquico y el truco Ilusión Menor. Bhaal: Resistencia a daño de Veneno y el truco Protección contra Hojas. Myrkul: Resistencia a daño Necrótico y el truco Toque Helado.",
+       "texto": "Eliges a uno de los Tres Muertos y ganas su resistencia y su truco (con INT): Bane, daño psíquico e Ilusión menor; Bhaal, veneno y Guardia de cuchillas; Myrkul, necrótico y Toque helado. Puedes cambiar la elección al terminar un descanso largo.",
        "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Infundir Miedo",
+       "t": "pasiva",
+       "texto": "Nueva opción de Golpe Astuto: Aterrorizar (1d6; salvación de SAB o queda Asustado 1 minuto, y mientras tanto tienes ventaja en los ataques contra él; repite la salvación al final de cada turno suyo).",
+       "n": 9,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Aura de Malevolencia",
        "t": "pasiva",
-       "texto": "Irradias un poder maligno asociado con uno de los Tres Muertos. Cuando usas Sed de Sangre y te teletransportas, cada criatura de tu elección a 10 pies o menos del espacio que dejaste o del espacio de destino (a tu elección) recibe daño igual a tu modificador de Inteligencia; el tipo de daño es el mismo que la Resistencia al daño otorgada por tu elección en el rasgo Lealtad Temible. El daño infligido por este rasgo ignora la Resistencia.",
+       "texto": "Cuando te teletransportas con Sed de Sangre, las criaturas que elijas a 10 pies del lugar que dejas o del de llegada reciben daño igual a tu mod. de INT, del tipo de tu Lealtad Temible, que ignora la resistencia.",
        "n": 13,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Encarnación del Terror",
        "t": "pasiva",
-       "texto": "Obtienes los siguientes beneficios. Degollador: recuperas un uso gastado de Sed de Sangre cuando terminas un Descanso Corto. Intención Asesina: cuando tiras el daño de tu Ataque Furtivo, puedes tratar cualquier resultado de 1 o 2 en el dado como un 3.",
+       "texto": "Recuperas un uso de Sed de Sangre al terminar un descanso corto. Además, al tirar el daño de tu Ataque Furtivo puedes contar cualquier 1 o 2 del dado como un 3.",
        "n": 17,
+       "manual": true,
        "usos": 0,
-       "reset": "corto"
+       "reset": "largo"
+      }
+     ]
+    },
+    "cuchillo-mental": {
+     "n": "Cuchillo Mental",
+     "rasgos": [
+      {
+       "nombre": "Poder Psiónico",
+       "t": "pasiva",
+       "texto": "Tienes dados de energía psiónica (recuperas uno con descanso corto y todos con uno largo). Si fallas una prueba con una habilidad o herramienta en la que eres competente, tiras un dado y lo sumas; solo lo gastas si así la superas. Con una acción mágica, además, enlazas por telepatía a hasta tantas criaturas como tu bonificador de competencia durante tantas horas como saques en un dado (a 1 milla); la primera vez tras cada descanso largo no gastas el dado.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Hojas Psíquicas",
+       "t": "pasiva",
+       "texto": "Cuando usas Atacar o haces un ataque de oportunidad, puedes atacar con una hoja psíquica en tu mano libre: arma cuerpo a cuerpo sencilla con Sutil y Arrojadiza (60/120), 1d6 de daño psíquico y maestría Molestar. Después, con una acción adicional, puedes atacar con una segunda hoja de 1d4 si tienes la otra mano libre.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Hojas del Alma",
+       "t": "pasiva",
+       "texto": "Si fallas un ataque con una hoja psíquica, tiras un dado de energía y lo sumas; solo se gasta si así aciertas. Además, con una acción adicional gastas un dado, lanzas una hoja a un espacio que veas a 10 × el resultado en pies y te teletransportas allí.",
+       "n": 9,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Velo Psíquico",
+       "t": "accion",
+       "texto": "Como acción mágica quedas Invisible 1 hora o hasta que lo termines; se acaba si haces daño o fuerzas una salvación. Una vez por descanso largo, o gastando un dado de energía.",
+       "n": 13,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Desgarrar la Mente",
+       "t": "gratis",
+       "texto": "Cuando haces daño de Ataque Furtivo con tus hojas psíquicas, el objetivo hace una salvación de SAB (CD 8 + DES + competencia) o queda Aturdido 1 minuto, repitiéndola al final de cada turno suyo. Una vez por descanso largo, o gastando tres dados de energía.",
+       "n": 17,
+       "manual": true,
+       "usos": 1,
+       "reset": "largo"
+      }
+     ]
+    },
+    "ladron": {
+     "n": "Ladrón",
+     "rasgos": [
+      {
+       "nombre": "Manos Rápidas",
+       "t": "adicional",
+       "texto": "Con una acción adicional puedes hacer una prueba de Destreza (Juego de Manos) para abrir una cerradura, desactivar una trampa o robar un bolsillo, usar la acción Utilizar, o usar un objeto mágico que pida la acción mágica.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Trabajo en Segundo Piso",
+       "t": "pasiva",
+       "texto": "Tienes velocidad de trepar igual a tu velocidad y calculas la distancia de tus saltos con DES en lugar de FUE.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Sigilo Supremo",
+       "t": "pasiva",
+       "texto": "Nueva opción de Golpe Astuto: Ataque Sigiloso (1d6). Si estás Invisible por la acción Esconderse, este ataque no te quita esa condición si terminas el turno tras cobertura de tres cuartos o total.",
+       "n": 9,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Usar Objeto Mágico",
+       "t": "pasiva",
+       "texto": "Puedes estar sintonizado con hasta cuatro objetos mágicos. Al gastar cargas de un objeto tiras 1d6: con un 6 no las gastas. Puedes usar cualquier pergamino de conjuro con INT; si es de nivel 2 o más, antes superas una prueba de Inteligencia (Arcanos) CD 10 + el nivel, o el pergamino se deshace.",
+       "n": 13,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Reflejos de Ladrón",
+       "t": "pasiva",
+       "texto": "En la primera ronda de cada combate tienes dos turnos: uno con tu iniciativa y otro con tu iniciativa menos 10.",
+       "n": 17,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
       }
      ]
     },
@@ -6974,96 +7344,285 @@
       {
        "nombre": "Oído para el Engaño",
        "t": "pasiva",
-       "texto": "Desarrollas un oído agudo para detectar mentiras. Cada vez que hagas una prueba de Sabiduría (Perspicacia) para determinar si una criatura miente, trata cualquier resultado de 7 o menos en el d20 como un 8.",
+       "texto": "En las pruebas de Sabiduría (Perspicacia) para saber si alguien miente, un 7 o menos en el d20 cuenta como un 8.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Ojo para el Detalle",
        "t": "adicional",
-       "texto": "Puedes usar una Acción Adicional para hacer una prueba de Sabiduría (Percepción) para localizar una criatura u objeto escondido, o una prueba de Inteligencia (Investigación) para descubrir o descifrar pistas.",
+       "texto": "Con una acción adicional haces una prueba de Sabiduría (Percepción) para encontrar una criatura u objeto escondido, o de Inteligencia (Investigación) para descubrir o descifrar pistas.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Lucha Perspicaz",
        "t": "adicional",
-       "texto": "Obtienes la capacidad de descifrar las tácticas de un oponente y desarrollar un contraataque. Como Acción Adicional, haces una prueba de Sabiduría (Perspicacia) contra una criatura que puedas ver y que no esté Incapacitada, contra una prueba de Carisma (Engaño) del objetivo. Si tienes éxito, puedes usar tu Ataque Furtivo contra ese objetivo incluso si no tienes ventaja en la tirada de ataque, pero no si tienes desventaja. Este beneficio dura 1 minuto o hasta que uses esta característica con éxito contra un objetivo diferente.",
+       "texto": "Con una acción adicional enfrentas tu Sabiduría (Perspicacia) al Carisma (Engaño) de una criatura que ves y no está Incapacitada. Si ganas, durante 1 minuto (o hasta que lo logres con otra) puedes usar Ataque Furtivo contra ella sin tener ventaja, siempre que no tengas desventaja.",
        "n": 3,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "nombre": "Mirada Firme",
        "t": "pasiva",
-       "texto": "Obtienes ventaja en cualquier prueba de Sabiduría (Percepción) o Inteligencia (Investigación) si no te mueves más de la mitad de tu velocidad en el mismo turno.",
+       "texto": "Tienes ventaja en las pruebas de Sabiduría (Percepción) e Inteligencia (Investigación) si ese turno no te mueves más de la mitad de tu velocidad.",
        "n": 9,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Ojo Inerrante",
+       "nombre": "Ojo Infalible",
        "t": "accion",
-       "texto": "Tus sentidos son casi imposibles de engañar. Como acción, percibes la presencia de ilusiones, cambiaformas que no están en su forma original y otra magia diseñada para engañar los sentidos a 30 pies o menos de ti, siempre que no estés Cegado ni Ensordecido. Percibes que un efecto intenta engañarte, pero no obtienes información sobre lo que está oculto ni su verdadera naturaleza. Puedes usar esta característica un número de veces igual a tu modificador de Sabiduría (mínimo una) y recuperas todos los usos gastados al terminar un Descanso Largo.",
+       "texto": "Como acción percibes si hay ilusiones, cambiaformas fuera de su forma original u otra magia hecha para engañar los sentidos a 30 pies, siempre que no estés Cegado ni Ensordecido. Sabes que algo intenta engañarte, pero no qué esconde.",
        "n": 13,
-       "usos": 0,
+       "manual": true,
+       "usos": "max(1, SAB)",
        "reset": "largo"
       },
       {
        "nombre": "Ojo para las Debilidades",
        "t": "pasiva",
-       "texto": "Aprendes a explotar las debilidades de una criatura estudiando cuidadosamente sus tácticas y movimientos. Mientras tu rasgo Lucha Perspicaz aplique a una criatura, tu daño de Ataque Furtivo contra esa criatura aumenta en 3d6.",
+       "texto": "Mientras Lucha Perspicaz te sirva contra una criatura, tu Ataque Furtivo contra ella hace 3d6 de daño más.",
        "n": 17,
+       "manual": true,
        "usos": 0,
        "reset": "largo"
+      }
+     ]
+    },
+    "mente-maestra": {
+     "n": "Mente Maestra",
+     "rasgos": [
+      {
+       "nombre": "Maestro de la Intriga",
+       "t": "pasiva",
+       "texto": "Ganas competencia con el útil de disfraz, el de falsificación y un juego a tu elección, y aprendes dos idiomas. Tras oír hablar a una criatura al menos 1 minuto, imitas su acento y su forma de hablar como un nativo, si conoces el idioma.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Maestro de la Táctica",
+       "t": "adicional",
+       "texto": "Puedes usar la acción Ayudar como acción adicional. Cuando ayudas a un aliado a atacar, el objetivo puede estar a 30 pies de ti en lugar de a 5, si te ve o te oye.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Manipulador Perspicaz",
+       "t": "fuera",
+       "texto": "Si observas o tratas a una criatura al menos 1 minuto fuera de combate, el DM te dice si es igual, superior o inferior a ti en dos de estas cosas a tu elección: INT, SAB, CAR o niveles de clase. Quizá también descubras algo de su historia o de su personalidad.",
+       "n": 9,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Desvío",
+       "t": "reaccion",
+       "texto": "Cuando te atacan mientras una criatura a 5 pies te da cobertura contra ese ataque, puedes usar tu reacción para que el ataque vaya contra ella en lugar de contra ti.",
+       "n": 13,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Alma del Engaño",
+       "t": "pasiva",
+       "texto": "Nadie puede leerte la mente con telepatía ni otros medios salvo que lo permitas, y puedes mostrar pensamientos falsos enfrentando tu Carisma (Engaño) a su Sabiduría (Perspicacia). La magia que detecta mentiras dice que dices la verdad si así lo quieres, y la magia no puede obligarte a decirla.",
+       "n": 17,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "batidor": {
+     "n": "Batidor",
+     "rasgos": [
+      {
+       "nombre": "Hostigador",
+       "t": "reaccion",
+       "texto": "Cuando un enemigo termina su turno a 5 pies de ti, puedes usar tu reacción para moverte hasta la mitad de tu velocidad sin provocar ataques de oportunidad.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Superviviente",
+       "t": "pasiva",
+       "texto": "Ganas competencia en Naturaleza y Supervivencia si no la tenías, y pericia en ambas.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Movilidad Superior",
+       "t": "pasiva",
+       "texto": "Tu velocidad aumenta 10 pies, y también la de trepar o nadar si tienes.",
+       "n": 9,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Maestro de Emboscadas",
+       "t": "pasiva",
+       "texto": "Tienes ventaja en la iniciativa. Además, la primera criatura que aciertas en la primera ronda de un combate queda expuesta: los ataques contra ella tienen ventaja hasta el inicio de tu siguiente turno.",
+       "n": 13,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Golpe Repentino",
+       "t": "adicional",
+       "texto": "Si usas la acción Atacar en tu turno, puedes hacer un ataque más como acción adicional. Ese ataque puede llevar Ataque Furtivo aunque ya lo hayas usado este turno, pero nunca dos veces contra el mismo objetivo en un turno.",
+       "n": 17,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      }
+     ]
+    },
+    "espadachin": {
+     "n": "Espadachín",
+     "rasgos": [
+      {
+       "nombre": "Juego de Pies",
+       "t": "pasiva",
+       "texto": "En tu turno, si haces un ataque cuerpo a cuerpo contra una criatura, esa criatura no puede hacerte ataques de oportunidad durante el resto de tu turno.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Audacia Temeraria",
+       "t": "pasiva",
+       "texto": "Sumas tu mod. de CAR a la iniciativa. Además, puedes usar Ataque Furtivo sin ventaja contra una criatura a 5 pies si no hay nadie más a 5 pies de ti y no tienes desventaja.",
+       "n": 3,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Encanto Arrollador",
+       "t": "accion",
+       "texto": "Como acción enfrentas tu Carisma (Persuasión) a la Sabiduría (Perspicacia) de una criatura que te oye y comparte tu idioma. Si ganas y es hostil, durante 1 minuto tiene desventaja en los ataques contra cualquiera que no seas tú y solo puede hacerte ataques de oportunidad a ti; termina si un aliado tuyo la ataca o le lanza un conjuro, o si os separáis más de 60 pies. Si no es hostil, queda Hechizada por ti 1 minuto como una conocida amistosa, hasta que le hagáis daño.",
+       "n": 9,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Maniobra Elegante",
+       "t": "adicional",
+       "texto": "Con una acción adicional ganas ventaja en tu siguiente prueba de Destreza (Acrobacias) o Fuerza (Atletismo) de este turno.",
+       "n": 13,
+       "manual": true,
+       "usos": 0,
+       "reset": "largo"
+      },
+      {
+       "nombre": "Maestro Duelista",
+       "t": "gratis",
+       "texto": "Si fallas una tirada de ataque, puedes repetirla con ventaja. Una vez por descanso corto o largo.",
+       "n": 17,
+       "manual": true,
+       "usos": 1,
+       "reset": "corto"
       }
      ]
     }
    },
    "rasgosAltos": [
     {
+     "nombre": "Pericia",
+     "t": "pasiva",
+     "texto": "Eliges dos habilidades más en las que seas competente y ganas pericia en ellas (en Habilidades).",
+     "n": 6,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
      "nombre": "Evasión",
      "t": "pasiva",
-     "texto": "En efectos de área de DES, si pasas la salvación recibes 0 daño, y si fallas, solo la mitad.",
+     "texto": "Si un efecto te pide una salvación de DES para recibir solo la mitad del daño, no recibes nada si la superas y la mitad si la fallas. No funciona si estás Incapacitado.",
      "n": 7,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
      "nombre": "Talento Fiable",
      "t": "pasiva",
-     "texto": "Tiradas de 9 o menos en el d20 en habilidades/herramientas con competencia se vuelven un 10.",
+     "texto": "En las pruebas de característica con una habilidad o herramienta en la que seas competente, un 9 o menos en el d20 cuenta como un 10.",
      "n": 7,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
      "nombre": "Golpe Astuto Mejorado",
      "t": "pasiva",
-     "texto": "Puedes usar hasta dos opciones de Golpe Astuto en un solo ataque.",
+     "texto": "Al hacer daño de Ataque Furtivo puedes usar hasta dos efectos de Golpe Astuto, pagando el coste en dados de cada uno.",
      "n": 11,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
-     "nombre": "Golpe Astuto Taimado",
+     "nombre": "Golpes Taimados",
      "t": "pasiva",
-     "texto": "Nuevas opciones de Golpe Astuto (coste 2d6): Atontar, Cegar, Inconsciente (6d6).",
+     "texto": "Nuevas opciones de Golpe Astuto: Atontar (2d6; salvación de CON o en su siguiente turno solo puede moverse, o usar su acción, o su acción adicional), Oscurecer (3d6; salvación de DES o queda Cegado hasta el final de su siguiente turno) y Noquear (6d6; salvación de CON o queda Inconsciente 1 minuto o hasta recibir daño, repitiendo la salvación al final de cada turno suyo).",
      "n": 14,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Mente Escurridiza",
+     "t": "pasiva",
+     "texto": "Ganas competencia en las salvaciones de SAB y CAR.",
+     "n": 15,
+     "manual": true,
+     "usos": 0,
+     "reset": "largo"
+    },
+    {
+     "nombre": "Escurridizo",
+     "t": "pasiva",
+     "texto": "Ninguna tirada de ataque contra ti puede tener ventaja, salvo que estés Incapacitado.",
+     "n": 18,
+     "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
      "nombre": "Golpe de Suerte",
-     "t": "pasiva",
-     "texto": "Si fallas un ataque o prueba, puedes convertirlo en un éxito automático (1/descanso).",
+     "t": "gratis",
+     "texto": "Si fallas una prueba de d20, puedes convertir la tirada en un 20. Una vez por descanso corto o largo.",
      "n": 20,
+     "manual": true,
      "usos": 1,
-     "reset": "largo"
+     "reset": "corto"
     }
-   ]
+   ],
+   "subAltos": {}
   },
   "lib:pugilista": {
    "n": "Pugilista",

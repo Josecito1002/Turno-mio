@@ -15,6 +15,66 @@
       "clase": "lib:pugilista",
       "subclase": "perro-sabueso",
       "nivel": 3
+    },
+    {
+      "clase": "paladin",
+      "subclase": "genios-nobles",
+      "nivel": 11
+    },
+    {
+      "clase": "paladin",
+      "subclase": "conquista",
+      "nivel": 20
+    },
+    {
+      "clase": "paladin",
+      "subclase": "redencion",
+      "nivel": 20
+    },
+    {
+      "clase": "paladin",
+      "subclase": "corona",
+      "nivel": 20
+    },
+    {
+      "clase": "paladin",
+      "subclase": "vigilantes",
+      "nivel": 20
+    },
+    {
+      "clase": "paladin",
+      "subclase": "devocion",
+      "nivel": 17
+    },
+    {
+      "clase": "picaro",
+      "subclase": "cuchillo-mental",
+      "nivel": 13
+    },
+    {
+      "clase": "picaro",
+      "subclase": "vastago-tres",
+      "nivel": 9
+    },
+    {
+      "clase": "picaro",
+      "subclase": "batidor",
+      "nivel": 13
+    },
+    {
+      "clase": "picaro",
+      "subclase": "espadachin",
+      "nivel": 17
+    },
+    {
+      "clase": "picaro",
+      "subclase": "mente-maestra",
+      "nivel": 17
+    },
+    {
+      "clase": "picaro",
+      "subclase": "ladron",
+      "nivel": 13
     }
   ]
 }
