@@ -12,16 +12,30 @@ import { EtiquetaFuente } from '@/features/personajes/components/editor/Tarjetas
 function cargarImagen(src: string) {
   return new Promise<HTMLImageElement>((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
 }
+/** Copia un trozo de la imagen a un lienzo de w×h. Al achicar mucho, lo hace a la mitad cada vez y con suavizado alto:
+    de un solo paso el navegador salta píxeles y la imagen queda pixelada. */
+function dibujar(im: CanvasImageSource, sx: number, sy: number, sw: number, sh: number, w: number, h: number) {
+  let src: CanvasImageSource = im, x = sx, y = sy, cw = sw, ch = sh;
+  while (cw / 2 >= w && ch / 2 >= h) {
+    const paso = document.createElement('canvas');
+    paso.width = Math.round(cw / 2); paso.height = Math.round(ch / 2);
+    const g = paso.getContext('2d')!; g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+    g.drawImage(src, x, y, cw, ch, 0, 0, paso.width, paso.height);
+    src = paso; x = 0; y = 0; cw = paso.width; ch = paso.height;
+  }
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  const g = cv.getContext('2d')!; g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  g.drawImage(src, x, y, cw, ch, 0, 0, w, h);
+  return cv;
+}
 function achicarImagen(file: File, max = 320) {
   return new Promise<string>((res, rej) => {
     const fr = new FileReader();
     fr.onload = () => {
       const im = new Image();
       im.onload = () => {
-        const s = Math.min(1, max / Math.max(im.width, im.height)), cv = document.createElement('canvas');
-        cv.width = Math.round(im.width * s); cv.height = Math.round(im.height * s);
-        cv.getContext('2d')!.drawImage(im, 0, 0, cv.width, cv.height);
-        res(cv.toDataURL('image/jpeg', 0.8));
+        const s = Math.min(1, max / Math.max(im.width, im.height));
+        res(dibujar(im, 0, 0, im.width, im.height, Math.round(im.width * s), Math.round(im.height * s)).toDataURL('image/jpeg', 0.92));
       };
       im.onerror = rej; im.src = fr.result as string;
     };
@@ -29,8 +43,9 @@ function achicarImagen(file: File, max = 320) {
   });
 }
 
-/* Tamaños: la original se guarda hasta 1280 px (para volver a recortar) y el recorte en 640 px, que se ve nítido en grande. */
-const LADO_ORIGINAL = 1280, LADO_RECORTE = 640;
+/* Tamaños: la original se guarda hasta 2048 px (para volver a recortar) y el recorte en 1024 px, que se ve nítido
+   en grande incluso en pantallas de móvil de alta densidad. */
+const LADO_ORIGINAL = 2048, LADO_RECORTE = 1024;
 
 async function empezarCrop(k: string, file?: File) {
   const LIB = getLib();
@@ -47,11 +62,10 @@ async function empezarCrop(k: string, file?: File) {
 }
 async function guardarCrop() {
   const c = S.crop, im = await cargarImagen(c.src), lado = Math.min(c.w, c.h) / c.zoom, N = LADO_RECORTE;
-  const cv = document.createElement('canvas'); cv.width = N; cv.height = N;
-  cv.getContext('2d')!.drawImage(im, c.cx * c.w - lado / 2, c.cy * c.h - lado / 2, lado, lado, 0, 0, N, N);
+  const cv = dibujar(im, c.cx * c.w - lado / 2, c.cy * c.h - lado / 2, lado, lado, Math.min(N, Math.round(lado)), Math.min(N, Math.round(lado)));
   const LIB = getLib();
   LIB.img = LIB.img || {}; LIB.imgOrig = LIB.imgOrig || {}; LIB.imgCrop = LIB.imgCrop || {};
-  const k = c.k, img = cv.toDataURL('image/jpeg', 0.85), recorte = { zoom: c.zoom, cx: c.cx, cy: c.cy };
+  const k = c.k, img = cv.toDataURL('image/jpeg', 0.92), recorte = { zoom: c.zoom, cx: c.cx, cy: c.cy };
   LIB.img[k] = img; LIB.imgOrig[k] = c.src; LIB.imgCrop[k] = recorte;
   S.crop = null; render();
   guardarLibExtras([{ tipo: 'img', clave: k, valor: img }, { tipo: 'imgOrig', clave: k, valor: c.src }, { tipo: 'imgCrop', clave: k, valor: recorte }])
