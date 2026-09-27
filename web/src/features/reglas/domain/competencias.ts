@@ -73,14 +73,25 @@ export function leerCompetencias(c: any) {
 
 /* ---------- Competencias que el jugador elige (dotes, especies, subclases) ---------- */
 type TipoOpcion = 'arma' | 'artesano' | 'herramienta';
-/** Opciones para una elección de competencia: armas ('arma:clave'), herramientas de artesano o cualquier herramienta ('herr:clave'). */
+const GRUPO_HERR = { artesano: 'Herramientas de artesano', instrumento: 'Instrumentos musicales', juego: 'Juegos', otra: 'Otras herramientas' } as const;
+/** Opciones para una elección de competencia: armas ('arma:clave'), herramientas de artesano o cualquier herramienta ('herr:clave').
+    El selector las agrupa por `grupo`; `desc` solo lo llevan las armas (su daño). */
 export function opcionesCompetencia(tipos: TipoOpcion[]) {
-  const out: { key: string; nombre: string; desc: string }[] = [];
-  if (tipos.includes('arma')) Object.entries<any>(ARMAS).forEach(([k, w]) => out.push({ key: 'arma:' + k, nombre: w.n, desc: `Arma ${w.cat === 'sencilla' ? 'sencilla' : 'marcial'}${w.dist ? ' a distancia' : ''}: ${w.d} ${w.tipo}.` }));
+  const out: { key: string; nombre: string; grupo: string; desc?: string }[] = [];
+  if (tipos.includes('arma')) Object.entries<any>(ARMAS).forEach(([k, w]) => out.push({ key: 'arma:' + k, nombre: w.n, grupo: `Armas ${w.cat === 'sencilla' ? 'sencillas' : 'marciales'}${w.dist ? ' a distancia' : ''}`, desc: `${w.d} ${w.tipo}.` }));
   const herr = tipos.includes('herramienta') ? HERRAMIENTAS : tipos.includes('artesano') ? HERRAMIENTAS.filter(h => h[2] === 'artesano') : [];
-  herr.forEach(([k, n, t]) => out.push({ key: 'herr:' + k, nombre: n, desc: t === 'artesano' ? 'Herramientas de artesano.' : t === 'instrumento' ? 'Instrumento musical.' : t === 'juego' ? 'Juego.' : 'Herramienta.' }));
+  herr.forEach(([k, n, t]) => out.push({ key: 'herr:' + k, nombre: n, grupo: GRUPO_HERR[t] }));
   return out;
 }
+/** Ayuda del selector: qué se elige y qué da. `max` si se eligen varias; `temporal` si dura hasta el siguiente descanso largo. */
+export function ayudaCompetencia(tipos: TipoOpcion[], { max, temporal }: { max?: number; temporal?: boolean } = {}) {
+  const que = tipos.includes('arma') ? (max ? `${max} armas o herramientas` : 'un arma o herramienta')
+    : tipos.includes('artesano') ? 'un tipo de herramientas de artesano' : max ? `${max} herramientas` : 'una herramienta';
+  return temporal
+    ? `Eliges ${que} y ganas competencia hasta tu siguiente descanso largo, cuando vuelves a elegir.`
+    : `Eliges ${que} y ganas competencia: sumas tu bonificador de competencia a las pruebas que hagas con ${max || tipos.includes('artesano') ? 'ellas' : 'ella'}.`;
+}
+
 /** Suma a las competencias lo elegido en pj.elecciones[id] (efecto de una regla revisada). */
 export function aplicarElegidas(c: any, id: string, src: string) {
   const elegidas: string[] = [].concat(c.pj?.elecciones?.[id] || []);

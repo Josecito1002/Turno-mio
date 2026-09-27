@@ -45,7 +45,16 @@ export function ElegirElecciones({ pj, elecciones, soloVer }: { pj: any; eleccio
 }
 
 const Desc = ({ texto }: { texto?: string }) => texto ? <span className="block text-sm text-muted">{texto}</span> : null;
-const cuando = (el: any) => `Lo pide ${el.src}${el.nivel > 1 ? ` (nivel ${el.nivel})` : ''}.`;
+/* Ayuda del selector: qué se elige y qué da (`ayuda` de la regla); si no la trae, de qué rasgo sale */
+const cuando = (el: any) => el.ayuda || `Lo pide ${el.src}${el.nivel > 1 ? ` (nivel ${el.nivel})` : ''}.`;
+/* Opciones por `grupo` (armas sencillas, herramientas de artesano...), en el orden en que aparecen */
+const porGrupo = (opciones: any[]) => {
+  const g = new Map<string, any[]>();
+  opciones.forEach(o => g.set(o.grupo || '', [...(g.get(o.grupo || '') || []), o]));
+  return [...g.entries()];
+};
+/* La lista de qué hace cada opción solo sirve si las descripciones dicen algo distinto y no son las agrupadas */
+const conDescripciones = (el: any) => !el.opciones.some((o: any) => o.grupo) && new Set(el.opciones.map((o: any) => o.desc).filter(Boolean)).size > 1;
 
 /** Varias opciones con un máximo (fórmulas conocidas, maldiciones conocidas...). */
 function EleccionVarias({ pj, el }: { pj: any; el: any }) {
@@ -58,13 +67,18 @@ function EleccionVarias({ pj, el }: { pj: any; el: any }) {
     <fieldset className="m-0 mt-3 border-0 p-0">
       <legend className="font-bold">{el.titulo}</legend>
       <p aria-live="polite" className="m-0 text-sm text-muted">{sel.length} de {el.max} elegidas. {cuando(el)}</p>
-      <div className="mt-1 grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-x-4 gap-y-1">
-        {el.opciones.map((o: any) => (
-          <CasillaKit key={o.key} checked={sel.includes(o.key)} onChange={(v, input) => cambiar(o.key, v, input)} nota={o.nota}>
-            {o.nombre}<Desc texto={o.desc} />
-          </CasillaKit>
-        ))}
-      </div>
+      {porGrupo(el.opciones).map(([grupo, ops]) => (
+        <div key={grupo}>
+          {grupo && <p className="mb-0 mt-2 text-sm font-bold text-muted">{grupo}</p>}
+          <div className="mt-1 grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-x-4 gap-y-1">
+            {ops.map((o: any) => (
+              <CasillaKit key={o.key} checked={sel.includes(o.key)} onChange={(v, input) => cambiar(o.key, v, input)} nota={o.nota}>
+                {o.nombre}<Desc texto={o.desc} />
+              </CasillaKit>
+            ))}
+          </div>
+        </div>
+      ))}
     </fieldset>
   );
 }
@@ -77,16 +91,19 @@ function EleccionUna({ pj, el }: { pj: any; el: any }) {
       <Campo etiqueta={el.titulo} ayuda={cuando(el)}>
         <Selector path={`elecciones.${el.id}`} value={pj.elecciones?.[el.id] || ''}>
           <option value="">Elige…</option>
-          {el.opciones.map((o: any) => <option key={o.key} value={o.key}>{o.nombre}</option>)}
+          {porGrupo(el.opciones).map(([grupo, ops]) => {
+            const items = ops.map((o: any) => <option key={o.key} value={o.key}>{o.nombre}</option>);
+            return grupo ? <optgroup key={grupo} label={grupo}>{items}</optgroup> : items;
+          })}
         </Selector>
       </Campo>
-      {actual ? <p className="mb-0 mt-1 text-sm"><b>{actual.nombre}:</b> {actual.desc}</p> : <ListaOpciones el={el} />}
+      {actual ? (actual.desc || actual.grupo) && <p className="mb-0 mt-1 text-sm"><b>{actual.nombre}</b>{actual.grupo ? ` (${actual.grupo.toLowerCase()})` : ''}{actual.desc ? `: ${actual.desc}` : '.'}</p> : <ListaOpciones el={el} />}
     </div>
   );
 }
 
 function ListaOpciones({ el }: { el: any }) {
-  if (!el.opciones.some((o: any) => o.desc)) return null;
+  if (!conDescripciones(el)) return null;
   return (
     <ul className="mb-0 mt-2 grid gap-1 pl-5 text-sm">
       {el.opciones.map((o: any) => <li key={o.key}><b>{o.nombre}</b>{o.nota ? ` ${o.nota}` : ''}{o.desc ? `: ${o.desc}` : ''}</li>)}
@@ -98,7 +115,11 @@ function OpcionesSoloVer({ el }: { el: any }) {
   return (
     <div className="mt-3">
       <p className="m-0 font-bold">{el.titulo}{el.multi ? ` (eliges ${el.max})` : ' (eliges una)'}</p>
-      <ListaOpciones el={el} />
+      {conDescripciones(el) ? <ListaOpciones el={el} /> : (
+        <ul className="mb-0 mt-2 grid gap-1 pl-5 text-sm">
+          {porGrupo(el.opciones).map(([grupo, ops]) => <li key={grupo}>{grupo && <b>{grupo}: </b>}{ops.map((o: any) => o.nombre).join(', ')}.</li>)}
+        </ul>
+      )}
     </div>
   );
 }

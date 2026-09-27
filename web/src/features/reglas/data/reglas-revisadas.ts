@@ -2,7 +2,7 @@
 // @ts-nocheck -- datos portados tal cual de index.html
 import { modStr, fmtMod, sign, norm } from '@/shared/utils/texto';
 import { ARMAS, MAESTRIAS } from './equipo';
-import { opcionesCompetencia, aplicarElegidas } from '../domain/competencias';
+import { opcionesCompetencia, ayudaCompetencia, aplicarElegidas } from '../domain/competencias';
 import { CLASES, INVOCACIONES } from './clases';
 import { REGLAS_GENERADAS } from './generadas';
 import { todosConjuros } from '@/features/biblioteca/domain/biblioteca';
@@ -1068,8 +1068,8 @@ export const REGLAS: any[] = [
   {de:/dominio del conocimiento/, n:/^conjuros del dominio/, t:'pasiva', texto: conjurosSub('', [[3, ['Orden imperiosa', 'Comprender idiomas', 'Detectar magia', 'Detectar pensamientos', 'Identificar', 'Clavo mental']], [5, ['Disipar magia', 'Indetectable', 'Don de lenguas']], [7, ['Ojo arcano', 'Destierro', 'Confusión']], [9, ['Conocer las leyendas', 'Escudriñar', 'Estática Sináptica']]]).texto},
   {de:/dominio del conocimiento/, n:/^bendiciones del saber/, t:'pasiva',
     eleccion: [
-      {id:'saber-herr', titulo:'Herramientas de artesano (Bendiciones del Saber)', opciones: opcionesCompetencia(['artesano'])},
-      {id:'saber-habs', titulo:'Habilidades con pericia (Bendiciones del Saber)', max: 2, opciones: ['Arcanos', 'Historia', 'Naturaleza', 'Religión'].map(h => ({key: norm(h), nombre: h, desc: `Competencia y pericia en ${h}.`}))},
+      {id:'saber-herr', titulo:'Herramientas de artesano (Bendiciones del Saber)', opciones: opcionesCompetencia(['artesano']), ayuda: ayudaCompetencia(['artesano'])},
+      {id:'saber-habs', titulo:'Habilidades con pericia (Bendiciones del Saber)', max: 2, opciones: ['Arcanos', 'Historia', 'Naturaleza', 'Religión'].map(h => ({key: norm(h), nombre: h})), ayuda: 'Eliges dos de estas habilidades y ganas competencia y pericia en ellas (sumas el doble del bonificador).'},
     ],
     efecto: c => {
       aplicarElegidas(c, 'saber-herr', 'Bendiciones del Saber');
@@ -1282,33 +1282,33 @@ export const REGLAS: any[] = [
 
   /* Competencias a elegir de las especies: el texto y el tipo siguen siendo los de la biblioteca; aquí solo el selector y su efecto */
   {de:/^autognomo/, n:/^diseno especializado/,
-    eleccion: {id:'autognomo-herramientas', titulo:'Herramientas (Diseño Especializado)', max: 2, opciones: opcionesCompetencia(['herramienta'])},
+    eleccion: {id:'autognomo-herramientas', titulo:'Herramientas (Diseño Especializado)', max: 2, opciones: opcionesCompetencia(['herramienta']), ayuda: ayudaCompetencia(['herramienta'], {max: 2})},
     efecto: c => aplicarElegidas(c, 'autognomo-herramientas', 'Diseño Especializado')},
   {de:/^forjado/, n:/^diseno especializado/,
-    eleccion: {id:'forjado-herramienta', titulo:'Herramienta (Diseño Especializado)', opciones: opcionesCompetencia(['herramienta'])},
+    eleccion: {id:'forjado-herramienta', titulo:'Herramienta (Diseño Especializado)', opciones: opcionesCompetencia(['herramienta']), ayuda: ayudaCompetencia(['herramienta'])},
     efecto: c => aplicarElegidas(c, 'forjado-herramienta', 'Diseño Especializado')},
   {de:/^vedalken/, n:/^precision incansable/,
-    eleccion: {id:'vedalken-herramienta', titulo:'Herramienta (Precisión Incansable)', opciones: opcionesCompetencia(['herramienta'])},
+    eleccion: {id:'vedalken-herramienta', titulo:'Herramienta (Precisión Incansable)', opciones: opcionesCompetencia(['herramienta']), ayuda: ayudaCompetencia(['herramienta'])},
     efecto: c => aplicarElegidas(c, 'vedalken-herramienta', 'Precisión Incansable')},
   {de:/^satiro/, n:/^juerguista/,
     eleccion: {id:'satiro-instrumento', titulo:'Instrumento musical (Juerguista)', opciones: [{key:'herr:instrumento', nombre:'Instrumento musical', desc:'Anota cuál en tu inventario (laúd, flauta, tambor...).'}]},
     efecto: c => aplicarElegidas(c, 'satiro-instrumento', 'Juerguista')},
   /* Temporales: se eligen al terminar cada descanso largo */
   {de:/^githyanki/, n:/^conocimiento astral/,
-    eleccion: {id:'githyanki-astral', titulo:'Arma o herramienta de hoy (Conocimiento Astral)', opciones: opcionesCompetencia(['arma', 'herramienta'])},
+    eleccion: {id:'githyanki-astral', titulo:'Arma o herramienta de hoy (Conocimiento Astral)', opciones: opcionesCompetencia(['arma', 'herramienta']), ayuda: ayudaCompetencia(['arma', 'herramienta'], {temporal: true})},
     efecto: c => aplicarElegidas(c, 'githyanki-astral', 'Conocimiento Astral')},
   {de:/^(eladrin|elfo marino|shadar-kai)/, n:/^trance$/,
-    eleccion: {id:'elfo-trance', titulo:'Armas o herramientas de hoy (Trance)', max: 2, opciones: opcionesCompetencia(['arma', 'herramienta'])},
+    eleccion: {id:'elfo-trance', titulo:'Armas o herramientas de hoy (Trance)', max: 2, opciones: opcionesCompetencia(['arma', 'herramienta']), ayuda: ayudaCompetencia(['arma', 'herramienta'], {max: 2, temporal: true})},
     efecto: c => aplicarElegidas(c, 'elfo-trance', 'Trance')},
   {de:/^elfo astral/, n:/^trance astral/,
-    eleccion: {id:'elfo-astral-trance', titulo:'Arma o herramienta de hoy (Trance Astral)', opciones: opcionesCompetencia(['arma', 'herramienta'])},
+    eleccion: {id:'elfo-astral-trance', titulo:'Arma o herramienta de hoy (Trance Astral)', opciones: opcionesCompetencia(['arma', 'herramienta']), ayuda: ayudaCompetencia(['arma', 'herramienta'], {temporal: true})},
     efecto: c => aplicarElegidas(c, 'elfo-astral-trance', 'Trance Astral')},
 
   /* Maestro de Batalla (2024): Estudiante de la Guerra. Las maniobras quedan para el lote del Guerrero */
   {de:/maestro de batalla/, n:/^estudiante de la guerra/, t:'pasiva',
     eleccion: [
-      {id:'estudiante-guerra-herr', titulo:'Herramientas de artesano (Estudiante de la Guerra)', opciones: opcionesCompetencia(['artesano'])},
-      {id:'estudiante-guerra-hab', titulo:'Habilidad (Estudiante de la Guerra)', opciones: HABS_GUERRERO.map(h => ({key: norm(h), nombre: h, desc: `Competencia en ${h}.`}))},
+      {id:'estudiante-guerra-herr', titulo:'Herramientas de artesano (Estudiante de la Guerra)', opciones: opcionesCompetencia(['artesano']), ayuda: ayudaCompetencia(['artesano'])},
+      {id:'estudiante-guerra-hab', titulo:'Habilidad (Estudiante de la Guerra)', opciones: HABS_GUERRERO.map(h => ({key: norm(h), nombre: h})), ayuda: 'Eliges una habilidad y ganas competencia en ella.'},
     ],
     efecto: c => {
       aplicarElegidas(c, 'estudiante-guerra-herr', 'Estudiante de la Guerra');
@@ -1387,12 +1387,12 @@ export const REGLAS: any[] = [
   {de:/^cantor de la hoja$/, n:/^canto de la hoja$/, t:'adicional', usos: c => Math.max(1, c.m.int), reset:'largo',
     texto: c => `Con una acción adicional, sin armadura ni escudo, entras en el Canto de la Hoja durante 1 minuto (termina antes si quedas Incapacitado, te pones armadura o escudo, o atacas con un arma a dos manos). Mientras dura: +${Math.max(1, c.m.int)} a la CA (tu INT, mínimo +1; no está sumado a la CA de la hoja), +10 pies de velocidad y Ventaja en Acrobacias; puedes atacar y hacer daño con INT en vez de FUE o DES con armas con las que seas competente; y sumas tu INT a las salvaciones de CON para mantener la Concentración. Recuperas un uso con Recuperación Arcana.`},
   {de:/^cantor de la hoja$/, n:/^formacion en guerra y canto$/, t:'pasiva',
-    eleccion: {id:'cantor-hab', titulo:'Habilidad (Formación en Guerra y Canto)', opciones: ['Acrobacias', 'Atletismo', 'Interpretación', 'Persuasión'].map(h => ({key: norm(h), nombre: h, desc: `Competencia en ${h}.`}))},
+    eleccion: {id:'cantor-hab', titulo:'Habilidad (Formación en Guerra y Canto)', opciones: ['Acrobacias', 'Atletismo', 'Interpretación', 'Persuasión'].map(h => ({key: norm(h), nombre: h})), ayuda: 'Eliges una habilidad y ganas competencia en ella.'},
     efecto: c => { const k = elegido(c, 'cantor-hab'); if (k && !c.skillProf[k]) { c.skill[k] += c.pb; c.skillProf[k] = true; } },
     texto: c => { const h = ['Acrobacias', 'Atletismo', 'Interpretación', 'Persuasión'].find(x => norm(x) === elegido(c, 'cantor-hab'));
       return `Competencia con las armas marciales cuerpo a cuerpo que no sean pesadas ni a dos manos, y puedes usar como foco de tus conjuros de mago un arma cuerpo a cuerpo con la que seas competente. Además, competencia en ${h ? `${h} (ya sumada)` : 'Acrobacias, Atletismo, Interpretación o Persuasión (elígela en la subclase)'}.`; }},
   {de:/^encantador$/, n:/^conversador encantador$/, t:'pasiva',
-    eleccion: {id:'encantamiento-habilidades', titulo:'Habilidad (Conversador Encantador)', opciones: ['Engaño', 'Intimidación', 'Persuasión'].map(h => ({key: norm(h), nombre: h, desc: `Competencia en ${h} y sumas tu INT (mínimo +1).`}))},
+    eleccion: {id:'encantamiento-habilidades', titulo:'Habilidad (Conversador Encantador)', opciones: ['Engaño', 'Intimidación', 'Persuasión'].map(h => ({key: norm(h), nombre: h})), ayuda: 'Eliges una habilidad: ganas competencia en ella y a sus pruebas sumas también tu INT (mínimo +1).'},
     efecto: c => { const k = elegido(c, 'encantamiento-habilidades'); if (!k || !(k in c.skill)) return;
       if (!c.skillProf[k]) { c.skill[k] += c.pb; c.skillProf[k] = true; }
       c.skill[k] += Math.max(1, c.m.int); },
