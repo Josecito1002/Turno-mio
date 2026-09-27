@@ -112,7 +112,7 @@ const FAMILIAS: { key: string; n: string; d: string; de: (k: string) => boolean 
 ];
 const familiaDe = (k: string) => FAMILIAS.find(f => f.de(k.replace(/^lib:/, '')));
 
-/** Tarjeta de una familia de especies: al tocarla se ven las que la forman */
+/** Tarjeta de una familia de especies: al tocarla se elige la primera, y encima de Linaje salen todas para cambiar */
 function TarjetaFamilia({ n, d, miembros, on, abrir }: { n: string; d: string; miembros: string[]; on: boolean; abrir: () => void }) {
   const LIB = getLib(), imgs = miembros.map(k => LIB.img?.[k]).filter(Boolean) as string[], i = useRotar(imgs.length);
   return <Tarjeta on={on} onClick={abrir} img={imgs[i]} titulo={n} sub={`${d} Elige cuál (${miembros.length}).`} clampSub />;
@@ -120,7 +120,6 @@ function TarjetaFamilia({ n, d, miembros, on, abrir }: { n: string; d: string; m
 
 export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
   const E = c.E, LIB = getLib();
-  const [familia, setFamilia] = useState('');
   const lista: [string, any][] = [...Object.entries(ESPECIES).filter(([k]) => k !== 'custom'), ...sinRepetidas(LIB.especies, ESPECIES, pj.especie.key), ['custom', ESPECIES.custom]];
   const tarjeta = ([k, e]: [string, any]) => {
     const d = k === 'custom' ? e.r : (descEspecie(k) || (e.lib ? '' : e.r));
@@ -135,13 +134,21 @@ export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
     if (vistas.has(f.key)) return [];
     vistas.add(f.key);
     return [{ key: 'familia:' + f.key, q: norm([f.n, f.d, ...ms.map(([, x]) => x.n)].join(' ')),
-      node: <TarjetaFamilia n={f.n} d={f.d} miembros={ms.map(([x]) => x)} on={ms.some(([x]) => x === pj.especie.key)} abrir={() => setFamilia(f.key)} /> }];
+      node: <TarjetaFamilia n={f.n} d={f.d} miembros={ms.map(([x]) => x)} on={ms.some(([x]) => x === pj.especie.key)} abrir={() => { if (!ms.some(([x]) => x === pj.especie.key)) elegirEspecie(ms[0][0]); }} /> }];
   });
-  const F = FAMILIAS.find(f => f.key === familia);
+  // Familia de la especie elegida: sus tarjetas van encima de Linaje (solo a nivel 1, cuando aún se puede cambiar)
+  const F = c.lvl > 1 ? undefined : familiaDe(pj.especie.key || ''), deF = F ? miembros(F.key) : [];
   const ents = c.entries.filter((e: any) => e.grupo === 'especie');
   return (
     <>
       {E && pj.especie.key !== 'custom' && <CuadroEspecie pj={pj} E={E} />}
+      {F && deF.length > 1 && (
+        <Seccion titulo={F.n}>
+          <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-2 p-0">
+            {deF.map(x => { const it = tarjeta(x); return <li key={it.key} className="flex">{it.node}</li>; })}
+          </ul>
+        </Seccion>
+      )}
       {E?.subs && <ElegirSubespecie pj={pj} E={E} fija={c.lvl > 1 && !!pj.especie.sub} />}
       {pj.especie.key === 'custom' && (
         <div className="grid gap-3 sm:grid-cols-3">
@@ -155,16 +162,7 @@ export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
       {ents.length > 0 && <Seccion titulo="Rasgos de tu especie">{ents.map((e: any, i: number) => <Entrada key={i} e={e} />)}</Seccion>}
       {E && c.lvl > 1
         ? <Nota>La especie se elige a nivel 1 y ya no se puede cambiar.</Nota>
-        : F
-          ? (
-            <Seccion titulo={F.n}>
-              <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-2 p-0">
-                {miembros(F.key).map(x => { const it = tarjeta(x); return <li key={it.key} className="flex">{it.node}</li>; })}
-              </ul>
-              <Boton className="mt-3" onClick={() => setFamilia('')}>← Todas las especies</Boton>
-            </Seccion>
-          )
-          : <Seccion titulo={E ? 'Cambiar de especie' : 'Elige tu especie'}><TarjetasBuscables que="especie" items={items} /></Seccion>}
+        : <Seccion titulo={E ? 'Cambiar de especie' : 'Elige tu especie'}><TarjetasBuscables que="especie" items={items} /></Seccion>}
     </>
   );
 }
