@@ -132,38 +132,55 @@ function Recorte({ nombre }: { nombre: string }) {
   );
 }
 
-/** Imagen y descripción de una especie, subraza o clase; el administrador las edita.
-    `verImg`: clave de la imagen que se muestra si es otra (la de la subraza elegida); `sinImagen`: no la muestra. */
-export function PanelMedia({ k, n, d, fuente, verImg, sinImagen }: { k: string; n: string; d: string; fuente?: Fuente; verImg?: string; sinImagen?: boolean }) {
-  const LIB = getLib(), img = LIB.img?.[k], editando = S.crop && S.crop.k === k;
-  const mostrada = sinImagen ? '' : (verImg && LIB.img?.[verImg]) || img;
-  const idArchivo = useId();
+/** Lo que edita el administrador: la descripción y la imagen de una clave (especie, subraza o clase) */
+function EditarMedia({ k, d, titulo }: { k: string; d: string; titulo: string }) {
+  const LIB = getLib(), img = LIB.img?.[k], idArchivo = useId();
+  return (
+    <Plegable titulo={titulo} className="mt-3">
+      <label className="flex flex-col gap-1.5 font-bold">Descripción corta
+        <textarea key={d} rows={3} defaultValue={d} className={cx(claseCampo, 'py-2 font-normal')} onBlur={e => {
+          if (e.target.value.trim() === d) return;
+          guardarDescripcion(k, e.target.value.trim());
+        }} />
+      </label>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <label htmlFor={idArchivo} className={cx('inline-flex min-h-11 cursor-pointer items-center rounded-xl bg-surface px-3 text-sm font-bold ring-1 ring-inset ring-rule hover:bg-soft focus-within:outline-3 focus-within:outline-rea')}>
+          {img ? 'Cambiar imagen' : 'Agregar imagen'}
+          <input id={idArchivo} type="file" accept="image/*" className="sr-only" onChange={e => { const f = e.target.files?.[0]; if (f) empezarCrop(k, f).catch(() => avisar('No se pudo leer esa imagen.', 'error')); e.target.value = ''; }} />
+        </label>
+        {img && (LIB.imgOrig?.[k] || LIB.imgCrop?.[k]) && <Boton tamano="sm" onClick={() => empezarCrop(k).catch(() => avisar('No se pudo abrir la imagen.', 'error'))}>Ajustar recorte</Boton>}
+        {img && <Boton tamano="sm" variante="peligro" onClick={() => quitarImagen(k)}>Quitar imagen</Boton>}
+      </div>
+      <p className="mb-0 mt-2 text-sm text-muted">Se guardan en la biblioteca, compartida con todos.</p>
+    </Plegable>
+  );
+}
+
+type Sub = { k: string; n: string; d: string };
+/** Imagen y descripción de una especie o clase; el administrador las edita.
+    Con `sub` (la subraza elegida) el mismo cuadro muestra su nombre, su descripción, lo que da (`children`) y su imagen.
+    Sin subraza elegida, `azar` son las claves de las subrazas: se muestra la imagen de una de ellas al azar. */
+export function PanelMedia({ k, n, d, fuente, sub, azar, children }: { k: string; n: string; d: string; fuente?: Fuente; sub?: Sub; azar?: string[]; children?: React.ReactNode }) {
+  const LIB = getLib(), editando = S.crop && (S.crop.k === k || S.crop.k === sub?.k);
+  const [suerte] = useState(() => Math.random());
+  const conImg = (azar || []).filter(x => LIB.img?.[x]);
+  const mostrada = (sub && LIB.img?.[sub.k]) || (!sub && conImg.length ? LIB.img![conImg[Math.floor(suerte * conImg.length)]] : '') || LIB.img?.[k];
   return (
     <Tarjeta as="section" aria-label={`Sobre ${n}`} className="my-4 flex flex-wrap gap-4">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      {editando ? <Recorte nombre={n} /> : mostrada ? <img className="aspect-square w-full max-w-80 shrink-0 rounded-xl object-cover sm:w-60 md:w-72" src={mostrada} alt={`Ilustración de ${n}`} /> : null}
+      {editando ? <Recorte nombre={S.crop.k === k ? n : sub!.n} /> : mostrada ? <img className="aspect-square w-full max-w-80 shrink-0 rounded-xl object-cover sm:w-60 md:w-72" src={mostrada} alt={`Ilustración de ${sub ? sub.n : n}`} /> : null}
       <div className="min-w-56 flex-1">
         <h2 className="m-0 font-serif text-2xl font-bold">{n}{fuente && <EtiquetaFuente fuente={fuente} className="ml-2 align-middle" />}</h2>
         {d ? <p className="mb-0 mt-1">{d}</p> : <p className="mb-0 mt-1 text-sm text-muted">Sin descripción todavía.</p>}
-        {esAdmin() && !editando && (
-          <Plegable titulo="Editar descripción o imagen" className="mt-3">
-            <label className="flex flex-col gap-1.5 font-bold">Descripción corta
-              <textarea key={d} rows={3} defaultValue={d} className={cx(claseCampo, 'py-2 font-normal')} onBlur={e => {
-                if (e.target.value.trim() === d) return;
-                guardarDescripcion(k, e.target.value.trim());
-              }} />
-            </label>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <label htmlFor={idArchivo} className={cx('inline-flex min-h-11 cursor-pointer items-center rounded-xl bg-surface px-3 text-sm font-bold ring-1 ring-inset ring-rule hover:bg-soft focus-within:outline-3 focus-within:outline-rea')}>
-                {img ? 'Cambiar imagen' : 'Agregar imagen'}
-                <input id={idArchivo} type="file" accept="image/*" className="sr-only" onChange={e => { const f = e.target.files?.[0]; if (f) empezarCrop(k, f).catch(() => avisar('No se pudo leer esa imagen.', 'error')); e.target.value = ''; }} />
-              </label>
-              {img && (LIB.imgOrig?.[k] || LIB.imgCrop?.[k]) && <Boton tamano="sm" onClick={() => empezarCrop(k).catch(() => avisar('No se pudo abrir la imagen.', 'error'))}>Ajustar recorte</Boton>}
-              {img && <Boton tamano="sm" variante="peligro" onClick={() => quitarImagen(k)}>Quitar imagen</Boton>}
-            </div>
-            <p className="mb-0 mt-2 text-sm text-muted">Se guardan en la biblioteca, compartida con todos.</p>
-          </Plegable>
+        {sub && (
+          <div className="mt-4 border-t border-rule pt-3">
+            <h3 className="m-0 font-serif text-xl font-bold">{sub.n}</h3>
+            {sub.d ? <p className="mb-0 mt-1">{sub.d}</p> : <p className="mb-0 mt-1 text-sm text-muted">Sin descripción todavía.</p>}
+            {children}
+          </div>
         )}
+        {esAdmin() && !editando && <EditarMedia k={k} d={d} titulo="Editar descripción o imagen" />}
+        {esAdmin() && !editando && sub && <EditarMedia k={sub.k} d={sub.d} titulo={`Editar descripción o imagen de ${sub.n}`} />}
       </div>
     </Tarjeta>
   );
