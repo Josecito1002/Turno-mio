@@ -14,6 +14,7 @@ import { esDoteOrigen } from '@/features/reglas/domain/restricciones';
 import { fuenteClase, fuenteEspecie, fuenteSubclase, fuenteTrasfondo } from '@/features/reglas/data/fuentes';
 import { getLib, getSubs, getT, allDotes, descEspecie, descSubespecie, descClase, descSubclase, sinRepetidas, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
 import { PanelMedia } from '@/features/biblioteca/components/PanelMedia';
+import { imagenesOrigen, slugNombre } from '@/features/biblioteca/domain/imagenes-origen';
 import { Entrada } from '../piezas';
 import { quitarEquipoTrasfondo, savePj, setVal, tomarEquipoTrasfondo } from '../../acciones';
 import { TarjetasBuscables, Tarjeta } from './Tarjetas';
@@ -170,6 +171,18 @@ export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
 /* ---------- Clase ---------- */
 /** Tarjetas de subclase con su descripción; la elegida muestra qué da en cada nivel. También se usa al subir de nivel.
     Antes del nivel de subclase solo se pueden ver: tocar una tarjeta abre su vista previa sin elegirla. */
+/* Con especie elegida, las clases y subclases muestran las imágenes de esa especie con ellas (varias van rotando) */
+/** Claves de las subclases que se llaman igual que `sk` (hay repetidas, como el Rompejuramentos de dos libros) */
+const mismaSubclase = (pj: any, clase: string, sk: string) => {
+  const n = slugNombre(getSubs(pj, clase).find(s => s.key === sk)?.n);
+  return n ? getSubs(pj, clase).filter(s => slugNombre(s.n) === n).map(s => s.key) : [sk];
+};
+const temasDe = (pj: any, clase: string, subclase?: string) => imagenesOrigen(getLib().img, { especie: pj.especie?.key, sub: pj.especie?.sub, clase, subclase: subclase ? mismaSubclase(pj, clase, subclase) : undefined });
+function TarjetaTematica({ temas, img, ...rest }: { temas: string[]; img?: string; on: boolean; onClick: () => void; titulo: string; sub: string; clampSub?: boolean; fuente?: any }) {
+  const i = useRotar(temas.length);
+  return <Tarjeta {...rest} img={temas.length ? getLib().img![temas[i]] : img} imgArriba={temas.length > 0} />;
+}
+
 export function ElegirSubclase({ pj, c }: { pj: any; c: any }) {
   const subs = getSubs(pj, pj.clase).filter(s => s.key !== 'cadena');
   const puede = c.lvl >= c.subNivel;
@@ -181,7 +194,7 @@ export function ElegirSubclase({ pj, c }: { pj: any; c: any }) {
   const marcada = puede ? pj.subclase : (vista.lvl === c.lvl ? vista.k : '');
   const tarjetas = (on: (k: string) => boolean) => subs.map(s => {
     const d = descSubclase(s.key);
-    return { key: s.key, q: norm(s.n + ' ' + d), node: <Tarjeta on={on(s.key)} onClick={() => elegirSub(s.key)} titulo={s.n} sub={d} clampSub fuente={fuenteSubclase(s, pj.clase)} /> };
+    return { key: s.key, q: norm(s.n + ' ' + d), node: <TarjetaTematica temas={temasDe(pj, pj.clase, s.key)} on={on(s.key)} onClick={() => elegirSub(s.key)} titulo={s.n} sub={d} clampSub fuente={fuenteSubclase(s, pj.clase)} /> };
   });
   // Antes de su nivel no se elige: las subclases quedan plegadas y solo se leen (ninguna se marca como elegida)
   if (!puede) return (
@@ -198,7 +211,7 @@ export function ElegirSubclase({ pj, c }: { pj: any; c: any }) {
     return (
       <>
         <div className="max-w-md">
-          {s ? <Tarjeta on onClick={() => {}} titulo={s.n} sub={descSubclase(s.key)} clampSub fuente={fuenteSubclase(s, pj.clase)} />
+          {s ? <TarjetaTematica temas={temasDe(pj, pj.clase, s.key)} on onClick={() => {}} titulo={s.n} sub={descSubclase(s.key)} clampSub fuente={fuenteSubclase(s, pj.clase)} />
             : <Tarjeta on onClick={() => {}} titulo={pj.subclaseNombre || 'Otra'} sub="Sus rasgos van en Rasgos propios." />}
         </div>
         <Nota>Se eligió a nivel {c.subNivel} y ya no se puede cambiar.</Nota>
@@ -241,7 +254,7 @@ export function PasoClase({ pj, c }: { pj: any; c: any }) {
   const lista = clasesParaElegir(pj.clase);
   const items = lista.map(([k, x]) => {
     const sub = `d${x.dado}, ${x.lanz ? 'conjuros con ' + abInfo(x.lanz)[2] : 'sin conjuros'}`;
-    return { key: k, q: norm(x.n + ' ' + descClase(k)), node: <Tarjeta on={pj.clase === k} onClick={() => elegir(k)} img={LIB.img?.['c:' + k]} titulo={x.n} sub={sub} fuente={fuenteClase(k)} /> };
+    return { key: k, q: norm(x.n + ' ' + descClase(k)), node: <TarjetaTematica temas={temasDe(pj, k)} on={pj.clase === k} onClick={() => elegir(k)} img={LIB.img?.['c:' + k]} titulo={x.n} sub={sub} fuente={fuenteClase(k)} /> };
   });
   const tarjetas = <Seccion titulo={C ? 'Cambiar de clase' : 'Elige tu clase'} descripcion={C ? 'Cambiar de clase borra las habilidades, pericias y maestrías que elegiste.' : undefined}><TarjetasBuscables que="clase" items={items} /></Seccion>;
   if (!C) return tarjetas;
@@ -249,7 +262,8 @@ export function PasoClase({ pj, c }: { pj: any; c: any }) {
   const falta = faltaParaSubir(c);
   return (
     <>
-      <PanelMedia k={'c:' + pj.clase} n={C.n} d={descClase(pj.clase)} fuente={fuenteClase(pj.clase)} />
+      <PanelMedia k={'c:' + pj.clase} n={C.n} d={descClase(pj.clase)} fuente={fuenteClase(pj.clase)}
+        azar={(pj.subclase && temasDe(pj, pj.clase, pj.subclase).length ? temasDe(pj, pj.clase, pj.subclase) : temasDe(pj, pj.clase))} />
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <Campo etiqueta="Nivel">

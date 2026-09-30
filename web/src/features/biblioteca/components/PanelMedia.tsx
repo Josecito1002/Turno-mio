@@ -9,6 +9,7 @@ import { leerImagenOriginal } from '../api';
 import type { Fuente } from '@/features/reglas/data/fuentes';
 import { EtiquetaFuente } from '@/features/personajes/components/editor/Tarjetas';
 import { Imagen } from '@/shared/ui/imagen';
+import { PREFIJO_ORIGEN } from '../domain/imagenes-origen';
 
 function cargarImagen(src: string) {
   return new Promise<HTMLImageElement>((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
@@ -29,14 +30,14 @@ function dibujar(im: CanvasImageSource, sx: number, sy: number, sw: number, sh: 
   g.drawImage(src, x, y, cw, ch, 0, 0, w, h);
   return cv;
 }
-function achicarImagen(file: File, max = 320) {
+export function achicarImagen(file: File, max = 320, calidad = 0.92) {
   return new Promise<string>((res, rej) => {
     const fr = new FileReader();
     fr.onload = () => {
       const im = new Image();
       im.onload = () => {
         const s = Math.min(1, max / Math.max(im.width, im.height));
-        res(dibujar(im, 0, 0, im.width, im.height, Math.round(im.width * s), Math.round(im.height * s)).toDataURL('image/jpeg', 0.92));
+        res(dibujar(im, 0, 0, im.width, im.height, Math.round(im.width * s), Math.round(im.height * s)).toDataURL('image/jpeg', calidad));
       };
       im.onerror = rej; im.src = fr.result as string;
     };
@@ -179,10 +180,13 @@ export function PanelMedia({ k, n, d, fuente, sub, azar, children }: { k: string
   const LIB = getLib(), editando = S.crop && (S.crop.k === k || S.crop.k === sub?.k);
   const [suerte] = useState(() => Math.random());
   const conImg = (azar || []).filter(x => LIB.img?.[x]);
-  const mostrada = (sub && LIB.img?.[sub.k]) || (!sub && conImg.length ? LIB.img![conImg[Math.floor(suerte * conImg.length)]] : '') || LIB.img?.[k];
+  const deAzar = !sub && conImg.length ? conImg[Math.floor(suerte * conImg.length) % conImg.length] : '';
+  const mostrada = (sub && LIB.img?.[sub.k]) || (deAzar && LIB.img![deAzar]) || LIB.img?.[k];
+  // Las imágenes de especie con clase son retratos verticales: en el cuadro se ve la parte de arriba
+  const retrato = !(sub && LIB.img?.[sub.k]) && deAzar.startsWith(PREFIJO_ORIGEN);
   return (
     <Tarjeta as="section" aria-label={`Sobre ${n}`} className="my-4 flex flex-wrap gap-4">
-      {editando ? <Recorte nombre={S.crop.k === k ? n : sub!.n} /> : mostrada ? <Imagen className="aspect-square w-full max-w-80 shrink-0 rounded-xl object-cover sm:w-60 md:w-72" src={mostrada} alt={`Ilustración de ${sub ? sub.n : n}`} /> : null}
+      {editando ? <Recorte nombre={S.crop.k === k ? n : sub!.n} /> : mostrada ? <Imagen className={cx('aspect-square w-full max-w-80 shrink-0 rounded-xl object-cover sm:w-60 md:w-72', retrato && 'object-top')} src={mostrada} alt={`Ilustración de ${sub ? sub.n : n}`} /> : null}
       <div className="min-w-56 flex-1">
         <h2 className="m-0 font-serif text-2xl font-bold">{n}{fuente && <EtiquetaFuente fuente={fuente} className="ml-2 align-middle" />}</h2>
         {d ? <p className="mb-0 mt-1">{d}</p> : <p className="mb-0 mt-1 text-sm text-muted">Sin descripción todavía.</p>}

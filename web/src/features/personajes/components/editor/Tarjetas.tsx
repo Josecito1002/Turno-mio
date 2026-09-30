@@ -26,12 +26,13 @@ export function TarjetasBuscables({ que, items }: { que: string; items: Tarjeta[
   );
 }
 
-export function Tarjeta({ on, onClick, img, titulo, sub, clampSub, fuente }: { on: boolean; onClick: () => void; img?: string; titulo: string; sub: string; clampSub?: boolean; clase?: string; fuente?: Fuente }) {
+/** `imgArriba`: la imagen es un retrato vertical; en el cuadro se ve su parte de arriba (la cara) */
+export function Tarjeta({ on, onClick, img, imgArriba, titulo, sub, clampSub, fuente }: { on: boolean; onClick: () => void; img?: string; imgArriba?: boolean; titulo: string; sub: string; clampSub?: boolean; clase?: string; fuente?: Fuente }) {
   return (
     <button type="button" aria-pressed={on} onClick={onClick}
       className={cx('flex w-full cursor-pointer flex-col rounded-2xl bg-surface p-3 text-left ring-1 transition-shadow hover:shadow-md', foco,
         on ? 'ring-[2.5px] ring-ink' : 'ring-rule')}>
-      {img && <Imagen src={img} className="mb-2 aspect-square w-full rounded-xl bg-soft object-cover" />}
+      {img && <Imagen src={img} className={cx('mb-2 aspect-square w-full rounded-xl bg-soft object-cover', imgArriba && 'object-top')} />}
       <b className="flex items-center gap-1.5 font-serif text-[1.08rem] leading-tight">{on && <span aria-hidden="true">✓</span>}{titulo}</b>
       {sub && <span className={cx('mt-0.5 text-sm text-muted', clampSub && 'line-clamp-3')}>{sub}</span>}
       {fuente && <EtiquetaFuente fuente={fuente} className="mt-auto self-start pt-2" />}

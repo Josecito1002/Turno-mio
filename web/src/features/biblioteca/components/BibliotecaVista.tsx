@@ -14,6 +14,7 @@ import { FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { RasgoForm } from '@/features/personajes/components/editor/PasosMagia';
 import { bajarArchivo, leerRasgo } from '@/features/personajes/acciones';
 import { getC, getLib } from '../domain/biblioteca';
+import { SubirImagenesOrigen } from './SubirImagenesOrigen';
 
 async function quitar(ref: string, nombre: string) {
   const LIB: any = getLib(), [t, k, sk] = ref.split('|');
@@ -103,6 +104,7 @@ export function BibliotecaVista({ elegirArchivos }: { elegirArchivos: () => void
       </Seccion>
       {admin && (
         <Seccion titulo="Crear contenido">
+          <SubirImagenesOrigen />
           <Plegable titulo="Nueva especie" abierto={d.abierto === 'esp'}>
             <div className="grid gap-3" key={`${d.id}-${d.esp.rasgos.length}`}>
               <Campo etiqueta="Nombre"><Borrador path="esp.n" value={d.esp.n} /></Campo>
