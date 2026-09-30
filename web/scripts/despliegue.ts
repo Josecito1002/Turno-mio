@@ -3,6 +3,7 @@
    2. Biblioteca: cada clase, especie y dote de biblioteca-mi-turno.json que difiera de la base se reescribe (lo que
       solo está en la base, como lo aportado desde la app, no se toca).
    3. Personajes de prueba: la cuenta de scripts/datos/personajes-prueba.json queda con exactamente esos.
+   4. Borra las imágenes antiguas de clase y subclase (scripts/imagenes-antiguas.ts).
    Así una sesión sin acceso a la base (Claude Code en la nube) solo tiene que subir los cambios.
    Si algo falla, lo dice en el registro de la compilación pero no la detiene.
    Uso local: npx tsx --env-file-if-exists=.env.local scripts/despliegue.ts --forzar [--ver] */
@@ -14,6 +15,7 @@ import { libAFilas } from '../src/features/biblioteca/domain/mapeo';
 import { reemplazarClase, reemplazarEspecie } from '../src/features/biblioteca/server/repositorio';
 import { leerLista, sincronizarPrueba } from './gemini/personajes-prueba';
 import { BESTIAS_COLADAS } from '../src/features/reglas/data/especies';
+import { limpiarImagenesAntiguas } from './imagenes-antiguas';
 
 /* Forma comparable de una fila: sin id autogenerado ni campos vacíos, con las claves ordenadas */
 const canon = (o: any): any => Array.isArray(o) ? o.map(canon)
@@ -68,6 +70,9 @@ async function main() {
       const r = await sincronizarPrueba(db, lista.correo, lista.personajes, archivo);
       console.log(`[despliegue] Personajes de prueba en ${lista.correo}: ${r.creados.length} creados, ${r.rehechos.length} rehechos, ${r.borrados.length} borrados.`);
     } else console.log(`[despliegue] Personajes de prueba pedidos: ${lista.personajes.length}.`);
+
+    const viejas = await limpiarImagenesAntiguas(db, !ver);
+    if (viejas.length) console.log(`[despliegue] Imágenes antiguas de clase y subclase ${ver ? 'a borrar' : 'borradas'}: ${viejas.length} (${[...new Set(viejas.map(f => f.clave))].join(', ')}).`);
   } catch (e: any) {
     console.error('[despliegue] ERROR (la compilación sigue):', e?.message || e);
   } finally {

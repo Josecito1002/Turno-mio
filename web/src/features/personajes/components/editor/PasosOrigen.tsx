@@ -262,7 +262,7 @@ export function PasoClase({ pj, c }: { pj: any; c: any }) {
   const falta = faltaParaSubir(c);
   return (
     <>
-      <PanelMedia k={'c:' + pj.clase} n={C.n} d={descClase(pj.clase)} fuente={fuenteClase(pj.clase)}
+      <PanelMedia k={'c:' + pj.clase} n={C.n} d={descClase(pj.clase)} fuente={fuenteClase(pj.clase)} soloAzar
         azar={(pj.subclase && temasDe(pj, pj.clase, pj.subclase).length ? temasDe(pj, pj.clase, pj.subclase) : temasDe(pj, pj.clase))} />
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
