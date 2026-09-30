@@ -21,6 +21,7 @@
     "prueba:borrar": "tsx --env-file-if-exists=.env.local scripts/gemini/personajes-prueba.ts --borrar",
     "prueba:pedir": "tsx scripts/gemini/personajes-prueba.ts --lista",
     "prueba:quitar": "tsx scripts/gemini/personajes-prueba.ts --lista --borrar",
+    "db:limpiar-imagenes": "tsx --env-file-if-exists=.env.local scripts/limpiar-imagenes.ts",
     "db:actualizar-clase": "tsx --env-file-if-exists=.env.local scripts/actualizar-clase.ts"
   },
   "dependencies": {
