@@ -30,7 +30,7 @@ function dibujar(im: CanvasImageSource, sx: number, sy: number, sw: number, sh: 
   g.drawImage(src, x, y, cw, ch, 0, 0, w, h);
   return cv;
 }
-export function achicarImagen(file: File, max = 320, calidad = 0.92) {
+export function achicarImagen(file: Blob, max = 320, calidad = 0.92) {
   return new Promise<string>((res, rej) => {
     const fr = new FileReader();
     fr.onload = () => {

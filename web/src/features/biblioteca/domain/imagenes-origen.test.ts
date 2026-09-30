@@ -39,9 +39,9 @@ describe('reconocerArchivo con los nombres del set de Drive', () => {
 describe('imagenesOrigen', () => {
   const k = (sub: string, subclase: string, genero: 'm' | 'f') => claveOrigen({ especie: 'draconido', sub, clase: 'mago', subclase, genero });
   const img = { [k('oro', 'lib:evocacion', 'm')]: 'a', [k('oro', 'lib:evocacion', 'f')]: 'b', [k('rojo', 'lib:ilusion', 'm')]: 'c', 'c:mago': 'd' };
-  test('prefiere la misma subraza y, si no hay, cualquiera de la especie', () => {
-    assert.deepEqual(imagenesOrigen(img, { especie: 'draconido', sub: 'oro', clase: 'mago' }), [k('oro', 'lib:evocacion', 'f'), k('oro', 'lib:evocacion', 'm')]);
-    assert.deepEqual(imagenesOrigen(img, { especie: 'draconido', sub: 'azul', clase: 'mago' }).length, 3);
+  test('prefiere la misma subraza y, si no hay, cualquiera de la especie; una por subclase aunque haya de los dos géneros', () => {
+    assert.deepEqual(imagenesOrigen(img, { especie: 'draconido', sub: 'oro', clase: 'mago' }), [k('oro', 'lib:evocacion', 'f')]);
+    assert.deepEqual(imagenesOrigen(img, { especie: 'draconido', sub: 'azul', clase: 'mago' }), [k('oro', 'lib:evocacion', 'f'), k('rojo', 'lib:ilusion', 'm')]);
   });
   test('con subclase solo esa; sin especie o sin nada que coincida, ninguna', () => {
     assert.deepEqual(imagenesOrigen(img, { especie: 'draconido', sub: 'oro', clase: 'mago', subclase: 'lib:ilusion' }), [k('rojo', 'lib:ilusion', 'm')]);
