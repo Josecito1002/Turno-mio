@@ -81,8 +81,9 @@ export function reconocerArchivo(nombre: string, cat: Catalogo): Origen | null {
   return mejor;
 }
 
-/** Claves de imagen para una especie y clase (y subclase, si se da), una por subraza y subclase. Primero las de la misma subraza;
-    si no hay, las de la especie con cualquier subraza. Sin subclase valen todas las de la clase; con varias claves (dos subclases con el mismo nombre), cualquiera. */
+/** Claves de imagen para una especie y clase (y subclase, si se da), una por subraza y subclase. Con subraza elegida, solo las de esa
+    subraza (si no hay, ninguna); mientras no se elija, las de la especie con cualquier subraza. Sin subclase valen todas las de la clase;
+    con varias claves (dos subclases con el mismo nombre), cualquiera. */
 export function imagenesOrigen(img: Record<string, unknown> | undefined, q: { especie: string; sub?: string; clase: string; subclase?: string | string[] }): string[] {
   if (!img || !q.especie || !q.clase) return [];
   const subs = q.subclase ? [q.subclase].flat() : null;
@@ -90,9 +91,9 @@ export function imagenesOrigen(img: Record<string, unknown> | undefined, q: { es
     const o = leerClaveOrigen(k);
     return !!o && img[k] && o.especie === q.especie && o.clase === q.clase && (!subs || subs.includes(o.subclase));
   });
-  const misma = todas.filter(k => leerClaveOrigen(k)!.sub === (q.sub || ''));
+  const elegibles = q.sub ? todas.filter(k => leerClaveOrigen(k)!.sub === q.sub) : todas;
   // El género se guarda pero todavía no se usa: una sola imagen por subraza y subclase
   const una = new Map<string, string>();
-  for (const k of (misma.length ? misma : todas).sort()) { const o = leerClaveOrigen(k)!; const c = `${o.sub}|${o.subclase}`; if (!una.has(c)) una.set(c, k); }
+  for (const k of elegibles.sort()) { const o = leerClaveOrigen(k)!; const c = `${o.sub}|${o.subclase}`; if (!una.has(c)) una.set(c, k); }
   return [...una.values()];
 }
