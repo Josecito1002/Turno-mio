@@ -12,7 +12,35 @@ export const campActual = () => camps().find(x => x.id === S.camp) || null;
 export const guardarCamp = (cp: any) => almacen.guardarCampana(cp);
 export function cargarPj(id: string) { const p = almacen.pj(id); return p ? reparar(p) : null; }
 
+/* ---- Personajes de jugadores unidos con el código de la mesa ----
+   Viven en la cuenta del jugador: aquí solo hay la última copia leída del servidor (solo lectura).
+   Clave en el combate y en cp.estado: "jm:<jugadorId>:<personajeId>". */
+type Unido = { jugadorId: string; jugador: string; personajeId: string; nombre: string; resumen: string | null; datos: any; actualizadoEn: string; calc?: any };
+let unidosCamp: string | null = null, unidos = new Map<string, Unido>();
+export const claveUnido = (x: { jugadorId: string; personajeId: string }) => `jm:${x.jugadorId}:${x.personajeId}`;
+export function fijarUnidos(campId: string, lista: Unido[]) {
+  const antes = unidosCamp === campId ? unidos : new Map<string, Unido>();
+  unidosCamp = campId;
+  // Si la hoja no cambió desde la última lectura se reaprovecha el cálculo
+  unidos = new Map(lista.map(x => { const k = claveUnido(x), v = antes.get(k); return [k, v && v.actualizadoEn === x.actualizadoEn ? v : x]; }));
+}
+export const unidoDe = (k: string) => unidos.get(k) || null;
+/** Si ya se leyeron los unidos de esta campaña (antes de eso no se sabe quién está). */
+export const unidosCargados = (campId: string) => unidosCamp === campId;
+export const unidosDe = (campId: string) => (unidosCamp === campId ? [...unidos.values()] : []);
+
+/** Personaje unido, calculado una vez por versión de su hoja. */
+function calcUnido(u: Unido) {
+  if (!u.calc) { const pj = reparar(JSON.parse(JSON.stringify(u.datos))); u.calc = { pj, c: compute(pj) }; }
+  return u.calc;
+}
+
 export function combatiente(k: string, cp: any): any {
+  if (k.startsWith('jm:')) {
+    const u = unidosCamp === cp.id ? unidos.get(k) : null; if (!u) return null;
+    const { pj, c } = calcUnido(u), usado = Math.min(pj.used?.pg || 0, c.hpMax);
+    return { k, tipo: 'jug', nombre: pj.nombre || u.nombre, ca: c.ac, pgMax: c.hpMax, pg: c.hpMax - usado, bono: c.init, c, pj, jugador: u.jugador, u };
+  }
   if (k.startsWith('pj:')) {
     const pj = cargarPj(k.slice(3)); if (!pj) return null;
     const c = compute(pj), usado = Math.min(pj.used?.pg || 0, c.hpMax);

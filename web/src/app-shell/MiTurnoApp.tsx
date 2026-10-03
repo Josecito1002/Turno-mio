@@ -45,7 +45,7 @@ function itemsNav(): ItemNav[] {
   if (esAdmin()) items.push({ vista: 'cuentas', texto: 'Cuentas', activa: v === 'cuentas' });
   return items;
 }
-const ir = (v: Vista) => { S.view = v; S.dialogo = ''; if (v === 'mesa') S.camp = null; render(); irArriba(); };
+const ir = (v: Vista) => { S.view = v; S.dialogo = ''; S.hojaMesa = null; if (v === 'mesa') S.camp = null; render(); irArriba(); };
 
 const editar = () => { S.dialogo = ''; S.view = 'editor'; S.step = S.step || 'especie'; render(); irArriba(); };
 const verHoja = () => { S.dialogo = ''; S.view = 'ficha'; S.tab = 'turno'; render(); irArriba(); };
@@ -332,7 +332,7 @@ export function MiTurnoApp({ invitado = false }: { invitado?: boolean }) {
   const importarHojas = () => { marcarImportarEnCampana(); fileIn.current?.click(); };
   const nav = S.usuario && !S.cargando ? itemsNav() : [];
   // La ficha ocupa todo el ancho (como el diseño); el resto de pantallas sigue en una columna de lectura
-  const ancha = !S.cargando && !S.error && S.view === 'ficha' && !!S.pj;
+  const ancha = !S.cargando && !S.error && ((S.view === 'ficha' && !!S.pj) || (S.view === 'mesa' && !!S.hojaMesa));
 
   return (
     <BandejaDados gastar={gastarRecurso} quedan={quedaRecurso}>

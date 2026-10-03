@@ -28,6 +28,8 @@ export const S = {
   spTodos: false,
   spOpen: {} as Record<string, boolean>,
   camp: null as string | null,
+  /** Mesa del DM: la hoja de jugador que se está mirando (clave jm:...), o null. */
+  hojaMesa: null as string | null,
   mtab: 'grupo',
   importCamp: null as string | null,
 };

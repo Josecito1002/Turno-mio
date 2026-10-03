@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { Fragment, type ReactNode } from 'react';
+import { Fragment, createContext, useContext, type ReactNode } from 'react';
 import { S, render } from '@/app-shell/estado';
 import { esc, modStr, norm, richT, sign } from '@/shared/utils/texto';
 import { Aviso, Boton, Dialogo, Simbolo, cx, foco } from '@/shared/ui/kit';
@@ -15,9 +15,15 @@ import { Entrada, LanzarConjuro, Mover, datosConjuro } from '../piezas';
 import { fijarPool, irAPaso, moverPool, setVal, tocarPip } from '../../acciones';
 import { desglose } from '../../domain/calculo';
 import { extrasAtaque } from '../../domain/lanzar';
+import { MONEDAS, bolsaDe } from '../../domain/inventario';
 import { Inventario } from '../Inventario';
 import { Criaturas } from './Criaturas';
 import { Herramienta } from './Herramientas';
+
+/** Solo lectura: la hoja de un jugador vista desde la mesa del DM. Se ve todo, pero nada se puede cambiar ni gastar
+    (las acciones de la hoja trabajan sobre el personaje abierto, que no es este). */
+const Lectura = createContext(false);
+const useLectura = () => useContext(Lectura);
 
 export const PASO_N: Record<string, string> = { especie: 'Especie', clase: 'Clase', trasfondo: 'Trasfondo', stats: 'Características', habs: 'Habilidades', equipo: 'Equipo', conjuros: 'Conjuros', rasgos: 'Rasgos propios', detalles: 'Detalles' };
 
@@ -59,7 +65,7 @@ function Desplegable({ titulo, nota, children }: { titulo: string; nota?: string
 
 /* ===================== Cabecera: identidad ===================== */
 function Identidad({ c }: { c: any }) {
-  const pj = S.pj;
+  const pj = c.pj, lectura = useLectura();
   const esp = pj.especie.key === 'custom' ? pj.especie.nombre : c.E ? c.E.n + (c.E.subs?.[c.esub] ? ` (${c.E.subs[c.esub].n})` : '') : '';
   const subN = c.SD ? c.SD.n : (pj.subclase === 'otra' && c.lvl >= c.subNivel ? pj.subclaseNombre : '');
   const linea = c.C ? `${c.C.n}${subN ? ` (${subN})` : ''}${c.chain ? ', Pacto de la Cadena' : ''} • Nivel ${c.lvl}` : 'Sin clase todavía';
@@ -73,11 +79,19 @@ function Identidad({ c }: { c: any }) {
             <span className="font-serif text-6xl font-bold text-primary">{inicial}</span>
           </div>
         </div>
-        <button type="button" aria-pressed={insp} onClick={() => setVal('inspiracion', !insp)} title="Inspiración heroica (toca para cambiar)"
-          className={cx('absolute -bottom-2 -right-2 flex cursor-pointer items-center gap-1 rounded-full bg-surface-container-highest px-2 py-1 shadow-[0_0_12px_rgba(212,175,55,0.4)] transition-transform hover:scale-105', foco, !insp && 'opacity-40')}>
-          <Simbolo n="auto_awesome" relleno={insp} className="text-body-md text-primary" />
-          <span className="text-label-caps uppercase tracking-widest text-primary">Inspirado</span>
-        </button>
+        {lectura ? (
+          <span title={insp ? 'Tiene inspiración heroica' : 'Sin inspiración heroica'}
+            className={cx('absolute -bottom-2 -right-2 flex items-center gap-1 rounded-full bg-surface-container-highest px-2 py-1 shadow-[0_0_12px_rgba(212,175,55,0.4)]', !insp && 'opacity-40')}>
+            <Simbolo n="auto_awesome" relleno={insp} className="text-body-md text-primary" />
+            <span className="text-label-caps uppercase tracking-widest text-primary">{insp ? 'Inspirado' : 'Sin inspiración'}</span>
+          </span>
+        ) : (
+          <button type="button" aria-pressed={insp} onClick={() => setVal('inspiracion', !insp)} title="Inspiración heroica (toca para cambiar)"
+            className={cx('absolute -bottom-2 -right-2 flex cursor-pointer items-center gap-1 rounded-full bg-surface-container-highest px-2 py-1 shadow-[0_0_12px_rgba(212,175,55,0.4)] transition-transform hover:scale-105', foco, !insp && 'opacity-40')}>
+            <Simbolo n="auto_awesome" relleno={insp} className="text-body-md text-primary" />
+            <span className="text-label-caps uppercase tracking-widest text-primary">Inspirado</span>
+          </button>
+        )}
       </div>
       <div className="flex h-full min-w-0 flex-col justify-between text-center sm:text-left">
         <div>
@@ -115,18 +129,19 @@ function Identidad({ c }: { c: any }) {
 /* ===================== Cabecera: CA, PG, dados de golpe ===================== */
 /** Tres casillas de salvación contra muerte; marcar una deja marcadas las anteriores. */
 function Salvaciones({ clave, n, acento, nombre }: { clave: string; n: number; acento: string; nombre: string }) {
+  const lectura = useLectura();
   return (
     <div className="flex gap-1.5">
       {[0, 1, 2].map(i => (
-        <input key={i} type="checkbox" checked={i < n} aria-label={`${nombre} ${i + 1}`} title={`${nombre} ${i + 1}`}
-          onChange={() => setVal(`used.${clave}`, i < n ? i : i + 1)} className={cx('size-3.5 cursor-pointer rounded-sm', acento)} />
+        <input key={i} type="checkbox" checked={i < n} disabled={lectura} aria-label={`${nombre} ${i + 1}`} title={`${nombre} ${i + 1}`}
+          onChange={() => setVal(`used.${clave}`, i < n ? i : i + 1)} className={cx('size-3.5 rounded-sm', lectura ? 'cursor-default' : 'cursor-pointer', acento)} />
       ))}
     </div>
   );
 }
 
 function Vitales({ c }: { c: any }) {
-  const pj = S.pj, tirar = useDados();
+  const pj = c.pj, tirar = useDados(), lectura = useLectura();
   const pg = c.recursos.find((r: any) => r.id === 'pg');
   const max = pg?.max ?? c.hpMax, actual = max - Math.min(pj.used?.pg || 0, max);
   const temp = Math.max(0, +pj.pgTemp || 0);
@@ -170,22 +185,30 @@ function Vitales({ c }: { c: any }) {
             <Simbolo n="favorite" className="text-headline-sm text-error" />
             <span className="text-label-caps uppercase tracking-wider">Puntos de golpe (PG)</span>
           </div>
-          <label className="flex items-center gap-1 text-label-caps uppercase text-secondary">
-            Temp:
-            <input key={temp} type="number" inputMode="numeric" min={0} defaultValue={temp || ''} placeholder="0" aria-label="Puntos de golpe temporales"
-              onBlur={e => { const v = Math.max(0, parseInt(e.target.value) || 0); if (v !== temp) setVal('pgTemp', v); }} onKeyDown={alSoltarEnter}
-              className={cx('w-10 rounded bg-surface-container-lowest px-1 text-center text-body-md font-bold text-secondary-fixed-dim placeholder:text-outline', SIN_FLECHAS, foco)} />
-          </label>
+          {lectura ? (
+            <span className="flex items-center gap-1 text-label-caps uppercase text-secondary">
+              Temp: <span className="rounded bg-surface-container-lowest px-1 text-body-md font-bold text-secondary-fixed-dim">{temp}</span>
+            </span>
+          ) : (
+            <label className="flex items-center gap-1 text-label-caps uppercase text-secondary">
+              Temp:
+              <input key={temp} type="number" inputMode="numeric" min={0} defaultValue={temp || ''} placeholder="0" aria-label="Puntos de golpe temporales"
+                onBlur={e => { const v = Math.max(0, parseInt(e.target.value) || 0); if (v !== temp) setVal('pgTemp', v); }} onKeyDown={alSoltarEnter}
+                className={cx('w-10 rounded bg-surface-container-lowest px-1 text-center text-body-md font-bold text-secondary-fixed-dim placeholder:text-outline', SIN_FLECHAS, foco)} />
+            </label>
+          )}
         </div>
         <div className="my-1 flex flex-wrap items-baseline justify-between gap-2">
           <div className="flex items-baseline gap-1">
-            <input key={actual} type="number" inputMode="numeric" min={0} max={max} defaultValue={actual} aria-label={`Puntos de golpe actuales (de ${max})`}
-              onBlur={e => { if (+e.target.value !== actual) fijarPool('pg', max, e.target.value); }} onKeyDown={alSoltarEnter}
-              style={{ width: `${String(actual).length + 0.6}ch` }}
-              className={cx('rounded bg-transparent text-stat-display text-primary hover:bg-surface-container-lowest focus:bg-surface-container-lowest', SIN_FLECHAS, foco)} />
+            {lectura ? <span className="text-stat-display text-primary">{actual}</span> : (
+              <input key={actual} type="number" inputMode="numeric" min={0} max={max} defaultValue={actual} aria-label={`Puntos de golpe actuales (de ${max})`}
+                onBlur={e => { if (+e.target.value !== actual) fijarPool('pg', max, e.target.value); }} onKeyDown={alSoltarEnter}
+                style={{ width: `${String(actual).length + 0.6}ch` }}
+                className={cx('rounded bg-transparent text-stat-display text-primary hover:bg-surface-container-lowest focus:bg-surface-container-lowest', SIN_FLECHAS, foco)} />
+            )}
             <span className="whitespace-nowrap text-body-lg text-outline">/ {max} máx.</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className={cx('flex items-center gap-1', lectura && 'hidden')}>
             {[-5, -1, 1, 5].map(n => (
               <button key={n} type="button" onClick={() => (n < 0 ? danar(-n) : curar(n))}
                 aria-label={n < 0 ? `Recibir ${-n} de daño` : `Curar ${n}`}
@@ -210,10 +233,12 @@ function Vitales({ c }: { c: any }) {
           </div>
           <div className="mt-1 flex items-center justify-between">
             <span className="font-serif text-headline-sm text-on-surface">{dgQuedan} / {c.lvl}</span>
-            <button type="button" onClick={gastarDado} title="Gastar un dado de golpe: tira y te cura" aria-label={`Gastar un dado de golpe (1d${c.die}${modStr(c.m.con)}), quedan ${dgQuedan}`}
-              className={cx('grid size-8 cursor-pointer place-items-center rounded bg-surface-container-high text-primary transition-all hover:bg-primary hover:text-on-primary', foco)}>
-              <Simbolo n="healing" className="text-body-md" />
-            </button>
+            {!lectura && (
+              <button type="button" onClick={gastarDado} title="Gastar un dado de golpe: tira y te cura" aria-label={`Gastar un dado de golpe (1d${c.die}${modStr(c.m.con)}), quedan ${dgQuedan}`}
+                className={cx('grid size-8 cursor-pointer place-items-center rounded bg-surface-container-high text-primary transition-all hover:bg-primary hover:text-on-primary', foco)}>
+                <Simbolo n="healing" className="text-body-md" />
+              </button>
+            )}
           </div>
         </div>
         <div className="mt-1 rounded-lg bg-surface-container-lowest/50 p-1">
@@ -334,7 +359,7 @@ function Habilidades({ c }: { c: any }) {
 }
 
 function Competencias({ c }: { c: any }) {
-  const pj = S.pj, tb = pj.trasfondo, T = c.T;
+  const pj = c.pj, tb = pj.trasfondo, T = c.T;
   const datos: [string, ReactNode][] = [
     ['Armaduras', textoArmaduras(c)], ['Armas', textoArmas(c)], ['Herramientas', c.herramientas.map((h: any) => h.que).join(', ') || '—'],
     ...(c.compFuentes.length ? [['Competencias de rasgos', c.compFuentes.map((f: any) => `${f.que} (${f.src})`).join(', ')] as [string, ReactNode]] : []),
@@ -366,7 +391,7 @@ function Competencias({ c }: { c: any }) {
 /* ===================== Columna central ===================== */
 /** Recursos de clase y rasgos (Oleada de Acción, Tomar Aliento, Ki…); los PG y los espacios de conjuro van en su tarjeta. */
 function RecursosClase({ c }: { c: any }) {
-  const u = S.pj.used || {};
+  const u = c.pj.used || {}, lectura = useLectura();
   const rs = c.recursos.filter((r: any) => r.id !== 'pg' && !/^slot\d/.test(r.id));
   if (!rs.length) return null;
   return (
@@ -386,7 +411,13 @@ function RecursosClase({ c }: { c: any }) {
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-1">
-              {r.tipo === 'pool' ? (
+              {lectura ? (
+                <span className={cx('rounded px-3 py-1 text-label-md font-bold', left
+                  ? (azul ? 'bg-secondary-container text-on-secondary-container' : 'bg-primary-container text-on-primary-container')
+                  : 'bg-surface-container-highest text-outline opacity-60')}>
+                  {left} / {r.max} {left ? 'disp.' : 'gastado'}
+                </span>
+              ) : r.tipo === 'pool' ? (
                 <label className="flex items-baseline gap-1 text-body-sm text-outline">
                   <input key={left} type="number" inputMode="numeric" min={0} max={r.max} defaultValue={left} aria-label={`${r.nombre}: quedan (de ${r.max})`}
                     onBlur={e => { if (+e.target.value !== left) fijarPool(r.id, r.max, e.target.value); }} onKeyDown={alSoltarEnter}
@@ -417,7 +448,8 @@ function RecursosClase({ c }: { c: any }) {
   );
 }
 
-function FilaArsenal({ a }: { a: any }) {
+function FilaArsenal({ a, c }: { a: any; c: any }) {
+  const lectura = useLectura();
   const n = a.w ? a.w.n : a.nombre, dist = !!a.w?.dist;
   const icono = dist ? 'adjust' : a.w ? 'colorize' : 'sports_martial_arts';
   const txt = dist ? 'text-secondary' : 'text-primary';
@@ -447,13 +479,13 @@ function FilaArsenal({ a }: { a: any }) {
       <div className="flex shrink-0 gap-1 sm:flex-col">
         {a.cd == null && (
           <BotonTirada estilo="libre" expr={`1d20${modStr(a.atk)}`} label={`${n}: ataque`} dmg={a.expr} dmgLabel={`${n}: daño`} min3={a.min3}
-            extras={S.c ? extrasAtaque(S.c, a) : undefined} mods={a.atkDesg} dmgMods={a.dmgDesg} ariaLabel={`Tirar ataque con ${n}, ${sign(a.atk)}`}
+            extras={lectura ? undefined : extrasAtaque(c, a)} mods={a.atkDesg} dmgMods={a.dmgDesg} ariaLabel={`Tirar ataque con ${n}, ${sign(a.atk)}`}
             className={cx('flex flex-1 items-center justify-center gap-1 rounded bg-surface-container-lowest px-3 py-2 text-label-md font-bold shadow-inner transition-all sm:flex-none',
               dist ? 'text-secondary hover:bg-secondary hover:text-on-secondary' : 'text-primary hover:bg-primary hover:text-on-primary')}>
             <Simbolo n={dist ? 'gps_fixed' : 'sports_martial_arts'} className="text-body-md" />{dist ? 'Disparar' : 'Tirar ataque'}
           </BotonTirada>
         )}
-        <BotonTirada estilo="libre" expr={a.expr} label={`${n}: daño`} min3={a.min3} gasta={a.gasta} mods={a.dmgDesg} ariaLabel={`Tirar daño de ${n}: ${a.dmg}`}
+        <BotonTirada estilo="libre" expr={a.expr} label={`${n}: daño`} min3={a.min3} gasta={lectura ? undefined : a.gasta} mods={a.dmgDesg} ariaLabel={`Tirar daño de ${n}: ${a.dmg}`}
           className="flex-1 rounded bg-surface-container-high px-3 py-1 text-center text-body-sm text-on-surface-variant transition-all hover:bg-surface-container-highest hover:text-on-surface sm:flex-none">
           Tirar daño
         </BotonTirada>
@@ -482,11 +514,11 @@ function Arsenal({ c }: { c: any }) {
         </div>
         {c.extraAttack && <span className="rounded bg-surface-container-high px-2 py-1 text-label-caps uppercase text-secondary">Ataque extra ({ataques} ataques/turno)</span>}
       </div>
-      {armas.map((a: any, i: number) => <FilaArsenal key={(a.i ?? 'n') + '-' + i} a={a} />)}
-      <FilaArsenal a={sinArmas} />
+      {armas.map((a: any, i: number) => <FilaArsenal key={(a.i ?? 'n') + '-' + i} a={a} c={c} />)}
+      <FilaArsenal a={sinArmas} c={c} />
       {guardadas.length > 0 && (
         <Desplegable titulo="Armas guardadas" nota="Sacar una es interactuar con un objeto. Cambia lo que empuñas en Equipo.">
-          <div className="flex flex-col gap-3">{guardadas.map((a: any) => <FilaArsenal key={'g' + a.i} a={a} />)}</div>
+          <div className="flex flex-col gap-3">{guardadas.map((a: any) => <FilaArsenal key={'g' + a.i} a={a} c={c} />)}</div>
         </Desplegable>
       )}
     </section>
@@ -518,11 +550,12 @@ function TiradorRapido() {
 
 /** Lo demás que puedes hacer en tu turno (rasgos por tipo de acción); los ataques y los conjuros tienen su propia tarjeta. */
 function OtrasAcciones({ c }: { c: any }) {
+  const lectura = useLectura();
   // Familiares y criaturas van justo debajo de Acción adicional (aunque esa sección no tenga nada)
-  const hayCriaturas = !!((c.criaturasPuede || []).length || c.criaturas?.length);
-  const criaturas = hayCriaturas && (
+  const hayCriaturas = lectura ? !!c.criaturas?.length : !!((c.criaturasPuede || []).length || c.criaturas?.length);
+  const criaturas = hayCriaturas && (lectura ? <CriaturasLectura key="criaturas" c={c} /> : (
     <div key="criaturas" className="rounded-lg bg-surface-container-low p-5 shadow-lg [&>section]:mt-0"><Criaturas c={c} /></div>
-  );
+  ));
   return (
     <>
       {ORDEN_TIPOS.filter(t => t !== 'pasiva').map(t => {
@@ -553,8 +586,9 @@ function OtrasAcciones({ c }: { c: any }) {
 }
 
 /* ===================== Columna derecha ===================== */
-function Ranuras({ r }: { r: any }) {
-  const used = Math.min(S.pj.used?.[r.id] || 0, r.max), quedan = r.max - used;
+function Ranuras({ r, c }: { r: any; c: any }) {
+  const lectura = useLectura();
+  const used = Math.min(c.pj.used?.[r.id] || 0, r.max), quedan = r.max - used;
   const nivel = r.id.replace('slot', '');
   const titulo = !r.nombre || /^Espacios de nivel/.test(r.nombre) ? `Ranuras nivel ${nivel}` : r.nombre;
   return (
@@ -566,6 +600,12 @@ function Ranuras({ r }: { r: any }) {
       <div role="group" aria-label={`${titulo}: quedan ${quedan} de ${r.max}`} className="flex flex-wrap items-center gap-2">
         {Array.from({ length: r.max }, (_, i) => {
           const libre = i < quedan;
+          if (lectura) return (
+            <span key={i} aria-hidden="true" className={cx('flex h-10 min-w-10 flex-1 items-center justify-center rounded',
+              libre ? 'bg-secondary-container text-on-secondary-container shadow-[0_0_12px_rgba(0,166,224,0.4)]' : 'bg-surface-container-lowest text-outline opacity-50 shadow-inner')}>
+              <Simbolo n={libre ? 'diamond' : 'radio_button_unchecked'} className="text-body-md" />
+            </span>
+          );
           return (
             <button key={i} type="button" aria-pressed={!libre} onClick={() => tocarPip(r.id, i, r.max)}
               aria-label={`${titulo}, ranura ${i + 1}: ${libre ? 'disponible, toca para gastarla' : 'gastada, toca para recuperarla'}`}
@@ -581,6 +621,7 @@ function Ranuras({ r }: { r: any }) {
 }
 
 function FilaConjuro({ s, c }: { s: any; c: any }) {
+  const lectura = useLectura();
   const d = datosConjuro(s, c);
   const meta = [TIPOS[s.tiempo || 'accion']?.[0], d.bits.join(', '), s.coste].filter(Boolean).join(' • ');
   const primero = String(s.desc || '').trim().split(/\n\s*\n/)[0];
@@ -598,12 +639,13 @@ function FilaConjuro({ s, c }: { s: any; c: any }) {
           {s.rasgo && <p className="m-0 text-label-caps text-outline">De {s.rasgo}</p>}
         </div>
       </details>
-      <LanzarConjuro s={s} c={c} d={d} compacto />
+      {!lectura && <LanzarConjuro s={s} c={c} d={d} compacto />}
     </li>
   );
 }
 
 function Magia({ c }: { c: any }) {
+  const lectura = useLectura();
   const sp = c.conjuros || [];
   const slots = c.recursos.filter((r: any) => /^slot\d/.test(r.id));
   if (!sp.length && !slots.length && !c.casterAb) return null;
@@ -625,7 +667,7 @@ function Magia({ c }: { c: any }) {
           </div>
         )}
       </div>
-      {slots.map((r: any) => <Ranuras key={r.id} r={r} />)}
+      {slots.map((r: any) => <Ranuras key={r.id} r={r} c={c} />)}
       {sp.length ? (
         <div className="space-y-1">
           <span className="text-label-caps uppercase text-outline">Conjuros preparados</span>
@@ -633,7 +675,7 @@ function Magia({ c }: { c: any }) {
         </div>
       ) : (
         <div className="rounded-xs bg-surface-container-lowest p-2 text-body-sm text-on-surface-variant">
-          Sin conjuros todavía. <button type="button" onClick={() => irAPaso('conjuros')} className={cx('cursor-pointer font-bold text-primary underline', foco)}>Elegir conjuros</button>
+          Sin conjuros todavía.{!lectura && <> <button type="button" onClick={() => irAPaso('conjuros')} className={cx('cursor-pointer font-bold text-primary underline', foco)}>Elegir conjuros</button></>}
         </div>
       )}
     </section>
@@ -641,6 +683,7 @@ function Magia({ c }: { c: any }) {
 }
 
 function Rasgos({ c }: { c: any }) {
+  const lectura = useLectura();
   const ents = c.entries.filter((e: any) => e.t === 'pasiva');
   if (!ents.length) return null;
   return (
@@ -654,12 +697,52 @@ function Rasgos({ c }: { c: any }) {
             <div className="mt-1 flex justify-start empty:hidden"><Herramienta e={e} /></div>
             <div className="flex flex-wrap items-center justify-between gap-x-2">
               {e.src && <span className="text-label-caps text-outline">{e.src}</span>}
-              {e.grupo && e.grupo !== 'reglas' && <Mover e={e} />}
+              {!lectura && e.grupo && e.grupo !== 'reglas' && <Mover e={e} />}
             </div>
           </div>
         ))}
       </div>
     </section>
+  );
+}
+
+/* ===================== Solo lectura (mesa del DM) ===================== */
+/** Familiares y criaturas del jugador, sin su hoja interactiva. */
+function CriaturasLectura({ c }: { c: any }) {
+  return (
+    <section className="rounded-lg bg-surface-container-low p-5 shadow-lg">
+      <h2 className="m-0 font-serif text-headline-md text-on-surface">Familiares y criaturas</h2>
+      <ul className="m-0 mt-2 list-none space-y-1 p-0">
+        {c.criaturas.map((x: any) => (
+          <li key={x.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xs bg-surface-container-lowest p-2 text-body-sm">
+            <b className="font-serif text-body-lg text-on-surface">{x.nombre}</b>
+            <span className="text-on-surface-variant">{x.ca != null && <>CA <b className="text-on-surface">{x.ca}</b> · </>}PG <b className="text-on-surface">{x.pg}</b> / {x.pgMax}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Lo que lleva: armas, armadura, objetos mágicos, objetos y monedas (el inventario editable es del jugador). */
+function EquipoLectura({ c }: { c: any }) {
+  const pj = c.pj, b = bolsaDe(pj);
+  const fila = (k: string, v: ReactNode) => <div key={k}><dt className="text-label-caps uppercase text-outline">{k}</dt><dd className="m-0 text-body-sm text-on-surface">{v}</dd></div>;
+  const armas = c.armas.map((a: any) => a.nombre + (a.mano ? '' : ' (guardada)')).join(', ');
+  const magicos = (c.magicos || []).map(({ m, d }: any) => `${+m.q > 1 ? m.q + ' ' : ''}${d.n}${d.sint ? (m.sint ? ' (sintonizado)' : ' (sin sintonizar)') : ''}`).join(', ');
+  const objetos = (pj.objetos || []).map((o: any) => (+o.q > 1 ? o.q + ' ' : '') + o.n).join(', ');
+  return (
+    <div className="rounded-lg bg-surface-container-low p-3 shadow-lg">
+      <Rotulo icono="backpack">Equipo</Rotulo>
+      <dl className="m-0 space-y-2">
+        {fila('Armas', armas || '—')}
+        {fila('Armadura', [c.armor?.n || 'Ninguna', c.shield && 'escudo'].filter(Boolean).join(' y '))}
+        {magicos && fila('Objetos mágicos', magicos)}
+        {objetos && fila('Objetos', objetos)}
+        {pj.inventario && fila('Notas de inventario', <span dangerouslySetInnerHTML={{ __html: richT(pj.inventario) }} />)}
+        {fila('Monedas', MONEDAS.filter(([k]) => b[k]).map(([k, n]) => `${b[k]} ${n.toLowerCase()}`).join(', ') || 'Ninguna')}
+      </dl>
+    </div>
   );
 }
 
@@ -676,10 +759,11 @@ function Avisos({ c }: { c: any }) {
 }
 
 /* ===================== Ficha ===================== */
-export function Ficha({ c }: { c: any }) {
+/** La hoja del personaje. Con `lectura`, la de un jugador vista desde la mesa del DM: todo visible, nada editable. */
+export function Ficha({ c, lectura = false }: { c: any; lectura?: boolean }) {
   const cerrarDialogo = () => { S.dialogo = ''; render(); };
   return (
-    <>
+    <Lectura.Provider value={lectura}>
       {/* Identidad y vitales */}
       <section aria-label="Personaje" className="w-full bg-surface-container-lowest px-4 py-5 lg:px-6">
         <div className="mx-auto flex max-w-[1600px] flex-col items-stretch justify-between gap-5 xl:flex-row">
@@ -697,6 +781,7 @@ export function Ficha({ c }: { c: any }) {
             <SentidosPasivos c={c} />
             <Habilidades c={c} />
             <Competencias c={c} />
+            {lectura && <EquipoLectura c={c} />}
           </div>
           <div className="flex flex-col gap-5 lg:col-span-6">
             <RecursosClase c={c} />
@@ -711,12 +796,16 @@ export function Ficha({ c }: { c: any }) {
         </div>
       </div>
 
-      <Dialogo abierto={S.dialogo === 'equipo'} onCerrar={cerrarDialogo} titulo="Equipo" ancho="lg">
-        <Inventario c={c} />
-      </Dialogo>
-      <Dialogo abierto={S.dialogo === 'revisar'} onCerrar={cerrarDialogo} titulo="Revisar">
-        <Avisos c={c} />
-      </Dialogo>
-    </>
+      {!lectura && (
+        <>
+          <Dialogo abierto={S.dialogo === 'equipo'} onCerrar={cerrarDialogo} titulo="Equipo" ancho="lg">
+            <Inventario c={c} />
+          </Dialogo>
+          <Dialogo abierto={S.dialogo === 'revisar'} onCerrar={cerrarDialogo} titulo="Revisar">
+            <Avisos c={c} />
+          </Dialogo>
+        </>
+      )}
+    </Lectura.Provider>
   );
 }

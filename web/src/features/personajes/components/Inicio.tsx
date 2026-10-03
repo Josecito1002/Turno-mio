@@ -2,6 +2,7 @@
 import { S } from '@/app-shell/estado';
 import { Boton, EncabezadoPagina, Tarjeta, cx, foco } from '@/shared/ui/kit';
 import { FormaTipo } from '@/features/reglas/components/TipoAccion';
+import { MesasDelJugador } from '@/features/mesa/components/UnirseMesa';
 import { abrir, borrarPj, nuevo } from '../acciones';
 
 const ECONOMIA: [string, string, string][] = [
@@ -48,6 +49,7 @@ export function Inicio() {
           </li>
         ))}
       </ul>
+      <MesasDelJugador />
     </>
   );
 }
