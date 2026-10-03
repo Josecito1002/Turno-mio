@@ -216,7 +216,7 @@ function HojaJugador({ cp, k }: { cp: any; k: string }) {
   );
   return (
     <>
-      <div className="sticky top-[var(--alto-cabecera,0px)] z-[6] flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-rule/60 bg-bg/95 px-4 py-2 backdrop-blur lg:px-6">
+      <div className="sticky top-[var(--alto-cabecera,0px)] z-[6] print:hidden flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-rule/60 bg-bg/95 px-4 py-2 backdrop-blur lg:px-6">
         <Boton tamano="sm" variante="fantasma" onClick={volver}>← {cp.nombre}</Boton>
         <p className="m-0 flex-1 text-sm"><b>{x.nombre}</b> <span className="text-muted">· juega {x.jugador} · solo lectura · actualizada {hora(x.u.actualizadoEn)}</span></p>
       </div>

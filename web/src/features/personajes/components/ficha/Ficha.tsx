@@ -19,6 +19,7 @@ import { MONEDAS, bolsaDe } from '../../domain/inventario';
 import { Inventario } from '../Inventario';
 import { Criaturas } from './Criaturas';
 import { Herramienta } from './Herramientas';
+import { HojaImpresa } from './HojaImpresa';
 
 /** Solo lectura: la hoja de un jugador vista desde la mesa del DM. Se ve todo, pero nada se puede cambiar ni gastar
     (las acciones de la hoja trabajan sobre el personaje abierto, que no es este). */
@@ -764,6 +765,9 @@ export function Ficha({ c, lectura = false }: { c: any; lectura?: boolean }) {
   const cerrarDialogo = () => { S.dialogo = ''; render(); };
   return (
     <Lectura.Provider value={lectura}>
+      {/* Al imprimir sale la hoja de papel en lugar de la interactiva */}
+      <HojaImpresa c={c} />
+      <div className="print:hidden">
       {/* Identidad y vitales */}
       <section aria-label="Personaje" className="w-full bg-surface-container-lowest px-4 py-5 lg:px-6">
         <div className="mx-auto flex max-w-[1600px] flex-col items-stretch justify-between gap-5 xl:flex-row">
@@ -794,6 +798,7 @@ export function Ficha({ c, lectura = false }: { c: any; lectura?: boolean }) {
             <Rasgos c={c} />
           </div>
         </div>
+      </div>
       </div>
 
       {!lectura && (

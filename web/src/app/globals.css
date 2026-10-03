@@ -99,9 +99,12 @@ dialog::backdrop { background: rgb(8 12 15 / .55); }
     --color-surface-container-high: #eee; --color-surface-container-highest: #e4e4e4;
     --color-on-surface: #000; --color-on-surface-variant: #333; --color-outline: #555; --color-outline-variant: #bbb;
     --color-primary: #6b5200; --color-primary-fixed-dim: #6b5200; --color-secondary: #00506f; --color-secondary-fixed-dim: #00506f; --color-error: #9a1a10; }
-  body { background-image: none; }
+  @page { margin: 10mm 11mm; }
+  html, body { background: #fff !important; background-image: none !important; }
   * { box-shadow: none !important; }
-  body { font-size: 11pt; }
+  body { font-size: 11pt; min-height: 0; }
+  /* Avisos flotantes, indicadores de desarrollo y similares no van al papel */
+  [data-sileo-viewport], nextjs-portal { display: none !important; }
 }
 
 /* sileo capitaliza los títulos; en español se escribe en minúsculas */
