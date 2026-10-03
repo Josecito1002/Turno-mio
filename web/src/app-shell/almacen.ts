@@ -16,6 +16,9 @@ import { puedeUsarMesa, type Usuario } from './estado';
  */
 const copia = <T,>(x: T): T => (x == null ? x : JSON.parse(JSON.stringify(x)));
 const mem = { pjs: new Map<string, any>(), campanas: [] as any[] };
+/** Código y jugadores unidos de cada mesa: los da el servidor, fuera de los datos de la campaña (no se guardan con ella). */
+export type InfoMesa = { codigo: string | null; unidos: number };
+const infoMesas = new Map<string, InfoMesa>();
 
 type Pendiente = { t: ReturnType<typeof setTimeout>; enviar: (keepalive: boolean) => Promise<unknown> };
 const pendientes = new Map<string, Pendiente>();
@@ -58,7 +61,7 @@ async function cargarInvitado(): Promise<Carga> {
   limpiarBestias();
   const locales = leerLocal();
   mem.pjs = new Map(Object.entries(locales).map(([id, p]) => [id, p.datos]));
-  mem.campanas = [];
+  mem.campanas = []; infoMesas.clear();
   return {
     usuario: { id: 'invitado', email: '', nombre: 'Invitado', rol: 'invitado', ultimoPj: leerUltimo() },
     lista: Object.entries(locales).map(([id, p]) => ({ id, name: p.nombre, sub: p.resumen || '' })),
@@ -74,9 +77,10 @@ export async function cargarTodo(comoInvitado = false): Promise<Carga> {
   if (limpiarBestias().length && d.yo?.rol === 'admin') guardarLib(true);
   mem.pjs = new Map(d.personajes.map(p => [p.id, p.datos]));
   // Las campañas solo existen para DM y administradores (el servidor rechaza a los demás).
-  mem.campanas = d.yo && puedeUsarMesa(d.yo.rol)
-    ? (await gql<{ campanas: CampanaServidor[] }>(`{ ${QUERY_CAMPANAS} }`)).campanas.map(c => c.datos)
-    : [];
+  const camps = d.yo && puedeUsarMesa(d.yo.rol) ? (await gql<{ campanas: CampanaServidor[] }>(`{ ${QUERY_CAMPANAS} }`)).campanas : [];
+  mem.campanas = camps.map(c => c.datos);
+  infoMesas.clear();
+  for (const c of camps) infoMesas.set(c.id, { codigo: c.codigo, unidos: c.unidos || 0 });
   return { usuario: d.yo, lista: d.personajes.map(p => ({ id: p.id, name: p.nombre, sub: p.resumen || '' })) };
 }
 
@@ -97,6 +101,8 @@ export const almacen = {
   ultimo(id: string | null) { if (invitado) { escribirUltimo(id); return; } programar('ultimo', () => marcarUltimo(id), 1500); },
 
   campanas() { return copia(mem.campanas); },
+  infoMesa(id: string): InfoMesa { return infoMesas.get(id) || { codigo: null, unidos: 0 }; },
+  fijarInfoMesa(id: string, cambio: Partial<InfoMesa>) { infoMesas.set(id, { ...this.infoMesa(id), ...cambio }); },
   guardarCampana(cp: any) {
     if (invitado) return; // la mesa del DM necesita cuenta
     const i = mem.campanas.findIndex(x => x.id === cp.id);
@@ -105,7 +111,7 @@ export const almacen = {
     programar('camp:' + cp.id, k => guardarCampana({ id: cp.id, nombre: cp.nombre, datos }, k));
   },
   borrarCampana(id: string) {
-    mem.campanas = mem.campanas.filter(x => x.id !== id);
+    mem.campanas = mem.campanas.filter(x => x.id !== id); infoMesas.delete(id);
     const p = pendientes.get('camp:' + id); if (p) { clearTimeout(p.t); pendientes.delete('camp:' + id); }
     borrarCampana(id).catch((e: Error) => avisar(`No se pudo borrar en el servidor: ${e.message}`, 'error'));
   },

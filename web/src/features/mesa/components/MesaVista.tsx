@@ -5,7 +5,7 @@ import { S, render, irArriba } from '@/app-shell/estado';
 import { almacen } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
 import { confirmar } from '@/shared/ui/confirmar';
-import { modStr, sign } from '@/shared/utils/texto';
+import { modStr, norm, sign } from '@/shared/utils/texto';
 import { Aviso, Boton, Campo, EncabezadoPagina, Fila, Lista, Nota, PanelPestana, Pestanas, Plegable, Seccion, Tarjeta, claseCampo, cx, foco } from '@/shared/ui/kit';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { BotonTirada } from '@/features/dados/components/BotonTirada';
@@ -156,7 +156,7 @@ function TarjetaJugador({ cp, x, alQuitar }: { cp: any; x: any; alQuitar: () => 
 function useUnidos(campId: string) {
   const [estado, setEstado] = useState({ cargando: true, error: '' });
   const leer = useCallback(() => jugadoresMesa(campId).then(
-    l => { fijarUnidos(campId, l); setEstado({ cargando: false, error: '' }); render(); },
+    l => { fijarUnidos(campId, l); almacen.fijarInfoMesa(campId, { unidos: l.length }); setEstado({ cargando: false, error: '' }); render(); },
     (e: Error) => setEstado({ cargando: false, error: e.message })), [campId]);
   useEffect(() => {
     leer();
@@ -180,7 +180,7 @@ function CodigoMesa({ campId }: { campId: string }) {
         const cp = campActual(); if (!cp || cp.id !== campId) throw e;
         return guardarCampana({ id: cp.id, nombre: cp.nombre, datos: JSON.parse(JSON.stringify(cp)) }).then(una);
       })
-      .then(k => { setCodigo(k); setError(''); if (nuevo) avisar('Código nuevo listo. El anterior ya no sirve.'); }, (e: Error) => setError(e.message))
+      .then(k => { setCodigo(k); setError(''); almacen.fijarInfoMesa(campId, { codigo: k }); if (nuevo) avisar('Código nuevo listo. El anterior ya no sirve.'); }, (e: Error) => setError(e.message))
       .finally(() => setOcupado(false));
   }, [campId]);
   useEffect(() => { pedir(false); }, [pedir]);
@@ -368,8 +368,16 @@ function campanaAbierta() {
   cp.combate = cp.combate || { activo: false, ronda: 1, turno: 0, orden: [] }; cp.monstruos = cp.monstruos || [];
   return cp;
 }
+const mismoNombre = (a: string, b: string) => norm(a).trim() === norm(b).trim();
+/** Los ids de campaña son "c-" + la hora de creación en base 36. */
+function creadaEl(id: string) {
+  const t = parseInt(String(id).replace(/^c-/, ''), 36);
+  return t > 1.5e12 && t < 4e12 ? new Date(t).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+}
 function crearCampana(n: string) {
   if (!n) { avisar('Ponle nombre a la campaña.', 'aviso'); return; }
+  // Dos mesas con el mismo nombre se confunden en la lista (y los jugadores quedan en la otra)
+  if (camps().some(x => mismoNombre(x.nombre, n))) { avisar(`Ya tienes una campaña llamada «${n}». Ábrela desde la lista o ponle otro nombre a la nueva.`, 'aviso'); return; }
   const nueva = { id: 'c-' + Date.now().toString(36), nombre: n, pjs: [], monstruos: [], estado: {}, combate: { activo: false, ronda: 1, turno: 0, orden: [] } };
   guardarCamp(nueva); S.camp = nueva.id; S.mtab = 'grupo'; render();
 }
@@ -390,15 +398,31 @@ export function MesaVista({ importarHojas }: { importarHojas: () => void }) {
         <EncabezadoPagina id="titulo-vista" titulo="Mesa del DM" subtitulo="Junta las hojas de tu grupo en una campaña para ver PG, CA y pasivas de un vistazo, y llevar el combate: iniciativa, daño y condiciones." />
         {l.length > 0 && (
           <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3 p-0">
-            {l.map(cp => (
-              <li key={cp.id} className="flex">
-                <button type="button" onClick={() => abrirCampana(cp.id)}
-                  className={cx('flex min-h-24 w-full cursor-pointer flex-col justify-center rounded-2xl bg-surface p-4 text-left shadow-sm ring-1 ring-rule/60 hover:shadow-md', foco)}>
-                  <b className="font-serif text-xl">{cp.nombre}</b>
-                  <span className="text-sm text-muted">{cp.pjs.length} personaje{cp.pjs.length === 1 ? '' : 's'}{cp.combate?.activo ? ', en combate' : ''}</span>
-                </button>
-              </li>
-            ))}
+            {l.map(cp => {
+              const info = almacen.infoMesa(cp.id), copias = cp.pjs.length;
+              // Con dos campañas del mismo nombre, la fecha de creación es lo que las distingue
+              const repetida = l.some(o => o.id !== cp.id && mismoNombre(o.nombre, cp.nombre));
+              const detalle = [
+                `${info.unidos} jugador${info.unidos === 1 ? '' : 'es'} unido${info.unidos === 1 ? '' : 's'}`,
+                copias ? `${copias} copia${copias === 1 ? '' : 's'}` : '',
+                cp.combate?.activo ? 'en combate' : '',
+              ].filter(Boolean).join(' · ');
+              return (
+                <li key={cp.id} className="flex">
+                  <button type="button" onClick={() => abrirCampana(cp.id)}
+                    className={cx('flex min-h-24 w-full cursor-pointer flex-col justify-center gap-0.5 rounded-2xl bg-surface p-4 text-left shadow-sm ring-1 ring-rule/60 hover:shadow-md', foco)}>
+                    <b className="font-serif text-xl">{cp.nombre}</b>
+                    <span className="text-sm text-muted">{detalle}</span>
+                    {(info.codigo || repetida) && (
+                      <span className="text-sm text-muted">
+                        {info.codigo && <>Código <span className="font-mono font-bold tracking-wider text-ink">{info.codigo}</span></>}
+                        {info.codigo && repetida && creadaEl(cp.id) ? ' · ' : ''}{repetida && creadaEl(cp.id) ? `creada el ${creadaEl(cp.id)}` : ''}
+                      </span>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
         <Seccion titulo="Nueva campaña">

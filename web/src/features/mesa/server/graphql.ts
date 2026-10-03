@@ -1,5 +1,5 @@
 import { randomInt } from 'node:crypto';
-import { and, eq } from 'drizzle-orm';
+import { and, count, eq } from 'drizzle-orm';
 import { GraphQLError } from 'graphql';
 import { requiereUsuario, type Contexto, type ModuloGraphQL } from '@/shared/graphql/servidor';
 import { exigir } from '@/features/cuentas/server/permisos';
@@ -25,6 +25,8 @@ const typeDefs = /* GraphQL */ `
     datos: JSON!
     "Código para que los jugadores se unan (null si todavía no se pidió)."
     codigo: String
+    "Cuántos personajes de jugadores se unieron con el código (solo en la lista de campañas)."
+    unidos: Int
     actualizadoEn: String!
   }
   "Un personaje de un jugador unido a la mesa, tal como está ahora en su hoja."
@@ -75,7 +77,12 @@ export const mesaGraphQL: ModuloGraphQL = {
     Query: {
       campanas: async (_: unknown, __: unknown, ctx: Contexto) => {
         const u = await exigir(ctx, 'usarMesa', SOLO_DM);
-        return (await ctx.db.select().from(campanas).where(eq(campanas.usuarioId, u.id)).orderBy(campanas.creadoEn)).map(iso);
+        const [lista, cuentas] = await Promise.all([
+          ctx.db.select().from(campanas).where(eq(campanas.usuarioId, u.id)).orderBy(campanas.creadoEn),
+          ctx.db.select({ campanaId: mesaJugadores.campanaId, n: count() }).from(mesaJugadores).where(eq(mesaJugadores.dmId, u.id)).groupBy(mesaJugadores.campanaId),
+        ]);
+        const unidos = new Map(cuentas.map(x => [x.campanaId, Number(x.n)]));
+        return lista.map(c => ({ ...iso(c), unidos: unidos.get(c.id) || 0 }));
       },
       jugadoresMesa: async (_: unknown, { campanaId }: { campanaId: string }, ctx: Contexto) => {
         const u = await exigir(ctx, 'usarMesa', SOLO_DM);
