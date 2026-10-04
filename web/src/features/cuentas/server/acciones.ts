@@ -5,6 +5,7 @@ import { AuthError } from 'next-auth';
 import { db } from '@/shared/db/cliente';
 import { usuarios } from './tablas';
 import { signIn, signOut } from './auth';
+import { volverSeguro } from '../volver';
 
 /** Se devuelven los campos escritos para que no se borren si hay error (React vacía el formulario al enviarlo). */
 export type EstadoForm = { error?: string; email?: string; nombre?: string } | undefined;
@@ -13,7 +14,7 @@ const adminsPorEnv = () => (process.env.ADMIN_EMAILS || '').split(',').map(s => 
 
 export async function iniciarSesion(_: EstadoForm, fd: FormData): Promise<EstadoForm> {
   try {
-    await signIn('credentials', { email: fd.get('email'), password: fd.get('password'), redirectTo: '/' });
+    await signIn('credentials', { email: fd.get('email'), password: fd.get('password'), redirectTo: volverSeguro(fd.get('volver')) });
   } catch (e) {
     const campos = { email: String(fd.get('email') || ''), nombre: String(fd.get('nombre') || '') };
     if (e instanceof AuthError && e.type === 'CredentialsSignin') return { error: 'Correo o contraseña incorrectos.', ...campos };

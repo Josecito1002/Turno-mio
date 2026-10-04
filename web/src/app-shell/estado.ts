@@ -34,8 +34,8 @@ export const S = {
   /** Mesa del DM: el monstruo abierto en el bestiario (su clave), o null. */
   monstruoSel: null as string | null,
   importCamp: null as string | null,
-  /** Hoja de otra cuenta abierta en solo lectura (compartida contigo, o vista por un administrador), y adónde volver. */
-  ajeno: null as null | { usuarioId: string; id: string; jugador: string; pj: any; c: any; volver: Vista },
+  /** Hoja de otra cuenta abierta en solo lectura (por un enlace, o vista por un administrador), y adónde volver. */
+  ajeno: null as null | { jugador: string; pj: any; c: any; volver: Vista; permiteCopiar: boolean },
 };
 
 let version = 0;

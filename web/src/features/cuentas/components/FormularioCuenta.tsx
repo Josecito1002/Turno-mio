@@ -6,7 +6,7 @@ import { iniciarSesion, registrarse, type EstadoForm } from '../server/acciones'
 
 const campo = 'min-h-[42px] w-full rounded-lg border-[1.5px] border-rule bg-surface px-3 text-ink focus-visible:outline-3 focus-visible:outline-rea';
 
-export function FormularioCuenta({ modo }: { modo: 'login' | 'registro' }) {
+export function FormularioCuenta({ modo, volver }: { modo: 'login' | 'registro'; volver?: string }) {
   const [estado, accion, enviando] = useActionState<EstadoForm, FormData>(modo === 'login' ? iniciarSesion : registrarse, undefined);
   useEffect(() => { if (estado?.error) avisar(estado.error, 'error'); }, [estado]);
   const registro = modo === 'registro';
@@ -20,6 +20,7 @@ export function FormularioCuenta({ modo }: { modo: 'login' | 'registro' }) {
           : 'Tus personajes, campañas y la biblioteca del grupo te esperan.'}
       </p>
       <form action={accion} className="flex flex-col gap-3 rounded-xl bg-surface p-5 shadow-sm">
+        {volver && volver !== '/' && <input type="hidden" name="volver" value={volver} />}
         {registro && (
           <label className="flex flex-col gap-1 font-bold">Tu nombre
             <input name="nombre" autoComplete="name" required defaultValue={estado?.nombre} className={campo} />
