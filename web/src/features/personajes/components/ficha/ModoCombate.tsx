@@ -8,13 +8,14 @@ import { COMUNES } from '@/features/reglas/data/comunes';
 import { FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { CONDICIONES } from '@/features/mesa/domain/combate';
 import { avisar } from '@/shared/ui/avisos';
+import { esc, richT } from '@/shared/utils/texto';
 import { descansar, setVal } from '../../acciones';
 import { combateMesa, enviarGolpeMesa, gastarAccionMesa, type CombateVivo, type EconomiaRonda, type OrdenDm, type TipoAccionRonda } from '@/features/mesa/api';
 import { EFECTO_CONDICION } from '@/features/mesa/domain/condiciones';
-import { Entrada, datosConjuro } from '../piezas';
+import { datosConjuro } from '../piezas';
 import { bonosPara } from '../../domain/lanzar';
 import { UsoAccion, type Uso } from './UsoAccion';
-import { FilaArsenal, FilaConjuro, Ranuras, RecursosClase } from './Ficha';
+import { FilaArsenal, Ranuras, RecursosClase } from './Ficha';
 
 const TIPOS_BOTON: TipoAccionRonda[] = ['accion', 'adicional', 'reaccion'];
 
@@ -44,6 +45,23 @@ function Opcion({ uso, elegido, elegir, children }: { uso: Uso; elegido: Uso | n
       className={cx('cursor-pointer rounded-xl border-2 p-0.5 transition-colors', foco, marcada ? 'border-green-400 bg-green-400/10' : 'border-transparent')}>
       {children}
     </div>
+  );
+}
+
+/** Una opción de solo nombre: al tocarla se elige y se ve su descripción debajo. */
+function OpcionNombre({ uso, elegido, elegir, sub, icono }: { uso: Uso; elegido: Uso | null; elegir: (u: Uso) => void; sub?: string; icono?: string }) {
+  const marcada = mismo(elegido, uso);
+  return (
+    <Opcion uso={uso} elegido={elegido} elegir={elegir}>
+      <div className="rounded-lg bg-surface-container-lowest px-3 py-2">
+        <div className="flex items-center gap-2">
+          {icono && <Simbolo n={icono} className="text-body-lg text-secondary" />}
+          <span className="min-w-0 flex-1 text-body-md font-semibold text-on-surface">{uso.nombre}</span>
+          {sub && <span className="shrink-0 text-label-caps text-outline">{sub}</span>}
+        </div>
+        {marcada && uso.texto && <p className="m-0 mt-2 border-t border-outline-variant/30 pt-2 text-body-sm text-on-surface-variant" dangerouslySetInnerHTML={{ __html: uso.raw ? richT(uso.texto) : esc(uso.texto) }} />}
+      </div>
+    </Opcion>
   );
 }
 
@@ -88,20 +106,31 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
     return { tipo: t, nombre: s.nombre, coste: s.coste || (+s.nivel ? `Nivel ${s.nivel}` : 'Truco'), texto: String(s.desc || '').trim(), raw: true, ...(s.ataque && d.atk != null ? { atk: d.atk } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados),
       ...(+s.nivel > 0 ? { conjuro: { nivel: +s.nivel, rasgo: s.recurso, ritual: !!s.ritual, desc: s.desc, base: d.dexpr, bono: d.dexpr ? bonosPara(c, s).reduce((x: number, b: any) => x + (+b.valor || 0), 0) : 0 } } : {}) };
   };
-  const delaClase = armas.length + (sinArmas ? 1 : 0) + ents.length + conjuros.length;
+  const nom = (u: Uso, k: string | number, sub?: string, icono?: string) => <OpcionNombre key={k} uso={u} elegido={elegido} elegir={elegir} sub={sub} icono={icono} />;
+  const trucos = conjuros.filter((x: any) => !(+x.nivel > 0)), hechizos = conjuros.filter((x: any) => +x.nivel > 0);
+  const ataques = ents.filter(comoAtaque), otros = ents.filter((e: any) => !comoAtaque(e));
+  const delaClase = armas.length + (sinArmas ? 1 : 0) + ataques.length;
   return (
     <div role="radiogroup" aria-label="Elige qué haces" className="space-y-2">
-      <MenuAcciones titulo="Acciones de la clase" abierto hijos={delaClase}>
+      <MenuAcciones titulo="Ataques" abierto hijos={delaClase}>
         {armas.map((a: any, i: number) => op(deArma(a), <FilaArsenal a={a} c={c} />, 'a' + a.nombre + i))}
         {sinArmas && op(deArma(sinArmas), <FilaArsenal a={sinArmas} c={c} />, 'sa')}
-        {ents.map((e: any, i: number) => comoAtaque(e) ? op(deRasgo(e), <FilaArsenal a={comoArma(e)} c={c} />, 'r' + i) : op(deRasgo(e), <Entrada e={e} />, 'r' + i))}
-        {conjuros.map((s: any, i: number) => op(deConjuro(s), <FilaConjuro s={s} c={c} icono />, 's' + s.nombre + i))}
+        {ataques.map((e: any, i: number) => op(deRasgo(e), <FilaArsenal a={comoArma(e)} c={c} />, 'r' + i))}
+      </MenuAcciones>
+      <MenuAcciones titulo="Trucos" hijos={trucos.length}>
+        {trucos.map((x: any, i: number) => nom(deConjuro(x), 't' + x.nombre + i, undefined, 'flare'))}
+      </MenuAcciones>
+      <MenuAcciones titulo="Hechizos" hijos={hechizos.length}>
+        {hechizos.map((x: any, i: number) => nom(deConjuro(x), 'h' + x.nombre + i, datosConjuro(x, c).bits.join(', '), 'auto_awesome'))}
+      </MenuAcciones>
+      <MenuAcciones titulo="Otros" hijos={otros.length}>
+        {otros.map((e: any, i: number) => nom(deRasgo(e), 'o' + e.nombre + i, e.coste))}
       </MenuAcciones>
       <MenuAcciones titulo="Acciones de movimiento" hijos={mov.length}>
-        {mov.map(([n, f]: [string, (c: any) => string]) => op({ tipo: t, nombre: n, texto: f(c), afecta: false }, <Entrada e={{ t, nombre: n, texto: f(c), src: 'Reglas básicas' }} />, n))}
+        {mov.map(([n, f]: [string, (c: any) => string]) => nom({ tipo: t, nombre: n, texto: f(c), afecta: false }, n))}
       </MenuAcciones>
       <MenuAcciones titulo="Acciones genéricas" hijos={gen.length}>
-        {gen.map(([n, f]: [string, (c: any) => string]) => op({ tipo: t, nombre: n, texto: f(c), afecta: false }, <Entrada e={{ t, nombre: n, texto: f(c), src: 'Reglas básicas' }} />, n))}
+        {gen.map(([n, f]: [string, (c: any) => string]) => nom({ tipo: t, nombre: n, texto: f(c), afecta: false }, n))}
       </MenuAcciones>
     </div>
   );

@@ -741,7 +741,7 @@ export function Ranuras({ r, c }: { r: any; c: any }) {
   );
 }
 
-export function FilaConjuro({ s, c, icono }: { s: any; c: any; icono?: boolean }) {
+export function FilaConjuro({ s, c, icono, soloNombre }: { s: any; c: any; icono?: boolean; soloNombre?: boolean }) {
   const lectura = useLectura();
   const d = datosConjuro(s, c);
   const meta = [TIPOS[s.tiempo || 'accion']?.[0], d.bits.join(', '), s.coste].filter(Boolean).join(' • ');
@@ -756,7 +756,7 @@ export function FilaConjuro({ s, c, icono }: { s: any; c: any; icono?: boolean }
       <details className="group min-w-0 flex-1">
         <summary className={cx('flex cursor-pointer list-none flex-col p-1 pl-2 [&::-webkit-details-marker]:hidden', foco)}>
           <span className="text-body-sm font-semibold text-on-surface">{s.nombre}</span>
-          <span className="text-label-caps text-outline">{meta}</span>
+          {soloNombre ? (+s.nivel > 0 && <span className="text-label-caps text-outline">Nivel {s.nivel}{d.bits.length ? ' · ' + d.bits.join(', ') : ''}</span>) : <span className="text-label-caps text-outline">{meta}</span>}
         </summary>
         <div className="space-y-1 px-2 pb-2 text-body-sm text-on-surface-variant">
           {d.meta && <p className="m-0 text-outline">{d.meta}</p>}
@@ -795,9 +795,13 @@ function Magia({ c }: { c: any }) {
       </div>
       {slots.map((r: any) => <Ranuras key={r.id} r={r} c={c} />)}
       {sp.length ? (
-        <div className="space-y-1">
-          <span className="text-label-caps uppercase text-outline">Conjuros preparados</span>
-          <ul className="m-0 list-none space-y-1 p-0">{orden.map((s: any, i: number) => <FilaConjuro key={s.nombre + i} s={s} c={c} />)}</ul>
+        <div className="space-y-2">
+          {([['Trucos', orden.filter((x: any) => !(+x.nivel > 0))], ['Hechizos', orden.filter((x: any) => +x.nivel > 0)]] as [string, any[]][]).map(([t, l]) => l.length > 0 && (
+            <div key={t} className="space-y-1">
+              <span className="text-label-caps uppercase text-outline">{t} ({l.length})</span>
+              <ul className="m-0 list-none space-y-1 p-0">{l.map((x: any, i: number) => <FilaConjuro key={x.nombre + i} s={x} c={c} icono soloNombre />)}</ul>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="rounded-xs bg-surface-container-lowest p-2 text-body-sm text-on-surface-variant">
@@ -921,11 +925,11 @@ export function Ficha({ c, lectura = false }: { c: any; lectura?: boolean }) {
           <div className="flex flex-col gap-5 lg:col-span-6">
             <RecursosClase c={c} />
             <Arsenal c={c} />
+            <Magia c={c} />
             <TiradorRapido />
             <OtrasAcciones c={c} />
           </div>
           <div className="flex flex-col gap-5 lg:col-span-3">
-            <Magia c={c} />
             <Rasgos c={c} />
           </div>
         </div>
