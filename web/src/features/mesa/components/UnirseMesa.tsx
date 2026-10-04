@@ -152,16 +152,20 @@ function ResumenPersonaje({ dmId, campanaId, personajeId }: { dmId: string; camp
   );
 }
 
-function FilaCompanero({ c, p }: { c: Campana; p: CompaneroMesa }) {
+function FilaCompanero({ c, p, mio }: { c: Campana; p: CompaneroMesa; mio: boolean }) {
   const [abierto, setAbierto] = useState(false);
+  // Tu personaje va primero y su resumen siempre está abierto
+  const ver = mio || abierto;
   return (
-    <Fila>
-      <span><b className="font-serif">{p.nombre}</b> <span className="text-sm text-muted">{p.resumen || ''}</span></span>
-      <span className="flex gap-2">
-        <Boton tamano="sm" aria-expanded={abierto} onClick={() => setAbierto(a => !a)}>{abierto ? 'Ocultar resumen' : 'Resumen'}</Boton>
-        <Boton tamano="sm" variante="primario" onClick={() => abrirCompanero(c.dmId, c.campanaId, p.personajeId, p.jugador)}>Ver hoja</Boton>
-      </span>
-      {abierto && <ResumenPersonaje dmId={c.dmId} campanaId={c.campanaId} personajeId={p.personajeId} />}
+    <Fila className="flex-col items-stretch! gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span><b className="font-serif">{p.nombre}</b> <span className="text-sm text-muted">{p.resumen || ''}</span>{mio && <span className="ml-2 rounded bg-primary-container px-1.5 py-0.5 text-xs font-bold text-on-primary-container">Tu personaje</span>}</span>
+        <span className="flex gap-2">
+          {!mio && <Boton tamano="sm" aria-expanded={abierto} onClick={() => setAbierto(a => !a)}>{abierto ? 'Ocultar resumen' : 'Resumen'}</Boton>}
+          <Boton tamano="sm" variante="primario" onClick={() => abrirCompanero(c.dmId, c.campanaId, p.personajeId, p.jugador)}>Ver hoja</Boton>
+        </span>
+      </div>
+      {ver && <ResumenPersonaje dmId={c.dmId} campanaId={c.campanaId} personajeId={p.personajeId} />}
     </Fila>
   );
 }
@@ -174,6 +178,7 @@ function CampanaAbierta({ c }: { c: Campana }) {
   useEffect(() => { companerosMesa(c.dmId, c.campanaId).then(setComp, (e: Error) => setError(e.message)); }, [c.dmId, c.campanaId]);
   const img = imagenOk(c.imagen);
   const tab = S.campJTab;
+  const esMio = (p: CompaneroMesa) => c.mios.some(m => m.personajeId === p.personajeId);
   return (
     <>
       <EncabezadoPagina id="titulo-vista" titulo={c.mesa} subtitulo={`DM: ${c.dm}`}>
@@ -192,7 +197,7 @@ function CampanaAbierta({ c }: { c: Campana }) {
             {error && <Aviso tipo="error" titulo="No se pudieron cargar los personajes">{error}</Aviso>}
             {comp && comp.length > 0 && (
               <Lista etiqueta="Personajes de la campaña" className="mt-3">
-                {comp.map(p => <FilaCompanero key={p.personajeId + p.jugador} c={c} p={p} />)}
+                {[...comp].sort((x, y) => Number(esMio(y)) - Number(esMio(x))).map(p => <FilaCompanero key={p.personajeId + p.jugador} c={c} p={p} mio={esMio(p)} />)}
               </Lista>
             )}
             {!comp && !error && <Nota className="mt-3">Cargando…</Nota>}
