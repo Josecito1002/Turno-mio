@@ -27,6 +27,8 @@ export type Uso = {
   /** Efectos que suman ataques solo si se cumplen (el jugador marca si valen ahora) */
   renuncia?: boolean;
   condiciones?: { rasgo: string; texto: string; mas: number }[];
+  /** Deja una marca en el objetivo que sigue haciendo daño en tus siguientes turnos como acción adicional (Rayo de hechicería) */
+  marca?: { id: string; nombre: string; dexpr: string; tipo: string; texto: string };
   /** Si hace daño o impone algo a otros */
   afecta: boolean;
   /** Recurso que gasta al usarlo (un uso del rasgo) */
@@ -44,19 +46,20 @@ export function condicionesEn(texto: string): string[] {
 }
 
 /** Confirmar el uso de una acción: lee sus efectos, elige a quién afecta y, al confirmar, la gasta y se lo cuenta al DM. */
-export function UsoAccion({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar }: {
+export function UsoAccion({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, alMarcar }: {
+  alMarcar?: (m: NonNullable<Uso['marca']>, objetivo: string, nombre: string) => void;
   c: any; uso: Uso | null; ventaja?: '' | 'v' | 'd'; enemigos: { k: string; nombre: string }[]; mesa: { dmId: string; campanaId: string; personajeId: string };
   yaGastada: boolean; alCerrar: () => void; alUsar: (t: TipoAccionRonda) => void;
 }) {
   return (
     <Dialogo abierto={!!uso} onCerrar={alCerrar} titulo={uso?.nombre || ''} ancho="lg"
       descripcion={uso ? `${TIPOS[uso.tipo][0]}${uso.coste ? ` · ${uso.coste}` : ''}` : undefined}>
-      {uso && <Cuerpo key={uso.nombre + uso.tipo} c={c} uso={uso} ventaja={ventaja} enemigos={enemigos} mesa={mesa} yaGastada={yaGastada} alCerrar={alCerrar} alUsar={alUsar} />}
+      {uso && <Cuerpo key={uso.nombre + uso.tipo} c={c} uso={uso} ventaja={ventaja} enemigos={enemigos} mesa={mesa} yaGastada={yaGastada} alCerrar={alCerrar} alUsar={alUsar} alMarcar={alMarcar} />}
     </Dialogo>
   );
 }
 
-function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar }: { c: any; uso: Uso; ventaja?: '' | 'v' | 'd'; enemigos: { k: string; nombre: string }[]; mesa: { dmId: string; campanaId: string; personajeId: string }; yaGastada: boolean; alCerrar: () => void; alUsar: (t: TipoAccionRonda) => void }) {
+function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, alMarcar }: { alMarcar?: (m: NonNullable<Uso['marca']>, objetivo: string, nombre: string) => void; c: any; uso: Uso; ventaja?: '' | 'v' | 'd'; enemigos: { k: string; nombre: string }[]; mesa: { dmId: string; campanaId: string; personajeId: string }; yaGastada: boolean; alCerrar: () => void; alUsar: (t: TipoAccionRonda) => void }) {
   const tirar = useDados();
   const area = !!uso.salv && AREA.test(uso.texto);
   const conds = condicionesEn(uso.texto);
@@ -103,6 +106,7 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar }
 
   const confirmar = async () => {
     if (cj && !via) { avisar('Elige con qué lo lanzas.', 'error'); return; }
+    if (uso.marca && !objetivos.length) { avisar('Elige a quién marca el rayo, acierte o no.', 'error'); return; }
     if (n && !objetivos.length) { avisar('Elige a quién le haces el daño.', 'error'); return; }
     // Primero se paga: si no queda con qué, no se hace nada
     if (via === 'rasgo' && rasgoRec && !gastarRecurso(rasgoRec.id)) return;
@@ -118,6 +122,7 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar }
         else for (const objetivo of objetivos) await enviarGolpeMesa(mesa, { objetivo, dano: n, ...(cond ? { condicion: cond } : {}), nota: uso.nombre });
       }
       alUsar(uso.tipo);
+      if (uso.marca && objetivos.length) alMarcar?.(uso.marca, objetivos[0], nombres[0] || '');
       avisar(`${uso.nombre}: listo${nGolpes > 1 ? `, ${danos.slice(0, nGolpes).map(parcial).join(' + ')} = ${n} de daño` : ''}. ${objetivos.length && uso.salv ? 'Tu DM verá qué enemigos deben tirar la salvación.' : 'Tu DM ya lo ve.'}`);
       alCerrar();
     } catch (e) { avisar(`No se pudo confirmar: ${(e as Error).message}`, 'error'); }

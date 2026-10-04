@@ -405,7 +405,10 @@ export function MiTurnoApp({ invitado = false, enlace }: { invitado?: boolean; e
   const elegirArchivos = () => fileIn.current?.click();
   const importarHojas = () => { marcarImportarEnCampana(); fileIn.current?.click(); };
   const nav = S.usuario && !S.cargando ? itemsNav() : [];
-  const navAbajo = useAltoNavInferior(nav.length > 0);
+  // En la pantalla de combate el menú de abajo se esconde: ahí quedan fijas las barras de Acción, Acción adicional y Reacción
+  const enCombate = S.view === 'ficha' && !!S.combateMesa && !S.combateHoja && S.combateMesa.personajeId === S.pj?.id;
+  const navMovil = enCombate ? [] : nav;
+  const navAbajo = useAltoNavInferior(navMovil.length > 0);
   // La ficha ocupa todo el ancho (como el diseño); el resto de pantallas sigue en una columna de lectura
   const ancha = !S.cargando && !S.error && ((S.view === 'ficha' && !!S.pj) || (S.view === 'mesa' && !!S.hojaMesa) || (S.view === 'ajeno' && !!S.ajeno));
 
@@ -442,7 +445,7 @@ export function MiTurnoApp({ invitado = false, enlace }: { invitado?: boolean; e
         </div>
       </footer>
 
-      {nav.length > 0 && (
+      {navMovil.length > 0 && (
         <nav ref={navAbajo} aria-label="Principal (móvil)" className="fixed inset-x-0 bottom-0 z-20 border-t border-outline-variant/50 bg-surface-container-lowest/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden print:hidden">
           <ul className="m-0 grid list-none p-0" style={{ gridTemplateColumns: `repeat(${nav.length}, 1fr)` }}>
             {nav.map(it => (
