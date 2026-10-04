@@ -29,10 +29,26 @@ export function espaciosPara(c: any, nivel: number) {
     .sort((a: any, b: any) => a.nivel - b.nivel);
 }
 
-/** Ataques por acción de Atacar: 1, o con Ataque Extra 2 (3 y 4 del Guerrero a nivel 11 y 20). */
+/** Ataques por acción de Atacar: 1, o con Ataque Extra 2 (3 y 4 del Guerrero a nivel 11 y 20; 3 con Filo Devorador). */
 export function ataquesPorAccion(c: any): number {
   if (!c.extraAttack) return 1;
-  return c.pj?.clase === 'guerrero' ? (c.lvl >= 20 ? 4 : c.lvl >= 11 ? 3 : 2) : 2;
+  if (c.pj?.clase === 'guerrero') return c.lvl >= 20 ? 4 : c.lvl >= 11 ? 3 : 2;
+  const tiene = (n: string) => (c.entries || []).some((e: any) => norm(e.nombre) === norm(n));
+  return tiene('Filo Devorador') ? 3 : 2;
+}
+
+const NUM: Record<string, number> = { dos: 2, '2': 2, tres: 3, '3': 3, cuatro: 4, '4': 4 };
+/** Cuántos golpes o ataques hace de una vez un rasgo que se usa (Ráfaga de Golpes, Uno-Dos, «Haces dos golpes…»); 1 si es uno solo. */
+export function golpesDeRasgo(c: any, e: any): number {
+  const tiene = (n: string) => (c.entries || []).some((x: any) => norm(x.nombre) === norm(n));
+  if (norm(e.nombre) === 'rafaga de golpes') {
+    // Dos golpes; tres con Enfoque Elevado; Frenesí Ebrio suma hasta tres más
+    const base = tiene('Enfoque Elevado') ? 3 : 2;
+    return base + (tiene('Frenesí Ebrio') ? 3 : 0);
+  }
+  const t = String(e.texto || '');
+  const m = /\b(?:realiz|hac|lanz|propin|efect)[a-zé]*\s+(?:\w+\s+)?(dos|tres|cuatro|2|3|4)\s+(?:golpes|ataques)\b/i.exec(t) || /^\s*(dos|tres|cuatro)\s+golpes\b/i.exec(t);
+  return m ? NUM[m[1].toLowerCase()] : 1;
 }
 
 const recursoDe = (c: any, id: string) => (c.recursos || []).find((r: any) => r.id === id);
