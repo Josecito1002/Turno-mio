@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { Fragment, createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { Fragment, createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { S, render } from '@/app-shell/estado';
 import { esc, modStr, norm, richT, sign } from '@/shared/utils/texto';
 import { Aviso, Boton, Dialogo, Simbolo, cx, foco } from '@/shared/ui/kit';
@@ -95,11 +95,18 @@ function Identidad({ c }: { c: any }) {
   const insp = !!pj.inspiracion;
   const inicial = (pj.nombre || '?').trim().charAt(0).toUpperCase();
   const retrato = imagenPersonaje(c);
-  const [eligiendo, setEligiendo] = useState(false);
+  const [eligiendo, setEligiendo] = useState(false), [menuImagen, setMenuImagen] = useState(false);
+  const archivo = useRef<HTMLInputElement>(null);
   const opciones = eligiendo ? imagenesParaElegir(getLib().img, { especie: pj.especie?.key, sub: pj.especie?.sub, clase: pj.clase }) : [];
   const elegir = (k: string) => { setVal('imagen', ''); setVal('imagenClave', k); setEligiendo(false); };
   return (
     <div className="flex flex-col items-center gap-5 rounded-lg bg-surface-container-low p-5 shadow-xl sm:flex-row sm:items-start">
+      <Dialogo abierto={menuImagen} onCerrar={() => setMenuImagen(false)} titulo="Imagen del personaje">
+        <div className="flex flex-col gap-2">
+          <Boton onClick={() => { setMenuImagen(false); archivo.current?.click(); }}><Simbolo n="smartphone" className="text-body-lg" />Galería del teléfono</Boton>
+          {!!pj.especie?.key && <Boton onClick={() => { setMenuImagen(false); setEligiendo(true); }}><Simbolo n="photo_library" className="text-body-lg" />Galería de la app</Boton>}
+        </div>
+      </Dialogo>
       <Dialogo abierto={eligiendo} onCerrar={() => setEligiendo(false)} titulo="Elegir imagen" ancho="lg"
         descripcion={opciones.length ? 'Solo imágenes de su especie' + (opciones.some(k => leerClaveOrigen(k)?.clase === pj.clase) ? ' y de su clase.' : ' (no hay de su clase).') : undefined}>
         {opciones.length ? (
@@ -114,7 +121,6 @@ function Identidad({ c }: { c: any }) {
             ))}
           </ul>
         ) : <p className="m-0 text-on-surface-variant">La biblioteca todavía no tiene imágenes de su especie. Puedes subir una propia con el botón de la cámara.</p>}
-        {!!pj.imagenClave && <div className="mt-3 flex justify-end"><Boton onClick={() => { setVal('imagenClave', ''); setEligiendo(false); }}>Usar la automática</Boton></div>}
       </Dialogo>
       <div className="relative shrink-0">
         <div className="size-28 overflow-hidden rounded-lg bg-linear-to-b from-primary-container via-outline-variant to-surface-container-lowest p-1 shadow-[0_0_24px_rgba(212,175,55,0.2)] sm:size-32">
@@ -125,27 +131,14 @@ function Identidad({ c }: { c: any }) {
               </div>}
         </div>
         {!lectura && (
-          <div className="absolute -left-2 -top-2 flex gap-1">
-            <label title={retrato.propia ? 'Cambiar la imagen' : 'Poner una imagen propia'}
-              className={cx('grid size-8 cursor-pointer place-items-center rounded-full bg-surface-container-highest text-primary shadow focus-within:outline-3 focus-within:outline-rea')}>
+          <div className="absolute -left-2 -top-2">
+            <button type="button" title="Cambiar la imagen" onClick={() => setMenuImagen(true)} aria-haspopup="dialog"
+              className={cx('grid size-8 cursor-pointer place-items-center rounded-full bg-surface-container-highest text-primary shadow', foco)}>
               <Simbolo n="photo_camera" className="text-body-md" />
-              <span className="sr-only">{retrato.propia ? 'Cambiar la imagen del personaje' : 'Poner una imagen al personaje'}</span>
-              <input type="file" accept="image/*" className="sr-only" onChange={e => { const f = e.target.files?.[0]; if (f) subirImagenPj(f); e.target.value = ''; }} />
-            </label>
-            {!!pj.especie?.key && (
-              <button type="button" title="Elegir una imagen de la biblioteca" onClick={() => setEligiendo(true)}
-                className={cx('grid size-8 cursor-pointer place-items-center rounded-full bg-surface-container-highest text-primary shadow', foco)}>
-                <Simbolo n="photo_library" className="text-body-md" />
-                <span className="sr-only">Elegir una imagen de la biblioteca</span>
-              </button>
-            )}
-            {retrato.propia && (
-              <button type="button" title="Quitar la imagen elegida (vuelve la automática)" onClick={() => { setVal('imagen', ''); setVal('imagenClave', ''); }}
-                className={cx('grid size-8 cursor-pointer place-items-center rounded-full bg-surface-container-highest text-primary shadow', foco)}>
-                <Simbolo n="close" className="text-body-md" />
-                <span className="sr-only">Quitar la imagen elegida y usar la automática</span>
-              </button>
-            )}
+              <span className="sr-only">Cambiar la imagen del personaje</span>
+            </button>
+            <input ref={archivo} type="file" accept="image/*" className="sr-only" tabIndex={-1} aria-hidden="true"
+              onChange={e => { const f = e.target.files?.[0]; if (f) { setVal('imagenClave', ''); subirImagenPj(f); } e.target.value = ''; }} />
           </div>
         )}
         {lectura ? (
