@@ -78,6 +78,12 @@ const typeDefs = /* GraphQL */ `
     enviarGolpeMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, objetivo: String!, dano: Int!, condicion: String, nota: String): Boolean!
     "DM: marca o recupera la acción, adicional o reacción de cualquier combatiente (jugador, personaje propio o enemigo)."
     fijarAccionDm(campanaId: ID!, clave: String!, tipo: String!, gastado: Boolean!): Boolean!
+    "Jugador: usa una acción (la marca como gastada y deja dicho qué hizo)."
+    usarAccionMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, tipo: String!, nombre: String!, resumen: String): Boolean!
+    "Jugador: pide una tirada de salvación a enemigos; el DM la resuelve en su Mesa."
+    enviarSalvacionMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, objetivos: [String!]!, salv: String!, cd: Int!, dano: Int!, mitad: Boolean!, condicion: String, nota: String): Boolean!
+    "DM: una salvación ya resuelta para ese enemigo."
+    resolverSalvacion(campanaId: ID!, id: String!, clave: String!): Boolean!
     "DM: da por aplicados los golpes con esos ids."
     confirmarGolpes(campanaId: ID!, ids: [String!]!): Boolean!
   }
@@ -149,7 +155,7 @@ export const mesaGraphQL: ModuloGraphQL = {
       fijarCombateVivo: async (_: unknown, a: { campanaId: string; datos: Record<string, unknown>; reiniciarEconomia?: boolean }, ctx: Contexto) => {
         const u = await exigir(ctx, 'usarMesa', SOLO_DM);
         // La economía (lo que gastan los jugadores) se conserva salvo que se pida reiniciarla; lo demás lo manda el DM
-        const { economia: _e, golpes: _g, ...datos } = a.datos; void _e; void _g;
+        const { economia: _e, golpes: _g, salvaciones: _s, ultimas: _u, ...datos } = a.datos; void _e; void _g; void _s; void _u;
         const nuevo = sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || ${JSON.stringify({ ...datos, actualizadoEn: new Date().toISOString() })}::jsonb`;
         await ctx.db.update(campanas).set({ combateVivo: a.reiniciarEconomia ? sql`(${nuevo}) || '{"economia":{}}'::jsonb` : nuevo })
           .where(and(eq(campanas.usuarioId, u.id), eq(campanas.id, a.campanaId)));
@@ -177,6 +183,38 @@ export const mesaGraphQL: ModuloGraphQL = {
         await ctx.db.update(campanas).set({
           combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('golpes', case when jsonb_array_length(${lista}) < 60 then ${lista} || ${JSON.stringify([golpe])}::jsonb else ${lista} end)`,
         }).where(and(eq(campanas.usuarioId, a.dmId), eq(campanas.id, a.campanaId)));
+        return true;
+      },
+      usarAccionMesa: async (_: unknown, a: { dmId: string; campanaId: string; personajeId: string; tipo: string; nombre: string; resumen?: string | null }, ctx: Contexto) => {
+        await exigirUnido(ctx, a);
+        if (!TIPOS_ACCION.includes(a.tipo)) throw new GraphQLError('Esa acción no existe.');
+        const eco = sql`coalesce(${campanas.combateVivo}->'economia', '{}'::jsonb)`;
+        const suya = sql`coalesce(${eco}->${a.personajeId}::text, '{}'::jsonb) || jsonb_build_object(${a.tipo}::text, true)`;
+        const ult = sql`coalesce(${campanas.combateVivo}->'ultimas', '{}'::jsonb)`;
+        const hecho = JSON.stringify({ tipo: a.tipo, nombre: a.nombre.slice(0, 80), resumen: (a.resumen || '').slice(0, 200), ts: new Date().toISOString() });
+        await ctx.db.update(campanas).set({
+          combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('economia', ${eco} || jsonb_build_object(${a.personajeId}::text, ${suya}), 'ultimas', ${ult} || jsonb_build_object(${a.personajeId}::text, ${hecho}::jsonb))`,
+        }).where(and(eq(campanas.usuarioId, a.dmId), eq(campanas.id, a.campanaId)));
+        return true;
+      },
+      enviarSalvacionMesa: async (_: unknown, a: { dmId: string; campanaId: string; personajeId: string; objetivos: string[]; salv: string; cd: number; dano: number; mitad: boolean; condicion?: string | null; nota?: string | null }, ctx: Contexto) => {
+        await exigirUnido(ctx, a);
+        if (!a.objetivos.length || a.objetivos.length > 30 || !a.objetivos.every(o => /^m:[\w-]{1,40}$/.test(o))) throw new GraphQLError('Esos objetivos no son enemigos.');
+        if (!/^(FUE|DES|CON|INT|SAB|CAR)$/.test(a.salv)) throw new GraphQLError('Esa salvación no existe.');
+        if (!Number.isInteger(a.cd) || a.cd < 1 || a.cd > 40 || !Number.isInteger(a.dano) || a.dano < 0 || a.dano > 999) throw new GraphQLError('La CD o el daño no son válidos.');
+        const [p] = await ctx.db.select({ n: personajes.nombre }).from(personajes).where(and(eq(personajes.usuarioId, requiereUsuario(ctx).id), eq(personajes.id, a.personajeId))).limit(1);
+        const item = { id: randomUUID(), de: p?.n || 'Un jugador', objetivos: a.objetivos, salv: a.salv, cd: a.cd, dano: a.dano, mitad: !!a.mitad, condicion: a.condicion ? String(a.condicion).slice(0, 40) : null, nota: a.nota ? String(a.nota).slice(0, 80) : null, ts: new Date().toISOString() };
+        const lista = sql`coalesce(${campanas.combateVivo}->'salvaciones', '[]'::jsonb)`;
+        await ctx.db.update(campanas).set({
+          combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('salvaciones', case when jsonb_array_length(${lista}) < 40 then ${lista} || ${JSON.stringify([item])}::jsonb else ${lista} end)`,
+        }).where(and(eq(campanas.usuarioId, a.dmId), eq(campanas.id, a.campanaId)));
+        return true;
+      },
+      resolverSalvacion: async (_: unknown, a: { campanaId: string; id: string; clave: string }, ctx: Contexto) => {
+        const u = await exigir(ctx, 'usarMesa', SOLO_DM);
+        const resto = sql`coalesce((select jsonb_agg(h) from (select case when (g->>'id') = ${a.id}::text then jsonb_set(g, '{objetivos}', coalesce((select jsonb_agg(o) from jsonb_array_elements(g->'objetivos') o where (o #>> '{}') <> ${a.clave}::text), '[]'::jsonb)) else g end as h from jsonb_array_elements(coalesce(${campanas.combateVivo}->'salvaciones', '[]'::jsonb)) g) t where jsonb_array_length(h->'objetivos') > 0), '[]'::jsonb)`;
+        await ctx.db.update(campanas).set({ combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('salvaciones', ${resto})` })
+          .where(and(eq(campanas.usuarioId, u.id), eq(campanas.id, a.campanaId)));
         return true;
       },
       fijarAccionDm: async (_: unknown, a: { campanaId: string; clave: string; tipo: string; gastado: boolean }, ctx: Contexto) => {
