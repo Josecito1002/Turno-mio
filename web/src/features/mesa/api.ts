@@ -64,3 +64,6 @@ export const enviarGolpeMesa = (m: { dmId: string; campanaId: string; personajeI
 
 export const confirmarGolpes = (campanaId: string, ids: string[]) =>
   gql(`mutation ($campanaId: ID!, $ids: [String!]!) { confirmarGolpes(campanaId: $campanaId, ids: $ids) }`, { campanaId, ids });
+
+export const fijarAccionDm = (campanaId: string, clave: string, tipo: TipoAccionRonda, gastado: boolean) =>
+  gql(`mutation ($campanaId: ID!, $clave: String!, $tipo: String!, $gastado: Boolean!) { fijarAccionDm(campanaId: $campanaId, clave: $clave, tipo: $tipo, gastado: $gastado) }`, { campanaId, clave, tipo, gastado });

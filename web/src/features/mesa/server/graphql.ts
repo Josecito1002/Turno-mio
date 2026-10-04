@@ -76,6 +76,8 @@ const typeDefs = /* GraphQL */ `
     gastarAccionMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, tipo: String!, gastado: Boolean!): Boolean!
     "Jugador: manda un golpe (daño y/o condición) a un enemigo; el DM lo aplica cuando tiene la mesa abierta."
     enviarGolpeMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, objetivo: String!, dano: Int!, condicion: String, nota: String): Boolean!
+    "DM: marca o recupera la acción, adicional o reacción de cualquier combatiente (jugador, personaje propio o enemigo)."
+    fijarAccionDm(campanaId: ID!, clave: String!, tipo: String!, gastado: Boolean!): Boolean!
     "DM: da por aplicados los golpes con esos ids."
     confirmarGolpes(campanaId: ID!, ids: [String!]!): Boolean!
   }
@@ -175,6 +177,17 @@ export const mesaGraphQL: ModuloGraphQL = {
         await ctx.db.update(campanas).set({
           combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('golpes', case when jsonb_array_length(${lista}) < 60 then ${lista} || ${JSON.stringify([golpe])}::jsonb else ${lista} end)`,
         }).where(and(eq(campanas.usuarioId, a.dmId), eq(campanas.id, a.campanaId)));
+        return true;
+      },
+      fijarAccionDm: async (_: unknown, a: { campanaId: string; clave: string; tipo: string; gastado: boolean }, ctx: Contexto) => {
+        const u = await exigir(ctx, 'usarMesa', SOLO_DM);
+        if (!TIPOS_ACCION.includes(a.tipo)) throw new GraphQLError('Esa acción no existe.');
+        if (!a.clave || a.clave.length > 80) throw new GraphQLError('Ese combatiente no es válido.');
+        const eco = sql`coalesce(${campanas.combateVivo}->'economia', '{}'::jsonb)`;
+        const suya = sql`coalesce(${eco}->${a.clave}::text, '{}'::jsonb) || jsonb_build_object(${a.tipo}::text, ${a.gastado}::boolean)`;
+        await ctx.db.update(campanas).set({
+          combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('economia', ${eco} || jsonb_build_object(${a.clave}::text, ${suya}))`,
+        }).where(and(eq(campanas.usuarioId, u.id), eq(campanas.id, a.campanaId)));
         return true;
       },
       confirmarGolpes: async (_: unknown, a: { campanaId: string; ids: string[] }, ctx: Contexto) => {
