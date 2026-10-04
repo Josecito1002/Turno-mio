@@ -101,6 +101,8 @@ const typeDefs = /* GraphQL */ `
     resolverSalvacion(campanaId: ID!, id: String!, clave: String!): Boolean!
     "DM: manda a los jugadores un descanso corto o largo, o inspiración (a uno o a todos); cada hoja lo aplica al conectarse."
     enviarOrdenDm(campanaId: ID!, tipo: String!, personajeId: ID): Boolean!
+    "DM: le manda a un jugador unido el daño, la curación o la condición de un enemigo; su hoja lo aplica al conectarse."
+    enviarEfectoDm(campanaId: ID!, personajeId: ID!, de: String!, dano: Int!, cura: Boolean, condicion: String, nota: String): Boolean!
     "DM: da por aplicados los golpes con esos ids."
     confirmarGolpes(campanaId: ID!, ids: [String!]!): Boolean!
   }
@@ -275,6 +277,17 @@ export const mesaGraphQL: ModuloGraphQL = {
         const orden = JSON.stringify([{ id: randomUUID(), tipo: a.tipo, personajeId: a.personajeId || null, ts: new Date().toISOString() }]);
         const lista = sql`coalesce(${campanas.combateVivo}->'ordenes', '[]'::jsonb) || ${orden}::jsonb`;
         // Solo se guardan las últimas 30 órdenes
+        const ultimas = sql`coalesce((select jsonb_agg(o order by n) from (select o, n from jsonb_array_elements(${lista}) with ordinality t(o, n) order by n desc limit 30) x), '[]'::jsonb)`;
+        await ctx.db.update(campanas).set({ combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('ordenes', ${ultimas})` })
+          .where(and(eq(campanas.usuarioId, u.id), eq(campanas.id, a.campanaId)));
+        return true;
+      },
+      enviarEfectoDm: async (_: unknown, a: { campanaId: string; personajeId: string; de: string; dano: number; cura?: boolean | null; condicion?: string | null; nota?: string | null }, ctx: Contexto) => {
+        const u = await exigir(ctx, 'usarMesa', SOLO_DM);
+        if (!/^[\w-]{1,60}$/.test(a.personajeId)) throw new GraphQLError('Ese personaje no es válido.');
+        if (!Number.isInteger(a.dano) || a.dano < 0 || a.dano > 999) throw new GraphQLError('Ese daño no es válido.');
+        const orden = JSON.stringify([{ id: randomUUID(), tipo: 'efecto', personajeId: a.personajeId, de: String(a.de).slice(0, 60), dano: a.dano, cura: !!a.cura, condicion: a.condicion ? String(a.condicion).slice(0, 40) : null, bono: null, nota: a.nota ? String(a.nota).slice(0, 80) : null, ts: new Date().toISOString() }]);
+        const lista = sql`coalesce(${campanas.combateVivo}->'ordenes', '[]'::jsonb) || ${orden}::jsonb`;
         const ultimas = sql`coalesce((select jsonb_agg(o order by n) from (select o, n from jsonb_array_elements(${lista}) with ordinality t(o, n) order by n desc limit 30) x), '[]'::jsonb)`;
         await ctx.db.update(campanas).set({ combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('ordenes', ${ultimas})` })
           .where(and(eq(campanas.usuarioId, u.id), eq(campanas.id, a.campanaId)));

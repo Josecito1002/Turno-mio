@@ -17,7 +17,7 @@ import { CONDICIONES, actualizarPgUnido, cambiarPg, campActual, camps, claveUnid
 import { codigoMesa, guardarCampana, jugadoresMesa, quitarDeMesa } from '../api';
 import { conectarMesaRealtime } from '../realtime-cliente';
 import { publicarCombate } from '../domain/combate-vivo';
-import { combateVivoDm, confirmarGolpes, enviarOrdenDm, fijarAccionDm, resolverSalvacion, type CombateVivo, type EconomiaRonda, type Golpe, type Salvacion, type TipoAccionRonda } from '../api';
+import { combateVivoDm, confirmarGolpes, enviarEfectoDm, enviarOrdenDm, fijarAccionDm, resolverSalvacion, type CombateVivo, type EconomiaRonda, type Golpe, type Salvacion, type TipoAccionRonda } from '../api';
 import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
 import { enemigosDe, leerSesion, type Encuentro } from '../domain/sesion';
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
@@ -267,6 +267,22 @@ function useUnidos(campId: string) {
   return { ...estado, leer };
 }
 
+/** Reduce una foto de la galería a un JPEG de a lo sumo 960 px, para guardarla dentro de la campaña. */
+function reducirImagen(f: File): Promise<string> {
+  return new Promise((ok, mal) => {
+    const url = URL.createObjectURL(f), im = new Image();
+    im.onload = () => {
+      const r = Math.min(1, 960 / Math.max(im.width, im.height)), cv = document.createElement('canvas');
+      cv.width = Math.round(im.width * r); cv.height = Math.round(im.height * r);
+      const g = cv.getContext('2d'); if (!g) { URL.revokeObjectURL(url); mal(new Error('sin lienzo')); return; }
+      g.drawImage(im, 0, 0, cv.width, cv.height); URL.revokeObjectURL(url);
+      ok(cv.toDataURL('image/jpeg', 0.8));
+    };
+    im.onerror = () => { URL.revokeObjectURL(url); mal(new Error('imagen no válida')); };
+    im.src = url;
+  });
+}
+
 /** Descripción y portada de la campaña: lo que ven los jugadores en su lista de campañas. */
 function PortadaCampana({ cp }: { cp: any }) {
   return (
@@ -278,11 +294,19 @@ function PortadaCampana({ cp }: { cp: any }) {
           <textarea key={cp.id + 'd'} defaultValue={cp.descripcion || ''} rows={3} maxLength={600} placeholder="De qué trata la campaña, cuándo se juega…" className={claseCampo}
             onBlur={e => { const v = e.target.value.trim(); if (v !== (cp.descripcion || '')) conCamp(c => { c.descripcion = v; }); }} />
         </Campo>
-        <Campo etiqueta="Imagen (enlace)" ayuda="La dirección de una imagen en internet (https://…).">
-          <input key={cp.id + 'i'} type="url" defaultValue={cp.imagen || ''} maxLength={500} placeholder="https://…" className={claseCampo}
-            onBlur={e => { const v = e.target.value.trim(); if (v && !/^https:\/\//i.test(v)) { avisar('El enlace debe empezar con https://', 'aviso'); return; } if (v !== (cp.imagen || '')) conCamp(c => { c.imagen = v; }); }} />
+        <Campo etiqueta="Imagen (enlace)" ayuda="O la dirección de una imagen en internet (https://…).">
+          <input key={cp.id + 'i' + (cp.imagen || '').length} type="url" defaultValue={/^https:/i.test(cp.imagen || '') ? cp.imagen : ''} maxLength={500} placeholder="https://…" className={claseCampo}
+            onBlur={e => { const v = e.target.value.trim(); if (v && !/^https:\/\//i.test(v)) { avisar('El enlace debe empezar con https://', 'aviso'); return; } if (v && v !== (cp.imagen || '')) conCamp(c => { c.imagen = v; }); }} />
         </Campo>
-        {cp.imagen && /^https:\/\//i.test(cp.imagen) && (
+        <Campo etiqueta="Imagen (de tu dispositivo)" ayuda="Elige una foto de tu galería; se reduce sola.">
+          <input type="file" accept="image/*" className={claseCampo} onChange={e => {
+            const f = e.target.files?.[0]; e.target.value = '';
+            if (!f) return;
+            reducirImagen(f).then(url => { conCamp(c => { c.imagen = url; }); avisar('Imagen cargada.'); }, () => avisar('No se pudo leer esa imagen.', 'error'));
+          }} />
+        </Campo>
+        {cp.imagen && <Boton tamano="sm" variante="fantasma" onClick={() => conCamp(c => { c.imagen = ''; })}>Quitar imagen</Boton>}
+        {cp.imagen && /^(https:\/\/|data:image\/)/i.test(cp.imagen) && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={cp.imagen} alt="" className="max-h-40 w-full rounded-xl object-cover" />
         )}
@@ -490,29 +514,51 @@ function ImportarSesion({ cp }: { cp: any }) {
 /** Lo que gastaron los jugadores en esta ronda (acción, adicional y reacción), al día cada 2 s mientras haya combate. */
 /** Golpes ya aplicados en esta pantalla: la lista del servidor tarda un rato en vaciarse y no deben contarse dos veces. */
 const golpesAplicados = new Set<string>();
-/** Aplica a los enemigos lo que mandaron los jugadores (daño y condición) y avisa al servidor para vaciar la lista. */
-function aplicarGolpes(campId: string, golpes: Golpe[]) {
-  const nuevos = golpes.filter(g => !golpesAplicados.has(g.id));
-  if (nuevos.length) {
-    conCamp(c => {
-      if (c.id !== campId) return false;
-      for (const g of nuevos) {
-        const m = c.monstruos.find((x: any) => 'm:' + x.id === g.objetivo);
-        const pjDm = !m && g.objetivo.startsWith('pj:') ? combatiente(g.objetivo, c) : null;
-        const quien = m?.nombre || pjDm?.nombre;
-        if (m) m.pg = Math.min(m.pgMax, Math.max(0, m.pg + (g.cura ? g.dano : -g.dano)));
-        else if (pjDm) cambiarPg(c, g.objetivo, g.cura ? g.dano : -g.dano);
-        if (quien && g.condicion) { const e = estadoDe(c, g.objetivo); if (!e.cond.includes(g.condicion)) e.cond.push(g.condicion); }
-        const hecho = g.dano ? (g.cura ? `${g.dano} de curación` : `${g.dano} de daño`) : '';
-        avisar(quien ? `${g.de}${g.nota ? ` (${g.nota})` : ''}: ${[hecho, g.condicion].filter(Boolean).join(', ')} a ${quien}${g.bono ? `. ${g.bono}` : ''}.` : `${g.de} actuó sobre alguien que ya no está.`);
-      }
-    });
-    nuevos.forEach(g => golpesAplicados.add(g.id));
-  }
-  confirmarGolpes(campId, golpes.map(g => g.id)).catch(() => {});
+/** Golpes de los que ya se avisó con un mensaje (para no avisar dos veces). */
+const golpesAvisados = new Set<string>();
+/** Aplica un golpe de un jugador al objetivo (daño, curación y condición) y avisa al servidor para vaciarlo de la lista. */
+function aplicarGolpe(campId: string, g: Golpe) {
+  if (golpesAplicados.has(g.id)) return;
+  golpesAplicados.add(g.id);
+  conCamp(c => {
+    if (c.id !== campId) return false;
+    const m = c.monstruos.find((x: any) => 'm:' + x.id === g.objetivo);
+    const pjDm = !m && g.objetivo.startsWith('pj:') ? combatiente(g.objetivo, c) : null;
+    const quien = m?.nombre || pjDm?.nombre;
+    if (m) m.pg = Math.min(m.pgMax, Math.max(0, m.pg + (g.cura ? g.dano : -g.dano)));
+    else if (pjDm) cambiarPg(c, g.objetivo, g.cura ? g.dano : -g.dano);
+    if (quien && g.condicion) { const e = estadoDe(c, g.objetivo); if (!e.cond.includes(g.condicion)) e.cond.push(g.condicion); }
+    const hecho = g.dano ? (g.cura ? `${g.dano} de curación` : `${g.dano} de daño`) : '';
+    avisar(quien ? `${[hecho, g.condicion].filter(Boolean).join(', ')} aplicado a ${quien}.` : `${g.de} actuó sobre alguien que ya no está.`);
+  });
+  confirmarGolpes(campId, [g.id]).catch(() => {});
+}
+function descartarGolpe(campId: string, g: Golpe) {
+  golpesAplicados.add(g.id);
+  render();
+  confirmarGolpes(campId, [g.id]).catch(() => {});
 }
 
-type VivoDm = { eco: Record<string, EconomiaRonda>; salvs: Salvacion[]; ultimas: NonNullable<CombateVivo>['ultimas'] };
+/** Lo que los jugadores hicieron sobre este combatiente: el DM lo aplica o lo descarta con un botón. */
+function GolpesPendientes({ cp, k, nombre, golpes }: { cp: any; k: string; nombre: string; golpes: Golpe[] }) {
+  const mios = golpes.filter(g => g.objetivo === k && !golpesAplicados.has(g.id));
+  if (!mios.length) return null;
+  return (
+    <div className="mt-2 grid gap-2" aria-live="polite">
+      {mios.map(g => (
+        <div key={g.id} className="rounded-xl bg-acc/15 p-2 text-sm">
+          <p className="m-0"><b>{g.de}</b>{g.nota ? ` (${g.nota})` : ''} {g.dano ? <>{g.cura ? 'cura' : 'hace'} <b>{g.dano}</b>{g.cura ? ' PG' : ' de daño'}</> : 'actúa'}{g.condicion ? <> y deja <b>{g.condicion}</b></> : ''} a <b>{nombre}</b>.{g.bono ? <span className="text-muted"> {g.bono}</span> : null}</p>
+          <div className="mt-1 flex flex-wrap gap-2">
+            <Boton tamano="sm" variante="primario" onClick={() => aplicarGolpe(cp.id, g)}>Aplicar</Boton>
+            <Boton tamano="sm" onClick={() => descartarGolpe(cp.id, g)}>Descartar</Boton>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+type VivoDm = { eco: Record<string, EconomiaRonda>; salvs: Salvacion[]; golpes: Golpe[]; ultimas: NonNullable<CombateVivo>['ultimas'] };
 /** Descanso o inspiración para los jugadores unidos (a uno solo si se da su personaje). */
 async function mandarOrden(campId: string, tipo: 'corto' | 'largo' | 'inspiracion', personajeId?: string) {
   const nombre = { corto: 'Descanso corto', largo: 'Descanso largo', inspiracion: 'Inspiración' }[tipo];
@@ -522,14 +568,20 @@ async function mandarOrden(campId: string, tipo: 'corto' | 'largo' | 'inspiracio
 }
 
 function useEconomiaVivo(campId: string, activo: boolean): VivoDm {
-  const [vivo, setVivo] = useState<VivoDm>({ eco: {}, salvs: [], ultimas: {} });
+  const [vivo, setVivo] = useState<VivoDm>({ eco: {}, salvs: [], golpes: [], ultimas: {} });
   useEffect(() => {
     if (!activo) return;
     let sigue = true;
     const leer = () => combateVivoDm(campId).then(v => {
       if (!sigue) return;
-      setVivo({ eco: v?.economia || {}, salvs: v?.salvaciones || [], ultimas: v?.ultimas || {} });
-      if (v?.golpes?.length) aplicarGolpes(campId, v.golpes);
+      const golpes = v?.golpes || [];
+      setVivo({ eco: v?.economia || {}, salvs: v?.salvaciones || [], golpes, ultimas: v?.ultimas || {} });
+      // Aviso al llegar algo nuevo; se aplica con el botón de la tarjeta del objetivo
+      for (const g of golpes) if (!golpesAvisados.has(g.id) && !golpesAplicados.has(g.id)) {
+        golpesAvisados.add(g.id);
+        const cp = campActual(), obj = cp && combatiente(g.objetivo, cp);
+        avisar(`${g.de}${g.nota ? ` (${g.nota})` : ''} actuó sobre ${obj?.nombre || 'alguien'}. Aplícalo en su tarjeta.`);
+      }
     }, () => {});
     leer();
     const t = setInterval(() => { if (document.visibilityState === 'visible') leer(); }, 2000);
@@ -584,7 +636,9 @@ function SalvacionesPendientes({ cp, x, salvs }: { cp: any; x: any; salvs: Salva
 const ETIQUETAS_ACCION: [TipoAccionRonda, string][] = [['accion', 'Acción'], ['adicional', 'Adicional'], ['reaccion', 'Reacción']];
 /** Las tres acciones de la ronda: tachadas las que ya gastó. El DM las marca o las recupera tocándolas
  *  (para quien no usa la app, y para los enemigos). */
-function AccionesRonda({ campId, clave, eco, nombre }: { campId: string; clave: string; eco: EconomiaRonda | undefined; nombre: string }) {
+function AccionesRonda({ cp, x, campId, clave, eco, nombre }: { cp: any; x: any; campId: string; clave: string; eco: EconomiaRonda | undefined; nombre: string }) {
+  const cat = useCatalogo(), [abierto, setAbierto] = useState<TipoAccionRonda | null>(null);
+  const ficha = x.tipo === 'm' && x.m?.ref && (cat || cp.bestiario?.[x.m.ref]) ? monstruoDe(cp, x.m.ref) : null;
   const [local, setLocal] = useState<Partial<Record<TipoAccionRonda, { v: boolean; t: number }>>>({});
   const tocar = (t: TipoAccionRonda, gastado: boolean) => {
     setLocal(p => ({ ...p, [t]: { v: gastado, t: Date.now() } }));
@@ -593,17 +647,73 @@ function AccionesRonda({ campId, clave, eco, nombre }: { campId: string; clave: 
   // Lo tocado hace un momento manda hasta que el servidor lo devuelva igual
   const ahora = (t: TipoAccionRonda) => { const l = local[t]; return l && Date.now() - l.t < 3000 ? l.v : eco?.[t]; };
   return (
-    <p className="m-0 mt-1 flex flex-wrap gap-1" aria-label={`Acciones de ${nombre} en esta ronda`}>
-      {ETIQUETAS_ACCION.map(([t, n]) => {
-        const gastada = !!ahora(t);
-        return (
-          <button key={t} type="button" aria-pressed={gastada} onClick={() => tocar(t, !gastada)} title={gastada ? 'Toca para recuperarla' : 'Toca para marcarla como gastada'}
-            className={cx('min-h-9 cursor-pointer rounded-full px-3 text-xs font-bold', foco, gastada ? 'bg-soft text-muted line-through' : 'bg-pas/20 text-pas')}>
-            {n}{gastada ? ' · gastada' : ''}
-          </button>
-        );
-      })}
-    </p>
+    <>
+      <p className="m-0 mt-1 flex flex-wrap gap-1" aria-label={`Acciones de ${nombre} en esta ronda`}>
+        {ETIQUETAS_ACCION.map(([t, n]) => {
+          const gastada = !!ahora(t);
+          // Los enemigos y compañeros con ficha abren sus acciones; lo demás solo marca
+          const abre = !!ficha;
+          return (
+            <button key={t} type="button" aria-pressed={abre ? abierto === t : gastada} aria-expanded={abre ? abierto === t : undefined}
+              onClick={() => abre ? setAbierto(abierto === t ? null : t) : tocar(t, !gastada)}
+              title={abre ? 'Toca para ver sus acciones' : gastada ? 'Toca para recuperarla' : 'Toca para marcarla como gastada'}
+              className={cx('min-h-9 cursor-pointer rounded-full px-3 text-xs font-bold', foco, gastada ? 'bg-soft text-muted line-through' : 'bg-pas/20 text-pas', abierto === t && 'ring-2 ring-adi')}>
+              {n}{gastada ? ' · gastada' : ''}
+            </button>
+          );
+        })}
+      </p>
+      {ficha && abierto && <AccionesMonstruo cp={cp} x={x} ficha={ficha} tipo={abierto} gastada={!!ahora(abierto)} marcar={g => tocar(abierto, g)} />}
+    </>
+  );
+}
+
+/** Las acciones del bloque de un enemigo o compañero para el tipo elegido: el DM escoge objetivo, tira y aplica el daño. */
+function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x: any; ficha: any; tipo: TipoAccionRonda; gastada: boolean; marcar: (g: boolean) => void }) {
+  const tirar = useDados();
+  const [obj, setObj] = useState('');
+  const lista = ({ accion: ficha.acciones, adicional: ficha.adicionales, reaccion: ficha.reacciones }[tipo] || []) as any[];
+  const blancos = (cp.combate.orden || []).map((o: any) => combatiente(o.k, cp)).filter((y: any) => y && y.k !== x.k);
+  const elegido = blancos.find((y: any) => y.k === obj);
+  const atacar = (a: any) => {
+    if (!elegido) { avisar('Elige primero el objetivo.', 'aviso'); return; }
+    tirar(`1d20${modStr(a.atk)}`, `${x.nombre}: ${a.n} contra ${elegido.nombre} (CA ${elegido.ca})`, { noRepeat: true }).catch(() => {});
+  };
+  const danar = async (a: any) => {
+    if (!elegido) { avisar('Elige primero el objetivo.', 'aviso'); return; }
+    const expr = (a.dano || []).map((d: any) => d.d).join('+');
+    try {
+      const r = await tirar(expr, `${x.nombre}: ${a.n} (daño a ${elegido.nombre})`, { noRepeat: true });
+      if (elegido.tipo === 'jug') await enviarEfectoDm(cp.id, elegido.u.personajeId, { de: x.nombre, dano: r.total, nota: a.n });
+      else conCamp(c => { cambiarPg(c, elegido.k, -r.total); });
+      avisar(`${x.nombre} hace ${r.total} de daño a ${elegido.nombre}${elegido.tipo === 'jug' ? '. Le llega a su hoja.' : '.'}`);
+      if (!gastada) marcar(true);
+    } catch (e) { if ((e as Error).message && !/dados|cancel/i.test((e as Error).message)) avisar(`No se pudo aplicar: ${(e as Error).message}`, 'error'); }
+  };
+  return (
+    <div className="mt-2 rounded-xl bg-soft p-2 text-sm">
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="font-bold" htmlFor={`obj-${x.k}`}>Objetivo</label>
+        <select id={`obj-${x.k}`} value={obj} onChange={e => setObj(e.target.value)} className={cx(claseCampo, 'w-auto! min-w-40')}>
+          <option value="">Elige…</option>
+          {blancos.map((y: any) => <option key={y.k} value={y.k}>{y.nombre} (CA {y.ca})</option>)}
+        </select>
+        <Boton tamano="sm" onClick={() => marcar(!gastada)}>{gastada ? 'Recuperar' : 'Marcar gastada'}</Boton>
+      </div>
+      {lista.length ? lista.map((a, i) => (
+        <div key={i} className="mt-2 border-t border-rule pt-2">
+          <b>{a.n}.</b> {a.atk != null && <span>{sign(a.atk)} al golpe. </span>}{a.cd != null && <span>Salvación de {a.salv} CD {a.cd}. </span>}
+          {a.dano?.length ? <span>Daño: {a.dano.map((d: any) => `${d.d} ${d.tipo}`).join(' + ')}. </span> : null}
+          {a.t && <p className="m-0 mt-0.5 text-muted">{a.t}</p>}
+          {(a.atk != null || a.dano?.length) && (
+            <div className="mt-1 flex flex-wrap gap-2">
+              {a.atk != null && <Boton tamano="sm" onClick={() => atacar(a)}>Tirar ataque</Boton>}
+              {a.dano?.length ? <Boton tamano="sm" variante="primario" onClick={() => danar(a)}>Tirar daño y aplicar</Boton> : null}
+            </div>
+          )}
+        </div>
+      )) : <p className="m-0 mt-2 text-muted">No tiene acciones de este tipo en su bloque.</p>}
+    </div>
   );
 }
 
@@ -669,6 +779,9 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
         <Boton variante="primario" onClick={siguiente}>Siguiente turno</Boton>
         <Boton onClick={terminar}>Terminar combate</Boton>
       </div>
+      {vivo.golpes.filter(g => !golpesAplicados.has(g.id) && !combatiente(g.objetivo, cp)).map(g => (
+        <Aviso key={g.id} tipo="aviso" titulo={`${g.de} actuó sobre alguien que ya no está`} accion={<Boton tamano="sm" onClick={() => descartarGolpe(cp.id, g)}>Descartar</Boton>}>{g.nota || 'Sin detalle.'}</Aviso>
+      ))}
       <ol className="m-0 mt-2 grid list-none gap-2 p-0" aria-label="Orden de iniciativa">
         {cb.orden.map((o: any, i: number) => {
           const x = combatiente(o.k, cp); if (!x) return null;
@@ -693,10 +806,11 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
                   : x.tipo === 'jug' ? <Boton tamano="sm" onClick={() => verHoja(x.k)} aria-label={`Ver la hoja de ${x.nombre}`}>Hoja</Boton>
                     : <Boton tamano="sm" onClick={() => quitarMon(x.m.id)} aria-label={`Quitar ${x.nombre}`}>Quitar</Boton>}
               </div>
-              <AccionesRonda campId={cp.id} clave={x.tipo === 'jug' ? x.u.personajeId : x.k} nombre={x.nombre} eco={economia[x.tipo === 'jug' ? x.u.personajeId : x.k]} />
+              <AccionesRonda cp={cp} x={x} campId={cp.id} clave={x.tipo === 'jug' ? x.u.personajeId : x.k} nombre={x.nombre} eco={economia[x.tipo === 'jug' ? x.u.personajeId : x.k]} />
               {x.tipo === 'jug' && <Boton tamano="sm" className="mt-1" onClick={() => mandarOrden(cp.id, 'inspiracion', x.u.personajeId)}>Dar inspiración a {x.nombre}</Boton>}
               {x.tipo === 'jug' && vivo.ultimas?.[x.u.personajeId] && <p className="m-0 mt-1 rounded-xl bg-soft p-2 text-sm"><b>Última acción:</b> {vivo.ultimas[x.u.personajeId].nombre}{vivo.ultimas[x.u.personajeId].resumen ? ` · ${vivo.ultimas[x.u.personajeId].resumen}` : ''}</p>}
               {x.tipo === 'm' && <SalvacionesPendientes cp={cp} x={x} salvs={vivo.salvs} />}
+              <GolpesPendientes cp={cp} k={x.k} nombre={x.nombre} golpes={vivo.golpes} />
               {x.tipo === 'jug' && <details className="mt-1"><summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>Hoja resumida</summary><Pasivas x={x} /></details>}
               <PuntosGolpe x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
               {x.tipo === 'm' && x.m.ref && <VerBloque cp={cp} r={x.m.ref} nombre={x.nombre} />}

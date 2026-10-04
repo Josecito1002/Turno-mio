@@ -170,7 +170,7 @@ function FilaCompanero({ c, p, mio }: { c: Campana; p: CompaneroMesa; mio: boole
   );
 }
 
-const imagenOk = (u?: string | null) => (u && /^https:\/\//i.test(u) ? u : '');
+const imagenOk = (u?: string | null) => (u && /^(https:\/\/|data:image\/(jpeg|png|webp);base64,)/i.test(u) ? u : '');
 
 function CampanaAbierta({ c }: { c: Campana }) {
   const [comp, setComp] = useState<CompaneroMesa[] | null>(null);

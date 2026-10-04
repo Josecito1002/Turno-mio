@@ -96,5 +96,7 @@ export const enviarSalvacionMesa = (m: { dmId: string; campanaId: string; person
 export const resolverSalvacion = (campanaId: string, id: string, clave: string) =>
   gql(`mutation ($campanaId: ID!, $id: String!, $clave: String!) { resolverSalvacion(campanaId: $campanaId, id: $id, clave: $clave) }`, { campanaId, id, clave });
 
+export const enviarEfectoDm = (campanaId: string, personajeId: string, e: { de: string; dano: number; cura?: boolean; condicion?: string; nota?: string }) =>
+  gql(`mutation ($campanaId: ID!, $personajeId: ID!, $de: String!, $dano: Int!, $cura: Boolean, $condicion: String, $nota: String) { enviarEfectoDm(campanaId: $campanaId, personajeId: $personajeId, de: $de, dano: $dano, cura: $cura, condicion: $condicion, nota: $nota) }`, { campanaId, personajeId, ...e });
 export const enviarOrdenDm = (campanaId: string, tipo: OrdenDm['tipo'], personajeId?: string) =>
   gql(`mutation ($campanaId: ID!, $tipo: String!, $personajeId: ID) { enviarOrdenDm(campanaId: $campanaId, tipo: $tipo, personajeId: $personajeId) }`, { campanaId, tipo, personajeId });
