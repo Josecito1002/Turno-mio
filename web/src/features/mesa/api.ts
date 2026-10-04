@@ -10,8 +10,9 @@ export const borrarCampana = (id: string) => gql(`mutation ($id: ID!) { borrarCa
 
 /* ---- Código de mesa: el DM lo comparte y los jugadores unen sus personajes ---- */
 export type PersonajeEnMesa = { jugadorId: string; jugador: string; personajeId: string; nombre: string; resumen: string | null; datos: Record<string, unknown>; actualizadoEn: string };
-export type MesaUnida = { dmId: string; campanaId: string; mesa: string; dm: string; personajeId: string; personaje: string };
-const CAMPOS_MESA = 'dmId campanaId mesa dm personajeId personaje';
+export type MesaUnida = { dmId: string; campanaId: string; mesa: string; dm: string; personajeId: string; personaje: string; descripcion?: string | null; imagen?: string | null; activo?: boolean | null };
+const CAMPOS_MESA = 'dmId campanaId mesa dm personajeId personaje descripcion imagen activo';
+export type CompaneroMesa = { jugador: string; personajeId: string; nombre: string; resumen: string | null };
 
 export const codigoMesa = (campanaId: string, nuevo = false) =>
   gql<{ codigoMesa: string }>(`mutation ($campanaId: ID!, $nuevo: Boolean) { codigoMesa(campanaId: $campanaId, nuevo: $nuevo) }`, { campanaId, nuevo })
@@ -29,6 +30,10 @@ export const unirseMesa = (codigo: string, personajeId: string) =>
     .then(d => d.unirseMesa);
 
 export const misMesas = () => gql<{ misMesas: MesaUnida[] }>(`{ misMesas { ${CAMPOS_MESA} } }`).then(d => d.misMesas);
+
+export const companerosMesa = (dmId: string, campanaId: string) =>
+  gql<{ companerosMesa: CompaneroMesa[] }>(`query ($dmId: ID!, $campanaId: ID!) { companerosMesa(dmId: $dmId, campanaId: $campanaId) { jugador personajeId nombre resumen } }`, { dmId, campanaId })
+    .then(d => d.companerosMesa);
 
 export const salirMesa = (m: { dmId: string; campanaId: string; personajeId: string }) =>
   gql(`mutation ($dmId: ID!, $campanaId: ID!, $personajeId: ID!) { salirMesa(dmId: $dmId, campanaId: $campanaId, personajeId: $personajeId) }`, m);

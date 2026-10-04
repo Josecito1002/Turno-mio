@@ -246,6 +246,30 @@ function useUnidos(campId: string) {
   return { ...estado, leer };
 }
 
+/** Descripción y portada de la campaña: lo que ven los jugadores en su lista de campañas. */
+function PortadaCampana({ cp }: { cp: any }) {
+  return (
+    <Tarjeta className="mt-4">
+      <h2 className="m-0 font-serif text-xl font-bold">Descripción y portada</h2>
+      <p className="m-0 mt-1 text-sm text-muted">Lo que ven tus jugadores en su pestaña Campañas. Ambas son opcionales.</p>
+      <div className="mt-3 grid gap-3">
+        <Campo etiqueta="Descripción">
+          <textarea key={cp.id + 'd'} defaultValue={cp.descripcion || ''} rows={3} maxLength={600} placeholder="De qué trata la campaña, cuándo se juega…" className={claseCampo}
+            onBlur={e => { const v = e.target.value.trim(); if (v !== (cp.descripcion || '')) conCamp(c => { c.descripcion = v; }); }} />
+        </Campo>
+        <Campo etiqueta="Imagen (enlace)" ayuda="La dirección de una imagen en internet (https://…).">
+          <input key={cp.id + 'i'} type="url" defaultValue={cp.imagen || ''} maxLength={500} placeholder="https://…" className={claseCampo}
+            onBlur={e => { const v = e.target.value.trim(); if (v && !/^https:\/\//i.test(v)) { avisar('El enlace debe empezar con https://', 'aviso'); return; } if (v !== (cp.imagen || '')) conCamp(c => { c.imagen = v; }); }} />
+        </Campo>
+        {cp.imagen && /^https:\/\//i.test(cp.imagen) && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={cp.imagen} alt="" className="max-h-40 w-full rounded-xl object-cover" />
+        )}
+      </div>
+    </Tarjeta>
+  );
+}
+
 function CodigoMesa({ campId }: { campId: string }) {
   const [codigo, setCodigo] = useState('');
   const [error, setError] = useState('');
@@ -790,6 +814,7 @@ function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) 
         {mtab === 'grupo' ? (
           <>
             <CodigoMesa campId={cp.id} />
+            <PortadaCampana cp={cp} />
             <div className="mb-0 mt-6 flex flex-wrap items-baseline justify-between gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="m-0 font-serif text-2xl font-bold">Jugadores en la mesa</h2>

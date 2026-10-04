@@ -108,13 +108,25 @@ function MenuAcciones({ titulo, abierto, hijos, children }: { titulo: string; ab
 
 /** Icono de un rasgo de clase según lo que hace (por palabras de su nombre y su texto). */
 const ICONOS: [RegExp, string][] = [
-  [/libre|persona|disfraz/, 'masks'], [/pr[eé]parate|temporales|resistencia/, 'health_and_safety'], [/mover|correr|salto|paso|vuelo|velocidad/, 'directions_run'],
+  [/libre|persona|disfraz/, 'mascara-luchador'], [/pr[eé]parate|temporales|resistencia/, 'health_and_safety'], [/mover|correr|salto|paso|vuelo|velocidad/, 'directions_run'],
   [/rabia|furia|fuego|llama|ardien/, 'local_fire_department'], [/curar|sanar|imposici|restaur|recuper/, 'healing'], [/inspira|canci|m[uú]sica|bardo/, 'music_note'],
   [/forma salvaje|bestia|animal|compa[ñn]ero/, 'pets'], [/sombra|invisib|sigilo|ocult|furtiv|escond/, 'visibility_off'], [/escudo|defens|proteg|armadura|guardi/, 'shield'],
   [/veneno|toxic/, 'science'], [/c[oó]lera|castigo|golpe|ataque|ráfaga|rafaga/, 'swords'], [/\bver\b|sentido|percep|vista/, 'visibility'], [/canalizar|divin|sagrad|luz|radiante/, 'light_mode'],
   [/escarbar|determinaci|enfoque|concentra|\bmente\b/, 'psychology'], [/\bki\b|moxie|energ/, 'bolt'],
 ];
 const iconoDe = (e: any) => { const t = norm(`${e.nombre}`) + ' ' + norm(String(e.texto || '').slice(0, 120)); for (const [r, i] of ICONOS) if (r.test(norm(e.nombre)) || r.test(t)) return i; return 'star'; };
+
+/** Máscara de luchador (lucha libre): ojos y boca abiertos y una franja al centro. */
+function MascaraLuchador({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={cx('size-[1em]', className)} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2.5c-4.2 0-7 3.2-7 8 0 5.3 2.3 9.6 7 11 4.7-1.4 7-5.7 7-11 0-4.8-2.8-8-7-8z" />
+      <path d="M12 2.5v5.5M12 13.5v1.5" />
+      <path d="M6.8 10.6c1.2-1.5 3.6-1.5 4.6.2-1 1.7-3.4 1.7-4.6-.2zM17.2 10.6c-1.2-1.5-3.6-1.5-4.6.2 1 1.7 3.4 1.7 4.6-.2z" />
+      <path d="M9.2 17c1.7 1.2 3.9 1.2 5.6 0" />
+    </svg>
+  );
+}
 
 /** Rasgo de clase con el mismo estilo de tarjeta que los ataques; al elegirlo se ve su texto completo. */
 function FilaRasgo({ e, uso, elegido, elegir }: { e: any; uso: Uso; elegido: Uso | null; elegir: (u: Uso) => void }) {
@@ -123,7 +135,7 @@ function FilaRasgo({ e, uso, elegido, elegir }: { e: any; uso: Uso; elegido: Uso
   return (
     <Opcion uso={uso} elegido={elegido} elegir={elegir}>
       <div className="flex items-start gap-3 rounded-lg bg-surface-container p-3 shadow-md">
-        <div className="grid size-12 shrink-0 place-items-center rounded-lg bg-surface-container-lowest text-primary shadow-inner"><Simbolo n={iconoDe(e)} className="text-headline-md" /></div>
+        <div className="grid size-12 shrink-0 place-items-center rounded-lg bg-surface-container-lowest text-primary shadow-inner">{iconoDe(e) === 'mascara-luchador' ? <MascaraLuchador className="text-headline-md" /> : <Simbolo n={iconoDe(e)} className="text-headline-md" />}</div>
         <div className="min-w-0 flex-1">
           <h3 className="m-0 font-serif text-headline-sm text-on-surface">{e.nombre}</h3>
           <p className="m-0 mt-0.5 text-body-sm text-outline">{[e.coste, !marcada && corta].filter(Boolean).join(' • ')}</p>
@@ -153,7 +165,10 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
     // Un rasgo que ataca (Golpe sin armas extra, Ráfaga de golpes…) trae su tirada: se trata como un ataque
     const atk = e.roll?.[0] ? +(/([+-]\d+)\s*$/.exec(e.roll[0])?.[1] ?? 0) : undefined;
     const gasta = e.recurso && /^1 /.test(e.coste || '') ? e.recurso : undefined;
-    return { tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, ...(atk != null ? { atk, dexpr: e.roll[1] } : {}), afecta: atk != null, ...(gasta ? { gasta } : {}) };
+    // «Haces dos golpes…»: cada uno se registra aparte
+    const veces = /\b(dos|tres|2|3)\s+(golpes|ataques)\b/i.exec(String(e.texto || ''))?.[1]?.toLowerCase();
+    const golpes = veces === 'dos' || veces === '2' ? 2 : veces === 'tres' || veces === '3' ? 3 : undefined;
+    return { tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, ...(golpes && atk != null ? { golpes } : {}), ...(atk != null ? { atk, dexpr: e.roll[1] } : {}), afecta: atk != null, ...(gasta ? { gasta } : {}) };
   };
   const comoArma = (e: any) => ({ puno: /sin armas|golpe|pu[ñn]/i.test(`${e.nombre} ${e.texto}`), nombre: e.nombre, atk: +(/([+-]\d+)\s*$/.exec(e.roll[0])?.[1] ?? 0), expr: e.roll[1], dmg: String(e.roll[1]).replace(/\s/g, ''), notas: [] as string[] });
   const deConjuro = (s: any): Uso => {
@@ -314,7 +329,7 @@ export function ModoCombate({ c }: { c: any }) {
   const ranuras = c.recursos.filter((r: any) => /^slot\d/.test(r.id));
 
   return (
-    <div className="mx-auto grid max-w-3xl gap-4">
+    <div className="mx-auto grid max-w-3xl gap-4 pb-24">
       <ResumenCombate c={c} m={m} salir={salir} />
 
       {(ranuras.length > 0 || c.recursos.some((r: any) => r.id !== 'pg' && !/^slot\d/.test(r.id))) && (
@@ -343,20 +358,21 @@ export function ModoCombate({ c }: { c: any }) {
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-2" role="group" aria-label="Tu turno">
-        {TIPOS_BOTON.map(t => {
-          const gastada = !!eco[t];
-          return (
-            <button key={t} type="button" onClick={() => { setElegido(null); setAbierto(t); }} aria-haspopup="dialog"
-              className={cx('flex min-h-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg p-2 text-center shadow-md transition-all', foco,
-                gastada ? 'bg-surface-container-lowest text-outline opacity-60' : 'bg-primary-container text-on-primary-container hover:brightness-110')}>
-              <FormaTipo t={t} className="size-5" />
-              <span className="font-serif text-body-lg font-bold">{TIPOS[t][0]}</span>
-              <span className="text-label-caps uppercase">{gastada ? 'Gastada' : 'Disponible'}</span>
-            </button>
-          );
-        })}
-      </div>
+      <nav aria-label="Tu turno" className="fixed inset-x-0 bottom-[var(--alto-nav-inferior,0px)] z-10 border-t border-rule bg-surface-container-low/95 backdrop-blur print:hidden">
+        <div className="mx-auto grid max-w-3xl grid-cols-3 gap-2 p-2" role="group">
+          {TIPOS_BOTON.map(t => {
+            const gastada = !!eco[t];
+            return (
+              <button key={t} type="button" onClick={() => { setElegido(null); setAbierto(t); }} aria-haspopup="dialog"
+                className={cx('flex min-h-14 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-1.5 text-center transition-all', foco,
+                  gastada ? 'bg-surface-container-lowest text-outline opacity-60' : 'bg-primary-container text-on-primary-container hover:brightness-110')}>
+                <span className="flex items-center gap-1"><FormaTipo t={t} className="size-4" /><span className="text-body-sm font-bold leading-tight">{TIPOS[t][0]}</span></span>
+                <span className="text-[0.65rem] uppercase tracking-wide">{gastada ? 'Gastada' : 'Disponible'}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
 
       <Dialogo abierto={!!abierto} onCerrar={() => setAbierto(null)} titulo={abierto ? TIPOS[abierto][0] : ''} ancho="lg"
         descripcion={abierto ? TIPOS[abierto][1] : undefined}>

@@ -48,11 +48,11 @@ function itemsNav(): ItemNav[] {
   ];
   if (esDM()) items.push({ vista: 'mesa', texto: 'Mesa del DM', activa: v === 'mesa' });
   // La mesa a la que te uniste con el código de tu DM: su combate está ahí
-  if (!esInvitado()) items.push({ vista: 'mesaj', texto: 'Mi mesa', activa: v === 'mesaj' || (v === 'ficha' && !!S.combateMesa) });
+  if (!esInvitado()) items.push({ vista: 'mesaj', texto: 'Campañas', activa: v === 'mesaj' || (v === 'ficha' && !!S.combateMesa) });
   if (esAdmin()) items.push({ vista: 'cuentas', texto: 'Cuentas', activa: v === 'cuentas' });
   return items;
 }
-const ir = (v: Vista) => { S.view = v; S.dialogo = ''; S.hojaMesa = null; S.ajeno = null; S.combateMesa = null; S.combateHoja = false; if (v === 'mesa') S.camp = null; render(); irArriba(); };
+const ir = (v: Vista) => { S.view = v; S.dialogo = ''; S.hojaMesa = null; S.ajeno = null; S.combateMesa = null; S.combateHoja = false; S.campJ = null; if (v === 'mesa') S.camp = null; render(); irArriba(); };
 
 const editar = () => { S.dialogo = ''; S.view = 'editor'; S.step = S.step || 'especie'; render(); irArriba(); };
 const verHoja = () => { S.combateHoja = true; S.dialogo = ''; S.view = 'ficha'; S.tab = 'turno'; render(); irArriba(); };
@@ -90,7 +90,7 @@ function Vista({ elegirArchivos, importarHojas }: { elegirArchivos: () => void; 
   return vista === 'editor' ? <Editor c={c} /> : <Ficha c={c} />;
 }
 
-const TITULOS: Record<string, string> = { home: 'Personajes', lib: 'Biblioteca', mesa: 'Mesa del DM', mesaj: 'Mi mesa', cuentas: 'Cuentas' };
+const TITULOS: Record<string, string> = { home: 'Personajes', lib: 'Biblioteca', mesa: 'Mesa del DM', mesaj: 'Campañas', cuentas: 'Cuentas' };
 
 /** La barra de abajo (móvil) publica su altura real en --alto-nav-inferior, con el borde y la zona segura del teléfono,
  *  para que lo que se pega sobre ella (la navegación entre pasos del editor) quede justo encima, sin hueco ni encimarse. */

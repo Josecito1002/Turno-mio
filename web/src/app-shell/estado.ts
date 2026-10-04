@@ -36,6 +36,9 @@ export const S = {
   combateMesa: null as null | { dmId: string; campanaId: string; mesa: string; dm: string; personajeId: string },
   /** En combate, mostrando la hoja completa en vez de la pantalla de combate. */
   combateHoja: false as boolean,
+  /** Jugador: la campaña abierta en la pestaña Campañas (null = la lista) y su sección. */
+  campJ: null as null | { dmId: string; campanaId: string },
+  campJTab: 'personajes' as 'personajes' | 'combate',
   mtab: 'grupo',
   /** Mesa del DM: el monstruo abierto en el bestiario (su clave), o null. */
   monstruoSel: null as string | null,

@@ -47,6 +47,17 @@ const typeDefs = /* GraphQL */ `
     dm: String!
     personajeId: ID!
     personaje: String!
+    descripcion: String
+    imagen: String
+    "Si el DM tiene un combate en marcha."
+    activo: Boolean
+  }
+  "Un personaje de la misma mesa, visto por otro jugador."
+  type CompaneroMesa {
+    jugador: String!
+    personajeId: ID!
+    nombre: String!
+    resumen: String
   }
   extend type Query {
     campanas: [Campana!]!
@@ -54,6 +65,8 @@ const typeDefs = /* GraphQL */ `
     jugadoresMesa(campanaId: ID!): [PersonajeEnMesa!]!
     "Jugador: las mesas a las que unió sus personajes."
     misMesas: [MesaUnida!]!
+    "Jugador: los personajes de una mesa a la que pertenece."
+    companerosMesa(dmId: ID!, campanaId: ID!): [CompaneroMesa!]!
     "DM: el combate que ven sus jugadores (null si no hay)."
     combateVivo(campanaId: ID!): JSON
     "Jugador: el combate de la mesa a la que unió su personaje (null si no hay)."
@@ -135,11 +148,25 @@ export const mesaGraphQL: ModuloGraphQL = {
         return ctx.db.select({
           dmId: mesaJugadores.dmId, campanaId: mesaJugadores.campanaId, mesa: campanas.nombre, dm: usuarios.nombre,
           personajeId: mesaJugadores.personajeId, personaje: personajes.nombre,
+          descripcion: sql<string | null>`${campanas.datos}->>'descripcion'`, imagen: sql<string | null>`${campanas.datos}->>'imagen'`,
+          activo: sql<boolean>`coalesce((${campanas.combateVivo}->>'activo')::boolean, false)`,
         }).from(mesaJugadores)
           .innerJoin(campanas, and(eq(campanas.usuarioId, mesaJugadores.dmId), eq(campanas.id, mesaJugadores.campanaId)))
           .innerJoin(usuarios, eq(usuarios.id, mesaJugadores.dmId))
           .innerJoin(personajes, and(eq(personajes.usuarioId, mesaJugadores.jugadorId), eq(personajes.id, mesaJugadores.personajeId)))
           .where(eq(mesaJugadores.jugadorId, u.id))
+          .orderBy(mesaJugadores.unidoEn);
+      },
+      companerosMesa: async (_: unknown, a: { dmId: string; campanaId: string }, ctx: Contexto) => {
+        const u = requiereUsuario(ctx);
+        // Solo si el jugador tiene algún personaje en esa mesa
+        const [m] = await ctx.db.select({ n: count() }).from(mesaJugadores)
+          .where(and(eq(mesaJugadores.dmId, a.dmId), eq(mesaJugadores.campanaId, a.campanaId), eq(mesaJugadores.jugadorId, u.id)));
+        if (!Number(m?.n)) throw new GraphQLError('No estás en esa mesa.');
+        return ctx.db.select({ jugador: usuarios.nombre, personajeId: personajes.id, nombre: personajes.nombre, resumen: personajes.resumen }).from(mesaJugadores)
+          .innerJoin(personajes, and(eq(personajes.usuarioId, mesaJugadores.jugadorId), eq(personajes.id, mesaJugadores.personajeId)))
+          .innerJoin(usuarios, eq(usuarios.id, mesaJugadores.jugadorId))
+          .where(and(eq(mesaJugadores.dmId, a.dmId), eq(mesaJugadores.campanaId, a.campanaId)))
           .orderBy(mesaJugadores.unidoEn);
       },
       combateVivo: async (_: unknown, { campanaId }: { campanaId: string }, ctx: Contexto) => {
