@@ -3,7 +3,7 @@ import { test, describe, before } from 'node:test';
 import assert from 'node:assert/strict';
 import biblioteca from '../../../../../biblioteca-mi-turno.json';
 import { setLib } from './biblioteca';
-import { catalogoActual, claveOrigen, imagenesOrigen, reconocerArchivo, type Catalogo } from './imagenes-origen';
+import { catalogoActual, claveOrigen, imagenDeClase, imagenesOrigen, reconocerArchivo, type Catalogo } from './imagenes-origen';
 
 let cat: Catalogo;
 before(() => { setLib(biblioteca as any); cat = catalogoActual(); });
@@ -49,5 +49,15 @@ describe('imagenesOrigen', () => {
     assert.deepEqual(imagenesOrigen(img, { especie: 'draconido', sub: 'oro', clase: 'mago', subclase: 'lib:ilusion' }), []);
     assert.deepEqual(imagenesOrigen(img, { especie: '', clase: 'mago' }), []);
     assert.deepEqual(imagenesOrigen(img, { especie: 'elfo', clase: 'mago' }), []);
+  });
+});
+
+describe('imagenDeClase: la imagen por defecto sigue primero a la especie', () => {
+  const img = { [claveOrigen({ especie: 'goliat', sub: '', clase: 'mago', subclase: 'evocador', genero: 'f' })]: '/g', [claveOrigen({ especie: 'humano', sub: '', clase: 'paladin', subclase: 'devocion', genero: 'm' })]: '/h' };
+  test('un goliat paladín usa la del goliat (de otra clase) y no la del paladín humano', () => {
+    assert.equal(imagenDeClase(img, { especie: 'goliat', clase: 'paladin', subclase: 'devocion' }), claveOrigen({ especie: 'goliat', sub: '', clase: 'mago', subclase: 'evocador', genero: 'f' }));
+  });
+  test('sin ninguna de su especie, cae a la de su clase', () => {
+    assert.equal(imagenDeClase(img, { especie: 'elfo', clase: 'paladin', subclase: 'devocion' }), claveOrigen({ especie: 'humano', sub: '', clase: 'paladin', subclase: 'devocion', genero: 'm' }));
   });
 });
