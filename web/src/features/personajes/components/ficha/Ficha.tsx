@@ -750,7 +750,7 @@ export function FilaConjuro({ s, c, icono, soloNombre }: { s: any; c: any; icono
     <li className="flex items-start gap-1 rounded-xs bg-surface-container-lowest">
       {icono && (
         <div className="m-1 grid size-10 shrink-0 place-items-center rounded-lg bg-surface-container text-secondary shadow-inner" title={+s.nivel > 0 ? 'Conjuro' : 'Truco'}>
-          <Simbolo n={+s.nivel > 0 ? 'auto_awesome' : 'flare'} className="text-headline-md" />
+          <Simbolo n={+s.nivel > 0 ? 'auto_stories' : 'auto_fix_high'} className="text-headline-md" />
         </div>
       )}
       <details className="group min-w-0 flex-1">
