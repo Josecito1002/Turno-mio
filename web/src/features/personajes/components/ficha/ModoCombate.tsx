@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { S, render } from '@/app-shell/estado';
+import { S, render, irArriba } from '@/app-shell/estado';
 import { Boton, Dialogo, Simbolo, cx, foco } from '@/shared/ui/kit';
 import { TIPOS } from '@/features/reglas/data/caracteristicas';
 import { COMUNES } from '@/features/reglas/data/comunes';
@@ -172,7 +172,7 @@ const RENUNCIA = /renuncia(s|r)? (a la|a tu) ventaja|renunciar a la ventaja/i;
 const DE_MOVIMIENTO = new Set(['Correr', 'Destrabarse']);
 
 /** Lo que se puede hacer con cada tipo de acción, en tres menús: de la clase (ataques, rasgos y conjuros), de movimiento y genéricas. */
-function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda; elegido: Uso | null; elegir: (u: Uso) => void }) {
+function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any; t: TipoAccionRonda; elegido: Uso | null; elegir: (u: Uso) => void; marcas: any[]; quitarMarca: (id: string) => void }) {
   const armas = t === 'accion' ? [...c.armas.filter((a: any) => a.mano), ...(c.naturales || [])] : [];
   const sinArmas = t === 'accion' ? { puno: true, nombre: 'Golpe sin armas', atk: c.unarmed.atk, expr: c.unarmed.expr, dmg: c.unarmed.dmg, atkDesg: c.unarmed.atkDesg, dmgDesg: c.unarmed.dmgDesg, notas: [`También puede Agarrar o Empujar (CD ${c.grappleDC})`] } : null;
   const ents = c.entries.filter((e: any) => e.t === t);
@@ -208,6 +208,7 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
   const deConjuro = (s: any): Uso => {
     const d = datosConjuro(s, c), salv = s.salv ? String(s.salv).toUpperCase() : undefined;
     return { tipo: t, nombre: s.nombre, coste: s.coste || (+s.nivel ? `Nivel ${s.nivel}` : 'Truco'), texto: String(s.desc || '').trim(), raw: true, ...(s.ataque && d.atk != null ? { atk: d.atk } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados),
+      ...(norm(s.nombre) === 'rayo de hechiceria' ? { marca: { id: 'rayo-de-hechiceria', nombre: 'Rayo de hechicería', dexpr: '1d12', tipo: 'relámpago', texto: 'Causas 1d12 de daño de relámpago a la criatura marcada, sin necesidad de otro ataque.' } } : {}),
       ...(+s.nivel > 0 ? { conjuro: { nivel: +s.nivel, rasgo: s.recurso, ritual: !!s.ritual, desc: s.desc, base: d.dexpr, bono: d.dexpr ? bonosPara(c, s).reduce((x: number, b: any) => x + (+b.valor || 0), 0) : 0 } } : {}) };
   };
   const nom = (u: Uso, k: string | number, sub?: string, icono?: string) => <OpcionNombre key={k} uso={u} elegido={elegido} elegir={elegir} sub={sub} icono={icono} />;
@@ -233,6 +234,16 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
       <MenuAcciones titulo="Acciones de la clase" abierto hijos={otros.length}>
         {otros.map((e: any, i: number) => <FilaRasgo key={'o' + e.nombre + i} e={e} c={c} uso={deRasgo(e)} elegido={elegido} elegir={elegir} />)}
       </MenuAcciones>
+      {t === 'adicional' && marcas.length > 0 && (
+        <MenuAcciones titulo="Marcas activas" abierto hijos={marcas.length}>
+          {marcas.map((x: any) => (
+            <div key={x.id} className="space-y-1">
+              {nom({ tipo: t, nombre: `${x.nombre}: daño de la marca${x.nombreObj ? ` (${x.nombreObj})` : ''}`, texto: x.texto, dexpr: x.dexpr, afecta: true }, 'mk' + x.id, `${x.dexpr} de daño de ${x.tipo} a la criatura marcada`, 'auto_fix_high')}
+              <button type="button" onClick={() => quitarMarca(x.id)} className="min-h-11 cursor-pointer rounded px-2 text-body-sm text-outline underline">La marca se acabó (se liberó o terminó el conjuro)</button>
+            </div>
+          ))}
+        </MenuAcciones>
+      )}
       <MenuAcciones titulo="Acciones de movimiento" hijos={mov.length}>
         {mov.map(([n, f]: [string, (c: any) => string]) => nom({ tipo: t, nombre: n, texto: f(c), afecta: false }, n))}
       </MenuAcciones>
@@ -359,6 +370,10 @@ export function ModoCombate({ c }: { c: any }) {
     return () => { vivo = false; clearInterval(id); };
   }, [dmId, campanaId, personajeId]);
 
+  // Al terminar el combate se acaban las marcas
+  const terminado = !!viv && !viv.activo;
+  useEffect(() => { if (terminado && c.pj.marcas?.length) setVal('marcas', []); }, [terminado, c.pj.marcas?.length]);
+
   const gastar = (t: TipoAccionRonda, gastado: boolean) => {
     toques.current[t] = Date.now();
     setEco(p => ({ ...p, [t]: gastado }));
@@ -370,6 +385,12 @@ export function ModoCombate({ c }: { c: any }) {
   const esMiTurno = !!turnoDe && turnoDe.pid === m.personajeId;
   const enemigos = (viv?.orden || []).filter(o => o.tipo === 'm');
   const ranuras = c.recursos.filter((r: any) => /^slot\d/.test(r.id));
+  // Las marcas que dejaste (Rayo de hechicería) dan su acción adicional desde la ronda siguiente a la que las pusiste
+  const ronda = viv?.ronda || 1;
+  const marcas = activo ? (c.pj.marcas || []).filter((x: any) => ronda > x.ronda) : [];
+  const marcar = (mk: any, objetivo: string, nombreObj: string) => { setVal('marcas', [...(c.pj.marcas || []).filter((x: any) => x.id !== mk.id), { ...mk, objetivo, nombreObj, ronda }]); };
+  const quitarMarca = (id: string) => { setVal('marcas', (c.pj.marcas || []).filter((x: any) => x.id !== id)); };
+  const volverACampana = () => { S.combateMesa = null; S.combateHoja = false; S.campJ = { dmId, campanaId }; S.campJTab = 'combate'; S.view = 'mesaj'; render(); irArriba(); };
 
   return (
     <div className="mx-auto grid max-w-3xl gap-4 pb-24">
@@ -393,6 +414,8 @@ export function ModoCombate({ c }: { c: any }) {
         {error && <p className="m-0 mt-1 text-body-sm text-error">No se pudo sincronizar: {error}</p>}
       </div>
 
+      <div className="flex justify-center"><Boton variante="fantasma" onClick={volverACampana}>← Volver a la campaña</Boton></div>
+
       <nav aria-label="Tu turno" className="fixed inset-x-0 bottom-[var(--alto-nav-inferior,0px)] z-10 border-t border-rule bg-surface-container-low/95 backdrop-blur print:hidden">
         <div className="mx-auto grid max-w-3xl grid-cols-3 gap-2 p-2" role="group">
           {TIPOS_BOTON.map(t => {
@@ -415,7 +438,7 @@ export function ModoCombate({ c }: { c: any }) {
           <div className="space-y-3">
             {eco[abierto] && <Boton variante="secundario" onClick={() => gastar(abierto, false)}>Recuperar {TIPOS[abierto][0].toLowerCase()} (me equivoqué)</Boton>}
             <details className="rounded-lg bg-surface-container-low"><summary className="min-h-11 cursor-pointer list-none px-3 py-2 text-body-sm text-outline">Aplicar daño a un enemigo a mano</summary><div className="p-2"><GolpeAEnemigo enemigos={enemigos} mesa={{ dmId, campanaId, personajeId }} /></div></details>
-            <OpcionesDeTipo c={c} t={abierto} elegido={elegido?.tipo === abierto ? elegido : null} elegir={setElegido} />
+            <OpcionesDeTipo c={c} t={abierto} elegido={elegido?.tipo === abierto ? elegido : null} elegir={setElegido} marcas={marcas} quitarMarca={quitarMarca} />
             <div className="sticky bottom-0 -mx-1 flex flex-wrap gap-2 bg-surface-container-low/95 p-2 backdrop-blur">
               <Boton variante="primario" className="flex-1" disabled={!elegido || elegido.tipo !== abierto} onClick={() => { setUso(elegido); setAbierto(null); }}>
                 {elegido && elegido.tipo === abierto ? `Usar ${elegido.nombre}` : 'Toca una opción para elegirla'}
@@ -427,7 +450,7 @@ export function ModoCombate({ c }: { c: any }) {
       </Dialogo>
 
       <UsoAccion c={c} uso={uso} ventaja={yo?.ven || ''} enemigos={enemigos} mesa={{ dmId, campanaId, personajeId }} yaGastada={!!(uso && eco[uso.tipo])} alCerrar={() => setUso(null)}
-        alUsar={t => { toques.current[t] = Date.now(); setEco(p => ({ ...p, [t]: true })); }} />
+        alUsar={t => { toques.current[t] = Date.now(); setEco(p => ({ ...p, [t]: true })); }} alMarcar={marcar} />
     </div>
   );
 }
