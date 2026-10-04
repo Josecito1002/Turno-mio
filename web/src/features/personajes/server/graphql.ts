@@ -20,9 +20,9 @@ const typeDefs = /* GraphQL */ `
   type PersonajeResumen { id: ID!, nombre: String!, resumen: String, actualizadoEn: String! }
   "Un personaje de otra cuenta, visto por un administrador."
   type PersonajeAjeno { usuarioId: ID!, jugador: String!, id: ID!, nombre: String!, resumen: String, actualizadoEn: String! }
-  type Enlace { token: String!, permiteCopiar: Boolean! }
+  type Enlace { token: String! }
   "Lo que ve quien abre el enlace de un personaje."
-  type PersonajeEnlazado { nombre: String!, jugador: String!, permiteCopiar: Boolean!, datos: JSON!, actualizadoEn: String! }
+  type PersonajeEnlazado { nombre: String!, jugador: String!, datos: JSON!, actualizadoEn: String! }
   input RefPersonaje { usuarioId: ID!, id: ID! }
 
   extend type Query {
@@ -44,7 +44,7 @@ const typeDefs = /* GraphQL */ `
     "Borra varios personajes. Los de otras cuentas solo los puede borrar un administrador. Devuelve cuántos se borraron."
     borrarPersonajes(refs: [RefPersonaje!]!): Int!
     "Crea (o actualiza) el enlace para compartir uno de tus personajes. nuevo: cambia el enlace y el anterior deja de servir."
-    crearEnlace(id: ID!, permiteCopiar: Boolean!, nuevo: Boolean): Enlace!
+    crearEnlace(id: ID!, nuevo: Boolean): Enlace!
     "El enlace deja de servir."
     quitarEnlace(id: ID!): Boolean!
   }
@@ -76,12 +76,12 @@ export const personajesGraphQL: ModuloGraphQL = {
       },
       enlaceDe: async (_: unknown, { id }: { id: string }, ctx: Contexto) => {
         const u = requiereUsuario(ctx);
-        const [e] = await ctx.db.select({ token: enlacesPersonaje.token, permiteCopiar: enlacesPersonaje.permiteCopiar }).from(enlacesPersonaje)
+        const [e] = await ctx.db.select({ token: enlacesPersonaje.token }).from(enlacesPersonaje)
           .where(and(eq(enlacesPersonaje.duenoId, u.id), eq(enlacesPersonaje.personajeId, id))).limit(1);
         return e || null;
       },
       personajePorEnlace: async (_: unknown, { token }: { token: string }, ctx: Contexto) => {
-        const [p] = await ctx.db.select({ nombre: personajes.nombre, jugador: usuarios.nombre, permiteCopiar: enlacesPersonaje.permiteCopiar, datos: personajes.datos, actualizadoEn: personajes.actualizadoEn })
+        const [p] = await ctx.db.select({ nombre: personajes.nombre, jugador: usuarios.nombre, datos: personajes.datos, actualizadoEn: personajes.actualizadoEn })
           .from(enlacesPersonaje)
           .innerJoin(personajes, and(eq(personajes.usuarioId, enlacesPersonaje.duenoId), eq(personajes.id, enlacesPersonaje.personajeId)))
           .innerJoin(usuarios, eq(usuarios.id, personajes.usuarioId))
@@ -151,14 +151,14 @@ export const personajesGraphQL: ModuloGraphQL = {
           .returning({ id: personajes.id });
         return borrados.length;
       },
-      crearEnlace: async (_: unknown, a: { id: string; permiteCopiar: boolean; nuevo?: boolean | null }, ctx: Contexto) => {
+      crearEnlace: async (_: unknown, a: { id: string; nuevo?: boolean | null }, ctx: Contexto) => {
         const u = requiereUsuario(ctx);
         const [p] = await ctx.db.select({ id: personajes.id }).from(personajes).where(and(eq(personajes.usuarioId, u.id), eq(personajes.id, a.id))).limit(1);
         if (!p) throw error('Ese personaje todavía no se guardó en tu cuenta. Espera un momento y vuelve a intentarlo.');
-        const [e] = await ctx.db.insert(enlacesPersonaje).values({ token: token(), duenoId: u.id, personajeId: a.id, permiteCopiar: a.permiteCopiar })
+        const [e] = await ctx.db.insert(enlacesPersonaje).values({ token: token(), duenoId: u.id, personajeId: a.id })
           .onConflictDoUpdate({ target: [enlacesPersonaje.duenoId, enlacesPersonaje.personajeId],
-            set: { permiteCopiar: a.permiteCopiar, ...(a.nuevo ? { token: token(), creadoEn: new Date() } : {}) } })
-          .returning({ token: enlacesPersonaje.token, permiteCopiar: enlacesPersonaje.permiteCopiar });
+            set: a.nuevo ? { token: token(), creadoEn: new Date() } : { personajeId: a.id } })
+          .returning({ token: enlacesPersonaje.token });
         return e;
       },
       quitarEnlace: async (_: unknown, { id }: { id: string }, ctx: Contexto) => {

@@ -1,0 +1,1 @@
+ALTER TABLE "enlaces_personaje" DROP COLUMN "permite_copiar";
