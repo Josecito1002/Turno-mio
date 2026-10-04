@@ -7,7 +7,8 @@ import { esc, norm, richT } from '@/shared/utils/texto';
 import { TIPOS } from '@/features/reglas/data/caracteristicas';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { CONDICIONES } from '@/features/mesa/domain/combate';
-import { gastarEspacio, gastarRecurso } from '../../acciones';
+import { gastarEspacio, gastarRecurso, setMano } from '../../acciones';
+import { ARMAS } from '@/features/reglas/data/equipo';
 import { escalarDados } from '@/features/reglas/data/efectos-conjuro';
 import { dadosAlLanzar, espaciosPara } from '../../domain/lanzar';
 import { enviarGolpeMesa, enviarSalvacionMesa, usarAccionMesa, type TipoAccionRonda } from '@/features/mesa/api';
@@ -40,6 +41,8 @@ export type Uso = {
   marca?: Marca;
   /** Deja un efecto (bono, protección…) en la criatura elegida, que se le muestra en su pantalla */
   efecto?: { condicion: string; bono: string };
+  /** Pone en tu mano un arma cuerpo a cuerpo que eliges (Pacto del Filo) */
+  equipar?: boolean;
   /** Cura en lugar de dañar */
   cura?: boolean;
   /** Si hace daño o impone algo a otros */
@@ -89,6 +92,9 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
   const [tiradas, setTiradas] = useState<boolean[]>(() => Array(maxGolpes).fill(false));
   const [tirada1, setTirada1] = useState(false);
   const [cond, setCond] = useState(uso.salv ? conds[0] || '' : '');
+  // Pacto del Filo: el arma de pacto se conjura en la mano; se elige una de tus armas cuerpo a cuerpo
+  const armasMano: string[] = uso.equipar ? (c.pj.armas || []).map(([k]: any) => k).filter((k: string) => ARMAS[k] && !ARMAS[k].dist) : [];
+  const [arma, setArma] = useState(() => (armasMano.includes(c.manos?.a) ? c.manos.a : armasMano[0] || ''));
   const [ocupado, setOcupado] = useState(false);
   // Con qué se paga un conjuro de nivel: un espacio (de ese nivel o mayor), el rasgo que lo da o, si es ritual, sin gastar
   const cj = uso.conjuro;
@@ -117,12 +123,13 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
     if (i >= 0 ? tiradas[i] : tirada1) return;
     if (i >= 0) setTiradas(t => t.map((x, j) => (j === i ? true : x))); else setTirada1(true);
     const soltar = () => { if (i >= 0) setTiradas(t => t.map((x, j) => (j === i ? false : x))); else setTirada1(false); };
-    try { tirar(dexpr!, `${uso.nombre}: daño${i >= 0 ? ` (ataque ${i + 1})` : ''}`).then(r => (i >= 0 ? setDanos(d => d.map((x, j) => (j === i ? String(r.total) : x))) : setDano(String(r.total))), e => { soltar(); avisar(`No se pudo tirar: ${(e as Error).message}`, 'error'); }); }
+    try { tirar(dexpr!, `${uso.nombre}: daño${i >= 0 ? ` (ataque ${i + 1})` : ''}`, { noRepeat: true }).then(r => (i >= 0 ? setDanos(d => d.map((x, j) => (j === i ? String(r.total) : x))) : setDano(String(r.total))), e => { soltar(); avisar(`No se pudo tirar: ${(e as Error).message}`, 'error'); }); }
     catch (e) { soltar(); avisar(`No se pudo tirar: ${(e as Error).message}`, 'error'); }
   };
 
   const confirmar = async () => {
     if (cj && !via) { avisar('Elige con qué lo lanzas.', 'error'); return; }
+    if (uso.equipar && !arma) { avisar('Primero agrega un arma cuerpo a cuerpo a tu inventario.', 'error'); return; }
     if (uso.marca?.objetivo && !objetivos.length) { avisar('Elige a quién marca, acierte o no.', 'error'); return; }
     if ((uso.efecto || uso.cura) && !objetivos.length) { avisar('Elige a quién se lo haces.', 'error'); return; }
     if (n && !objetivos.length) { avisar('Elige a quién le haces el daño.', 'error'); return; }
@@ -139,6 +146,7 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
         if (uso.salv && uso.cd && !uso.cura) await enviarSalvacionMesa(mesa, { objetivos, salv: uso.salv, cd: uso.cd, dano: n, mitad, ...(cond ? { condicion: cond } : {}), nota: uso.nombre });
         else for (const objetivo of objetivos) await enviarGolpeMesa(mesa, { objetivo, dano: n, ...(uso.cura ? { cura: true } : {}), ...(cond || uso.efecto ? { condicion: cond || uso.efecto!.condicion } : {}), ...(uso.efecto ? { bono: uso.efecto.bono } : {}), nota: uso.nombre });
       }
+      if (uso.equipar && arma) setMano('a', arma);
       alUsar(uso.tipo);
       if (uso.marca) alMarcar?.({ ...uso.marca, dexpr: escalarDados(uso.marca.dexpr, uso.marca.porNivel, nivelUsado - (uso.marca.nivelBase || nivelUsado)) }, objetivos[0] || '', nombres[0] || '');
       avisar(`${uso.nombre}: listo${nGolpes > 1 ? `, ${danos.slice(0, nGolpes).map(parcial).join(' + ')} = ${n} de daño` : ''}. ${objetivos.length && uso.salv ? 'Tu DM verá qué enemigos deben tirar la salvación.' : 'Tu DM ya lo ve.'}`);
@@ -167,6 +175,17 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
         ))}
         {uso.salv && <p className="m-0 mt-1 font-bold text-on-surface">Los objetivos tiran salvación de {uso.salv} contra CD {uso.cd}</p>}
       </div>
+
+      {uso.equipar && (
+        <div className="grid gap-2 rounded-lg bg-surface-container-low p-3">
+          <span className="text-label-caps uppercase text-outline">Arma que conjuras: queda en tu mano principal</span>
+          {armasMano.length ? (
+            <select aria-label="Arma de pacto" value={arma} onChange={e => setArma(e.target.value)} className={campo}>
+              {armasMano.map(k => <option key={k} value={k}>{ARMAS[k].n}</option>)}
+            </select>
+          ) : <p className="m-0 text-body-sm text-error">No tienes armas cuerpo a cuerpo en tu inventario. Agrega una en la hoja.</p>}
+        </div>
+      )}
 
       {recGasta && (
         <p className="m-0 rounded-lg bg-surface-container-low p-3 text-body-md text-on-surface">Gasta 1 de <b>{recGasta.nombre}</b>: <span className={quedaGasta ? '' : 'text-error'}>{quedaGasta ? `quedan ${quedaGasta}, te quedarían ${quedaGasta - 1}` : 'ya no te queda'}</span></p>
