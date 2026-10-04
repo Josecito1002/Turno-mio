@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useId, useState, type FormEvent } from 'react';
 import { S, esInvitado, render } from '@/app-shell/estado';
 import { entrarCombate } from '@/features/personajes/acciones';
+import { abrirCompanero } from '@/features/personajes/acciones-compartir';
 import { vaciarPendientes } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
 import { confirmar } from '@/shared/ui/confirmar';
@@ -140,7 +141,8 @@ function CampanaAbierta({ c }: { c: Campana }) {
               <Lista etiqueta="Personajes de la campaña" className="mt-3">
                 {comp.map(p => (
                   <Fila key={p.personajeId + p.jugador}>
-                    <span><b className="font-serif">{p.nombre}</b> <span className="text-sm text-muted">{p.resumen ? `${p.resumen} · ` : ''}Juega {p.jugador}</span></span>
+                    <span><b className="font-serif">{p.nombre}</b> <span className="text-sm text-muted">{p.resumen || ''}</span></span>
+                    <Boton tamano="sm" variante="primario" onClick={() => abrirCompanero(c.dmId, c.campanaId, p.personajeId, p.jugador)}>Ver hoja</Boton>
                   </Fila>
                 ))}
               </Lista>

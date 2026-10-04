@@ -35,6 +35,10 @@ export const companerosMesa = (dmId: string, campanaId: string) =>
   gql<{ companerosMesa: CompaneroMesa[] }>(`query ($dmId: ID!, $campanaId: ID!) { companerosMesa(dmId: $dmId, campanaId: $campanaId) { jugador personajeId nombre resumen } }`, { dmId, campanaId })
     .then(d => d.companerosMesa);
 
+export const hojaCompaneroMesa = (dmId: string, campanaId: string, personajeId: string) =>
+  gql<{ hojaCompaneroMesa: unknown }>(`query ($dmId: ID!, $campanaId: ID!, $personajeId: ID!) { hojaCompaneroMesa(dmId: $dmId, campanaId: $campanaId, personajeId: $personajeId) }`, { dmId, campanaId, personajeId })
+    .then(d => d.hojaCompaneroMesa);
+
 export const salirMesa = (m: { dmId: string; campanaId: string; personajeId: string }) =>
   gql(`mutation ($dmId: ID!, $campanaId: ID!, $personajeId: ID!) { salirMesa(dmId: $dmId, campanaId: $campanaId, personajeId: $personajeId) }`, m);
 

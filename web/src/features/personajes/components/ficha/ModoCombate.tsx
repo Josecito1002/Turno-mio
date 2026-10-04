@@ -228,7 +228,7 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
 }
 
 /** La tarjeta resumida del personaje (como la que ve el DM): pasivas, PG con daño y curación directos, y los botones de la pantalla. */
-function ResumenCombate({ c, m, salir, conds, dur, ven, esMiTurno }: { c: any; m: { mesa: string; dm: string }; salir: () => void; conds: string[]; dur: Record<string, string>; ven: '' | 'v' | 'd'; esMiTurno: boolean }) {
+function ResumenCombate({ c, m, conds, dur, ven, esMiTurno }: { c: any; m: { mesa: string; dm: string }; conds: string[]; dur: Record<string, string>; ven: '' | 'v' | 'd'; esMiTurno: boolean }) {
   const pj = c.pj, [n, setN] = useState('');
   const pg = c.recursos.find((r: any) => r.id === 'pg');
   const max = pg?.max ?? c.hpMax, actual = max - Math.min(pj.used?.pg || 0, max);
@@ -277,7 +277,6 @@ function ResumenCombate({ c, m, salir, conds, dur, ven, esMiTurno }: { c: any; m
         <Boton variante="peligro" disabled={!v} onClick={() => danar(v)}>Quitar</Boton>
         <Boton variante="secundario" disabled={!v} onClick={() => curar(v)}>Curar</Boton>
       </div>
-      <div className="mt-2 flex justify-end"><Boton tamano="sm" variante="fantasma" onClick={salir}>Volver a la mesa</Boton></div>
     </section>
   );
 }
@@ -353,13 +352,12 @@ export function ModoCombate({ c }: { c: any }) {
   const activo = !!viv?.activo, turnoDe = viv?.orden?.[viv.turno || 0];
   const yo = viv?.orden?.find(o => o.pid === personajeId), mias = yo?.cond || [];
   const esMiTurno = !!turnoDe && turnoDe.pid === m.personajeId;
-  const salir = () => { S.combateMesa = null; S.combateHoja = false; S.view = 'mesaj'; render(); };
   const enemigos = (viv?.orden || []).filter(o => o.tipo === 'm');
   const ranuras = c.recursos.filter((r: any) => /^slot\d/.test(r.id));
 
   return (
     <div className="mx-auto grid max-w-3xl gap-4 pb-24">
-      <ResumenCombate c={c} m={m} salir={salir} conds={mias} dur={yo?.dur || {}} ven={yo?.ven || ''} esMiTurno={esMiTurno} />
+      <ResumenCombate c={c} m={m} conds={mias} dur={yo?.dur || {}} ven={yo?.ven || ''} esMiTurno={esMiTurno} />
 
       {(ranuras.length > 0 || c.recursos.some((r: any) => r.id !== 'pg' && !/^slot\d/.test(r.id))) && (
         <section className="grid gap-3" aria-label="Recursos">

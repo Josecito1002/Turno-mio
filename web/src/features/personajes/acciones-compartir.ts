@@ -8,6 +8,7 @@ import { nuevoPj, reparar } from './domain/modelo';
 import { compute } from './domain/calculo';
 import { personajeAjeno, personajePorEnlace, type RefPersonaje } from './api';
 import { abrir, savePj } from './acciones';
+import { hojaCompaneroMesa } from '@/features/mesa/api';
 
 /** "Ana, Bruno y 3 más": para confirmar sin una lista eterna. */
 export function nombrarVarios(nombres: string[], max = 4) {
@@ -48,6 +49,15 @@ export async function abrirAjeno(r: RefPersonaje & { jugador: string }, volver: 
     const p = await personajeAjeno({ usuarioId: r.usuarioId, id: r.id });
     if (!p) { avisar('Ese personaje ya no existe.', 'error'); return; }
     mostrarAjeno(p.datos, r.jugador, volver);
+  } catch (e) { avisar(`No se pudo abrir: ${(e as Error).message}`, 'error'); }
+}
+
+/** Jugador: abre en solo lectura la hoja de un personaje de su campaña. */
+export async function abrirCompanero(dmId: string, campanaId: string, personajeId: string, jugador: string) {
+  try {
+    const datos = await hojaCompaneroMesa(dmId, campanaId, personajeId);
+    if (!datos) { avisar('Ese personaje ya no está disponible.', 'error'); return; }
+    mostrarAjeno(datos, jugador, 'mesaj');
   } catch (e) { avisar(`No se pudo abrir: ${(e as Error).message}`, 'error'); }
 }
 
