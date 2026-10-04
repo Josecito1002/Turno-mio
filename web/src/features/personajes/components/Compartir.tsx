@@ -98,7 +98,7 @@ export function HojaAjena() {
         <Boton tamano="sm" variante="fantasma" onClick={cerrarAjeno}>← {a.volver === 'cuentas' ? 'Cuentas' : 'Mis personajes'}</Boton>
         <p id="titulo-vista" tabIndex={-1} className="order-last m-0 w-full text-sm outline-none sm:order-none sm:w-auto sm:flex-1"><b>{nombre}</b> <span className="text-muted">· de {a.jugador} · solo lectura</span></p>
         <Boton tamano="sm" variante="fantasma" className="ml-auto sm:ml-0" onClick={() => bajarArchivo(slug(nombre) + '.json', JSON.stringify(a.pj, null, 1))}>Descargar hoja</Boton>
-        <Boton tamano="sm" variante="primario" onClick={copiarAjeno}>{invitado ? 'Guardar una copia aquí' : 'Copiar a mi cuenta'}</Boton>
+        <Boton tamano="sm" variante="primario" onClick={copiarAjeno}>{invitado ? 'Duplicar aquí' : 'Duplicar en mi cuenta'}</Boton>
       </div>
       {invitado && /^\/p\//.test(typeof window !== 'undefined' ? window.location.pathname : '') && (
         <p className="m-0 bg-surface-container-low px-4 py-2 text-sm text-on-surface-variant print:hidden lg:px-6">
