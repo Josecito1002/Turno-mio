@@ -20,6 +20,10 @@ import { Inventario } from '../Inventario';
 import { Criaturas } from './Criaturas';
 import { Herramienta } from './Herramientas';
 import { HojaImpresa } from './HojaImpresa';
+import { Imagen } from '@/shared/ui/imagen';
+import { getLib } from '@/features/biblioteca/domain/biblioteca';
+import { achicarImagen } from '@/features/biblioteca/components/PanelMedia';
+import { imagenDeClase } from '@/features/biblioteca/domain/imagenes-origen';
 
 /** Solo lectura: la hoja de un jugador vista desde la mesa del DM. Se ve todo, pero nada se puede cambiar ni gastar
     (las acciones de la hoja trabajan sobre el personaje abierto, que no es este). */
@@ -65,6 +69,21 @@ function Desplegable({ titulo, nota, children }: { titulo: string; nota?: string
 }
 
 /* ===================== Cabecera: identidad ===================== */
+/** Imagen del personaje: la que subió el jugador o, si no, una del set de su clase (con su especie si la hay). */
+export function imagenPersonaje(c: any): { src: string; propia: boolean } {
+  const pj = c.pj;
+  if (pj.imagen) return { src: pj.imagen, propia: true };
+  const LIB = getLib();
+  const k = imagenDeClase(LIB.img, { especie: pj.especie?.key, sub: pj.especie?.sub, clase: pj.clase, subclase: c.SD?.key || '' }, pj.id || '');
+  return { src: k ? String(LIB.img?.[k]) : '', propia: false };
+}
+
+/** El jugador sube su imagen; se guarda achicada dentro de la hoja. */
+async function subirImagenPj(f: File) {
+  try { setVal('imagen', await achicarImagen(f, 512, 0.85)); }
+  catch { avisar('No se pudo leer esa imagen.', 'error'); }
+}
+
 function Identidad({ c }: { c: any }) {
   const pj = c.pj, lectura = useLectura();
   const esp = pj.especie.key === 'custom' ? pj.especie.nombre : c.E ? c.E.n + (c.E.subs?.[c.esub] ? ` (${c.E.subs[c.esub].n})` : '') : '';
@@ -72,14 +91,34 @@ function Identidad({ c }: { c: any }) {
   const linea = c.C ? `${c.C.n}${subN ? ` (${subN})` : ''}${c.chain ? ', Pacto de la Cadena' : ''} • Nivel ${c.lvl}` : 'Sin clase todavía';
   const insp = !!pj.inspiracion;
   const inicial = (pj.nombre || '?').trim().charAt(0).toUpperCase();
+  const retrato = imagenPersonaje(c);
   return (
     <div className="flex flex-col items-center gap-5 rounded-lg bg-surface-container-low p-5 shadow-xl sm:flex-row sm:items-start">
       <div className="relative shrink-0">
         <div className="size-28 overflow-hidden rounded-lg bg-linear-to-b from-primary-container via-outline-variant to-surface-container-lowest p-1 shadow-[0_0_24px_rgba(212,175,55,0.2)] sm:size-32">
-          <div aria-hidden="true" className="grid size-full place-items-center rounded bg-linear-to-br from-surface-container-high to-surface-container-lowest">
-            <span className="font-serif text-6xl font-bold text-primary">{inicial}</span>
-          </div>
+          {retrato.src
+            ? <Imagen src={retrato.src} alt={`Imagen de ${pj.nombre || 'el personaje'}`} className="size-full rounded bg-surface-container-high object-cover object-top" />
+            : <div aria-hidden="true" className="grid size-full place-items-center rounded bg-linear-to-br from-surface-container-high to-surface-container-lowest">
+                <span className="font-serif text-6xl font-bold text-primary">{inicial}</span>
+              </div>}
         </div>
+        {!lectura && (
+          <div className="absolute -left-2 -top-2 flex gap-1">
+            <label title={retrato.propia ? 'Cambiar la imagen' : 'Poner una imagen propia'}
+              className={cx('grid size-8 cursor-pointer place-items-center rounded-full bg-surface-container-highest text-primary shadow focus-within:outline-3 focus-within:outline-rea')}>
+              <Simbolo n="photo_camera" className="text-body-md" />
+              <span className="sr-only">{retrato.propia ? 'Cambiar la imagen del personaje' : 'Poner una imagen al personaje'}</span>
+              <input type="file" accept="image/*" className="sr-only" onChange={e => { const f = e.target.files?.[0]; if (f) subirImagenPj(f); e.target.value = ''; }} />
+            </label>
+            {retrato.propia && (
+              <button type="button" title="Quitar la imagen propia (vuelve la de su clase)" onClick={() => setVal('imagen', '')}
+                className={cx('grid size-8 cursor-pointer place-items-center rounded-full bg-surface-container-highest text-primary shadow', foco)}>
+                <Simbolo n="close" className="text-body-md" />
+                <span className="sr-only">Quitar la imagen propia y usar la de su clase</span>
+              </button>
+            )}
+          </div>
+        )}
         {lectura ? (
           <span title={insp ? 'Tiene inspiración heroica' : 'Sin inspiración heroica'}
             className={cx('absolute -bottom-2 -right-2 flex items-center gap-1 rounded-full bg-surface-container-highest px-2 py-1 shadow-[0_0_12px_rgba(212,175,55,0.4)]', !insp && 'opacity-40')}>

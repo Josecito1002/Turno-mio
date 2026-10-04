@@ -97,3 +97,34 @@ export function imagenesOrigen(img: Record<string, unknown> | undefined, q: { es
   for (const k of elegibles.sort()) { const o = leerClaveOrigen(k)!; const c = `${o.sub}|${o.subclase}`; if (!una.has(c)) una.set(c, k); }
   return [...una.values()];
 }
+
+/** Una clave por cada combinación distinta (subraza, clase, subclase) que cumpla `filtro`; el género todavía no se usa. */
+function unaPorCombinacion(img: Record<string, unknown> | undefined, filtro: (o: Origen) => boolean): string[] {
+  const una = new Map<string, string>();
+  for (const k of Object.keys(img || {}).sort()) {
+    const o = leerClaveOrigen(k);
+    if (!o || !img![k] || !filtro(o)) continue;
+    const c = `${o.especie}|${o.sub}|${o.clase}|${o.subclase}`;
+    if (!una.has(c)) una.set(c, k);
+  }
+  return [...una.values()];
+}
+
+/** Claves de imagen del set de una especie con cualquier clase (para el rotor de la especie). */
+export const imagenesDeEspecie = (img: Record<string, unknown> | undefined, especie: string) =>
+  unaPorCombinacion(img, o => o.especie === especie);
+
+/** Imagen por defecto de un personaje: la de su especie con su clase y subclase; si no hay, la de su clase y subclase
+    con cualquier especie; si tampoco, cualquiera de su clase. Siempre la misma para el mismo personaje (según `semilla`). */
+export function imagenDeClase(img: Record<string, unknown> | undefined, q: { especie?: string; sub?: string; clase: string; subclase?: string }, semilla = '') {
+  if (!img || !q.clase) return '';
+  const opciones = [
+    q.especie ? imagenesOrigen(img, { especie: q.especie, sub: q.sub, clase: q.clase, subclase: q.subclase || undefined }) : [],
+    q.especie ? imagenesOrigen(img, { especie: q.especie, clase: q.clase }) : [],
+    q.subclase ? unaPorCombinacion(img, o => o.clase === q.clase && o.subclase === q.subclase) : [],
+    unaPorCombinacion(img, o => o.clase === q.clase),
+  ].find(l => l.length);
+  if (!opciones) return '';
+  let h = 0; for (const ch of semilla) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return opciones[h % opciones.length];
+}

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { S, render } from '@/app-shell/estado';
 import { norm } from '@/shared/utils/texto';
 import { Boton, Campo, Nota, Plegable, Seccion } from '@/shared/ui/kit';
@@ -13,8 +13,8 @@ import { kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
 import { esDoteOrigen } from '@/features/reglas/domain/restricciones';
 import { fuenteClase, fuenteEspecie, fuenteSubclase, fuenteTrasfondo } from '@/features/reglas/data/fuentes';
 import { getLib, getSubs, getT, allDotes, descEspecie, descSubespecie, descClase, descSubclase, sinRepetidas, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
-import { PanelMedia } from '@/features/biblioteca/components/PanelMedia';
-import { imagenesOrigen, slugNombre } from '@/features/biblioteca/domain/imagenes-origen';
+import { PanelMedia, useRotar } from '@/features/biblioteca/components/PanelMedia';
+import { PREFIJO_ORIGEN, imagenesDeEspecie, imagenesOrigen, slugNombre } from '@/features/biblioteca/domain/imagenes-origen';
 import { Entrada } from '../piezas';
 import { quitarEquipoTrasfondo, savePj, setVal, tomarEquipoTrasfondo } from '../../acciones';
 import { TarjetasBuscables, Tarjeta } from './Tarjetas';
@@ -39,25 +39,15 @@ function elegirTrasfondo(k: string) {
 /* ---------- Especie ---------- */
 /** Clave de una subraza en la biblioteca (su descripción y su imagen): "e:especie:sub" */
 const claveSub = (e: string, sub: string) => `e:${e}:${sub}`;
-/** Imágenes de las subrazas que tienen una */
-const imgsSubs = (k: string, E: any): string[] => {
+/** Claves de las imágenes de una especie que existen: la suya, las de sus subrazas y las del set de especie y clase */
+const clavesEspecie = (k: string, E: any): string[] => {
   const LIB = getLib();
-  return Object.keys(E?.subs || {}).map(s => LIB.img?.[claveSub(k, s)]).filter(Boolean) as string[];
+  return [k, ...Object.keys(E?.subs || {}).map(s => claveSub(k, s)), ...imagenesDeEspecie(LIB.img, k)].filter(x => LIB.img?.[x]);
 };
-/** Pasa de una imagen a otra cada pocos segundos (la miniatura de una especie alterna entre sus subrazas) */
-function useRotar(n: number) {
-  const [i, setI] = useState(0);
-  useEffect(() => {
-    if (n < 2) return;
-    const t = setInterval(() => setI(x => x + 1), 2500);
-    return () => clearInterval(t);
-  }, [n]);
-  return n ? i % n : 0;
-}
 function TarjetaEspecie({ k, e, d, on, sub }: { k: string; e: any; d: string; on: boolean; sub: string }) {
   const LIB = getLib(), fija = on && sub ? LIB.img?.[claveSub(k, sub)] : '';
-  const imgs = fija ? [] : imgsSubs(k, e), i = useRotar(imgs.length);
-  return <Tarjeta on={on} onClick={() => elegirEspecie(k)} img={fija || imgs[i] || LIB.img?.[k]} titulo={e.n} sub={d} clampSub
+  const claves = fija ? [] : clavesEspecie(k, e), i = useRotar(claves.length), kImg = claves[i] || '';
+  return <Tarjeta on={on} onClick={() => elegirEspecie(k)} img={fija || LIB.img?.[kImg]} imgArriba={!fija && kImg.startsWith(PREFIJO_ORIGEN)} titulo={e.n} sub={d} clampSub
     fuente={k === 'custom' ? undefined : fuenteEspecie(k, e)} />;
 }
 
@@ -94,7 +84,7 @@ function CuadroEspecie({ pj, E }: { pj: any; E: any }) {
   const k = pj.especie.key, s = pj.especie.sub, x = s && E.subs?.[s];
   const rasgos = x ? rasgosDeSubespecie(pj, s) : [];
   return (
-    <PanelMedia k={k} n={E.n} d={descEspecie(k)} fuente={fuenteEspecie(k, E)} azar={Object.keys(E.subs || {}).map(y => claveSub(k, y))}
+    <PanelMedia k={k} n={E.n} d={descEspecie(k)} fuente={fuenteEspecie(k, E)} azar={clavesEspecie(k, E)}
       sub={x ? { k: claveSub(k, s), n: x.n + (x.dmg ? ` (${x.dmg})` : ''), d: descSubespecie(k, s) } : undefined}>
       {rasgos.length > 0 && (
         <div className="mt-2">
@@ -115,8 +105,8 @@ const familiaDe = (k: string) => FAMILIAS.find(f => f.de(k.replace(/^lib:/, ''))
 
 /** Tarjeta de una familia de especies: al tocarla se elige la primera, y encima de Linaje salen todas para cambiar */
 function TarjetaFamilia({ n, d, miembros, on, abrir }: { n: string; d: string; miembros: string[]; on: boolean; abrir: () => void }) {
-  const LIB = getLib(), imgs = miembros.map(k => LIB.img?.[k]).filter(Boolean) as string[], i = useRotar(imgs.length);
-  return <Tarjeta on={on} onClick={abrir} img={imgs[i]} titulo={n} sub={`${d} Elige cuál (${miembros.length}).`} clampSub />;
+  const LIB = getLib(), claves = miembros.flatMap(k => clavesEspecie(k, ESPECIES[k] || LIB.especies[k])), i = useRotar(claves.length), kImg = claves[i] || '';
+  return <Tarjeta on={on} onClick={abrir} img={LIB.img?.[kImg]} imgArriba={kImg.startsWith(PREFIJO_ORIGEN)} titulo={n} sub={`${d} Elige cuál (${miembros.length}).`} clampSub />;
 }
 
 export function PasoEspecie({ pj, c }: { pj: any; c: any }) {

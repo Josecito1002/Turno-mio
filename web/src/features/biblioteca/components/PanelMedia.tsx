@@ -173,15 +173,26 @@ function EditarMedia({ k, d, titulo, sinImagen }: { k: string; d: string; titulo
 }
 
 type Sub = { k: string; n: string; d: string };
+/** Pasa de una imagen a otra cada pocos segundos (empieza en una al azar para que no se vea siempre la misma) */
+export function useRotar(n: number) {
+  const [i, setI] = useState(() => Math.floor(Math.random() * 1000));
+  useEffect(() => {
+    if (n < 2) return;
+    const t = setInterval(() => setI(x => x + 1), 3500);
+    return () => clearInterval(t);
+  }, [n]);
+  return n ? i % n : 0;
+}
+
 /** Imagen y descripción de una especie o clase; el administrador las edita.
     Con `sub` (la subraza elegida) el mismo cuadro muestra su nombre, su descripción, lo que da (`children`) y su imagen.
-    Sin subraza elegida, `azar` son las claves de las subrazas: se muestra la imagen de una de ellas al azar.
+    Sin subraza elegida, `azar` son las claves de las imágenes de la especie (subrazas y set de especie y clase): van rotando.
     Con `soloAzar` (clases) no hay imagen propia de la clave: solo las de `azar`, del set de especie y clase. */
 export function PanelMedia({ k, n, d, fuente, sub, azar, soloAzar, children }: { k: string; n: string; d: string; fuente?: Fuente; sub?: Sub; azar?: string[]; soloAzar?: boolean; children?: React.ReactNode }) {
   const LIB = getLib(), editando = S.crop && (S.crop.k === k || S.crop.k === sub?.k);
-  const [suerte] = useState(() => Math.random());
   const conImg = (azar || []).filter(x => LIB.img?.[x]);
-  const deAzar = !sub && conImg.length ? conImg[Math.floor(suerte * conImg.length) % conImg.length] : '';
+  const i = useRotar(sub ? 0 : conImg.length);
+  const deAzar = !sub && conImg.length ? conImg[i] : '';
   const mostrada = (sub && LIB.img?.[sub.k]) || (deAzar && LIB.img![deAzar]) || (!soloAzar && LIB.img?.[k]);
   // Las imágenes de especie con clase son retratos verticales: en el cuadro se ve la parte de arriba
   const retrato = !(sub && LIB.img?.[sub.k]) && deAzar.startsWith(PREFIJO_ORIGEN);
