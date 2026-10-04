@@ -35,9 +35,9 @@ export async function borrarVarios(ids: string[]) {
   return true;
 }
 
-function mostrarAjeno(datos: unknown, jugador: string, volver: Vista, permiteCopiar: boolean) {
+function mostrarAjeno(datos: unknown, jugador: string, volver: Vista) {
   const pj = reparar(JSON.parse(JSON.stringify(datos)));
-  S.ajeno = { jugador, pj, c: compute(pj), volver, permiteCopiar };
+  S.ajeno = { jugador, pj, c: compute(pj), volver };
   S.view = 'ajeno'; S.dialogo = ''; render(); irArriba();
 }
 
@@ -46,7 +46,7 @@ export async function abrirAjeno(r: RefPersonaje & { jugador: string }, volver: 
   try {
     const p = await personajeAjeno({ usuarioId: r.usuarioId, id: r.id });
     if (!p) { avisar('Ese personaje ya no existe.', 'error'); return; }
-    mostrarAjeno(p.datos, r.jugador, volver, true);
+    mostrarAjeno(p.datos, r.jugador, volver);
   } catch (e) { avisar(`No se pudo abrir: ${(e as Error).message}`, 'error'); }
 }
 
@@ -55,7 +55,7 @@ export async function abrirEnlace(token: string) {
   try {
     const p = await personajePorEnlace(token);
     if (!p) { avisar('Ese enlace ya no sirve: su dueño lo desactivó o borró el personaje.', 'error'); return; }
-    mostrarAjeno(p.datos, p.jugador, 'home', p.permiteCopiar);
+    mostrarAjeno(p.datos, p.jugador, 'home');
   } catch (e) { avisar(`No se pudo abrir el enlace: ${(e as Error).message}`, 'error'); }
 }
 

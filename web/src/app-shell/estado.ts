@@ -35,7 +35,7 @@ export const S = {
   monstruoSel: null as string | null,
   importCamp: null as string | null,
   /** Hoja de otra cuenta abierta en solo lectura (por un enlace, o vista por un administrador), y adónde volver. */
-  ajeno: null as null | { jugador: string; pj: any; c: any; volver: Vista; permiteCopiar: boolean },
+  ajeno: null as null | { jugador: string; pj: any; c: any; volver: Vista },
 };
 
 let version = 0;

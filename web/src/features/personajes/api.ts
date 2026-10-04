@@ -13,17 +13,17 @@ export const marcarUltimo = (id: string | null) => gql(`mutation ($id: ID) { mar
 /* ---- Enlace para compartir, y personajes de otras cuentas (administrador) ---- */
 export type PersonajeAjeno = { usuarioId: string; jugador: string; id: string; nombre: string; resumen: string | null; actualizadoEn: string };
 export type RefPersonaje = { usuarioId: string; id: string };
-export type Enlace = { token: string; permiteCopiar: boolean };
-export type PersonajeEnlazado = { nombre: string; jugador: string; permiteCopiar: boolean; datos: Record<string, unknown>; actualizadoEn: string };
+export type Enlace = { token: string };
+export type PersonajeEnlazado = { nombre: string; jugador: string; datos: Record<string, unknown>; actualizadoEn: string };
 const AJENO = 'usuarioId jugador id nombre resumen actualizadoEn';
 
-export const enlaceDe = (id: string) => gql<{ enlaceDe: Enlace | null }>(`query ($id: ID!) { enlaceDe(id: $id) { token permiteCopiar } }`, { id }).then(d => d.enlaceDe);
-export const crearEnlace = (id: string, permiteCopiar: boolean, nuevo = false) =>
-  gql<{ crearEnlace: Enlace }>(`mutation ($id: ID!, $p: Boolean!, $n: Boolean) { crearEnlace(id: $id, permiteCopiar: $p, nuevo: $n) { token permiteCopiar } }`, { id, p: permiteCopiar, n: nuevo }).then(d => d.crearEnlace);
+export const enlaceDe = (id: string) => gql<{ enlaceDe: Enlace | null }>(`query ($id: ID!) { enlaceDe(id: $id) { token } }`, { id }).then(d => d.enlaceDe);
+export const crearEnlace = (id: string, nuevo = false) =>
+  gql<{ crearEnlace: Enlace }>(`mutation ($id: ID!, $n: Boolean) { crearEnlace(id: $id, nuevo: $n) { token } }`, { id, n: nuevo }).then(d => d.crearEnlace);
 export const quitarEnlace = (id: string) => gql(`mutation ($id: ID!) { quitarEnlace(id: $id) }`, { id });
 /** No hace falta cuenta. */
 export const personajePorEnlace = (token: string) =>
-  gql<{ personajePorEnlace: PersonajeEnlazado | null }>(`query ($t: String!) { personajePorEnlace(token: $t) { nombre jugador permiteCopiar datos actualizadoEn } }`, { t: token }).then(d => d.personajePorEnlace);
+  gql<{ personajePorEnlace: PersonajeEnlazado | null }>(`query ($t: String!) { personajePorEnlace(token: $t) { nombre jugador datos actualizadoEn } }`, { t: token }).then(d => d.personajePorEnlace);
 /** Solo administradores. */
 export const personajeAjeno = (r: RefPersonaje) =>
   gql<{ personajeAjeno: PersonajeServidor | null }>(`query ($usuarioId: ID!, $id: ID!) { personajeAjeno(usuarioId: $usuarioId, id: $id) { id nombre resumen datos } }`, r).then(d => d.personajeAjeno);
