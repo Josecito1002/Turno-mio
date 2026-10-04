@@ -7,7 +7,11 @@ import { vaciarPendientes } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
 import { confirmar } from '@/shared/ui/confirmar';
 import { Aviso, Boton, EncabezadoPagina, Campo, Fila, Lista, Nota, PanelPestana, Pestanas, Seccion, Tarjeta, claseCampo, cx } from '@/shared/ui/kit';
-import { companerosMesa, misMesas, salirMesa, unirseMesa, type CompaneroMesa, type MesaUnida } from '../api';
+import { compute } from '@/features/personajes/domain/calculo';
+import { reparar } from '@/features/personajes/domain/modelo';
+import { AB, SKILLS } from '@/features/reglas/data/caracteristicas';
+import { norm, sign } from '@/shared/utils/texto';
+import { companerosMesa, hojaCompaneroMesa, misMesas, salirMesa, unirseMesa, type CompaneroMesa, type MesaUnida } from '../api';
 
 const esperar = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -113,6 +117,55 @@ function campanasDe(mesas: MesaUnida[]): Campana[] {
   return [...por.values()].reverse().sort((a, b) => Number(!!b.activo) - Number(!!a.activo));
 }
 
+/** Un resumen muy corto de un personaje de la campaña: estadísticas, salvaciones y habilidades (no es la hoja completa). */
+function ResumenPersonaje({ dmId, campanaId, personajeId }: { dmId: string; campanaId: string; personajeId: string }) {
+  const [c, setC] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const [error, setError] = useState('');
+  useEffect(() => {
+    let vivo = true;
+    hojaCompaneroMesa(dmId, campanaId, personajeId).then(d => { if (vivo) { if (d) setC(compute(reparar(JSON.parse(JSON.stringify(d))))); else setError('Ese personaje ya no está disponible.'); } }, (e: Error) => { if (vivo) setError(e.message); });
+    return () => { vivo = false; };
+  }, [dmId, campanaId, personajeId]);
+  if (error) return <p className="m-0 basis-full text-sm text-error">{error}</p>;
+  if (!c) return <p className="m-0 basis-full text-sm text-muted">Cargando…</p>;
+  const stats: [string | number, string][] = [
+    [c.ac, 'CA'], [c.hpMax, 'PG máx.'], [sign(c.init), 'Iniciativa'], [c.speed, 'Pies'], [sign(c.pb), 'Competencia'], [c.passive, 'Percep. pasiva'],
+    ...(c.dcSpell ? [[c.dcSpell, 'CD conjuros'] as [number, string]] : []),
+  ];
+  return (
+    <div className="grid basis-full gap-2 rounded-lg bg-surface-container-low p-2">
+      <dl className="m-0 grid grid-cols-4 gap-1.5">
+        {stats.map(([x, t]) => <div key={t} className="flex flex-col-reverse rounded bg-surface-container px-1 py-1 text-center"><dt className="text-[0.65rem] text-muted">{t}</dt><dd className="m-0 font-serif text-lg font-extrabold">{x}</dd></div>)}
+      </dl>
+      <ul className="m-0 grid list-none grid-cols-3 gap-1.5 p-0 text-center text-sm">
+        {AB.map(([k, , corto]) => (
+          <li key={k} className="rounded bg-surface-container px-1 py-1"><b>{corto}</b> {sign(c.m[k])}<span className="block text-[0.65rem] text-muted">Salv. {sign(c.saves[k])}{c.saveProf.includes(k) ? ' ★' : ''}</span></li>
+        ))}
+      </ul>
+      <ul className="m-0 grid list-none grid-cols-2 gap-x-3 gap-y-0.5 p-0 text-sm" aria-label="Habilidades">
+        {SKILLS.map(([n]) => {
+          const k = norm(n);
+          return <li key={n} className={cx('flex justify-between', c.skillProf[k] ? 'font-bold' : 'text-muted')}><span>{c.skillProf[k] ? '★ ' : ''}{n}</span><span>{sign(c.skill[k])}</span></li>;
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function FilaCompanero({ c, p }: { c: Campana; p: CompaneroMesa }) {
+  const [abierto, setAbierto] = useState(false);
+  return (
+    <Fila>
+      <span><b className="font-serif">{p.nombre}</b> <span className="text-sm text-muted">{p.resumen || ''}</span></span>
+      <span className="flex gap-2">
+        <Boton tamano="sm" aria-expanded={abierto} onClick={() => setAbierto(a => !a)}>{abierto ? 'Ocultar resumen' : 'Resumen'}</Boton>
+        <Boton tamano="sm" variante="primario" onClick={() => abrirCompanero(c.dmId, c.campanaId, p.personajeId, p.jugador)}>Ver hoja</Boton>
+      </span>
+      {abierto && <ResumenPersonaje dmId={c.dmId} campanaId={c.campanaId} personajeId={p.personajeId} />}
+    </Fila>
+  );
+}
+
 const imagenOk = (u?: string | null) => (u && /^https:\/\//i.test(u) ? u : '');
 
 function CampanaAbierta({ c }: { c: Campana }) {
@@ -139,12 +192,7 @@ function CampanaAbierta({ c }: { c: Campana }) {
             {error && <Aviso tipo="error" titulo="No se pudieron cargar los personajes">{error}</Aviso>}
             {comp && comp.length > 0 && (
               <Lista etiqueta="Personajes de la campaña" className="mt-3">
-                {comp.map(p => (
-                  <Fila key={p.personajeId + p.jugador}>
-                    <span><b className="font-serif">{p.nombre}</b> <span className="text-sm text-muted">{p.resumen || ''}</span></span>
-                    <Boton tamano="sm" variante="primario" onClick={() => abrirCompanero(c.dmId, c.campanaId, p.personajeId, p.jugador)}>Ver hoja</Boton>
-                  </Fila>
-                ))}
+                {comp.map(p => <FilaCompanero key={p.personajeId + p.jugador} c={c} p={p} />)}
               </Lista>
             )}
             {!comp && !error && <Nota className="mt-3">Cargando…</Nota>}
