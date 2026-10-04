@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import { S, render, useRender, irArriba, esAdmin, esDM, type Vista } from './estado';
+import { S, render, useRender, irArriba, esAdmin, esDM, esInvitado, type Vista } from './estado';
 import { cargarTodo, vaciarPendientes, almacen } from './almacen';
 import { leerArchivos } from './importar';
 import { Aviso, Boton, Dialogo, Insignia, Simbolo, cx, foco } from '@/shared/ui/kit';
@@ -14,6 +14,7 @@ import { faltaParaSubir } from '@/features/personajes/domain/pendientes';
 import { getC } from '@/features/biblioteca/domain/biblioteca';
 import { abrirSubida, bajarArchivo, bajarNivel, borrarPj, descansar, gastarRecurso, quedaRecurso } from '@/features/personajes/acciones';
 import { Ficha } from '@/features/personajes/components/ficha/Ficha';
+import { MesaJugadorVista } from '@/features/mesa/components/UnirseMesa';
 import { ModoCombate } from '@/features/personajes/components/ficha/ModoCombate';
 import { SubidaNivel } from '@/features/personajes/components/ficha/SubidaNivel';
 import { Editor } from '@/features/personajes/components/editor/Editor';
@@ -34,6 +35,7 @@ const ICONOS: Record<string, string> = {
   home: 'M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 15.6 7.1 18.2 8 12.7 4 8.8 9.5 8z',
   lib: 'M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zm0 0v16M8 7h7',
   mesa: 'M12 2l8 5v10l-8 5-8-5V7zm0 0v20M4 7l8 5 8-5',
+  mesaj: 'M12 2l8 5v10l-8 5-8-5V7zm0 0v20M4 7l8 5 8-5',
   cuentas: 'M16 11a4 4 0 10-8 0 4 4 0 008 0zM4 21a8 8 0 0116 0',
 };
 
@@ -41,10 +43,12 @@ type ItemNav = { vista: Vista; texto: string; activa: boolean };
 function itemsNav(): ItemNav[] {
   const v = S.view;
   const items: ItemNav[] = [
-    { vista: 'home', texto: 'Personajes', activa: v === 'home' || v === 'ficha' || v === 'editor' },
+    { vista: 'home', texto: 'Personajes', activa: v === 'home' || ((v === 'ficha' || v === 'editor') && !S.combateMesa) },
     { vista: 'lib', texto: 'Biblioteca', activa: v === 'lib' },
   ];
   if (esDM()) items.push({ vista: 'mesa', texto: 'Mesa del DM', activa: v === 'mesa' });
+  // La mesa a la que te uniste con el código de tu DM: su combate está ahí
+  if (!esInvitado()) items.push({ vista: 'mesaj', texto: 'Mi mesa', activa: v === 'mesaj' || (v === 'ficha' && !!S.combateMesa) });
   if (esAdmin()) items.push({ vista: 'cuentas', texto: 'Cuentas', activa: v === 'cuentas' });
   return items;
 }
@@ -59,7 +63,7 @@ const marcarImportarEnCampana = () => { S.importCamp = S.camp; };
     sin personaje abierto se vuelve al inicio. Se ajusta fuera del componente, que solo la lee. */
 function vistaPermitida(): Vista {
   if ((S.view === 'mesa' && !esDM()) || (S.view === 'cuentas' && !esAdmin()) || (S.view === 'ajeno' && !S.ajeno)) S.view = 'home';
-  if (!['mesa', 'lib', 'cuentas', 'ajeno'].includes(S.view) && (!S.pj || S.view === 'home')) S.view = 'home';
+  if (!['mesa', 'mesaj', 'lib', 'cuentas', 'ajeno'].includes(S.view) && (!S.pj || S.view === 'home')) S.view = 'home';
   return S.view;
 }
 /** Calcula el personaje abierto y lo deja en S.c para las acciones que lo necesitan. */
@@ -68,6 +72,7 @@ function calcularAbierto() { return (S.c = compute(S.pj)); }
 function Vista({ elegirArchivos, importarHojas }: { elegirArchivos: () => void; importarHojas: () => void }) {
   const vista = vistaPermitida();
   if (vista === 'mesa') return <MesaVista importarHojas={importarHojas} />;
+  if (vista === 'mesaj') return <MesaJugadorVista />;
   if (vista === 'lib') return <BibliotecaVista elegirArchivos={elegirArchivos} />;
   if (vista === 'cuentas') return <CuentasVista />;
   if (vista === 'ajeno') return <HojaAjena />;
@@ -85,7 +90,7 @@ function Vista({ elegirArchivos, importarHojas }: { elegirArchivos: () => void; 
   return vista === 'editor' ? <Editor c={c} /> : <Ficha c={c} />;
 }
 
-const TITULOS: Record<string, string> = { home: 'Personajes', lib: 'Biblioteca', mesa: 'Mesa del DM', cuentas: 'Cuentas' };
+const TITULOS: Record<string, string> = { home: 'Personajes', lib: 'Biblioteca', mesa: 'Mesa del DM', mesaj: 'Mi mesa', cuentas: 'Cuentas' };
 
 /** La barra de abajo (móvil) publica su altura real en --alto-nav-inferior, con el borde y la zona segura del teléfono,
  *  para que lo que se pega sobre ella (la navegación entre pasos del editor) quede justo encima, sin hueco ni encimarse. */
@@ -144,7 +149,7 @@ function ItemMenu({ icono, children, onClick, peligro, activo, extra }: { icono:
     </button>
   );
 }
-const ICONO_SECCION: Record<string, string> = { home: 'groups', lib: 'auto_stories', mesa: 'swords', cuentas: 'manage_accounts' };
+const ICONO_SECCION: Record<string, string> = { home: 'groups', lib: 'auto_stories', mesa: 'swords', mesaj: 'groups', cuentas: 'manage_accounts' };
 const TituloMenu = ({ children }: { children: ReactNode }) => <p className="m-0 px-3 pb-1 pt-4 text-label-caps uppercase tracking-wider text-outline">{children}</p>;
 
 function MenuCompleto({ invitado, onCerrar, onClave, onCompartir }: { invitado: boolean; onCerrar: () => void; onClave: () => void; onCompartir: () => void }) {

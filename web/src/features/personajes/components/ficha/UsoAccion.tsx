@@ -24,6 +24,8 @@ export type Uso = {
   dexpr?: string;
   /** Si hace daño o impone algo a otros */
   afecta: boolean;
+  /** Recurso que gasta al usarlo (un uso del rasgo) */
+  gasta?: string;
   /** Conjuro de nivel 1 o más: se paga con un espacio (o con el rasgo que lo da, o como ritual) */
   conjuro?: { nivel: number; rasgo?: string; ritual?: boolean; desc: string; base: string; bono: number };
 };
@@ -66,6 +68,8 @@ function Cuerpo({ c, uso, enemigos, mesa, yaGastada, alCerrar, alUsar }: { c: an
   const [via, setVia] = useState<string>(cj ? (rasgoRec && quedaRasgo ? 'rasgo' : primero ? 'slot' + primero.nivel : cj.ritual ? 'ritual' : '') : '');
   const nivelUsado = via.startsWith('slot') ? +via.slice(4) : cj?.nivel || 0;
   const dexpr = cj ? dadosAlLanzar(cj.base, cj.nivel, nivelUsado, cj.desc, cj.bono) || undefined : uso.dexpr;
+  const recGasta = uso.gasta ? (c.recursos || []).find((r: any) => r.id === uso.gasta) : null;
+  const quedaGasta = recGasta ? recGasta.max - Math.min(c.pj.used?.[recGasta.id] || 0, recGasta.max) : 0;
   const mitad = !!uso.salv && /mitad/i.test(uso.texto);
   const campo = 'min-h-11 w-full rounded bg-surface-container-lowest px-2 text-body-md text-on-surface';
   const alternar = (k: string) => setObjetivos(o => (uso.salv && area ? (o.includes(k) ? o.filter(x => x !== k) : [...o, k]) : o[0] === k ? [] : [k]));
@@ -78,6 +82,7 @@ function Cuerpo({ c, uso, enemigos, mesa, yaGastada, alCerrar, alUsar }: { c: an
     if (cj && !via) { avisar('Elige con qué lo lanzas.', 'error'); return; }
     // Primero se paga: si no queda con qué, no se hace nada
     if (via === 'rasgo' && rasgoRec && !gastarRecurso(rasgoRec.id)) return;
+    if (uso.gasta && !gastarRecurso(uso.gasta)) return;
     if (via.startsWith('slot') && !gastarEspacio(nivelUsado)) return;
     setOcupado(true);
     try {
@@ -103,6 +108,10 @@ function Cuerpo({ c, uso, enemigos, mesa, yaGastada, alCerrar, alUsar }: { c: an
         {uso.atk != null && <p className="m-0 mt-1 font-bold text-on-surface">Ataque: {uso.atk >= 0 ? '+' : ''}{uso.atk} al impacto</p>}
         {uso.salv && <p className="m-0 mt-1 font-bold text-on-surface">Los objetivos tiran salvación de {uso.salv} contra CD {uso.cd}</p>}
       </div>
+
+      {recGasta && (
+        <p className="m-0 rounded-lg bg-surface-container-low p-3 text-body-md text-on-surface">Gasta 1 de <b>{recGasta.nombre}</b>: <span className={quedaGasta ? '' : 'text-error'}>{quedaGasta ? `quedan ${quedaGasta}, te quedarían ${quedaGasta - 1}` : 'ya no te queda'}</span></p>
+      )}
 
       {cj && (
         <div className="grid gap-2 rounded-lg bg-surface-container-low p-3">

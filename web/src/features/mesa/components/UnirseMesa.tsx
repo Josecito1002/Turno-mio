@@ -5,7 +5,7 @@ import { entrarCombate } from '@/features/personajes/acciones';
 import { vaciarPendientes } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
 import { confirmar } from '@/shared/ui/confirmar';
-import { Aviso, Boton, Campo, Fila, Lista, Seccion, Tarjeta, claseCampo, cx } from '@/shared/ui/kit';
+import { Aviso, Boton, EncabezadoPagina, Campo, Fila, Lista, Seccion, Tarjeta, claseCampo, cx } from '@/shared/ui/kit';
 import { misMesas, salirMesa, unirseMesa, type MesaUnida } from '../api';
 
 const esperar = (ms: number) => new Promise(r => setTimeout(r, ms));
@@ -97,5 +97,15 @@ export function MesasDelJugador() {
         </Lista>
       )}
     </Seccion>
+  );
+}
+
+/** La pestaña de un jugador para sus mesas: unirse con el código y entrar a su combate. */
+export function MesaJugadorVista() {
+  return (
+    <>
+      <EncabezadoPagina id="titulo-vista" titulo="Mi mesa" subtitulo="Las mesas de tus DM: ahí juegas el combate con tu personaje, sincronizado con tu DM." />
+      <MesasDelJugador />
+    </>
   );
 }
