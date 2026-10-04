@@ -264,9 +264,10 @@ export function vincularRecursos(c){
   const kws = c.recursos.filter(r => r.id !== 'pg' && !/^slot/.test(r.id) && !r.solo).map(r => ({r, kw: norm(r.nombre).replace(/[()]/g, ' ').split(/\s+/).filter(w => w.length > 3 && !IGNORAR.has(w))}));
   c.entries.forEach(e => {
     if (e.recurso) return;
-    const t = norm(e.nombre + ' ' + (e.coste || ''));
+    // Lo que dice el coste pesa más que el nombre: "Sentido Divino (1 Canalizar)" gasta Canalizar Divinidad, no Castigo Divino
+    const n = norm(e.nombre), k = norm(e.coste || '');
     let best = null, score = 0;
-    kws.forEach(({r, kw}) => { const s = kw.filter(w => t.includes(w)).length; if (s > score) { best = r; score = s; } });
+    kws.forEach(({r, kw}) => { const s = kw.filter(w => n.includes(w)).length + 2 * kw.filter(w => k.includes(w)).length; if (s > score) { best = r; score = s; } });
     if (best) e.recurso = best.id;
   });
 }

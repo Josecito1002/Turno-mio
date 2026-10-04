@@ -8,12 +8,13 @@ import { avisar } from '@/shared/ui/avisos';
 import { AB, SKILLS, TIPOS, ORDEN_TIPOS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { COMUNES } from '@/features/reglas/data/comunes';
 import { textoArmaduras, textoArmas } from '@/features/reglas/domain/competencias';
-import { FormaTipo } from '@/features/reglas/components/TipoAccion';
+import { EtiquetaTipo, FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { BotonTirada, TextoConDados } from '@/features/dados/components/BotonTirada';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { Entrada, LanzarConjuro, Mover, datosConjuro } from '../piezas';
 import { fijarPool, irAPaso, moverPool, setVal, tocarPip } from '../../acciones';
 import { desglose } from '../../domain/calculo';
+import { usosDeRecurso } from '../../domain/usos-recurso';
 import { extrasAtaque } from '../../domain/lanzar';
 import { MONEDAS, bolsaDe } from '../../domain/inventario';
 import { Inventario } from '../Inventario';
@@ -440,13 +441,14 @@ function RecursosClase({ c }: { c: any }) {
         const used = Math.min(u[r.id] || 0, r.max), left = r.max - used, azul = i % 2 === 1;
         const nota = r.nota || (r.reset === 'corto' ? 'Vuelve con descanso corto' : 'Vuelve con descanso largo');
         return (
-          <div key={r.id} className="flex items-center justify-between gap-3 rounded-lg bg-surface-container-low p-3 shadow-lg">
+          <div key={r.id} className="flex flex-col gap-2 rounded-lg bg-surface-container-low p-3 shadow-lg">
+          <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
               <div className={cx('grid size-10 shrink-0 place-items-center rounded bg-surface-container-highest', azul ? 'text-secondary' : 'text-primary')}>
                 <Simbolo n={azul ? 'air' : 'flash_on'} className="text-headline-sm" />
               </div>
               <div className="min-w-0">
-                <span className="block truncate text-label-caps uppercase text-outline" title={nota}>{nota}</span>
+                <span className="block text-label-caps uppercase text-outline">{nota}</span>
                 <h3 className="m-0 font-serif text-headline-sm text-on-surface">{r.nombre}</h3>
               </div>
             </div>
@@ -482,9 +484,44 @@ function RecursosClase({ c }: { c: any }) {
               )}
             </div>
           </div>
+          <ParaQueSirve c={c} r={r} />
+          </div>
         );
       })}
     </div>
+  );
+}
+
+/** Letra pequeña bajo un recurso: para qué sirve y, al tocarla, todo lo de la hoja que lo gasta (como en la subida de nivel). */
+function ParaQueSirve({ c, r }: { c: any; r: any }) {
+  const { para, usos } = usosDeRecurso(c, r);
+  if (!para && !usos.length) return null;
+  const cuantos = usos.length ? `${usos.length} ${usos.length === 1 ? 'cosa lo usa' : 'cosas lo usan'}` : '';
+  return (
+    <details className="group rounded bg-surface-container-lowest/60">
+      <summary className={cx('flex min-h-9 cursor-pointer list-none items-start gap-1 rounded px-2 py-1.5 [&::-webkit-details-marker]:hidden', foco)}>
+        <Simbolo n="chevron_right" className="mt-px text-body-md text-outline transition-transform group-open:rotate-90" />
+        <span className="min-w-0 flex-1 text-body-sm text-on-surface-variant">
+          {para || 'Para qué sirve'}
+          {cuantos && <span className="whitespace-nowrap text-primary"> · {cuantos}</span>}
+        </span>
+      </summary>
+      {usos.length > 0 && (
+        <ul className="m-0 list-none space-y-2 px-3 pb-3 pt-1">
+          {usos.map(u => (
+            <li key={u.nombre} className="border-l-2 border-outline-variant/60 pl-2">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                <b className="text-body-sm text-on-surface">{u.nombre}</b>
+                {u.t && TIPOS[u.t] && <EtiquetaTipo t={u.t} />}
+                {u.coste && <span className="text-label-caps text-outline">{u.coste}</span>}
+              </div>
+              {u.texto && u.texto !== para && <p className="m-0 text-body-sm text-on-surface-variant">{u.texto}</p>}
+              {u.src && <p className="m-0 text-label-caps text-outline">De {u.src}</p>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </details>
   );
 }
 
@@ -656,6 +693,7 @@ function Ranuras({ r, c }: { r: any; c: any }) {
           );
         })}
       </div>
+      <div className="mt-2"><ParaQueSirve c={c} r={r} /></div>
     </div>
   );
 }
