@@ -13,8 +13,9 @@ import { rnd } from '@/features/dados/domain/dados';
 import { resumen } from '@/features/personajes/domain/modelo';
 import { abrir } from '@/features/personajes/acciones';
 import { Ficha } from '@/features/personajes/components/ficha/Ficha';
-import { CONDICIONES, cambiarPg, campActual, camps, claveUnido, combatiente, estadoDe, fijarUnidos, guardarCamp, ordenar, unidosCargados, unidosDe } from '../domain/combate';
+import { CONDICIONES, actualizarPgUnido, cambiarPg, campActual, camps, claveUnido, combatiente, estadoDe, fijarUnidos, guardarCamp, ordenar, unidosCargados, unidosDe } from '../domain/combate';
 import { codigoMesa, guardarCampana, jugadoresMesa, quitarDeMesa } from '../api';
+import { conectarMesaRealtime } from '../realtime-cliente';
 
 const val = (id: string) => (document.getElementById(id) as HTMLInputElement | null)?.value || '';
 /** Cada acción trabaja sobre una copia fresca de la campaña, la guarda y redibuja. */
@@ -54,7 +55,7 @@ function PuntosGolpe({ x }: { x: any }) {
       <div className="mt-2">
         <div role="meter" aria-label={`Puntos de golpe de ${x.nombre}`} aria-valuemin={0} aria-valuemax={x.pgMax} aria-valuenow={x.pg} aria-valuetext={`${x.pg} de ${x.pgMax}`}
           className="h-2 overflow-hidden rounded-full bg-soft">
-          <span className={cx('block h-full', pct <= 25 ? 'bg-acc' : pct <= 50 ? 'bg-adi' : 'bg-pas')} style={{ width: `${pct}%` }} />
+          <span className={cx('block h-full transition-[width,background-color] duration-300 ease-out', pct <= 25 ? 'bg-acc' : pct <= 50 ? 'bg-adi' : 'bg-pas')} style={{ width: `${pct}%` }} />
         </div>
         <p className="m-0 mt-2"><b className="font-serif text-2xl">{x.pg}</b> <span className="text-sm text-muted">/ {x.pgMax} PG{temp ? ` · +${temp} temporales` : ''} · los lleva el jugador</span></p>
       </div>
@@ -68,7 +69,7 @@ function PuntosGolpe({ x }: { x: any }) {
     <div className="mt-2">
       <div role="meter" aria-label={`Puntos de golpe de ${x.nombre}`} aria-valuemin={0} aria-valuemax={x.pgMax} aria-valuenow={x.pg} aria-valuetext={`${x.pg} de ${x.pgMax}`}
         className="h-2 overflow-hidden rounded-full bg-soft">
-        <span className={cx('block h-full', pct <= 25 ? 'bg-acc' : pct <= 50 ? 'bg-adi' : 'bg-pas')} style={{ width: `${pct}%` }} />
+        <span className={cx('block h-full transition-[width,background-color] duration-300 ease-out', pct <= 25 ? 'bg-acc' : pct <= 50 ? 'bg-adi' : 'bg-pas')} style={{ width: `${pct}%` }} />
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <span><b className="font-serif text-2xl">{x.pg}</b> <span className="text-sm text-muted">/ {x.pgMax} PG</span></span>
@@ -152,19 +153,37 @@ function TarjetaJugador({ cp, x, alQuitar }: { cp: any; x: any; alQuitar: () => 
   );
 }
 
-/** Los personajes que los jugadores unieron con el código; se releen solos cada 15 s mientras la pestaña está a la vista. */
+/** Los personajes que los jugadores unieron con el código; se sincronizan en tiempo real por WebSocket/SSE y de respaldo cada 15 s. */
 function useUnidos(campId: string) {
-  const [estado, setEstado] = useState({ cargando: true, error: '' });
+  const [estado, setEstado] = useState({ cargando: true, error: '', enVivo: false, transporte: '' as 'ws' | 'sse' | '' });
   const leer = useCallback(() => jugadoresMesa(campId).then(
-    l => { fijarUnidos(campId, l); almacen.fijarInfoMesa(campId, { unidos: l.length }); setEstado({ cargando: false, error: '' }); render(); },
-    (e: Error) => setEstado({ cargando: false, error: e.message })), [campId]);
+    l => { fijarUnidos(campId, l); almacen.fijarInfoMesa(campId, { unidos: l.length }); setEstado(prev => ({ ...prev, cargando: false, error: '' })); render(); },
+    (e: Error) => setEstado(prev => ({ ...prev, cargando: false, error: e.message }))), [campId]);
+
   useEffect(() => {
     leer();
+    // Conexión en tiempo real (WebSocket nativo con fallback a SSE)
+    const cancelarRealtime = conectarMesaRealtime(campId, evento => {
+      if (evento.tipo === 'cambio_pg') {
+        actualizarPgUnido(campId, evento);
+        render();
+      } else if (evento.tipo === 'recargar') {
+        leer();
+      }
+    }, (conectado, transporte) => {
+      setEstado(prev => ({ ...prev, enVivo: conectado, transporte: conectado ? transporte : '' }));
+    });
+
     const t = setInterval(() => { if (document.visibilityState === 'visible') leer(); }, 15000);
     const alVolver = () => { if (document.visibilityState === 'visible') leer(); };
     document.addEventListener('visibilitychange', alVolver);
-    return () => { clearInterval(t); document.removeEventListener('visibilitychange', alVolver); };
-  }, [leer]);
+    return () => {
+      cancelarRealtime();
+      clearInterval(t);
+      document.removeEventListener('visibilitychange', alVolver);
+    };
+  }, [campId, leer]);
+
   return { ...estado, leer };
 }
 
@@ -463,7 +482,15 @@ function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) 
           <>
             <CodigoMesa campId={cp.id} />
             <div className="mb-0 mt-6 flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="m-0 font-serif text-2xl font-bold">Jugadores en la mesa</h2>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="m-0 font-serif text-2xl font-bold">Jugadores en la mesa</h2>
+                {mesa.enVivo && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 ring-1 ring-inset ring-emerald-500/20" title={`Sincronización en vivo activa vía ${mesa.transporte.toUpperCase()}`}>
+                    <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    En vivo ({mesa.transporte.toUpperCase()})
+                  </span>
+                )}
+              </div>
               <Boton tamano="sm" variante="fantasma" onClick={() => mesa.leer()}>Actualizar</Boton>
             </div>
             {mesa.error && <Aviso tipo="error" titulo="No se pudieron leer las hojas de los jugadores" accion={<Boton tamano="sm" onClick={() => mesa.leer()}>Reintentar</Boton>}>{mesa.error}</Aviso>}

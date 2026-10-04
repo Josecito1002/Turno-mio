@@ -29,6 +29,40 @@ export const unidoDe = (k: string) => unidos.get(k) || null;
 export const unidosCargados = (campId: string) => unidosCamp === campId;
 export const unidosDe = (campId: string) => (unidosCamp === campId ? [...unidos.values()] : []);
 
+/** Actualiza en caliente los PG de un jugador unido al recibir un evento de WebSocket/SSE. */
+export function actualizarPgUnido(campId: string, info: {
+  jugadorId: string;
+  personajeId: string;
+  pgUsados?: number;
+  pgTemp?: number;
+  muerteExitos?: number;
+  muerteFallos?: number;
+  actualizadoEn?: string;
+}) {
+  if (unidosCamp !== campId) return;
+  const k = claveUnido(info);
+  const u = unidos.get(k);
+  if (!u) return;
+
+  u.datos = u.datos || {};
+  u.datos.used = u.datos.used || {};
+  if (info.pgUsados != null) u.datos.used.pg = info.pgUsados;
+  if (info.pgTemp != null) u.datos.pgTemp = info.pgTemp;
+  if (info.muerteExitos != null) u.datos.used['muerte-exitos'] = info.muerteExitos;
+  if (info.muerteFallos != null) u.datos.used['muerte-fallos'] = info.muerteFallos;
+  if (info.actualizadoEn) u.actualizadoEn = info.actualizadoEn;
+
+  if (u.calc?.pj) {
+    u.calc.pj.used = u.calc.pj.used || {};
+    if (info.pgUsados != null) u.calc.pj.used.pg = info.pgUsados;
+    if (info.pgTemp != null) u.calc.pj.pgTemp = info.pgTemp;
+    if (info.muerteExitos != null) u.calc.pj.used['muerte-exitos'] = info.muerteExitos;
+    if (info.muerteFallos != null) u.calc.pj.used['muerte-fallos'] = info.muerteFallos;
+  } else {
+    delete u.calc;
+  }
+}
+
 /** Personaje unido, calculado una vez por versión de su hoja. */
 function calcUnido(u: Unido) {
   if (!u.calc) { const pj = reparar(JSON.parse(JSON.stringify(u.datos))); u.calc = { pj, c: compute(pj) }; }

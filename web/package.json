@@ -22,7 +22,8 @@
     "prueba:pedir": "tsx scripts/gemini/personajes-prueba.ts --lista",
     "prueba:quitar": "tsx scripts/gemini/personajes-prueba.ts --lista --borrar",
     "db:limpiar-imagenes": "tsx --env-file-if-exists=.env.local scripts/limpiar-imagenes.ts",
-    "db:actualizar-clase": "tsx --env-file-if-exists=.env.local scripts/actualizar-clase.ts"
+    "db:actualizar-clase": "tsx --env-file-if-exists=.env.local scripts/actualizar-clase.ts",
+    "ws": "tsx scripts/servidor-ws.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.8",
@@ -36,7 +37,8 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "^0.0.1",
-    "sileo": "^0.1.5"
+    "sileo": "^0.1.5",
+    "ws": "^8.22.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -44,6 +46,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/ws": "^8.18.2",
     "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "16.3.6",

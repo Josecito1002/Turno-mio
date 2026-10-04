@@ -19,6 +19,7 @@ import { armadurasDe, bolsaDe, guardarBolsa, juntar, nuevaClave, pagar, pasoEqui
 import { ARMAS, ARMADURAS } from '@/features/reglas/data/equipo';
 import { CRIATURAS } from '@/features/reglas/data/criaturas';
 import { maxSintonia, armaMagica, armaduraMagica, defDe, sintonizados } from './domain/magicos';
+import { emitirCambioPg } from '@/features/mesa/realtime-cliente';
 
 export type Tirar = (expr: string, label: string, o?: OpcionesTirada) => Promise<Resultado>;
 
@@ -30,6 +31,14 @@ export function savePj() {
   const e = S.list.find(p => p.id === S.pj.id), info = { id: S.pj.id, name: S.pj.nombre || 'Sin nombre', sub };
   if (e) Object.assign(e, info); else S.list.push(info);
   almacen.ultimo(S.pj.id);
+  // Notificar en tiempo real (WebSocket/SSE) a la mesa del DM
+  emitirCambioPg({
+    personajeId: S.pj.id,
+    pgUsados: S.pj.used?.pg || 0,
+    pgTemp: +S.pj.pgTemp || 0,
+    muerteExitos: S.pj.used?.['muerte-exitos'] || 0,
+    muerteFallos: S.pj.used?.['muerte-fallos'] || 0,
+  });
 }
 
 export function abrir(id: string, view: 'ficha' | 'editor' = 'ficha') {
