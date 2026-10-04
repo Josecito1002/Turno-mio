@@ -113,9 +113,9 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
   return (
     <div role="radiogroup" aria-label="Elige qué haces" className="space-y-2">
       <MenuAcciones titulo="Ataques" abierto hijos={delaClase}>
-        {armas.map((a: any, i: number) => op(deArma(a), <FilaArsenal a={a} c={c} />, 'a' + a.nombre + i))}
-        {sinArmas && op(deArma(sinArmas), <FilaArsenal a={sinArmas} c={c} />, 'sa')}
-        {ataques.map((e: any, i: number) => op(deRasgo(e), <FilaArsenal a={comoArma(e)} c={c} />, 'r' + i))}
+        {armas.map((a: any, i: number) => op(deArma(a), <FilaArsenal a={a} c={c} sinTirar />, 'a' + a.nombre + i))}
+        {sinArmas && op(deArma(sinArmas), <FilaArsenal a={sinArmas} c={c} sinTirar />, 'sa')}
+        {ataques.map((e: any, i: number) => op(deRasgo(e), <FilaArsenal a={comoArma(e)} c={c} sinTirar />, 'r' + i))}
       </MenuAcciones>
       <MenuAcciones titulo="Trucos" hijos={trucos.length}>
         {trucos.map((x: any, i: number) => nom(deConjuro(x), 't' + x.nombre + i, undefined, 'flare'))}

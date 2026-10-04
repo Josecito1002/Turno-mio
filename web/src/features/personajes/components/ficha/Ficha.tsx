@@ -567,7 +567,7 @@ function ParaQueSirve({ c, r }: { c: any; r: any }) {
   );
 }
 
-export function FilaArsenal({ a, c }: { a: any; c: any }) {
+export function FilaArsenal({ a, c, sinTirar }: { a: any; c: any; sinTirar?: boolean }) {
   const lectura = useLectura();
   const n = a.w ? a.w.n : a.nombre, dist = !!a.w?.dist;
   // Los golpes sin armas llevan un puño; los ataques naturales, el ícono de artes marciales
@@ -596,7 +596,7 @@ export function FilaArsenal({ a, c }: { a: any; c: any }) {
           {a.maestria && <p className="m-0 mt-1 text-body-sm text-on-surface-variant"><b className="text-on-surface">Maestría</b> {a.maestria}</p>}
         </div>
       </div>
-      <div className="flex shrink-0 gap-1 sm:flex-col">
+      {!sinTirar && <div className="flex shrink-0 gap-1 sm:flex-col">
         {a.cd == null && (
           <BotonTirada estilo="libre" expr={`1d20${modStr(a.atk)}`} label={`${n}: ataque`} dmg={a.expr} dmgLabel={`${n}: daño`} min3={a.min3}
             extras={lectura ? undefined : extrasAtaque(c, a)} mods={a.atkDesg} dmgMods={a.dmgDesg} ariaLabel={`Tirar ataque con ${n}, ${sign(a.atk)}`}
@@ -615,7 +615,7 @@ export function FilaArsenal({ a, c }: { a: any; c: any }) {
             A dos manos
           </BotonTirada>
         )}
-      </div>
+      </div>}
     </div>
   );
 }
