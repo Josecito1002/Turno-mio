@@ -8,7 +8,8 @@ import { COMUNES } from '@/features/reglas/data/comunes';
 import { FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { CONDICIONES } from '@/features/mesa/domain/combate';
 import { avisar } from '@/shared/ui/avisos';
-import { combateMesa, enviarGolpeMesa, gastarAccionMesa, type CombateVivo, type EconomiaRonda, type TipoAccionRonda } from '@/features/mesa/api';
+import { descansar, setVal } from '../../acciones';
+import { combateMesa, enviarGolpeMesa, gastarAccionMesa, type CombateVivo, type EconomiaRonda, type OrdenDm, type TipoAccionRonda } from '@/features/mesa/api';
 import { EFECTO_CONDICION } from '@/features/mesa/domain/condiciones';
 import { Entrada, datosConjuro } from '../piezas';
 import { bonosPara } from '../../domain/lanzar';
@@ -16,6 +17,22 @@ import { UsoAccion, type Uso } from './UsoAccion';
 import { FilaArsenal, FilaConjuro, Ranuras, RecursosClase } from './Ficha';
 
 const TIPOS_BOTON: TipoAccionRonda[] = ['accion', 'adicional', 'reaccion'];
+
+/** Aplica a esta hoja los descansos y la inspiración que mandó el DM. Se recuerda cuáles ya se aplicaron (por personaje);
+ *  la primera vez solo cuentan las de los últimos 10 minutos, para no repetir lo de otras sesiones. */
+function aplicarOrdenes(ordenes: OrdenDm[] | undefined, pid: string) {
+  if (!ordenes?.length) return;
+  const clave = 'mt-ordenes-' + pid;
+  let vistos: string[] | null = null;
+  try { const t = localStorage.getItem(clave); vistos = t ? JSON.parse(t) : null; } catch { /* sin almacenamiento: se aplican las recientes */ }
+  const nuevas = ordenes.filter(o => (!o.personajeId || o.personajeId === pid) && (vistos ? !vistos.includes(o.id) : Date.now() - Date.parse(o.ts) < 600000));
+  if (vistos && !nuevas.length) return;
+  try { localStorage.setItem(clave, JSON.stringify([...(vistos || []), ...ordenes.map(o => o.id)].slice(-80))); } catch { /* idem */ }
+  for (const o of nuevas) {
+    if (o.tipo === 'inspiracion') { setVal('inspiracion', true); avisar('Tu DM te dio inspiración.'); }
+    else descansar(o.tipo);
+  }
+}
 
 const mismo = (a: Uso | null, b: Uso) => !!a && a.tipo === b.tipo && a.nombre === b.nombre;
 /** Una opción que se elige tocándola (borde verde); abajo hay un solo botón para usar la elegida. */
@@ -117,6 +134,7 @@ export function ModoCombate({ c }: { c: any }) {
     const leer = () => combateMesa(ref).then(d => {
       if (!vivo) return;
       setViv(d); setError('');
+      aplicarOrdenes(d?.ordenes, personajeId);
       const e = d?.economia?.[personajeId] || {};
       // Un toque reciente manda sobre lo que devuelva el servidor, para que el botón no parpadee
       setEco(prev => {

@@ -84,6 +84,8 @@ const typeDefs = /* GraphQL */ `
     enviarSalvacionMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, objetivos: [String!]!, salv: String!, cd: Int!, dano: Int!, mitad: Boolean!, condicion: String, nota: String): Boolean!
     "DM: una salvación ya resuelta para ese enemigo."
     resolverSalvacion(campanaId: ID!, id: String!, clave: String!): Boolean!
+    "DM: manda a los jugadores un descanso corto o largo, o inspiración (a uno o a todos); cada hoja lo aplica al conectarse."
+    enviarOrdenDm(campanaId: ID!, tipo: String!, personajeId: ID): Boolean!
     "DM: da por aplicados los golpes con esos ids."
     confirmarGolpes(campanaId: ID!, ids: [String!]!): Boolean!
   }
@@ -155,7 +157,7 @@ export const mesaGraphQL: ModuloGraphQL = {
       fijarCombateVivo: async (_: unknown, a: { campanaId: string; datos: Record<string, unknown>; reiniciarEconomia?: boolean }, ctx: Contexto) => {
         const u = await exigir(ctx, 'usarMesa', SOLO_DM);
         // La economía (lo que gastan los jugadores) se conserva salvo que se pida reiniciarla; lo demás lo manda el DM
-        const { economia: _e, golpes: _g, salvaciones: _s, ultimas: _u, ...datos } = a.datos; void _e; void _g; void _s; void _u;
+        const { economia: _e, golpes: _g, salvaciones: _s, ultimas: _u, ordenes: _o, ...datos } = a.datos; void _e; void _g; void _s; void _u; void _o;
         const nuevo = sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || ${JSON.stringify({ ...datos, actualizadoEn: new Date().toISOString() })}::jsonb`;
         await ctx.db.update(campanas).set({ combateVivo: a.reiniciarEconomia ? sql`(${nuevo}) || '{"economia":{}}'::jsonb` : nuevo })
           .where(and(eq(campanas.usuarioId, u.id), eq(campanas.id, a.campanaId)));
@@ -214,6 +216,18 @@ export const mesaGraphQL: ModuloGraphQL = {
         const u = await exigir(ctx, 'usarMesa', SOLO_DM);
         const resto = sql`coalesce((select jsonb_agg(h) from (select case when (g->>'id') = ${a.id}::text then jsonb_set(g, '{objetivos}', coalesce((select jsonb_agg(o) from jsonb_array_elements(g->'objetivos') o where (o #>> '{}') <> ${a.clave}::text), '[]'::jsonb)) else g end as h from jsonb_array_elements(coalesce(${campanas.combateVivo}->'salvaciones', '[]'::jsonb)) g) t where jsonb_array_length(h->'objetivos') > 0), '[]'::jsonb)`;
         await ctx.db.update(campanas).set({ combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('salvaciones', ${resto})` })
+          .where(and(eq(campanas.usuarioId, u.id), eq(campanas.id, a.campanaId)));
+        return true;
+      },
+      enviarOrdenDm: async (_: unknown, a: { campanaId: string; tipo: string; personajeId?: string | null }, ctx: Contexto) => {
+        const u = await exigir(ctx, 'usarMesa', SOLO_DM);
+        if (!['corto', 'largo', 'inspiracion'].includes(a.tipo)) throw new GraphQLError('Esa orden no existe.');
+        if (a.personajeId && a.personajeId.length > 80) throw new GraphQLError('Ese personaje no es válido.');
+        const orden = JSON.stringify([{ id: randomUUID(), tipo: a.tipo, personajeId: a.personajeId || null, ts: new Date().toISOString() }]);
+        const lista = sql`coalesce(${campanas.combateVivo}->'ordenes', '[]'::jsonb) || ${orden}::jsonb`;
+        // Solo se guardan las últimas 30 órdenes
+        const ultimas = sql`coalesce((select jsonb_agg(o order by n) from (select o, n from jsonb_array_elements(${lista}) with ordinality t(o, n) order by n desc limit 30) x), '[]'::jsonb)`;
+        await ctx.db.update(campanas).set({ combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('ordenes', ${ultimas})` })
           .where(and(eq(campanas.usuarioId, u.id), eq(campanas.id, a.campanaId)));
         return true;
       },

@@ -107,4 +107,18 @@ describe('combate en vivo', () => {
     await assert.rejects(M.enviarSalvacionMesa(null, { ...unido, objetivos: ['pj:x'], salv: 'DES', cd: 14, dano: 1, mitad: false }, ctx(jug)));
     await assert.rejects(M.enviarSalvacionMesa(null, { ...unido, objetivos: ['m:a'], salv: 'XXX', cd: 14, dano: 1, mitad: false }, ctx(jug)));
   });
+  test('el DM manda descansos e inspiración, se guardan las últimas 30 y solo el DM puede', async () => {
+    await M.enviarOrdenDm(null, { campanaId: 'c1', tipo: 'largo' }, ctx(dm));
+    await M.enviarOrdenDm(null, { campanaId: 'c1', tipo: 'inspiracion', personajeId: 'pj1' }, ctx(dm));
+    let v = await Q.combateMesa(null, unido, ctx(jug));
+    assert.equal(v.ordenes.length, 2); assert.equal(v.ordenes[0].tipo, 'largo'); assert.equal(v.ordenes[0].personajeId, null); assert.equal(v.ordenes[1].personajeId, 'pj1');
+    await M.fijarCombateVivo(null, { campanaId: 'c1', datos: { activo: true, ronda: 3, turno: 0, orden: [], ordenes: [] } }, ctx(dm));
+    v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    assert.equal(v.ordenes.length, 2);
+    for (let i = 0; i < 35; i++) await M.enviarOrdenDm(null, { campanaId: 'c1', tipo: 'corto' }, ctx(dm));
+    v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    assert.equal(v.ordenes.length, 30); assert.equal(v.ordenes[29].tipo, 'corto');
+    await assert.rejects(M.enviarOrdenDm(null, { campanaId: 'c1', tipo: 'largo' }, ctx(jug)));
+    await assert.rejects(M.enviarOrdenDm(null, { campanaId: 'c1', tipo: 'otra' }, ctx(dm)));
+  });
 });

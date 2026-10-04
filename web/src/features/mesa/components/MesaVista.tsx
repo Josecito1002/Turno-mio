@@ -17,7 +17,7 @@ import { CONDICIONES, actualizarPgUnido, cambiarPg, campActual, camps, claveUnid
 import { codigoMesa, guardarCampana, jugadoresMesa, quitarDeMesa } from '../api';
 import { conectarMesaRealtime } from '../realtime-cliente';
 import { publicarCombate } from '../domain/combate-vivo';
-import { combateVivoDm, confirmarGolpes, fijarAccionDm, resolverSalvacion, type CombateVivo, type EconomiaRonda, type Golpe, type Salvacion, type TipoAccionRonda } from '../api';
+import { combateVivoDm, confirmarGolpes, enviarOrdenDm, fijarAccionDm, resolverSalvacion, type CombateVivo, type EconomiaRonda, type Golpe, type Salvacion, type TipoAccionRonda } from '../api';
 import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
 import { enemigosDe, leerSesion, type Encuentro } from '../domain/sesion';
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
@@ -463,6 +463,14 @@ function aplicarGolpes(campId: string, golpes: Golpe[]) {
 }
 
 type VivoDm = { eco: Record<string, EconomiaRonda>; salvs: Salvacion[]; ultimas: NonNullable<CombateVivo>['ultimas'] };
+/** Descanso o inspiración para los jugadores unidos (a uno solo si se da su personaje). */
+async function mandarOrden(campId: string, tipo: 'corto' | 'largo' | 'inspiracion', personajeId?: string) {
+  const nombre = { corto: 'Descanso corto', largo: 'Descanso largo', inspiracion: 'Inspiración' }[tipo];
+  if (tipo !== 'inspiracion' && !(await confirmar({ titulo: `¿${nombre} para todos los jugadores?`, texto: 'Sus hojas recuperan lo que corresponde en cuanto abran el combate.', si: nombre }))) return;
+  try { await enviarOrdenDm(campId, tipo, personajeId); avisar(`${nombre} enviado${personajeId ? '' : ' a todos'}.`); }
+  catch (e) { avisar(`No se pudo enviar: ${(e as Error).message}`, 'error'); }
+}
+
 function useEconomiaVivo(campId: string, activo: boolean): VivoDm {
   const [vivo, setVivo] = useState<VivoDm>({ eco: {}, salvs: [], ultimas: {} });
   useEffect(() => {
@@ -597,6 +605,15 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
         <p className="m-0 flex-1" aria-live="polite">Ronda {cb.ronda}. Turno de <b>{(actual && combatiente(actual.k, cp)?.nombre) || '—'}</b>.</p>
         {nuevos.length > 0 && <Boton onClick={sumarNuevos}>Sumar {nuevos.length === 1 ? 'al jugador nuevo' : `a ${nuevos.length} jugadores nuevos`}</Boton>}
         {hayQueDeshacer(cp.id) && <Boton onClick={() => deshacer()}>↶ Deshacer</Boton>}
+        <details className="w-full">
+          <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>Descansos e inspiración</summary>
+          <div className="mt-1 flex flex-wrap gap-2">
+            <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'corto')}>Descanso corto</Boton>
+            <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'largo')}>Descanso largo</Boton>
+            <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'inspiracion')}>Inspiración a todos</Boton>
+          </div>
+          <p className="m-0 mt-1 text-xs text-muted">Cada hoja lo aplica sola cuando su jugador tiene abierto el combate.</p>
+        </details>
         <Boton variante="primario" onClick={siguiente}>Siguiente turno</Boton>
         <Boton onClick={terminar}>Terminar combate</Boton>
       </div>
@@ -625,6 +642,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
                     : <Boton tamano="sm" onClick={() => quitarMon(x.m.id)} aria-label={`Quitar ${x.nombre}`}>Quitar</Boton>}
               </div>
               <AccionesRonda campId={cp.id} clave={x.tipo === 'jug' ? x.u.personajeId : x.k} nombre={x.nombre} eco={economia[x.tipo === 'jug' ? x.u.personajeId : x.k]} />
+              {x.tipo === 'jug' && <Boton tamano="sm" className="mt-1" onClick={() => mandarOrden(cp.id, 'inspiracion', x.u.personajeId)}>Dar inspiración a {x.nombre}</Boton>}
               {x.tipo === 'jug' && vivo.ultimas?.[x.u.personajeId] && <p className="m-0 mt-1 rounded-xl bg-soft p-2 text-sm"><b>Última acción:</b> {vivo.ultimas[x.u.personajeId].nombre}{vivo.ultimas[x.u.personajeId].resumen ? ` · ${vivo.ultimas[x.u.personajeId].resumen}` : ''}</p>}
               {x.tipo === 'm' && <SalvacionesPendientes cp={cp} x={x} salvs={vivo.salvs} />}
               {x.tipo === 'jug' && <details className="mt-1"><summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>Hoja resumida</summary><Pasivas x={x} /></details>}
