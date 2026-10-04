@@ -8,8 +8,9 @@ import { COMUNES } from '@/features/reglas/data/comunes';
 import { FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { CONDICIONES } from '@/features/mesa/domain/combate';
 import { avisar } from '@/shared/ui/avisos';
-import { esc, richT } from '@/shared/utils/texto';
-import { descansar, setVal } from '../../acciones';
+import { esc, richT, sign } from '@/shared/utils/texto';
+import { descansar, moverPool, setVal } from '../../acciones';
+import { resumen } from '../../domain/modelo';
 import { combateMesa, enviarGolpeMesa, gastarAccionMesa, type CombateVivo, type EconomiaRonda, type OrdenDm, type TipoAccionRonda } from '@/features/mesa/api';
 import { EFECTO_CONDICION } from '@/features/mesa/domain/condiciones';
 import { datosConjuro } from '../piezas';
@@ -162,6 +163,53 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
   );
 }
 
+/** La tarjeta resumida del personaje (como la que ve el DM): pasivas, PG con daño y curación directos, y los botones de la pantalla. */
+function ResumenCombate({ c, m, salir }: { c: any; m: { mesa: string; dm: string }; salir: () => void }) {
+  const pj = c.pj, [n, setN] = useState('');
+  const pg = c.recursos.find((r: any) => r.id === 'pg');
+  const max = pg?.max ?? c.hpMax, actual = max - Math.min(pj.used?.pg || 0, max);
+  const temp = Math.max(0, +pj.pgTemp || 0), pct = max ? (actual / max) * 100 : 0;
+  const barra = pct <= 25 ? 'bg-error' : pct <= 50 ? 'bg-primary-fixed-dim' : 'bg-primary';
+  const v = Math.max(0, Math.round(+n || 0));
+  // El daño se lleva primero los puntos temporales
+  const danar = (x: number) => {
+    if (!x || !pg) return;
+    const t = Math.min(temp, x);
+    if (t) setVal('pgTemp', temp - t);
+    if (x - t) moverPool('pg', -(x - t));
+    setN('');
+  };
+  const curar = (x: number) => { if (x && pg) { moverPool('pg', x); setN(''); } };
+  const stats: [string | number, string][] = [
+    [c.ac, 'CA'], [c.passive, 'Percepción pasiva'], [10 + c.skill.perspicacia, 'Perspicacia pasiva'], [10 + c.skill.investigacion, 'Investigación pasiva'],
+    [sign(c.init), 'Iniciativa'], [c.speed, 'Pies'], ...(c.dcSpell ? [[c.dcSpell, 'CD conjuros'] as [number, string]] : []),
+  ];
+  return (
+    <section aria-label="Resumen del personaje" className="rounded-lg border-l-4 border-green-400 bg-surface-container-low p-3 shadow-lg">
+      <header className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <h2 className="m-0 font-serif text-headline-md text-on-surface">{c.pj.nombre || 'Personaje'}</h2>
+          <p className="m-0 text-body-sm text-outline">{resumen(pj)}{c.SD ? `, ${c.SD.n}` : ''}</p>
+          <p className="m-0 text-label-caps text-outline">Mesa «{m.mesa}» · DM {m.dm}</p>
+        </div>
+        <Boton tamano="sm" variante="primario" className="shrink-0 whitespace-nowrap" onClick={() => { S.combateHoja = true; render(); }}>Ver hoja</Boton>
+      </header>
+      <dl className="m-0 mt-3 grid grid-cols-3 gap-1.5">
+        {stats.map(([x, t]) => <div key={t} className="flex flex-col-reverse rounded-lg bg-surface-container px-1 py-1.5 text-center"><dt className="text-[0.7rem] text-outline">{t}</dt><dd className="m-0 font-serif text-xl font-extrabold text-on-surface">{x}</dd></div>)}
+      </dl>
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface-container"><div className={cx('h-full rounded-full transition-all', barra)} style={{ width: `${Math.max(0, Math.min(100, pct))}%` }} /></div>
+      <p className="m-0 mt-2 text-body-md text-on-surface"><span className="font-serif text-headline-md font-extrabold">{actual}</span> / {max} PG{temp ? ` · +${temp} temporales` : ''}</p>
+      <div className="mt-2 grid grid-cols-[1fr_auto_auto] gap-2">
+        <input aria-label="Cantidad de puntos de golpe" type="number" inputMode="numeric" min={0} placeholder="Puntos" value={n} onChange={e => setN(e.target.value)}
+          className="min-h-11 w-full rounded bg-surface-container-lowest px-2 text-body-md text-on-surface" />
+        <Boton variante="peligro" disabled={!v} onClick={() => danar(v)}>Quitar</Boton>
+        <Boton variante="secundario" disabled={!v} onClick={() => curar(v)}>Curar</Boton>
+      </div>
+      <div className="mt-2 flex justify-end"><Boton tamano="sm" variante="fantasma" onClick={salir}>Volver a la mesa</Boton></div>
+    </section>
+  );
+}
+
 /** Mandar daño (y una condición) a un enemigo: el DM lo aplica en su Mesa. */
 function GolpeAEnemigo({ enemigos, mesa }: { enemigos: { k: string; nombre: string }[]; mesa: { dmId: string; campanaId: string; personajeId: string } }) {
   const [objetivo, setObjetivo] = useState(''), [dano, setDano] = useState(''), [cond, setCond] = useState(''), [nota, setNota] = useState(''), [ocupado, setOcupado] = useState(false);
@@ -239,16 +287,15 @@ export function ModoCombate({ c }: { c: any }) {
 
   return (
     <div className="mx-auto grid max-w-3xl gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-surface-container-low p-3 shadow-lg">
-        <div className="min-w-0">
-          <h2 className="m-0 font-serif text-headline-md text-on-surface">{c.pj.nombre || 'Personaje'}</h2>
-          <p className="m-0 text-body-sm text-outline">Mesa «{m.mesa}» · DM {m.dm}</p>
-        </div>
-        <div className="flex gap-2">
-          <Boton tamano="sm" onClick={() => { S.combateHoja = true; render(); }}>Ver hoja completa</Boton>
-          <Boton tamano="sm" variante="peligro" onClick={salir}>Volver a la mesa</Boton>
-        </div>
-      </div>
+      <ResumenCombate c={c} m={m} salir={salir} />
+
+      {(ranuras.length > 0 || c.recursos.some((r: any) => r.id !== 'pg' && !/^slot\d/.test(r.id))) && (
+        <section className="grid gap-3" aria-label="Recursos">
+          <h3 className="m-0 flex items-center gap-1 font-serif text-headline-sm text-secondary"><Simbolo n="auto_awesome" className="text-body-lg" />Recursos</h3>
+          {ranuras.map((r: any) => <Ranuras key={r.id} r={r} c={c} />)}
+          <RecursosClase c={c} />
+        </section>
+      )}
 
       <div className={cx('rounded-lg p-3 text-center shadow-lg', esMiTurno ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-low text-on-surface')}>
         {activo ? (
@@ -282,14 +329,6 @@ export function ModoCombate({ c }: { c: any }) {
           );
         })}
       </div>
-
-      {(ranuras.length > 0 || c.recursos.some((r: any) => r.id !== 'pg' && !/^slot\d/.test(r.id))) && (
-        <section className="grid gap-3" aria-label="Recursos">
-          <h3 className="m-0 flex items-center gap-1 font-serif text-headline-sm text-secondary"><Simbolo n="auto_awesome" className="text-body-lg" />Recursos</h3>
-          {ranuras.map((r: any) => <Ranuras key={r.id} r={r} c={c} />)}
-          <RecursosClase c={c} />
-        </section>
-      )}
 
       <Dialogo abierto={!!abierto} onCerrar={() => setAbierto(null)} titulo={abierto ? TIPOS[abierto][0] : ''} ancho="lg"
         descripcion={abierto ? TIPOS[abierto][1] : undefined}>

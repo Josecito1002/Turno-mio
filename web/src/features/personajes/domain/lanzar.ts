@@ -22,8 +22,10 @@ export function dadosAlLanzar(base: string, nivel: number, espacio: number, desc
 /** Niveles de espacio con los que se puede lanzar un conjuro de nivel `nivel`, con los que quedan. */
 export function espaciosPara(c: any, nivel: number) {
   const used = c.pj?.used || {};
-  return (c.recursos || []).filter((r: any) => /^slot\d+$/.test(r.id) && +r.id.slice(4) >= nivel)
-    .map((r: any) => ({ nivel: +r.id.slice(4), nombre: r.nombre, quedan: r.max - Math.min(used[r.id] || 0, r.max) }))
+  // Los espacios de pacto del brujo (id «pacto») cuentan como los de su nivel
+  const nivelDe = (r: any) => /^slot\d+$/.test(r.id) ? +r.id.slice(4) : r.id === 'pacto' ? +(/nivel (\d+)/.exec(r.nombre)?.[1] || c.nivelMax || 0) : 0;
+  return (c.recursos || []).filter((r: any) => nivelDe(r) >= nivel && nivelDe(r) > 0)
+    .map((r: any) => ({ nivel: nivelDe(r), nombre: r.nombre, quedan: r.max - Math.min(used[r.id] || 0, r.max) }))
     .sort((a: any, b: any) => a.nivel - b.nivel);
 }
 

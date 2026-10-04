@@ -128,7 +128,11 @@ export function cambiarConjuro(sale: string, entra: any) {
 }
 
 /** Gasta un espacio de conjuro del nivel dado; devuelve false si no quedaba ninguno. */
-export function gastarEspacio(nivel: number) { return gastarRecurso('slot' + nivel); }
+export function gastarEspacio(nivel: number) {
+  const rs: any[] = S.c?.recursos || [];
+  // Un brujo gasta de sus espacios de pacto (id «pacto»), que no se llaman «slotN»
+  return gastarRecurso(!rs.some(r => r.id === 'slot' + nivel) && rs.some(r => r.id === 'pacto') ? 'pacto' : 'slot' + nivel);
+}
 /** Gasta un uso de un recurso del personaje abierto (con aviso si ya no queda); devuelve si se pudo. */
 export function gastarRecurso(id: string) {
   const pj = S.pj, r = S.c?.recursos.find((x: any) => x.id === id);

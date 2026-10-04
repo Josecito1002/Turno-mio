@@ -1175,6 +1175,12 @@ describe('Subclases oficiales que faltaban', () => {
 });
 
 describe('Para qué sirve cada recurso', () => {
+  test('Los espacios de pacto del brujo valen para lanzar conjuros', () => {
+    const c = pj('brujo', 5, '', { car: 16 }, { conjuros: [{ nombre: 'Manos ardientes', nivel: 1 }] });
+    const e = espaciosPara(c, 1);
+    assert.deepEqual(e.map((x: any) => [x.nivel, x.quedan]), [[3, 2]]);
+    assert.deepEqual(espaciosPara(c, 4), []);
+  });
   test('Espacios de pacto: los conjuros que se lanzan con ellos y Astucia Mágica, que los recupera', () => {
     const c = pj('brujo', 5, '', { car: 16 }, { conjuros: [{ nombre: 'Manos ardientes', nivel: 1 }, { nombre: 'Rayo de escarcha', nivel: 0 }] });
     const r = c.recursos.find((x: any) => x.id === 'pacto');
