@@ -81,8 +81,8 @@ export function Entrada({ e }: { e: any }) {
       </div>
       {e.recurso && S.view === 'ficha' && <RecursoInline id={e.recurso} />}
       <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
-        <p className="m-0 text-xs text-muted">{e.src || ''}{e.revisada && <span className="ml-2 font-bold text-pas">Regla revisada</span>}</p>
-        {S.view === 'ficha' && e.grupo && e.grupo !== 'reglas' && <Mover e={e} />}
+        <p className="m-0 text-xs text-muted">{e.src || ''}</p>
+        {S.view === 'ficha' && !(S.combateMesa && !S.combateHoja) && e.grupo && e.grupo !== 'reglas' && <Mover e={e} />}
       </div>
     </article>
   );

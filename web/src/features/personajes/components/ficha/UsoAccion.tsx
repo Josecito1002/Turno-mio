@@ -76,10 +76,14 @@ function Cuerpo({ c, uso, enemigos, mesa, yaGastada, alCerrar, alUsar }: { c: an
   const nombres = objetivos.map(k => enemigos.find(e => e.k === k)?.nombre || '').filter(Boolean);
   const n = Math.max(0, Math.round(+dano || 0));
 
-  const tirarDados = () => tirar(dexpr!, `${uso.nombre}: daño`).then(r => setDano(String(r.total)), () => {});
+  const tirarDados = () => {
+    try { tirar(dexpr!, `${uso.nombre}: daño`).then(r => setDano(String(r.total)), e => avisar(`No se pudo tirar: ${(e as Error).message}`, 'error')); }
+    catch (e) { avisar(`No se pudo tirar: ${(e as Error).message}`, 'error'); }
+  };
 
   const confirmar = async () => {
     if (cj && !via) { avisar('Elige con qué lo lanzas.', 'error'); return; }
+    if (n && !objetivos.length) { avisar('Elige a quién le haces el daño.', 'error'); return; }
     // Primero se paga: si no queda con qué, no se hace nada
     if (via === 'rasgo' && rasgoRec && !gastarRecurso(rasgoRec.id)) return;
     if (uso.gasta && !gastarRecurso(uso.gasta)) return;
@@ -144,7 +148,7 @@ function Cuerpo({ c, uso, enemigos, mesa, yaGastada, alCerrar, alUsar }: { c: an
 
           <span className="mt-1 text-label-caps uppercase text-outline">Daño{mitad ? ' (si falla; mitad si supera la salvación)' : ''}</span>
           <input aria-label="Daño" type="number" inputMode="numeric" min={0} placeholder="El que sacaste con tus dados" value={dano} onChange={e => setDano(e.target.value)} className={campo} />
-          {dexpr && <button type="button" onClick={tirarDados} className="min-h-9 cursor-pointer text-left text-body-sm text-outline underline">O tirar dados virtuales ({dexpr})</button>}
+          {dexpr && <Boton variante="secundario" onClick={tirarDados}>O tirar dados virtuales ({dexpr})</Boton>}
 
           {(uso.salv || conds.length > 0) && (
             <>
