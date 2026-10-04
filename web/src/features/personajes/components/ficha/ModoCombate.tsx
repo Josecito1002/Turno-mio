@@ -11,6 +11,7 @@ import { avisar } from '@/shared/ui/avisos';
 import { combateMesa, enviarGolpeMesa, gastarAccionMesa, type CombateVivo, type EconomiaRonda, type TipoAccionRonda } from '@/features/mesa/api';
 import { EFECTO_CONDICION } from '@/features/mesa/domain/condiciones';
 import { Entrada, datosConjuro } from '../piezas';
+import { bonosPara } from '../../domain/lanzar';
 import { UsoAccion, type Uso } from './UsoAccion';
 import { FilaArsenal, FilaConjuro, Ranuras, RecursosClase } from './Ficha';
 
@@ -27,7 +28,8 @@ function OpcionesDeTipo({ c, t, usar }: { c: any; t: TipoAccionRonda; usar: (u: 
   const deArma = (a: any): Uso => ({ tipo: t, nombre: a.nombre, texto: [a.dmg, ...(a.notas || [])].filter(Boolean).join('. ') || 'Ataque', ...(a.cd == null ? { atk: a.atk } : { salv: a.salv, cd: a.cd }), dexpr: a.expr, afecta: true });
   const deConjuro = (s: any): Uso => {
     const d = datosConjuro(s, c), salv = s.salv ? String(s.salv).toUpperCase() : undefined;
-    return { tipo: t, nombre: s.nombre, coste: s.coste || (+s.nivel ? `Nivel ${s.nivel}` : 'Truco'), texto: String(s.desc || '').trim(), raw: true, ...(s.ataque && d.atk != null ? { atk: d.atk } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados) };
+    return { tipo: t, nombre: s.nombre, coste: s.coste || (+s.nivel ? `Nivel ${s.nivel}` : 'Truco'), texto: String(s.desc || '').trim(), raw: true, ...(s.ataque && d.atk != null ? { atk: d.atk } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados),
+      ...(+s.nivel > 0 ? { conjuro: { nivel: +s.nivel, rasgo: s.recurso, ritual: !!s.ritual, desc: s.desc, base: d.dexpr, bono: d.dexpr ? bonosPara(c, s).reduce((x: number, b: any) => x + (+b.valor || 0), 0) : 0 } } : {}) };
   };
   return (
     <div className="space-y-3">
@@ -189,7 +191,7 @@ export function ModoCombate({ c }: { c: any }) {
         )}
       </Dialogo>
 
-      <UsoAccion uso={uso} enemigos={enemigos} mesa={{ dmId, campanaId, personajeId }} yaGastada={!!(uso && eco[uso.tipo])} alCerrar={() => setUso(null)}
+      <UsoAccion c={c} uso={uso} enemigos={enemigos} mesa={{ dmId, campanaId, personajeId }} yaGastada={!!(uso && eco[uso.tipo])} alCerrar={() => setUso(null)}
         alUsar={t => { toques.current[t] = Date.now(); setEco(p => ({ ...p, [t]: true })); }} />
     </div>
   );
