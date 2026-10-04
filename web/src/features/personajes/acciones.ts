@@ -314,9 +314,9 @@ export function leerRasgo(p: string) {
 }
 
 /* ---- Archivo ---- */
-export function bajarArchivo(nombre: string, texto: string) {
+export function bajarArchivo(nombre: string, texto: string, tipo = 'application/json') {
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([texto], { type: 'application/json' }));
+  a.href = URL.createObjectURL(new Blob([texto], { type: tipo }));
   a.download = nombre; document.body.appendChild(a); a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
 }

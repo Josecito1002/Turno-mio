@@ -5,17 +5,18 @@ import { S, render, irArriba } from '@/app-shell/estado';
 import { almacen } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
 import { confirmar } from '@/shared/ui/confirmar';
-import { modStr, norm, sign } from '@/shared/utils/texto';
+import { modStr, norm, sign, slug } from '@/shared/utils/texto';
 import { Aviso, Boton, Campo, EncabezadoPagina, Fila, Lista, Nota, PanelPestana, Pestanas, Plegable, Seccion, Tarjeta, claseCampo, cx, foco } from '@/shared/ui/kit';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { BotonTirada } from '@/features/dados/components/BotonTirada';
 import { rnd } from '@/features/dados/domain/dados';
 import { resumen } from '@/features/personajes/domain/modelo';
-import { abrir } from '@/features/personajes/acciones';
+import { abrir, bajarArchivo } from '@/features/personajes/acciones';
 import { Ficha } from '@/features/personajes/components/ficha/Ficha';
 import { CONDICIONES, actualizarPgUnido, cambiarPg, campActual, camps, claveUnido, combatiente, estadoDe, fijarUnidos, guardarCamp, ordenar, unidosCargados, unidosDe } from '../domain/combate';
 import { codigoMesa, guardarCampana, jugadoresMesa, quitarDeMesa } from '../api';
 import { conectarMesaRealtime } from '../realtime-cliente';
+import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
 
 const val = (id: string) => (document.getElementById(id) as HTMLInputElement | null)?.value || '';
 /** Cada acción trabaja sobre una copia fresca de la campaña, la guarda y redibuja. */
@@ -238,6 +239,7 @@ function HojaJugador({ cp, k }: { cp: any; k: string }) {
       <div className="sticky top-[var(--alto-cabecera,0px)] z-[6] print:hidden flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-rule/60 bg-bg/95 px-4 py-2 backdrop-blur lg:px-6">
         <Boton tamano="sm" variante="fantasma" onClick={volver}>← {cp.nombre}</Boton>
         <p className="m-0 flex-1 text-sm"><b>{x.nombre}</b> <span className="text-muted">· juega {x.jugador} · solo lectura · actualizada {hora(x.u.actualizadoEn)}</span></p>
+        <Boton tamano="sm" variante="fantasma" onClick={() => bajarArchivo(slug(x.nombre) + '.json', JSON.stringify(x.u.datos, null, 1))}>Descargar hoja</Boton>
       </div>
       <Ficha c={x.c} lectura />
     </>
@@ -456,6 +458,28 @@ export function MesaVista({ importarHojas }: { importarHojas: () => void }) {
   return <Campana key={cp.id} cp={cp} importarHojas={importarHojas} />;
 }
 
+/** Lo que se exporta de la mesa: primero los jugadores unidos con el código, luego las copias del DM. */
+function paraExportar(unidos: any[], grupo: any[]): PersonajeExportado[] {
+  return [
+    ...unidos.map(x => ({ datos: x.u.datos, c: x.c, jugador: x.jugador, origen: 'unido' as const, actualizadoEn: x.u.actualizadoEn })),
+    ...grupo.map(x => ({ datos: x.pj, c: x.c, jugador: x.pj.jugador || '', origen: 'copia' as const })),
+  ];
+}
+
+function Exportar({ cp, unidos, grupo }: { cp: any; unidos: any[]; grupo: any[] }) {
+  const base = slug(cp.nombre || 'mesa');
+  const lista = () => paraExportar(unidos, grupo);
+  return (
+    <Seccion titulo="Exportar">
+      <Nota>Descarga la mesa con las hojas de todos los personajes tal como están ahora. El resumen se lee en cualquier editor de texto; los datos completos sirven de respaldo.</Nota>
+      <div className="flex flex-wrap gap-2">
+        <Boton onClick={() => bajarArchivo(base + '-resumen.md', resumenMesa(cp.nombre, lista()) + '\n', 'text/markdown')}>Descargar resumen</Boton>
+        <Boton variante="fantasma" onClick={() => bajarArchivo(base + '.json', JSON.stringify(datosMesa(cp, lista()), null, 1))}>Descargar datos completos</Boton>
+      </div>
+    </Seccion>
+  );
+}
+
 function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) {
   const mesa = useUnidos(cp.id);
   if (S.hojaMesa) return <HojaJugador cp={cp} k={S.hojaMesa} />;
@@ -519,6 +543,7 @@ function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) 
               <Nota className="mt-4">Pide a cada jugador su respaldo (en su hoja: Descargar respaldo) e impórtalo aquí; se agrega solo a la campaña.</Nota>
               <Boton onClick={importarHojas}>Importar hojas de jugadores</Boton>
             </Seccion>
+            <Exportar cp={cp} unidos={unidos} grupo={grupo} />
             <Seccion titulo="Zona de cuidado"><Boton variante="peligro" onClick={borrar}>Borrar campaña</Boton></Seccion>
           </>
         ) : <Combate cp={cp} grupo={grupo} />}

@@ -13,42 +13,13 @@ import { campanas, mesaJugadores } from '../src/features/mesa/server/tablas';
 import { reparar } from '../src/features/personajes/domain/modelo';
 import { compute } from '../src/features/personajes/domain/calculo';
 import { setLib } from '../src/features/biblioteca/domain/biblioteca';
-import { AB, SKILLS } from '../src/features/reglas/data/caracteristicas';
-import { ARMAS } from '../src/features/reglas/data/equipo';
+import { resumenMesa, type PersonajeExportado } from '../src/features/mesa/domain/exportar';
 import { norm } from '../src/shared/utils/texto';
 
-const signo = (n: number) => (n >= 0 ? '+' : '') + n;
-const lista = (xs: string[]) => xs.filter(Boolean).join(', ') || '—';
-
-/** El resumen de un personaje en Markdown, con lo que el motor calcula (igual que la hoja). */
-export function resumenPersonaje(datos: any, jugador: string, unidoEn: Date) {
-  const pj = reparar(structuredClone(datos));
-  let c: any = null, error = '';
-  try { c = compute(pj); } catch (e: any) { error = e.message; }
-  const E = c?.E, sub = pj.especie?.sub;
-  const especie = pj.especie?.key === 'custom' ? pj.especie.nombre : E?.n || pj.especie?.key || '—';
-  const linaje = sub ? E?.subs?.[sub]?.n || sub : '';
-  const clase = c?.C?.n || pj.clase || '—';
-  const subclase = c?.SD?.n || pj.subclaseNombre || '';
-  const trasfondo = pj.trasfondo?.key === 'custom' ? pj.trasfondo.nombre : c?.T?.n || pj.trasfondo?.nombre || pj.trasfondo?.key || '—';
-  const fila = { jugador, personaje: pj.nombre || 'Sin nombre', especie: especie + (linaje ? ` (${linaje})` : ''), clase: `${clase} ${pj.nivel}`, subclase: subclase || '—' };
-  const l: string[] = [`### ${fila.personaje} (${jugador})`, ''];
-  l.push(`- **Unido a la mesa:** ${unidoEn.toISOString().slice(0, 16).replace('T', ' ')} UTC`);
-  if (pj.jugador) l.push(`- **Jugador (en la hoja):** ${pj.jugador}`);
-  l.push(`- **Especie:** ${fila.especie}`, `- **Clase:** ${fila.clase}${subclase ? ` · ${subclase}` : ''}`, `- **Trasfondo:** ${trasfondo}`);
-  if (pj.alineamiento) l.push(`- **Alineamiento:** ${pj.alineamiento}`);
-  if (!c) { l.push(`- **No se pudo calcular la hoja:** ${error}`, ''); return { fila, md: l.join('\n') }; }
-  l.push(`- **Características:** ${AB.map(([k, , ab]) => `${ab} ${c.sc[k]} (${signo(c.m[k])})`).join(' · ')}`);
-  l.push(`- **CA** ${c.ac} · **PG máx.** ${c.hpMax} · **Velocidad** ${c.speed} pies · **Iniciativa** ${signo(c.init)} · **Percepción pasiva** ${c.passive} · **Bono de competencia** ${signo(c.pb)}`);
-  l.push(`- **Salvaciones competentes:** ${lista(AB.filter(([k]) => c.saveProf.includes(k)).map(([k, , ab]) => `${ab} ${signo(c.saves[k])}`))}`);
-  l.push(`- **Habilidades competentes:** ${lista(SKILLS.filter(([n]) => c.skillProf[norm(n)]).map(([n]) => `${n} ${signo(c.skill[norm(n)])}${c.skillPer[norm(n)] ? ' (pericia)' : ''}`))}`);
-  if (c.casterAb) l.push(`- **Conjuros:** CD ${c.dcSpell}, ataque ${signo(c.atkSpell)}`);
-  l.push(`- **Dotes:** ${lista(c.dotes.map((d: any) => d.nombre))}`);
-  l.push(`- **Armadura:** ${c.armor?.n || 'ninguna'}${c.shield ? ' y escudo' : ''}`);
-  l.push(`- **Armas:** ${lista((pj.armas || []).map(([k, q]: [string, number]) => (ARMAS as any)[k]?.n ? `${(ARMAS as any)[k].n}${q > 1 ? ` ×${q}` : ''}` : ''))}`);
-  if ((c.conjuros || []).length) l.push(`- **Conjuros conocidos o preparados:** ${lista(c.conjuros.map((s: any) => s.nombre))}`);
-  l.push('');
-  return { fila, md: l.join('\n') };
+function calcular(datos: any, jugador: string, unidoEn: Date, actualizadoEn: Date): PersonajeExportado {
+  let c: any = null;
+  try { c = compute(reparar(structuredClone(datos))); } catch (e: any) { console.error(`${datos?.nombre}: ${e.message}`); }
+  return { datos, c, jugador, origen: 'unido', unidoEn: unidoEn.toISOString(), actualizadoEn: actualizadoEn.toISOString() };
 }
 
 async function main() {
@@ -67,18 +38,15 @@ async function main() {
     if (!mesas.length) throw new Error(`No hay ninguna mesa cuyo nombre contenga "${buscado}".`);
     const salida: string[] = [];
     for (const mesa of mesas) {
-      let filas = await db.select({ unidoEn: mesaJugadores.unidoEn, jugador: usuarios.nombre, datos: personajes.datos })
+      let filas = await db.select({ unidoEn: mesaJugadores.unidoEn, jugador: usuarios.nombre, datos: personajes.datos, actualizadoEn: personajes.actualizadoEn })
         .from(mesaJugadores)
         .innerJoin(personajes, and(eq(personajes.usuarioId, mesaJugadores.jugadorId), eq(personajes.id, mesaJugadores.personajeId)))
         .innerJoin(usuarios, eq(usuarios.id, mesaJugadores.jugadorId))
         .where(and(eq(mesaJugadores.dmId, mesa.dmId), eq(mesaJugadores.campanaId, mesa.id)))
         .orderBy(mesaJugadores.unidoEn);
       if (desde) filas = filas.filter(f => f.unidoEn >= desde);
-      const res = filas.map(f => resumenPersonaje(f.datos, f.jugador, f.unidoEn));
-      salida.push(`## ${mesa.nombre} (DM: ${mesa.dm}): ${res.length} jugador(es)${desde ? ` desde ${opt('--desde')}` : ''}`, '',
-        '| Jugador | Personaje | Especie | Clase y nivel | Subclase |', '|---|---|---|---|---|',
-        ...res.map(({ fila: f }) => `| ${f.jugador} | ${f.personaje} | ${f.especie} | ${f.clase} | ${f.subclase} |`), '',
-        ...res.map(r => r.md));
+      const lista = filas.map(f => calcular(f.datos, f.jugador, f.unidoEn, f.actualizadoEn));
+      salida.push(resumenMesa(mesa.nombre, lista, `DM: ${mesa.dm}${desde ? `, unidos desde ${opt('--desde')}` : ''}`));
     }
     const texto = salida.join('\n');
     console.log(texto);
