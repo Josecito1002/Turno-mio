@@ -17,7 +17,7 @@ import { CONDICIONES, actualizarPgUnido, cambiarPg, campActual, camps, claveUnid
 import { codigoMesa, guardarCampana, jugadoresMesa, quitarDeMesa } from '../api';
 import { conectarMesaRealtime } from '../realtime-cliente';
 import { publicarCombate } from '../domain/combate-vivo';
-import { combateVivoDm, confirmarGolpes, enviarEfectoDm, enviarOrdenDm, fijarAccionDm, resolverSalvacion, type CombateVivo, type EconomiaRonda, type Golpe, type Salvacion, type TipoAccionRonda } from '../api';
+import { combateVivoDm, confirmarGolpes, enviarEfectoDm, enviarOrdenDm, fijarAccionDm, quitarPeticiones, resolverSalvacion, type CombateVivo, type EconomiaRonda, type Golpe, type Peticion, type Salvacion, type TipoAccionRonda } from '../api';
 import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
 import { enemigosDe, leerSesion, type Encuentro } from '../domain/sesion';
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
@@ -539,6 +539,41 @@ function descartarGolpe(campId: string, g: Golpe) {
   confirmarGolpes(campId, [g.id]).catch(() => {});
 }
 
+const peticionesResueltas = new Set<string>();
+const NIVELES_INFO: [string, string][] = [['', 'No saben nada'], ['b', 'Lo básico (CA y tipo)'], ['d', 'También debilidades']];
+/** Lo que los jugadores saben de un enemigo y sus peticiones: el DM decide cuánto se revela. */
+function InfoParaJugadores({ cp, x, peticiones }: { cp: any; x: any; peticiones: Peticion[] }) {
+  const nivel: string = cp.estado?.[x.k]?.rev || '';
+  const fijar = (n: string) => conCamp(c => { const e = estadoDe(c, x.k); if ((e.rev || '') === n) return false; e.rev = n; });
+  const mias = peticiones.filter(q => q.objetivo === x.k && !peticionesResueltas.has(q.id));
+  const resolver = (q: Peticion, n: string) => {
+    peticionesResueltas.add(q.id);
+    if (n) fijar(n);
+    else render();
+    quitarPeticiones(cp.id, [q.id]).catch(() => {});
+    avisar(n ? `${q.de} ya sabe ${n === 'd' ? 'lo básico y las debilidades' : 'lo básico'} de ${x.nombre}.` : 'Petición rechazada.');
+  };
+  return (
+    <div className="mt-2">
+      {mias.map(q => (
+        <div key={q.id} className="mb-2 rounded-xl bg-adi/20 p-2 text-sm" aria-live="polite">
+          <p className="m-0"><b>{q.de}</b> quiere saber qué sabe de <b>{x.nombre}</b>.</p>
+          <div className="mt-1 flex flex-wrap gap-2">
+            <Boton tamano="sm" variante="primario" onClick={() => resolver(q, 'b')}>Lo básico</Boton>
+            <Boton tamano="sm" onClick={() => resolver(q, 'd')}>Con debilidades</Boton>
+            <Boton tamano="sm" variante="fantasma" onClick={() => resolver(q, '')}>Rechazar</Boton>
+          </div>
+        </div>
+      ))}
+      <label className="flex flex-wrap items-center gap-2 text-sm text-muted">Lo que saben los jugadores
+        <select value={nivel} onChange={e => fijar(e.target.value)} className={cx(claseCampo, 'w-auto!')}>
+          {NIVELES_INFO.map(([v, n]) => <option key={v} value={v}>{n}</option>)}
+        </select>
+      </label>
+    </div>
+  );
+}
+
 /** Lo que los jugadores hicieron sobre este combatiente: el DM lo aplica o lo descarta con un botón. */
 function GolpesPendientes({ cp, k, nombre, golpes }: { cp: any; k: string; nombre: string; golpes: Golpe[] }) {
   const mios = golpes.filter(g => g.objetivo === k && !golpesAplicados.has(g.id));
@@ -558,7 +593,7 @@ function GolpesPendientes({ cp, k, nombre, golpes }: { cp: any; k: string; nombr
   );
 }
 
-type VivoDm = { eco: Record<string, EconomiaRonda>; salvs: Salvacion[]; golpes: Golpe[]; ultimas: NonNullable<CombateVivo>['ultimas'] };
+type VivoDm = { eco: Record<string, EconomiaRonda>; salvs: Salvacion[]; golpes: Golpe[]; peticiones: Peticion[]; ultimas: NonNullable<CombateVivo>['ultimas'] };
 /** Descanso o inspiración para los jugadores unidos (a uno solo si se da su personaje). */
 async function mandarOrden(campId: string, tipo: 'corto' | 'largo' | 'inspiracion', personajeId?: string) {
   const nombre = { corto: 'Descanso corto', largo: 'Descanso largo', inspiracion: 'Inspiración' }[tipo];
@@ -568,14 +603,19 @@ async function mandarOrden(campId: string, tipo: 'corto' | 'largo' | 'inspiracio
 }
 
 function useEconomiaVivo(campId: string, activo: boolean): VivoDm {
-  const [vivo, setVivo] = useState<VivoDm>({ eco: {}, salvs: [], golpes: [], ultimas: {} });
+  const [vivo, setVivo] = useState<VivoDm>({ eco: {}, salvs: [], golpes: [], peticiones: [], ultimas: {} });
   useEffect(() => {
     if (!activo) return;
     let sigue = true;
     const leer = () => combateVivoDm(campId).then(v => {
       if (!sigue) return;
       const golpes = v?.golpes || [];
-      setVivo({ eco: v?.economia || {}, salvs: v?.salvaciones || [], golpes, ultimas: v?.ultimas || {} });
+      setVivo({ eco: v?.economia || {}, salvs: v?.salvaciones || [], golpes, peticiones: v?.peticiones || [], ultimas: v?.ultimas || {} });
+      for (const q of v?.peticiones || []) if (!golpesAvisados.has(q.id) && !peticionesResueltas.has(q.id)) {
+        golpesAvisados.add(q.id);
+        const cp = campActual(), obj = cp && combatiente(q.objetivo, cp);
+        avisar(`${q.de} pide saber de ${obj?.nombre || 'un enemigo'}. Respóndele en su tarjeta.`);
+      }
       // Aviso al llegar algo nuevo; se aplica con el botón de la tarjeta del objetivo
       for (const g of golpes) if (!golpesAvisados.has(g.id) && !golpesAplicados.has(g.id)) {
         golpesAvisados.add(g.id);
@@ -811,6 +851,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
               {x.tipo === 'jug' && vivo.ultimas?.[x.u.personajeId] && <p className="m-0 mt-1 rounded-xl bg-soft p-2 text-sm"><b>Última acción:</b> {vivo.ultimas[x.u.personajeId].nombre}{vivo.ultimas[x.u.personajeId].resumen ? ` · ${vivo.ultimas[x.u.personajeId].resumen}` : ''}</p>}
               {x.tipo === 'm' && <SalvacionesPendientes cp={cp} x={x} salvs={vivo.salvs} />}
               <GolpesPendientes cp={cp} k={x.k} nombre={x.nombre} golpes={vivo.golpes} />
+              {x.tipo === 'm' && !x.m.aliado && <InfoParaJugadores cp={cp} x={x} peticiones={vivo.peticiones} />}
               {x.tipo === 'jug' && <details className="mt-1"><summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>Hoja resumida</summary><Pasivas x={x} /></details>}
               <PuntosGolpe x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
               {x.tipo === 'm' && x.m.ref && <VerBloque cp={cp} r={x.m.ref} nombre={x.nombre} />}

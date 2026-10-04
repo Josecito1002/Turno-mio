@@ -17,6 +17,7 @@ import { datosConjuro } from '../piezas';
 import { ataquesPorAccion, bonosPara, golpesDeRasgo, restanteConjuro, restanteDe } from '../../domain/lanzar';
 import { UsoAccion, type Marca, type Objetivo, type Uso } from './UsoAccion';
 import { EFECTOS_ALIADO, SEGUIMIENTOS } from '@/features/reglas/data/efectos-conjuro';
+import { BarraIniciativa } from './BarraIniciativa';
 import { FilaArsenal, Ranuras, RecursosClase } from './Ficha';
 
 const TIPOS_BOTON: TipoAccionRonda[] = ['accion', 'adicional', 'reaccion'];
@@ -429,6 +430,7 @@ export function ModoCombate({ c }: { c: any }) {
 
   return (
     <div className="mx-auto grid max-w-3xl gap-4 pb-24">
+      {viv && <BarraIniciativa viv={viv} miPid={personajeId} mesa={m} />}
       <ResumenCombate c={c} m={m} conds={mias} dur={yo?.dur || {}} ven={yo?.ven || ''} esMiTurno={esMiTurno} />
 
       {(ranuras.length > 0 || c.recursos.some((r: any) => r.id !== 'pg' && !/^slot\d/.test(r.id))) && (

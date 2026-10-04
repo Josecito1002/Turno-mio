@@ -46,6 +46,9 @@ export const salirMesa = (m: { dmId: string; campanaId: string; personajeId: str
 export type TipoAccionRonda = 'accion' | 'adicional' | 'reaccion';
 export type EconomiaRonda = Partial<Record<TipoAccionRonda, boolean>>;
 export type Golpe = { id: string; de: string; objetivo: string; dano: number; cura?: boolean; condicion: string | null; bono?: string | null; nota: string | null; ts: string };
+/** Lo que los jugadores saben de un enemigo: lo básico, o también sus resistencias y debilidades. */
+export type InfoEnemigo = { nivel: 'b' | 'd'; ca: number; tam?: string; tipo?: string; resist?: string; vuln?: string; inmune?: string; condInmune?: string };
+export type Peticion = { id: string; de: string; pid: string; objetivo: string; ts: string };
 export type Salvacion = { id: string; de: string; objetivos: string[]; salv: string; cd: number; dano: number; mitad: boolean; condicion: string | null; nota: string | null; ts: string };
 /** Un descanso o inspiración del DM, o un efecto que otro jugador deja en este personaje (daño, curación, condición o bono). */
 export type OrdenDm = { id: string; tipo: 'corto' | 'largo' | 'inspiracion' | 'efecto'; personajeId: string | null; ts: string;
@@ -53,7 +56,9 @@ export type OrdenDm = { id: string; tipo: 'corto' | 'largo' | 'inspiracion' | 'e
 export type CombateVivo = {
   activo?: boolean; ronda?: number; turno?: number;
   /** Quién actúa y en qué orden; `pid` es el id del personaje cuando es de un jugador unido. */
-  orden?: { k: string; nombre: string; tipo: string; pid?: string; cond?: string[]; dur?: Record<string, string>; ven?: '' | 'v' | 'd' }[];
+  orden?: { k: string; nombre: string; tipo: string; pid?: string; cond?: string[]; dur?: Record<string, string>; ven?: '' | 'v' | 'd'; info?: InfoEnemigo }[];
+  /** Peticiones de los jugadores para saber de un enemigo; las resuelve el DM. */
+  peticiones?: Peticion[];
   economia?: Record<string, EconomiaRonda>;
   /** Golpes que mandaron los jugadores y el DM todavía no aplica. */
   golpes?: Golpe[];
@@ -80,6 +85,12 @@ export const gastarAccionMesa = (m: { dmId: string; campanaId: string; personaje
 
 export const enviarGolpeMesa = (m: { dmId: string; campanaId: string; personajeId: string }, g: { objetivo: string; dano: number; cura?: boolean; condicion?: string; bono?: string; nota?: string }) =>
   gql(`mutation ($dmId: ID!, $campanaId: ID!, $personajeId: ID!, $objetivo: String!, $dano: Int!, $cura: Boolean, $condicion: String, $bono: String, $nota: String) { enviarGolpeMesa(dmId: $dmId, campanaId: $campanaId, personajeId: $personajeId, objetivo: $objetivo, dano: $dano, cura: $cura, condicion: $condicion, bono: $bono, nota: $nota) }`, { ...m, ...g });
+
+export const pedirInfoMesa = (m: { dmId: string; campanaId: string; personajeId: string }, objetivo: string) =>
+  gql(`mutation ($dmId: ID!, $campanaId: ID!, $personajeId: ID!, $objetivo: String!) { pedirInfoMesa(dmId: $dmId, campanaId: $campanaId, personajeId: $personajeId, objetivo: $objetivo) }`, { ...m, objetivo });
+
+export const quitarPeticiones = (campanaId: string, ids: string[]) =>
+  gql(`mutation ($campanaId: ID!, $ids: [String!]!) { quitarPeticiones(campanaId: $campanaId, ids: $ids) }`, { campanaId, ids });
 
 export const confirmarGolpes = (campanaId: string, ids: string[]) =>
   gql(`mutation ($campanaId: ID!, $ids: [String!]!) { confirmarGolpes(campanaId: $campanaId, ids: $ids) }`, { campanaId, ids });
