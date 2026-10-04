@@ -741,13 +741,18 @@ export function Ranuras({ r, c }: { r: any; c: any }) {
   );
 }
 
-export function FilaConjuro({ s, c }: { s: any; c: any }) {
+export function FilaConjuro({ s, c, icono }: { s: any; c: any; icono?: boolean }) {
   const lectura = useLectura();
   const d = datosConjuro(s, c);
   const meta = [TIPOS[s.tiempo || 'accion']?.[0], d.bits.join(', '), s.coste].filter(Boolean).join(' • ');
   const primero = String(s.desc || '').trim().split(/\n\s*\n/)[0];
   return (
     <li className="flex items-start gap-1 rounded-xs bg-surface-container-lowest">
+      {icono && (
+        <div className="m-1 grid size-10 shrink-0 place-items-center rounded-lg bg-surface-container text-secondary shadow-inner" title={+s.nivel > 0 ? 'Conjuro' : 'Truco'}>
+          <Simbolo n={+s.nivel > 0 ? 'auto_awesome' : 'flare'} className="text-headline-md" />
+        </div>
+      )}
       <details className="group min-w-0 flex-1">
         <summary className={cx('flex cursor-pointer list-none flex-col p-1 pl-2 [&::-webkit-details-marker]:hidden', foco)}>
           <span className="text-body-sm font-semibold text-on-surface">{s.nombre}</span>
