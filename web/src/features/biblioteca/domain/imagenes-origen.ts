@@ -114,13 +114,16 @@ function unaPorCombinacion(img: Record<string, unknown> | undefined, filtro: (o:
 export const imagenesDeEspecie = (img: Record<string, unknown> | undefined, especie: string) =>
   unaPorCombinacion(img, o => o.especie === especie);
 
-/** Imagen por defecto de un personaje: la de su especie con su clase y subclase; si no hay, la de su clase y subclase
-    con cualquier especie; si tampoco, cualquiera de su clase. Siempre la misma para el mismo personaje (según `semilla`). */
+/** Imagen por defecto de un personaje: la de su especie con su clase y subclase; si no hay, la de su especie con otra clase;
+    si tampoco, la de su clase y subclase con cualquier especie, y por último cualquiera de su clase. Siempre la misma para el mismo personaje (según `semilla`). */
 export function imagenDeClase(img: Record<string, unknown> | undefined, q: { especie?: string; sub?: string; clase: string; subclase?: string }, semilla = '') {
   if (!img || !q.clase) return '';
   const opciones = [
     q.especie ? imagenesOrigen(img, { especie: q.especie, sub: q.sub, clase: q.clase, subclase: q.subclase || undefined }) : [],
     q.especie ? imagenesOrigen(img, { especie: q.especie, clase: q.clase }) : [],
+    // Si no hay de esa clase, mejor un personaje de su misma especie (de otra clase) que uno de otra especie
+    q.especie && q.sub ? unaPorCombinacion(img, o => o.especie === q.especie && o.sub === q.sub) : [],
+    q.especie ? imagenesDeEspecie(img, q.especie) : [],
     q.subclase ? unaPorCombinacion(img, o => o.clase === q.clase && o.subclase === q.subclase) : [],
     unaPorCombinacion(img, o => o.clase === q.clase),
   ].find(l => l.length);
