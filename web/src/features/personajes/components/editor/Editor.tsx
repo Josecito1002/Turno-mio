@@ -31,13 +31,17 @@ export function Editor({ c }: { c: any }) {
       <PanelPestana idBase="editor" activa={paso}>
         <div key={paso} className="pb-4">{pasos[paso]}</div>
       </PanelPestana>
+      {/* Fija sobre la barra de abajo: con `sticky` flotaba a media pantalla en los pasos cortos y dejaba un hueco al final */}
+      <div aria-hidden="true" className="h-20 print:hidden" />
       <nav aria-label="Navegación entre pasos"
-        className="sticky bottom-[var(--alto-nav-inferior,0px)] z-10 -mx-4 mt-6 flex items-center justify-between gap-2 border-t border-rule bg-bg px-4 py-3 backdrop-blur print:hidden">
+        className="fixed inset-x-0 bottom-[var(--alto-nav-inferior,0px)] z-10 border-t border-rule bg-bg/95 backdrop-blur print:hidden">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 py-3">
         {i > 0 ? <Boton onClick={() => irPaso(PASOS[i - 1])}>← {PASO_N[PASOS[i - 1]]}</Boton> : <span />}
         <span className="text-sm text-muted" aria-hidden="true">{i + 1} de {PASOS.length}</span>
         {i < PASOS.length - 1
           ? <Boton variante="primario" onClick={() => irPaso(PASOS[i + 1])}>{PASO_N[PASOS[i + 1]]} →</Boton>
           : <Boton variante="primario" onClick={() => { S.view = 'ficha'; S.tab = 'turno'; render(); irArriba(); }}>Ver la hoja</Boton>}
+        </div>
       </nav>
     </>
   );

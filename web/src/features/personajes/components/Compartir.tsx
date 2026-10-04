@@ -96,8 +96,8 @@ export function HojaAjena() {
     <>
       <div className="sticky top-[var(--alto-cabecera,0px)] z-[6] flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-rule/60 bg-bg/95 px-4 py-2 backdrop-blur print:hidden lg:px-6">
         <Boton tamano="sm" variante="fantasma" onClick={cerrarAjeno}>← {a.volver === 'cuentas' ? 'Cuentas' : 'Mis personajes'}</Boton>
-        <p id="titulo-vista" tabIndex={-1} className="m-0 flex-1 text-sm outline-none"><b>{nombre}</b> <span className="text-muted">· de {a.jugador} · solo lectura</span></p>
-        <Boton tamano="sm" variante="fantasma" onClick={() => bajarArchivo(slug(nombre) + '.json', JSON.stringify(a.pj, null, 1))}>Descargar hoja</Boton>
+        <p id="titulo-vista" tabIndex={-1} className="order-last m-0 w-full text-sm outline-none sm:order-none sm:w-auto sm:flex-1"><b>{nombre}</b> <span className="text-muted">· de {a.jugador} · solo lectura</span></p>
+        <Boton tamano="sm" variante="fantasma" className="ml-auto sm:ml-0" onClick={() => bajarArchivo(slug(nombre) + '.json', JSON.stringify(a.pj, null, 1))}>Descargar hoja</Boton>
         <Boton tamano="sm" variante="primario" onClick={copiarAjeno}>{invitado ? 'Guardar una copia aquí' : 'Copiar a mi cuenta'}</Boton>
       </div>
       {invitado && /^\/p\//.test(typeof window !== 'undefined' ? window.location.pathname : '') && (

@@ -11,6 +11,7 @@ import { bonosPara, dadosAlLanzar, espaciosPara, extrasAtaque } from './lanzar';
 import { sinDuplicado } from '@/features/biblioteca/domain/mapeo';
 import { nuevoPj } from './modelo';
 import { pendientes, pendientesAlSubir } from './pendientes';
+import { usosDeRecurso } from './usos-recurso';
 import { ARMADURAS } from '@/features/reglas/data/equipo';
 import { CLASES } from '@/features/reglas/data/clases';
 import { EQUIPO_CLASES, kitClase } from '@/features/reglas/data/equipo-clases';
@@ -1170,5 +1171,29 @@ describe('Subclases oficiales que faltaban', () => {
     assert.ok(ua.naturales.some((a: any) => a.nombre.startsWith('Golpe Sombrío')));
     assert.equal(fuenteSubclase({ n: 'Rompejuramentos', lib: true, key: 'lib:rompejuramentos' }, 'paladin').tipo, 'playtest');
     assert.notEqual(fuenteSubclase({ n: 'Rompejuramentos', lib: true, key: 'lib:rompejuramentos-dmg' }, 'paladin').tipo, 'playtest');
+  });
+});
+
+describe('Para qué sirve cada recurso', () => {
+  test('Espacios de pacto: los conjuros que se lanzan con ellos y Astucia Mágica, que los recupera', () => {
+    const c = pj('brujo', 5, '', { car: 16 }, { conjuros: [{ nombre: 'Manos ardientes', nivel: 1 }, { nombre: 'Rayo de escarcha', nivel: 0 }] });
+    const r = c.recursos.find((x: any) => x.id === 'pacto');
+    const { para, usos } = usosDeRecurso(c, r);
+    assert.match(para, /nivel 3/);
+    const nombres = usos.map(u => u.nombre);
+    assert.ok(nombres.includes('Manos ardientes'));
+    assert.ok(!nombres.includes('Rayo de escarcha'), 'los trucos no gastan espacios');
+    assert.ok(nombres.includes('Astucia Mágica'));
+  });
+  test('Un recurso de rasgo dice para qué sirve con el texto del rasgo', () => {
+    const c = pj('paladin', 5);
+    const { para, usos } = usosDeRecurso(c, c.recursos.find((x: any) => x.id === 'manos'));
+    assert.match(para, /PG/);
+    assert.equal(usos[0].nombre, 'Imposición de Manos');
+  });
+  test('Lo que pide Canalizar en su coste se liga a Canalizar Divinidad, no a otro recurso con una palabra en común', () => {
+    const c = pj('paladin', 5);
+    const canal = usosDeRecurso(c, c.recursos.find((x: any) => x.id === 'canal')).usos.map(u => u.nombre);
+    assert.ok(canal.includes('Sentido Divino'));
   });
 });
