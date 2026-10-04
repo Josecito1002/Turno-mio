@@ -3,7 +3,7 @@ import { test, describe, before } from 'node:test';
 import assert from 'node:assert/strict';
 import biblioteca from '../../../../../biblioteca-mi-turno.json';
 import { setLib } from './biblioteca';
-import { catalogoActual, claveOrigen, imagenDeClase, imagenesOrigen, reconocerArchivo, type Catalogo } from './imagenes-origen';
+import { catalogoActual, claveOrigen, imagenDeClase, imagenesOrigen, imagenesParaElegir, reconocerArchivo, type Catalogo } from './imagenes-origen';
 
 let cat: Catalogo;
 before(() => { setLib(biblioteca as any); cat = catalogoActual(); });
@@ -59,5 +59,23 @@ describe('imagenDeClase: la imagen por defecto sigue primero a la especie', () =
   });
   test('sin ninguna de su especie, cae a la de su clase', () => {
     assert.equal(imagenDeClase(img, { especie: 'elfo', clase: 'paladin', subclase: 'devocion' }), claveOrigen({ especie: 'humano', sub: '', clase: 'paladin', subclase: 'devocion', genero: 'm' }));
+  });
+});
+
+describe('imagenesParaElegir', () => {
+  const k = (especie: string, sub: string, clase: string, subclase: string, genero: 'm' | 'f') => claveOrigen({ especie, sub, clase, subclase, genero });
+  const img: Record<string, string> = {
+    [k('elfo', 'alto', 'bardo', 'danza', 'f')]: '/1', [k('elfo', 'alto', 'bardo', 'valor', 'm')]: '/2', [k('elfo', 'alto', 'mago', 'evocador', 'f')]: '/3',
+    [k('elfo', 'drow', 'bardo', 'danza', 'f')]: '/4', [k('humano', '', 'bardo', 'danza', 'f')]: '/5', [k('goliat', '', 'mago', 'evocador', 'f')]: '/6',
+  };
+  test('con imágenes de su clase, solo las de su clase (todas sus subclases) y su linaje', () => {
+    assert.deepEqual(imagenesParaElegir(img, { especie: 'elfo', sub: 'alto', clase: 'bardo' }).sort(), [k('elfo', 'alto', 'bardo', 'danza', 'f'), k('elfo', 'alto', 'bardo', 'valor', 'm')].sort());
+  });
+  test('sin imágenes de su clase, las de otras clases de su misma especie', () => {
+    assert.deepEqual(imagenesParaElegir(img, { especie: 'goliat', clase: 'paladin' }), [k('goliat', '', 'mago', 'evocador', 'f')]);
+    assert.deepEqual(imagenesParaElegir(img, { especie: 'elfo', sub: 'alto', clase: 'paladin' }).length, 3);
+  });
+  test('nunca de otra especie', () => {
+    assert.deepEqual(imagenesParaElegir(img, { especie: 'tiefling', clase: 'bardo' }), []);
   });
 });

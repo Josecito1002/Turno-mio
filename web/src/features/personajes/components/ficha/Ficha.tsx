@@ -24,7 +24,7 @@ import { HojaImpresa } from './HojaImpresa';
 import { Imagen } from '@/shared/ui/imagen';
 import { getLib } from '@/features/biblioteca/domain/biblioteca';
 import { achicarImagen } from '@/features/biblioteca/components/PanelMedia';
-import { imagenDeClase } from '@/features/biblioteca/domain/imagenes-origen';
+import { imagenDeClase, imagenesParaElegir, leerClaveOrigen } from '@/features/biblioteca/domain/imagenes-origen';
 
 /** Solo lectura: la hoja de un jugador vista desde la mesa del DM. Se ve todo, pero nada se puede cambiar ni gastar
     (las acciones de la hoja trabajan sobre el personaje abierto, que no es este). */
@@ -75,6 +75,8 @@ export function imagenPersonaje(c: any): { src: string; propia: boolean } {
   const pj = c.pj;
   if (pj.imagen) return { src: pj.imagen, propia: true };
   const LIB = getLib();
+  // Una de la biblioteca que eligió el jugador (si ya no existe, vuelve la automática)
+  if (pj.imagenClave && LIB.img?.[pj.imagenClave]) return { src: String(LIB.img[pj.imagenClave]), propia: true };
   const k = imagenDeClase(LIB.img, { especie: pj.especie?.key, sub: pj.especie?.sub, clase: pj.clase, subclase: c.SD?.key || '' }, pj.id || '');
   return { src: k ? String(LIB.img?.[k]) : '', propia: false };
 }
@@ -93,8 +95,27 @@ function Identidad({ c }: { c: any }) {
   const insp = !!pj.inspiracion;
   const inicial = (pj.nombre || '?').trim().charAt(0).toUpperCase();
   const retrato = imagenPersonaje(c);
+  const [eligiendo, setEligiendo] = useState(false);
+  const opciones = eligiendo ? imagenesParaElegir(getLib().img, { especie: pj.especie?.key, sub: pj.especie?.sub, clase: pj.clase }) : [];
+  const elegir = (k: string) => { setVal('imagen', ''); setVal('imagenClave', k); setEligiendo(false); };
   return (
     <div className="flex flex-col items-center gap-5 rounded-lg bg-surface-container-low p-5 shadow-xl sm:flex-row sm:items-start">
+      <Dialogo abierto={eligiendo} onCerrar={() => setEligiendo(false)} titulo="Elegir imagen" ancho="lg"
+        descripcion={opciones.length ? 'Solo imágenes de su especie' + (opciones.some(k => leerClaveOrigen(k)?.clase === pj.clase) ? ' y de su clase.' : ' (no hay de su clase).') : undefined}>
+        {opciones.length ? (
+          <ul className="m-0 grid list-none grid-cols-2 gap-2 p-0 sm:grid-cols-3">
+            {opciones.map(k => (
+              <li key={k}>
+                <button type="button" onClick={() => elegir(k)} aria-label={`Usar esta imagen${pj.imagenClave === k ? ' (la actual)' : ''}`} aria-pressed={pj.imagenClave === k}
+                  className={cx('block w-full cursor-pointer overflow-hidden rounded-lg p-1 ring-2', foco, pj.imagenClave === k ? 'ring-primary' : 'ring-transparent hover:ring-outline')}>
+                  <Imagen src={String(getLib().img![k])} alt="" className="aspect-square w-full rounded bg-surface-container-high object-cover object-top" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : <p className="m-0 text-on-surface-variant">La biblioteca todavía no tiene imágenes de su especie. Puedes subir una propia con el botón de la cámara.</p>}
+        {!!pj.imagenClave && <div className="mt-3 flex justify-end"><Boton onClick={() => { setVal('imagenClave', ''); setEligiendo(false); }}>Usar la automática</Boton></div>}
+      </Dialogo>
       <div className="relative shrink-0">
         <div className="size-28 overflow-hidden rounded-lg bg-linear-to-b from-primary-container via-outline-variant to-surface-container-lowest p-1 shadow-[0_0_24px_rgba(212,175,55,0.2)] sm:size-32">
           {retrato.src
@@ -111,11 +132,18 @@ function Identidad({ c }: { c: any }) {
               <span className="sr-only">{retrato.propia ? 'Cambiar la imagen del personaje' : 'Poner una imagen al personaje'}</span>
               <input type="file" accept="image/*" className="sr-only" onChange={e => { const f = e.target.files?.[0]; if (f) subirImagenPj(f); e.target.value = ''; }} />
             </label>
+            {!!pj.especie?.key && (
+              <button type="button" title="Elegir una imagen de la biblioteca" onClick={() => setEligiendo(true)}
+                className={cx('grid size-8 cursor-pointer place-items-center rounded-full bg-surface-container-highest text-primary shadow', foco)}>
+                <Simbolo n="photo_library" className="text-body-md" />
+                <span className="sr-only">Elegir una imagen de la biblioteca</span>
+              </button>
+            )}
             {retrato.propia && (
-              <button type="button" title="Quitar la imagen propia (vuelve la de su clase)" onClick={() => setVal('imagen', '')}
+              <button type="button" title="Quitar la imagen elegida (vuelve la automática)" onClick={() => { setVal('imagen', ''); setVal('imagenClave', ''); }}
                 className={cx('grid size-8 cursor-pointer place-items-center rounded-full bg-surface-container-highest text-primary shadow', foco)}>
                 <Simbolo n="close" className="text-body-md" />
-                <span className="sr-only">Quitar la imagen propia y usar la de su clase</span>
+                <span className="sr-only">Quitar la imagen elegida y usar la automática</span>
               </button>
             )}
           </div>
