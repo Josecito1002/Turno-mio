@@ -157,8 +157,14 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
   // «Atacar» ya está en los ataques de arriba; los demás van a movimiento o a genéricas
   const com = (COMUNES[t] || []).filter(([n]: [string]) => n !== 'Atacar');
   const mov = com.filter(([n]: [string]) => DE_MOVIMIENTO.has(n)), gen = com.filter(([n]: [string]) => !DE_MOVIMIENTO.has(n));
-  const op = (u: Uso, hijo: React.ReactNode, k: string | number) => <Opcion key={k} uso={u} elegido={elegido} elegir={elegir}>{hijo}</Opcion>;
-  const deArma = (a: any): Uso => ({ tipo: t, nombre: a.nombre, texto: [a.dmg, ...(a.notas || [])].filter(Boolean).join('. ') || 'Ataque', ...(a.cd == null ? { atk: a.atk } : { salv: a.salv, cd: a.cd }), dexpr: a.expr, afecta: true });
+  // Al elegir un ataque se ve debajo qué hace
+  const op = (u: Uso, hijo: React.ReactNode, k: string | number) => (
+    <Opcion key={k} uso={u} elegido={elegido} elegir={elegir}>
+      {hijo}
+      {mismo(elegido, u) && u.texto && <p className="m-0 mx-2 mb-2 mt-1 rounded-lg bg-surface-container-lowest p-2 text-body-sm text-on-surface-variant" dangerouslySetInnerHTML={{ __html: u.raw ? richT(u.texto) : esc(u.texto) }} />}
+    </Opcion>
+  );
+  const deArma = (a: any): Uso => ({ tipo: t, nombre: a.nombre, texto: [a.w?.dist ? 'Ataque a distancia' : 'Ataque cuerpo a cuerpo', a.dmg && `Daño: ${a.dmg}`, a.maestria && `Maestría: ${a.maestria}`, ...(a.notas || [])].filter(Boolean).join('. ') || 'Ataque', ...(a.cd == null ? { atk: a.atk } : { salv: a.salv, cd: a.cd }), dexpr: a.expr, afecta: true });
   // Un rasgo que ataca sin armas (Golpe sin armas extra) se ve como un ataque, con su puño
   const comoAtaque = (e: any) => !!e.roll?.[0];
   const deRasgo = (e: any): Uso => {
