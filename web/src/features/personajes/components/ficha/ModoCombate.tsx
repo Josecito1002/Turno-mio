@@ -14,7 +14,7 @@ import { resumen } from '../../domain/modelo';
 import { combateMesa, enviarGolpeMesa, gastarAccionMesa, type CombateVivo, type EconomiaRonda, type OrdenDm, type TipoAccionRonda } from '@/features/mesa/api';
 import { EFECTO_CONDICION } from '@/features/mesa/domain/condiciones';
 import { datosConjuro } from '../piezas';
-import { ataquesPorAccion, bonosPara } from '../../domain/lanzar';
+import { ataquesPorAccion, bonosPara, golpesDeRasgo } from '../../domain/lanzar';
 import { UsoAccion, type Uso } from './UsoAccion';
 import { FilaArsenal, Ranuras, RecursosClase } from './Ficha';
 
@@ -172,10 +172,11 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
     // Un rasgo que ataca (Golpe sin armas extra, Ráfaga de golpes…) trae su tirada: se trata como un ataque
     const atk = e.roll?.[0] ? +(/([+-]\d+)\s*$/.exec(e.roll[0])?.[1] ?? 0) : undefined;
     const gasta = e.recurso && /^1 /.test(e.coste || '') ? e.recurso : undefined;
-    // «Haces dos golpes…»: cada uno se registra aparte
-    const veces = /\b(?:realiz|hac|lanz|propin|efect)[a-zé]*\s+(?:\w+\s+)?(dos|tres|cuatro|2|3|4)\s+(?:golpes|ataques)\b/i.exec(String(e.texto || ''))?.[1]?.toLowerCase();
-    const golpes = veces ? ({ dos: 2, '2': 2, tres: 3, '3': 3, cuatro: 4, '4': 4 } as Record<string, number>)[veces] : undefined;
-    return { tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, ...(golpes ? { golpes } : {}), ...(atk != null ? { atk, dexpr: e.roll[1] } : {}), afecta: atk != null || !!golpes, ...(gasta ? { gasta } : {}) };
+    // «Haces dos golpes…», Ráfaga de Golpes: cada uno se registra aparte
+    const n = golpesDeRasgo(c, e), golpes = n > 1 ? n : undefined;
+    // Un ataque más (Golpe Repentino) también apunta a un objetivo
+    const ataca = atk != null || !!golpes || /\b(?:un|otro) ataque (?:más|adicional|extra)\b|\bhacer (?:un|otro) ataque\b/i.test(String(e.texto || ''));
+    return { tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, ...(golpes ? { golpes } : {}), ...(atk != null ? { atk, dexpr: e.roll[1] } : {}), afecta: ataca, ...(gasta ? { gasta } : {}) };
   };
   const comoArma = (e: any) => ({ puno: /sin armas|golpe|pu[ñn]/i.test(`${e.nombre} ${e.texto}`), nombre: e.nombre, atk: +(/([+-]\d+)\s*$/.exec(e.roll[0])?.[1] ?? 0), expr: e.roll[1], dmg: String(e.roll[1]).replace(/\s/g, ''), notas: [] as string[] });
   const deConjuro = (s: any): Uso => {

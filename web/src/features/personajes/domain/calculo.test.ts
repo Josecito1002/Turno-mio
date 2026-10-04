@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { setLib, getSubs, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
 import { compute } from './calculo';
 import { resolver } from '@/features/dados/domain/dados';
-import { ataquesPorAccion, bonosPara, dadosAlLanzar, espaciosPara, extrasAtaque } from './lanzar';
+import { ataquesPorAccion, bonosPara, dadosAlLanzar, espaciosPara, extrasAtaque, golpesDeRasgo } from './lanzar';
 import { sinDuplicado } from '@/features/biblioteca/domain/mapeo';
 import { nuevoPj } from './modelo';
 import { pendientes, pendientesAlSubir } from './pendientes';
@@ -1181,6 +1181,15 @@ describe('Para qué sirve cada recurso', () => {
     assert.equal(ataquesPorAccion(pj('guerrero', 11, '', { fue: 16 })), 3);
     assert.equal(ataquesPorAccion(pj('guerrero', 20, '', { fue: 16 })), 4);
     assert.equal(ataquesPorAccion(pj('paladin', 5, '', { fue: 16 })), 2);
+  });
+  test('Golpes de un rasgo: Ráfaga de Golpes (2, 3 con Enfoque Elevado, más con Frenesí Ebrio) y los que dicen cuántos hacen', () => {
+    const rafaga = { nombre: 'Ráfaga de Golpes', texto: 'Dos golpes sin armas: +5 al ataque.' };
+    const con = (...n: string[]) => ({ entries: n.map(nombre => ({ nombre })) });
+    assert.equal(golpesDeRasgo(con(), rafaga), 2);
+    assert.equal(golpesDeRasgo(con('Enfoque Elevado'), rafaga), 3);
+    assert.equal(golpesDeRasgo(con('Enfoque Elevado', 'Frenesí Ebrio'), rafaga), 6);
+    assert.equal(golpesDeRasgo(con(), { nombre: 'Uno-Dos', texto: 'Haces dos golpes sin armas (1d8 + 5 cada uno).' }), 2);
+    assert.equal(golpesDeRasgo(con(), { nombre: 'Golpe', texto: 'Haces un golpe sin armas.' }), 1);
   });
   test('Los espacios de pacto del brujo valen para lanzar conjuros', () => {
     const c = pj('brujo', 5, '', { car: 16 }, { conjuros: [{ nombre: 'Manos ardientes', nivel: 1 }] });
