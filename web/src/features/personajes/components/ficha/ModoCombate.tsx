@@ -10,36 +10,44 @@ import { CONDICIONES } from '@/features/mesa/domain/combate';
 import { avisar } from '@/shared/ui/avisos';
 import { combateMesa, enviarGolpeMesa, gastarAccionMesa, type CombateVivo, type EconomiaRonda, type TipoAccionRonda } from '@/features/mesa/api';
 import { EFECTO_CONDICION } from '@/features/mesa/domain/condiciones';
-import { Entrada } from '../piezas';
+import { Entrada, datosConjuro } from '../piezas';
+import { UsoAccion, type Uso } from './UsoAccion';
 import { FilaArsenal, FilaConjuro, Ranuras, RecursosClase } from './Ficha';
 
 const TIPOS_BOTON: TipoAccionRonda[] = ['accion', 'adicional', 'reaccion'];
 
-/** Lo que se puede hacer con cada tipo de acción: ataques, rasgos, conjuros y las acciones que cualquiera tiene. */
-function OpcionesDeTipo({ c, t }: { c: any; t: TipoAccionRonda }) {
+/** Lo que se puede hacer con cada tipo de acción: ataques, rasgos, conjuros y las acciones que cualquiera tiene.
+ *  Cada opción tiene su botón «Usar»: abre la confirmación con lo que hace y a quién afecta. */
+function OpcionesDeTipo({ c, t, usar }: { c: any; t: TipoAccionRonda; usar: (u: Uso) => void }) {
   const armas = t === 'accion' ? [...c.armas.filter((a: any) => a.mano), ...(c.naturales || [])] : [];
   const ents = c.entries.filter((e: any) => e.t === t);
   const conjuros = (c.conjuros || []).filter((s: any) => (s.tiempo || 'accion') === t);
   const com = COMUNES[t] || [];
+  const boton = (u: Uso) => <Boton tamano="sm" variante="primario" className="mt-1" onClick={() => usar(u)}>Usar {u.nombre}</Boton>;
+  const deArma = (a: any): Uso => ({ tipo: t, nombre: a.nombre, texto: [a.dmg, ...(a.notas || [])].filter(Boolean).join('. ') || 'Ataque', ...(a.cd == null ? { atk: a.atk } : { salv: a.salv, cd: a.cd }), dexpr: a.expr, afecta: true });
+  const deConjuro = (s: any): Uso => {
+    const d = datosConjuro(s, c), salv = s.salv ? String(s.salv).toUpperCase() : undefined;
+    return { tipo: t, nombre: s.nombre, coste: s.coste || (+s.nivel ? `Nivel ${s.nivel}` : 'Truco'), texto: String(s.desc || '').trim(), raw: true, ...(s.ataque && d.atk != null ? { atk: d.atk } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados) };
+  };
   return (
     <div className="space-y-3">
       {armas.length > 0 && (
         <div className="space-y-2"><span className="text-label-caps uppercase text-outline">Ataques</span>
-          {armas.map((a: any, i: number) => <FilaArsenal key={a.nombre + i} a={a} c={c} />)}</div>
+          {armas.map((a: any, i: number) => <div key={a.nombre + i}><FilaArsenal a={a} c={c} />{boton(deArma(a))}</div>)}</div>
       )}
-      {ents.length > 0 && <div><span className="text-label-caps uppercase text-outline">Rasgos</span>{ents.map((e: any, i: number) => <Entrada key={i} e={e} />)}</div>}
+      {ents.length > 0 && <div><span className="text-label-caps uppercase text-outline">Rasgos</span>
+        {ents.map((e: any, i: number) => <div key={i}><Entrada e={e} />{boton({ tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, afecta: false })}</div>)}</div>}
       {conjuros.length > 0 && (
         <div className="space-y-1"><span className="text-label-caps uppercase text-outline">Conjuros</span>
-          <ul className="m-0 list-none space-y-1 p-0">{conjuros.map((s: any, i: number) => <FilaConjuro key={s.nombre + i} s={s} c={c} />)}</ul></div>
+          <ul className="m-0 list-none space-y-2 p-0">{conjuros.map((s: any, i: number) => <li key={s.nombre + i}><FilaConjuro s={s} c={c} />{boton(deConjuro(s))}</li>)}</ul></div>
       )}
       {com.length > 0 && (
         <div><span className="text-label-caps uppercase text-outline">Las que cualquiera puede hacer</span>
-          {com.map(([n, f]: [string, (c: any) => string]) => <Entrada key={n} e={{ t, nombre: n, texto: f(c), src: 'Reglas básicas' }} />)}</div>
+          {com.map(([n, f]: [string, (c: any) => string]) => <div key={n}><Entrada e={{ t, nombre: n, texto: f(c), src: 'Reglas básicas' }} />{boton({ tipo: t, nombre: n, texto: f(c), afecta: n === 'Atacar' })}</div>)}</div>
       )}
     </div>
   );
 }
-
 
 /** Mandar daño (y una condición) a un enemigo: el DM lo aplica en su Mesa. */
 function GolpeAEnemigo({ enemigos, mesa }: { enemigos: { k: string; nombre: string }[]; mesa: { dmId: string; campanaId: string; personajeId: string } }) {
@@ -78,6 +86,7 @@ export function ModoCombate({ c }: { c: any }) {
   const [viv, setViv] = useState<CombateVivo>(null);
   const [eco, setEco] = useState<EconomiaRonda>({});
   const [abierto, setAbierto] = useState<TipoAccionRonda | null>(null);
+  const [uso, setUso] = useState<Uso | null>(null);
   const [error, setError] = useState('');
   const toques = useRef<Partial<Record<TipoAccionRonda, number>>>({});
 
@@ -110,6 +119,7 @@ export function ModoCombate({ c }: { c: any }) {
   const mias = viv?.orden?.find(o => o.pid === personajeId)?.cond || [];
   const esMiTurno = !!turnoDe && turnoDe.pid === m.personajeId;
   const salir = () => { S.combateMesa = null; S.combateHoja = false; render(); };
+  const enemigos = (viv?.orden || []).filter(o => o.tipo === 'm');
   const ranuras = c.recursos.filter((r: any) => /^slot\d/.test(r.id));
 
   return (
@@ -173,11 +183,14 @@ export function ModoCombate({ c }: { c: any }) {
             <Boton variante={eco[abierto] ? 'secundario' : 'primario'} onClick={() => gastar(abierto, !eco[abierto])}>
               {eco[abierto] ? 'Recuperar (me equivoqué)' : `Marcar ${TIPOS[abierto][0].toLowerCase()} como gastada`}
             </Boton>
-            <GolpeAEnemigo enemigos={(viv?.orden || []).filter(o => o.tipo === 'm')} mesa={{ dmId, campanaId, personajeId }} />
-            <OpcionesDeTipo c={c} t={abierto} />
+            <details className="rounded-lg bg-surface-container-low"><summary className="min-h-11 cursor-pointer list-none px-3 py-2 text-body-sm text-outline">Aplicar daño a un enemigo a mano</summary><div className="p-2"><GolpeAEnemigo enemigos={enemigos} mesa={{ dmId, campanaId, personajeId }} /></div></details>
+            <OpcionesDeTipo c={c} t={abierto} usar={u => { setAbierto(null); setUso(u); }} />
           </div>
         )}
       </Dialogo>
+
+      <UsoAccion uso={uso} enemigos={enemigos} mesa={{ dmId, campanaId, personajeId }} yaGastada={!!(uso && eco[uso.tipo])} alCerrar={() => setUso(null)}
+        alUsar={t => { toques.current[t] = Date.now(); setEco(p => ({ ...p, [t]: true })); }} />
     </div>
   );
 }

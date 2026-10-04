@@ -17,7 +17,7 @@ import { CONDICIONES, actualizarPgUnido, cambiarPg, campActual, camps, claveUnid
 import { codigoMesa, guardarCampana, jugadoresMesa, quitarDeMesa } from '../api';
 import { conectarMesaRealtime } from '../realtime-cliente';
 import { publicarCombate } from '../domain/combate-vivo';
-import { combateVivoDm, confirmarGolpes, fijarAccionDm, type EconomiaRonda, type Golpe, type TipoAccionRonda } from '../api';
+import { combateVivoDm, confirmarGolpes, fijarAccionDm, resolverSalvacion, type CombateVivo, type EconomiaRonda, type Golpe, type Salvacion, type TipoAccionRonda } from '../api';
 import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
 import { enemigosDe, leerSesion, type Encuentro } from '../domain/sesion';
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
@@ -462,17 +462,65 @@ function aplicarGolpes(campId: string, golpes: Golpe[]) {
   confirmarGolpes(campId, golpes.map(g => g.id)).catch(() => {});
 }
 
-function useEconomiaVivo(campId: string, activo: boolean) {
-  const [eco, setEco] = useState<Record<string, EconomiaRonda>>({});
+type VivoDm = { eco: Record<string, EconomiaRonda>; salvs: Salvacion[]; ultimas: NonNullable<CombateVivo>['ultimas'] };
+function useEconomiaVivo(campId: string, activo: boolean): VivoDm {
+  const [vivo, setVivo] = useState<VivoDm>({ eco: {}, salvs: [], ultimas: {} });
   useEffect(() => {
     if (!activo) return;
-    let vivo = true;
-    const leer = () => combateVivoDm(campId).then(v => { if (!vivo) return; setEco(v?.economia || {}); if (v?.golpes?.length) aplicarGolpes(campId, v.golpes); }, () => {});
+    let sigue = true;
+    const leer = () => combateVivoDm(campId).then(v => {
+      if (!sigue) return;
+      setVivo({ eco: v?.economia || {}, salvs: v?.salvaciones || [], ultimas: v?.ultimas || {} });
+      if (v?.golpes?.length) aplicarGolpes(campId, v.golpes);
+    }, () => {});
     leer();
     const t = setInterval(() => { if (document.visibilityState === 'visible') leer(); }, 2000);
-    return () => { vivo = false; clearInterval(t); };
+    return () => { sigue = false; clearInterval(t); };
   }, [campId, activo]);
-  return eco;
+  return vivo;
+}
+
+/** Salvaciones ya resueltas en esta pantalla (la lista del servidor tarda un rato en vaciarse). */
+const salvacionesResueltas = new Set<string>();
+/** El DM dice si el enemigo superó o falló la salvación: se aplica el daño (completo, mitad o nada) y la condición. */
+function resolverSalv(campId: string, s: Salvacion, k: string, supero: boolean) {
+  const clave = `${s.id}|${k}`;
+  if (salvacionesResueltas.has(clave)) return;
+  salvacionesResueltas.add(clave);
+  conCamp(c => {
+    const m = c.monstruos.find((x: any) => 'm:' + x.id === k);
+    if (!m) return false;
+    const dano = supero ? (s.mitad ? Math.floor(s.dano / 2) : 0) : s.dano;
+    m.pg = Math.max(0, m.pg - dano);
+    if (!supero && s.condicion) { const e = estadoDe(c, k); if (!e.cond.includes(s.condicion)) e.cond.push(s.condicion); }
+    avisar(`${m.nombre} ${supero ? 'superó' : 'falló'} la salvación de ${s.salv}${dano ? `: ${dano} de daño` : ''}${!supero && s.condicion ? `, ${s.condicion}` : ''}.`);
+  });
+  resolverSalvacion(campId, s.id, k).catch(() => {});
+}
+
+const CLAVE_SALV: Record<string, string> = { FUE: 'fue', DES: 'des', CON: 'con', INT: 'int', SAB: 'sab', CAR: 'car' };
+/** Lo que un enemigo debe tirar por culpa de un jugador: el DM tira (o pregunta) y marca si lo superó. */
+function SalvacionesPendientes({ cp, x, salvs }: { cp: any; x: any; salvs: Salvacion[] }) {
+  const cat = useCatalogo(), ficha = x.m?.ref && (cat || cp.bestiario?.[x.m.ref]) ? monstruoDe(cp, x.m.ref) : null;
+  const mias = salvs.filter(s => s.objetivos.includes(x.k) && !salvacionesResueltas.has(`${s.id}|${x.k}`));
+  if (!mias.length) return null;
+  return (
+    <div className="mt-2 grid gap-2" aria-live="polite">
+      {mias.map(s => {
+        const k = CLAVE_SALV[s.salv], mod = ficha ? (ficha.salv?.[k] ?? Math.floor((((ficha.ab as any)?.[k] ?? 10) - 10) / 2)) : null;
+        return (
+          <div key={s.id} className="rounded-xl bg-gol/20 p-2 text-sm">
+            <p className="m-0"><b>{x.nombre}</b> debe tirar salvación de <b>{s.salv}</b> contra <b>CD {s.cd}</b>. <span className="text-muted">{s.de}{s.nota ? ` (${s.nota})` : ''}: {s.dano} de daño{s.mitad ? ', mitad si la supera' : ''}{s.condicion ? `, ${s.condicion} si falla` : ''}.</span></p>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              {mod != null && <BotonTirada expr={`1d20${modStr(mod)}`} label={`Salvación de ${s.salv} de ${x.nombre}`}>Tirar ({sign(mod)})</BotonTirada>}
+              <Boton tamano="sm" variante="primario" onClick={() => resolverSalv(cp.id, s, x.k, false)}>Falló</Boton>
+              <Boton tamano="sm" onClick={() => resolverSalv(cp.id, s, x.k, true)}>Superó</Boton>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 const ETIQUETAS_ACCION: [TipoAccionRonda, string][] = [['accion', 'Acción'], ['adicional', 'Adicional'], ['reaccion', 'Reacción']];
@@ -504,7 +552,7 @@ function AccionesRonda({ campId, clave, eco, nombre }: { campId: string; clave: 
 function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
   const tirar = useDados();
   const cb = cp.combate;
-  const economia = useEconomiaVivo(cp.id, !!cb.activo);
+  const vivo = useEconomiaVivo(cp.id, !!cb.activo), economia = vivo.eco;
   const quitarMon = (id: string) => conCamp(c => { c.monstruos = c.monstruos.filter((m: any) => m.id !== id); c.combate.orden = (c.combate.orden || []).filter((o: any) => o.k !== 'm:' + id); });
   if (!cb.activo) {
     const empezar = () => {
@@ -577,6 +625,9 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
                     : <Boton tamano="sm" onClick={() => quitarMon(x.m.id)} aria-label={`Quitar ${x.nombre}`}>Quitar</Boton>}
               </div>
               <AccionesRonda campId={cp.id} clave={x.tipo === 'jug' ? x.u.personajeId : x.k} nombre={x.nombre} eco={economia[x.tipo === 'jug' ? x.u.personajeId : x.k]} />
+              {x.tipo === 'jug' && vivo.ultimas?.[x.u.personajeId] && <p className="m-0 mt-1 rounded-xl bg-soft p-2 text-sm"><b>Última acción:</b> {vivo.ultimas[x.u.personajeId].nombre}{vivo.ultimas[x.u.personajeId].resumen ? ` · ${vivo.ultimas[x.u.personajeId].resumen}` : ''}</p>}
+              {x.tipo === 'm' && <SalvacionesPendientes cp={cp} x={x} salvs={vivo.salvs} />}
+              {x.tipo === 'jug' && <details className="mt-1"><summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>Hoja resumida</summary><Pasivas x={x} /></details>}
               <PuntosGolpe x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
               {x.tipo === 'm' && x.m.ref && <VerBloque cp={cp} r={x.m.ref} nombre={x.nombre} />}
             </Tarjeta>

@@ -37,6 +37,7 @@ export const salirMesa = (m: { dmId: string; campanaId: string; personajeId: str
 export type TipoAccionRonda = 'accion' | 'adicional' | 'reaccion';
 export type EconomiaRonda = Partial<Record<TipoAccionRonda, boolean>>;
 export type Golpe = { id: string; de: string; objetivo: string; dano: number; condicion: string | null; nota: string | null; ts: string };
+export type Salvacion = { id: string; de: string; objetivos: string[]; salv: string; cd: number; dano: number; mitad: boolean; condicion: string | null; nota: string | null; ts: string };
 export type CombateVivo = {
   activo?: boolean; ronda?: number; turno?: number;
   /** Quién actúa y en qué orden; `pid` es el id del personaje cuando es de un jugador unido. */
@@ -44,6 +45,10 @@ export type CombateVivo = {
   economia?: Record<string, EconomiaRonda>;
   /** Golpes que mandaron los jugadores y el DM todavía no aplica. */
   golpes?: Golpe[];
+  /** Tiradas de salvación que los enemigos deben hacer, pedidas por los jugadores. */
+  salvaciones?: Salvacion[];
+  /** Lo último que hizo cada jugador (por id de personaje). */
+  ultimas?: Record<string, { tipo: TipoAccionRonda; nombre: string; resumen: string; ts: string }>;
   actualizadoEn?: string;
 } | null;
 
@@ -67,3 +72,12 @@ export const confirmarGolpes = (campanaId: string, ids: string[]) =>
 
 export const fijarAccionDm = (campanaId: string, clave: string, tipo: TipoAccionRonda, gastado: boolean) =>
   gql(`mutation ($campanaId: ID!, $clave: String!, $tipo: String!, $gastado: Boolean!) { fijarAccionDm(campanaId: $campanaId, clave: $clave, tipo: $tipo, gastado: $gastado) }`, { campanaId, clave, tipo, gastado });
+
+export const usarAccionMesa = (m: { dmId: string; campanaId: string; personajeId: string }, tipo: TipoAccionRonda, nombre: string, resumen?: string) =>
+  gql(`mutation ($dmId: ID!, $campanaId: ID!, $personajeId: ID!, $tipo: String!, $nombre: String!, $resumen: String) { usarAccionMesa(dmId: $dmId, campanaId: $campanaId, personajeId: $personajeId, tipo: $tipo, nombre: $nombre, resumen: $resumen) }`, { ...m, tipo, nombre, resumen });
+
+export const enviarSalvacionMesa = (m: { dmId: string; campanaId: string; personajeId: string }, s: { objetivos: string[]; salv: string; cd: number; dano: number; mitad: boolean; condicion?: string; nota?: string }) =>
+  gql(`mutation ($dmId: ID!, $campanaId: ID!, $personajeId: ID!, $objetivos: [String!]!, $salv: String!, $cd: Int!, $dano: Int!, $mitad: Boolean!, $condicion: String, $nota: String) { enviarSalvacionMesa(dmId: $dmId, campanaId: $campanaId, personajeId: $personajeId, objetivos: $objetivos, salv: $salv, cd: $cd, dano: $dano, mitad: $mitad, condicion: $condicion, nota: $nota) }`, { ...m, ...s });
+
+export const resolverSalvacion = (campanaId: string, id: string, clave: string) =>
+  gql(`mutation ($campanaId: ID!, $id: String!, $clave: String!) { resolverSalvacion(campanaId: $campanaId, id: $id, clave: $clave) }`, { campanaId, id, clave });

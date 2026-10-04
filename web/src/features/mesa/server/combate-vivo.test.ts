@@ -87,4 +87,24 @@ describe('combate en vivo', () => {
     await assert.rejects(M.fijarAccionDm(null, { campanaId: 'c1', clave: 'm:abc', tipo: 'accion', gastado: false }, ctx(jug)));
     await assert.rejects(M.fijarAccionDm(null, { campanaId: 'c1', clave: 'm:abc', tipo: 'otra', gastado: false }, ctx(dm)));
   });
+  test('usar una acción la marca gastada y deja dicho qué se hizo', async () => {
+    await M.usarAccionMesa(null, { ...unido, tipo: 'adicional', nombre: 'Correr', resumen: 'Doblas tu velocidad' }, ctx(jug));
+    const v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    assert.equal(v.economia.pj1.adicional, true); assert.equal(v.ultimas.pj1.nombre, 'Correr');
+    await assert.rejects(M.usarAccionMesa(null, { ...unido, tipo: 'accion', nombre: 'X' }, ctx(otro)));
+  });
+  test('las salvaciones piden tirada a varios enemigos y el DM las resuelve de una en una', async () => {
+    await M.enviarSalvacionMesa(null, { ...unido, objetivos: ['m:a', 'm:b'], salv: 'DES', cd: 14, dano: 20, mitad: true, condicion: 'Derribado' }, ctx(jug));
+    let v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    const id = v.salvaciones[0].id;
+    assert.deepEqual(v.salvaciones[0].objetivos, ['m:a', 'm:b']);
+    await M.resolverSalvacion(null, { campanaId: 'c1', id, clave: 'm:a' }, ctx(dm));
+    v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    assert.deepEqual(v.salvaciones[0].objetivos, ['m:b']);
+    await M.resolverSalvacion(null, { campanaId: 'c1', id, clave: 'm:b' }, ctx(dm));
+    v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    assert.equal(v.salvaciones.length, 0);
+    await assert.rejects(M.enviarSalvacionMesa(null, { ...unido, objetivos: ['pj:x'], salv: 'DES', cd: 14, dano: 1, mitad: false }, ctx(jug)));
+    await assert.rejects(M.enviarSalvacionMesa(null, { ...unido, objetivos: ['m:a'], salv: 'XXX', cd: 14, dano: 1, mitad: false }, ctx(jug)));
+  });
 });
