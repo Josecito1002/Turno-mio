@@ -79,4 +79,12 @@ describe('combate en vivo', () => {
     await assert.rejects(M.enviarGolpeMesa(null, { ...unido, objetivo: 'm:a', dano: -5 }, ctx(jug)));
     await assert.rejects(M.enviarGolpeMesa(null, { ...unido, objetivo: 'm:a', dano: 1 }, ctx(otro)));
   });
+  test('el DM marca la acción de un enemigo y de un jugador, y el jugador no puede hacerlo por otro', async () => {
+    await M.fijarAccionDm(null, { campanaId: 'c1', clave: 'm:abc', tipo: 'accion', gastado: true }, ctx(dm));
+    await M.fijarAccionDm(null, { campanaId: 'c1', clave: 'pj1', tipo: 'reaccion', gastado: true }, ctx(dm));
+    const v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    assert.equal(v.economia['m:abc'].accion, true); assert.equal(v.economia.pj1.reaccion, true);
+    await assert.rejects(M.fijarAccionDm(null, { campanaId: 'c1', clave: 'm:abc', tipo: 'accion', gastado: false }, ctx(jug)));
+    await assert.rejects(M.fijarAccionDm(null, { campanaId: 'c1', clave: 'm:abc', tipo: 'otra', gastado: false }, ctx(dm)));
+  });
 });

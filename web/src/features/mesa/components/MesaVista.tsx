@@ -17,7 +17,7 @@ import { CONDICIONES, actualizarPgUnido, cambiarPg, campActual, camps, claveUnid
 import { codigoMesa, guardarCampana, jugadoresMesa, quitarDeMesa } from '../api';
 import { conectarMesaRealtime } from '../realtime-cliente';
 import { publicarCombate } from '../domain/combate-vivo';
-import { combateVivoDm, confirmarGolpes, type EconomiaRonda, type Golpe, type TipoAccionRonda } from '../api';
+import { combateVivoDm, confirmarGolpes, fijarAccionDm, type EconomiaRonda, type Golpe, type TipoAccionRonda } from '../api';
 import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
 import { enemigosDe, leerSesion, type Encuentro } from '../domain/sesion';
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
@@ -476,15 +476,27 @@ function useEconomiaVivo(campId: string, activo: boolean) {
 }
 
 const ETIQUETAS_ACCION: [TipoAccionRonda, string][] = [['accion', 'Acción'], ['adicional', 'Adicional'], ['reaccion', 'Reacción']];
-/** Las tres acciones de la ronda: tachadas las que ya gastó. */
-function AccionesRonda({ eco }: { eco: EconomiaRonda | undefined }) {
+/** Las tres acciones de la ronda: tachadas las que ya gastó. El DM las marca o las recupera tocándolas
+ *  (para quien no usa la app, y para los enemigos). */
+function AccionesRonda({ campId, clave, eco, nombre }: { campId: string; clave: string; eco: EconomiaRonda | undefined; nombre: string }) {
+  const [local, setLocal] = useState<Partial<Record<TipoAccionRonda, { v: boolean; t: number }>>>({});
+  const tocar = (t: TipoAccionRonda, gastado: boolean) => {
+    setLocal(p => ({ ...p, [t]: { v: gastado, t: Date.now() } }));
+    fijarAccionDm(campId, clave, t, gastado).catch((e: Error) => { avisar(`No se pudo marcar: ${e.message}`, 'error'); setLocal(p => { const { [t]: _x, ...resto } = p; void _x; return resto; }); });
+  };
+  // Lo tocado hace un momento manda hasta que el servidor lo devuelva igual
+  const ahora = (t: TipoAccionRonda) => { const l = local[t]; return l && Date.now() - l.t < 3000 ? l.v : eco?.[t]; };
   return (
-    <p className="m-0 mt-1 flex flex-wrap gap-1" aria-label="Acciones de esta ronda">
-      {ETIQUETAS_ACCION.map(([t, n]) => (
-        <span key={t} className={cx('rounded-full px-2 py-0.5 text-xs font-bold', eco?.[t] ? 'bg-soft text-muted line-through' : 'bg-pas/20 text-pas')}>
-          {n}{eco?.[t] ? ' · gastada' : ''}
-        </span>
-      ))}
+    <p className="m-0 mt-1 flex flex-wrap gap-1" aria-label={`Acciones de ${nombre} en esta ronda`}>
+      {ETIQUETAS_ACCION.map(([t, n]) => {
+        const gastada = !!ahora(t);
+        return (
+          <button key={t} type="button" aria-pressed={gastada} onClick={() => tocar(t, !gastada)} title={gastada ? 'Toca para recuperarla' : 'Toca para marcarla como gastada'}
+            className={cx('min-h-9 cursor-pointer rounded-full px-3 text-xs font-bold', foco, gastada ? 'bg-soft text-muted line-through' : 'bg-pas/20 text-pas')}>
+            {n}{gastada ? ' · gastada' : ''}
+          </button>
+        );
+      })}
     </p>
   );
 }
@@ -564,7 +576,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
                   : x.tipo === 'jug' ? <Boton tamano="sm" onClick={() => verHoja(x.k)} aria-label={`Ver la hoja de ${x.nombre}`}>Hoja</Boton>
                     : <Boton tamano="sm" onClick={() => quitarMon(x.m.id)} aria-label={`Quitar ${x.nombre}`}>Quitar</Boton>}
               </div>
-              {x.tipo === 'jug' && <AccionesRonda eco={economia[x.u.personajeId]} />}
+              <AccionesRonda campId={cp.id} clave={x.tipo === 'jug' ? x.u.personajeId : x.k} nombre={x.nombre} eco={economia[x.tipo === 'jug' ? x.u.personajeId : x.k]} />
               <PuntosGolpe x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
               {x.tipo === 'm' && x.m.ref && <VerBloque cp={cp} r={x.m.ref} nombre={x.nombre} />}
             </Tarjeta>
