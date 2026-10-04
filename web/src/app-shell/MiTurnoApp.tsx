@@ -333,6 +333,28 @@ function BarraSuperior({ invitado }: { invitado: boolean }) {
   );
 }
 
+const CLAVE_PANTALLA = 'miturno-pantalla';
+const VISTAS_RECORDADAS = ['home', 'ficha', 'editor', 'lib', 'mesa', 'mesaj', 'cuentas'];
+
+function guardarPantalla(invitado: boolean) {
+  try {
+    const v = S.view === 'ajeno' ? S.ajeno?.volver || 'home' : S.view;
+    localStorage.setItem(CLAVE_PANTALLA, JSON.stringify({ invitado, view: v, pj: S.pj?.id || null, tab: S.tab, step: S.step, camp: S.camp, mtab: S.mtab, campJ: S.campJ, campJTab: S.campJTab, combateMesa: S.combateMesa, combateHoja: S.combateHoja }));
+  } catch { /* sin almacenamiento: no pasa nada */ }
+}
+
+function restaurarPantalla(invitado: boolean) {
+  let g: Record<string, any> | null = null; // eslint-disable-line @typescript-eslint/no-explicit-any
+  try { g = JSON.parse(localStorage.getItem(CLAVE_PANTALLA) || 'null'); } catch { /* sin datos */ }
+  if (!g || g.invitado !== invitado || !VISTAS_RECORDADAS.includes(g.view)) return;
+  if (g.pj && S.pj?.id !== g.pj && S.list.some(p => p.id === g.pj)) { const p = almacen.pj(g.pj); if (p) S.pj = reparar(p); }
+  if ((g.view === 'ficha' || g.view === 'editor') && (!S.pj || S.pj.id !== g.pj)) return;
+  S.view = g.view; S.tab = g.tab || 'turno'; S.step = g.step || S.step; S.mtab = g.mtab || S.mtab;
+  if (g.camp) S.camp = g.camp;
+  if (g.view === 'mesaj') { S.campJ = g.campJ || null; S.campJTab = g.campJTab === 'combate' ? 'combate' : 'personajes'; }
+  if (g.view === 'ficha' && g.combateMesa && g.combateMesa.personajeId === S.pj?.id) { S.combateMesa = g.combateMesa; S.combateHoja = !!g.combateHoja; }
+}
+
 /** invitado: sin cuenta; los personajes se guardan solo en este navegador. enlace: abre el personaje de un enlace compartido. */
 export function MiTurnoApp({ invitado = false, enlace }: { invitado?: boolean; enlace?: string }) {
   useRender();
@@ -347,6 +369,7 @@ export function MiTurnoApp({ invitado = false, enlace }: { invitado?: boolean; e
       const last = usuario?.ultimoPj;
       if (enlace) { S.cargando = false; render(); abrirEnlace(enlace); return; }
       if (last && S.list.some(p => p.id === last)) { const p = almacen.pj(last); if (p) { S.pj = reparar(p); S.view = 'ficha'; } }
+      restaurarPantalla(invitado);
       S.cargando = false; render();
     }).catch((e: Error) => { S.error = e.message; S.cargando = false; render(); });
 
@@ -368,6 +391,8 @@ export function MiTurnoApp({ invitado = false, enlace }: { invitado?: boolean; e
   }, [invitado, enlace]);
 
   // Al cambiar de pantalla: título de la pestaña del navegador y foco en el encabezado (teclado y lectores de pantalla).
+  // Recordar dónde estás para que recargar la página te deje en el mismo lugar
+  useEffect(() => { if (!S.cargando && !S.error) guardarPantalla(invitado); });
   const clave = S.cargando ? 'cargando' : `${S.view}|${S.pj?.id || ''}|${S.camp || ''}|${S.ajeno?.pj?.id || ''}`;
   useEffect(() => {
     if (S.cargando) return;

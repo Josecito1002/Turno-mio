@@ -67,6 +67,8 @@ const typeDefs = /* GraphQL */ `
     misMesas: [MesaUnida!]!
     "Jugador: los personajes de una mesa a la que pertenece."
     companerosMesa(dmId: ID!, campanaId: ID!): [CompaneroMesa!]!
+    "Jugador: la hoja (solo lectura) de un personaje de una mesa a la que pertenece."
+    hojaCompaneroMesa(dmId: ID!, campanaId: ID!, personajeId: ID!): JSON
     "DM: el combate que ven sus jugadores (null si no hay)."
     combateVivo(campanaId: ID!): JSON
     "Jugador: el combate de la mesa a la que unió su personaje (null si no hay)."
@@ -168,6 +170,16 @@ export const mesaGraphQL: ModuloGraphQL = {
           .innerJoin(usuarios, eq(usuarios.id, mesaJugadores.jugadorId))
           .where(and(eq(mesaJugadores.dmId, a.dmId), eq(mesaJugadores.campanaId, a.campanaId)))
           .orderBy(mesaJugadores.unidoEn);
+      },
+      hojaCompaneroMesa: async (_: unknown, a: { dmId: string; campanaId: string; personajeId: string }, ctx: Contexto) => {
+        const u = requiereUsuario(ctx);
+        const [m] = await ctx.db.select({ n: count() }).from(mesaJugadores)
+          .where(and(eq(mesaJugadores.dmId, a.dmId), eq(mesaJugadores.campanaId, a.campanaId), eq(mesaJugadores.jugadorId, u.id)));
+        if (!Number(m?.n)) throw new GraphQLError('No estás en esa mesa.');
+        const [p] = await ctx.db.select({ datos: personajes.datos }).from(mesaJugadores)
+          .innerJoin(personajes, and(eq(personajes.usuarioId, mesaJugadores.jugadorId), eq(personajes.id, mesaJugadores.personajeId)))
+          .where(and(eq(mesaJugadores.dmId, a.dmId), eq(mesaJugadores.campanaId, a.campanaId), eq(mesaJugadores.personajeId, a.personajeId))).limit(1);
+        return p?.datos ?? null;
       },
       combateVivo: async (_: unknown, { campanaId }: { campanaId: string }, ctx: Contexto) => {
         const u = await exigir(ctx, 'usarMesa', SOLO_DM);
