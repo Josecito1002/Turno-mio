@@ -39,7 +39,7 @@ export const CLASES: Record<string, any> = {
     rasgos:[
       {n:1,t:'pasiva',nombre:'Magia de Pacto',texto:c=>{const p=pacto(c.lvl);return `Tienes ${p.n} espacio${p.n>1?'s':''} de nivel ${p.nivel}; tus conjuros de brujo se lanzan a ese nivel. Se recuperan con descanso corto o largo.`;}},
       {n:1,t:'pasiva',nombre:'Invocaciones Sobrenaturales',texto:c=>`Conoces ${INVOCACIONES[c.lvl-1]}. Agrega en Rasgos propios las que cambian tu turno; por ejemplo, Explosión Agonizante suma ${sign(c.m.car)} al daño de Explosión sobrenatural.`},
-      {n:2,t:'fuera',nombre:'Astucia Mágica',coste:'1 por descanso largo',texto:c=>`Rito de 1 minuto: recuperas hasta ${Math.ceil(pacto(c.lvl).n/2)} espacios de pacto.`},
+      {n:2,t:'fuera',nombre:'Astucia Mágica',coste:'1 por descanso largo',texto:c=>{const n=Math.ceil(pacto(c.lvl).n/2);return `Rito de 1 minuto: recuperas hasta ${n} espacio${n>1?'s':''} de pacto.`;}},
     ]},
   clerigo:{n:'Clérigo', al:['cleric'], dado:8, sv:['sab','car'], habN:2, habs:['Historia','Perspicacia','Medicina','Persuasión','Religión'], arm:'Ligeras, medias y escudos', armas:'Sencillas', w:{simple:1}, lanz:'sab', caster:'full', hasta:5,
     recursos: c => [c.lvl>=2 && {id:'canal',nombre:'Canalizar Divinidad',max:c.lvl>=18?4:c.lvl>=6?3:2,reset:'corto1',nota:'Recuperas 1 con descanso corto'}],
