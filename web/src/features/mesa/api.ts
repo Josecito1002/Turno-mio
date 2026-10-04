@@ -38,6 +38,7 @@ export type TipoAccionRonda = 'accion' | 'adicional' | 'reaccion';
 export type EconomiaRonda = Partial<Record<TipoAccionRonda, boolean>>;
 export type Golpe = { id: string; de: string; objetivo: string; dano: number; condicion: string | null; nota: string | null; ts: string };
 export type Salvacion = { id: string; de: string; objetivos: string[]; salv: string; cd: number; dano: number; mitad: boolean; condicion: string | null; nota: string | null; ts: string };
+export type OrdenDm = { id: string; tipo: 'corto' | 'largo' | 'inspiracion'; personajeId: string | null; ts: string };
 export type CombateVivo = {
   activo?: boolean; ronda?: number; turno?: number;
   /** Quién actúa y en qué orden; `pid` es el id del personaje cuando es de un jugador unido. */
@@ -47,6 +48,8 @@ export type CombateVivo = {
   golpes?: Golpe[];
   /** Tiradas de salvación que los enemigos deben hacer, pedidas por los jugadores. */
   salvaciones?: Salvacion[];
+  /** Descansos e inspiración que mandó el DM. */
+  ordenes?: OrdenDm[];
   /** Lo último que hizo cada jugador (por id de personaje). */
   ultimas?: Record<string, { tipo: TipoAccionRonda; nombre: string; resumen: string; ts: string }>;
   actualizadoEn?: string;
@@ -81,3 +84,6 @@ export const enviarSalvacionMesa = (m: { dmId: string; campanaId: string; person
 
 export const resolverSalvacion = (campanaId: string, id: string, clave: string) =>
   gql(`mutation ($campanaId: ID!, $id: String!, $clave: String!) { resolverSalvacion(campanaId: $campanaId, id: $id, clave: $clave) }`, { campanaId, id, clave });
+
+export const enviarOrdenDm = (campanaId: string, tipo: OrdenDm['tipo'], personajeId?: string) =>
+  gql(`mutation ($campanaId: ID!, $tipo: String!, $personajeId: ID) { enviarOrdenDm(campanaId: $campanaId, tipo: $tipo, personajeId: $personajeId) }`, { campanaId, tipo, personajeId });
