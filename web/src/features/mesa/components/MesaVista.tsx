@@ -498,8 +498,13 @@ function aplicarGolpes(campId: string, golpes: Golpe[]) {
       if (c.id !== campId) return false;
       for (const g of nuevos) {
         const m = c.monstruos.find((x: any) => 'm:' + x.id === g.objetivo);
-        if (m) { m.pg = Math.max(0, m.pg - g.dano); if (g.condicion) { const e = estadoDe(c, g.objetivo); if (!e.cond.includes(g.condicion)) e.cond.push(g.condicion); } }
-        avisar(m ? `${g.de}${g.nota ? ` (${g.nota})` : ''}: ${g.dano} de daño a ${m.nombre}${g.condicion ? `, ${g.condicion}` : ''}.` : `${g.de} golpeó a un enemigo que ya no está.`);
+        const pjDm = !m && g.objetivo.startsWith('pj:') ? combatiente(g.objetivo, c) : null;
+        const quien = m?.nombre || pjDm?.nombre;
+        if (m) m.pg = Math.min(m.pgMax, Math.max(0, m.pg + (g.cura ? g.dano : -g.dano)));
+        else if (pjDm) cambiarPg(c, g.objetivo, g.cura ? g.dano : -g.dano);
+        if (quien && g.condicion) { const e = estadoDe(c, g.objetivo); if (!e.cond.includes(g.condicion)) e.cond.push(g.condicion); }
+        const hecho = g.dano ? (g.cura ? `${g.dano} de curación` : `${g.dano} de daño`) : '';
+        avisar(quien ? `${g.de}${g.nota ? ` (${g.nota})` : ''}: ${[hecho, g.condicion].filter(Boolean).join(', ')} a ${quien}${g.bono ? `. ${g.bono}` : ''}.` : `${g.de} actuó sobre alguien que ya no está.`);
       }
     });
     nuevos.forEach(g => golpesAplicados.add(g.id));
