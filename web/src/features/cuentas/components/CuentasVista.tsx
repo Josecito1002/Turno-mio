@@ -6,6 +6,7 @@ import { Aviso, Boton, EncabezadoPagina, Fila, Lista, Nota, Seccion } from '@/sh
 import { Desplegable } from '@/shared/ui/desplegable';
 import { confirmar } from '@/shared/ui/confirmar';
 import { cambiarRol, listarCuentas, restablecerContrasena, type Cuenta } from '../api';
+import { PersonajesJugadores } from './PersonajesJugadores';
 
 const ROLES: [string, string, string][] = [
   ['jugador', 'Jugador', 'Crea y usa sus propios personajes.'],
@@ -18,6 +19,12 @@ export function CuentasVista() {
   const [cuentas, setCuentas] = useState<Cuenta[] | null>(null);
   const [error, setError] = useState('');
   const [guardando, setGuardando] = useState('');
+  // «Ver personajes» en una cuenta: busca a esa persona en la sección de personajes
+  const [verDe, setVerDe] = useState({ texto: '', n: 0 });
+  const verPersonajes = (c: Cuenta) => {
+    setVerDe(v => ({ texto: c.email, n: v.n + 1 }));
+    document.getElementById('personajes-jugadores')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   useEffect(() => { listarCuentas().then(setCuentas).catch((e: Error) => setError(e.message)); }, []);
 
@@ -45,12 +52,13 @@ export function CuentasVista() {
 
   return (
     <>
-      <EncabezadoPagina id="titulo-vista" titulo="Cuentas" subtitulo="Elige qué puede hacer cada persona. El cambio aplica de inmediato." />
+      <EncabezadoPagina id="titulo-vista" titulo="Cuentas" subtitulo="Elige qué puede hacer cada persona y revisa sus personajes." />
       <Seccion titulo="Roles">
         <dl className="m-0 grid gap-2 sm:grid-cols-3">
           {ROLES.map(([k, n, d]) => <div key={k} className="rounded-2xl bg-surface p-3 ring-1 ring-rule/60"><dt className="font-bold">{n}</dt><dd className="m-0 text-sm text-muted">{d}</dd></div>)}
         </dl>
       </Seccion>
+      <div id="personajes-jugadores" className="scroll-mt-28"><PersonajesJugadores buscarInicial={verDe} /></div>
       <Seccion titulo="Personas">
         {error ? <Aviso tipo="error" titulo="No se pudieron cargar las cuentas">{error}</Aviso>
           : !cuentas ? <Nota>Cargando…</Nota>
@@ -69,6 +77,7 @@ export function CuentasVista() {
                         {ROLES.map(([k, n]) => <option key={k} value={k}>{n}</option>)}
                       </Desplegable>
                     </label>
+                    <Boton tamano="sm" variante="fantasma" onClick={() => verPersonajes(c)}>Ver personajes</Boton>
                     {c.id !== S.usuario?.id && <Boton tamano="sm" variante="fantasma" disabled={guardando === c.id} onClick={() => restablecer(c)}>Restablecer contraseña</Boton>}
                   </span>
                   {temporales[c.id] && (

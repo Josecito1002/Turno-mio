@@ -5,7 +5,7 @@ import { useSyncExternalStore } from 'react';
 export const nuevoDraft = () => ({ id: Date.now(), abierto: '', esp: { n: '', vel: 30, vision: 0, rasgos: [] as any[] }, sub: { clase: '', n: '', rasgos: [] as any[] } });
 
 export type Usuario = { id: string; email: string; nombre: string; rol: string; ultimoPj: string | null };
-export type Vista = 'home' | 'ficha' | 'editor' | 'lib' | 'mesa' | 'cuentas';
+export type Vista = 'home' | 'ficha' | 'editor' | 'lib' | 'mesa' | 'cuentas' | 'ajeno';
 
 /* Estado de la interfaz, igual que el objeto S de la versión original.
    Se muta directamente y después se llama a render(). */
@@ -34,6 +34,8 @@ export const S = {
   /** Mesa del DM: el monstruo abierto en el bestiario (su clave), o null. */
   monstruoSel: null as string | null,
   importCamp: null as string | null,
+  /** Hoja de otra cuenta abierta en solo lectura (compartida contigo, o vista por un administrador), y adónde volver. */
+  ajeno: null as null | { usuarioId: string; id: string; jugador: string; pj: any; c: any; volver: Vista },
 };
 
 let version = 0;

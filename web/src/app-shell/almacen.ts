@@ -5,7 +5,7 @@ import { avisar } from '@/shared/ui/avisos';
 import { getLib, setLib, limpiarBestias } from '@/features/biblioteca/domain/biblioteca';
 import { filasALib } from '@/features/biblioteca/domain/mapeo';
 import { QUERY_BIBLIOTECA, aportarBiblioteca, guardarBiblioteca, guardarExtras, type CambioExtra, type RespuestaBiblioteca } from '@/features/biblioteca/api';
-import { QUERY_PERSONAJES, borrarPersonaje, guardarPersonaje, marcarUltimo, type PersonajeServidor } from '@/features/personajes/api';
+import { QUERY_PERSONAJES, borrarPersonaje, borrarPersonajes, guardarPersonaje, marcarUltimo, type PersonajeServidor } from '@/features/personajes/api';
 import { QUERY_CAMPANAS, borrarCampana, guardarCampana, type CampanaServidor } from '@/features/mesa/api';
 import { puedeUsarMesa, type Usuario } from './estado';
 
@@ -42,6 +42,8 @@ export type Carga = { usuario: Usuario | null; lista: { id: string; name: string
 
 /* ---- Modo invitado: sin cuenta, nada va al servidor; los personajes quedan en este navegador (localStorage) ---- */
 let invitado = false;
+/** Id de la cuenta (para borrar varios personajes propios de una vez). */
+let yoId = '';
 const CLAVE_PJS = 'miturno-invitado-personajes', CLAVE_ULTIMO = 'miturno-invitado-ultimo';
 type PjLocal = { nombre: string; resumen: string; datos: any };
 function leerLocal(): Record<string, PjLocal> {
@@ -75,6 +77,7 @@ export async function cargarTodo(comoInvitado = false): Promise<Carga> {
     `{ yo { id email nombre rol ultimoPj } ${QUERY_BIBLIOTECA} ${QUERY_PERSONAJES} }`);
   setLib(filasALib(d.biblioteca));
   if (limpiarBestias().length && d.yo?.rol === 'admin') guardarLib(true);
+  yoId = d.yo?.id || '';
   mem.pjs = new Map(d.personajes.map(p => [p.id, p.datos]));
   // Las campañas solo existen para DM y administradores (el servidor rechaza a los demás).
   const camps = d.yo && puedeUsarMesa(d.yo.rol) ? (await gql<{ campanas: CampanaServidor[] }>(`{ ${QUERY_CAMPANAS} }`)).campanas : [];
@@ -93,11 +96,24 @@ export const almacen = {
     programar('pj:' + pj.id, k => guardarPersonaje({ id: pj.id, nombre: pj.nombre || 'Sin nombre', resumen, datos }, k));
   },
   borrarPj(id: string) {
+    this.olvidarPj(id);
+    if (invitado) return;
+    borrarPersonaje(id).catch((e: Error) => avisar(`No se pudo borrar en el servidor: ${e.message}`, 'error'));
+  },
+  /** Borra varios personajes propios de una vez. Devuelve la promesa para avisar al terminar. */
+  borrarVarios(ids: string[]) {
+    ids.forEach(id => this.olvidarPj(id));
+    if (invitado || !ids.length) return Promise.resolve(ids.length);
+    return borrarPersonajes(ids.map(id => ({ usuarioId: yoId, id })));
+  },
+  /** Lo quita solo de este navegador (y cancela lo que faltaba guardar): el servidor ya lo borró o lo borrará aparte. */
+  olvidarPj(id: string) {
     mem.pjs.delete(id);
     if (invitado) { const l = leerLocal(); delete l[id]; escribirLocal(l); return; }
     const p = pendientes.get('pj:' + id); if (p) { clearTimeout(p.t); pendientes.delete('pj:' + id); }
-    borrarPersonaje(id).catch((e: Error) => avisar(`No se pudo borrar en el servidor: ${e.message}`, 'error'));
   },
+  /** Un personaje que ya está guardado en el servidor (por ejemplo, una copia recién hecha). */
+  agregarGuardado(p: PersonajeServidor) { mem.pjs.set(p.id, copia(p.datos)); },
   ultimo(id: string | null) { if (invitado) { escribirUltimo(id); return; } programar('ultimo', () => marcarUltimo(id), 1500); },
 
   campanas() { return copia(mem.campanas); },

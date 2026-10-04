@@ -21,6 +21,7 @@ import { BibliotecaVista } from '@/features/biblioteca/components/BibliotecaVist
 import { MesaVista } from '@/features/mesa/components/MesaVista';
 import { CuentasVista } from '@/features/cuentas/components/CuentasVista';
 import { CambiarContrasena } from '@/features/cuentas/components/CambiarContrasena';
+import { CompartirPersonaje, HojaAjena } from '@/features/personajes/components/Compartir';
 import { cerrarSesion } from '@/features/cuentas/server/acciones';
 
 /* ---------- Íconos de la barra inferior (móvil) ---------- */
@@ -45,7 +46,7 @@ function itemsNav(): ItemNav[] {
   if (esAdmin()) items.push({ vista: 'cuentas', texto: 'Cuentas', activa: v === 'cuentas' });
   return items;
 }
-const ir = (v: Vista) => { S.view = v; S.dialogo = ''; S.hojaMesa = null; if (v === 'mesa') S.camp = null; render(); irArriba(); };
+const ir = (v: Vista) => { S.view = v; S.dialogo = ''; S.hojaMesa = null; S.ajeno = null; if (v === 'mesa') S.camp = null; render(); irArriba(); };
 
 const editar = () => { S.dialogo = ''; S.view = 'editor'; S.step = S.step || 'especie'; render(); irArriba(); };
 const verHoja = () => { S.dialogo = ''; S.view = 'ficha'; S.tab = 'turno'; render(); irArriba(); };
@@ -55,8 +56,8 @@ const marcarImportarEnCampana = () => { S.importCamp = S.camp; };
 /** La vista que se puede mostrar. Las vistas por rol también se protegen aquí (el servidor ya las rechaza);
     sin personaje abierto se vuelve al inicio. Se ajusta fuera del componente, que solo la lee. */
 function vistaPermitida(): Vista {
-  if ((S.view === 'mesa' && !esDM()) || (S.view === 'cuentas' && !esAdmin())) S.view = 'home';
-  if (!['mesa', 'lib', 'cuentas'].includes(S.view) && (!S.pj || S.view === 'home')) S.view = 'home';
+  if ((S.view === 'mesa' && !esDM()) || (S.view === 'cuentas' && !esAdmin()) || (S.view === 'ajeno' && !S.ajeno)) S.view = 'home';
+  if (!['mesa', 'lib', 'cuentas', 'ajeno'].includes(S.view) && (!S.pj || S.view === 'home')) S.view = 'home';
   return S.view;
 }
 /** Calcula el personaje abierto y lo deja en S.c para las acciones que lo necesitan. */
@@ -67,6 +68,7 @@ function Vista({ elegirArchivos, importarHojas }: { elegirArchivos: () => void; 
   if (vista === 'mesa') return <MesaVista importarHojas={importarHojas} />;
   if (vista === 'lib') return <BibliotecaVista elegirArchivos={elegirArchivos} />;
   if (vista === 'cuentas') return <CuentasVista />;
+  if (vista === 'ajeno') return <HojaAjena />;
   if (vista === 'home') return <Inicio />;
   const c = calcularAbierto();
   return vista === 'editor' ? <Editor c={c} /> : <Ficha c={c} />;
@@ -120,7 +122,7 @@ function ItemMenu({ icono, children, onClick, peligro, activo, extra }: { icono:
 const ICONO_SECCION: Record<string, string> = { home: 'groups', lib: 'auto_stories', mesa: 'swords', cuentas: 'manage_accounts' };
 const TituloMenu = ({ children }: { children: ReactNode }) => <p className="m-0 px-3 pb-1 pt-4 text-label-caps uppercase tracking-wider text-outline">{children}</p>;
 
-function MenuCompleto({ invitado, onCerrar, onClave }: { invitado: boolean; onCerrar: () => void; onClave: () => void }) {
+function MenuCompleto({ invitado, onCerrar, onClave, onCompartir }: { invitado: boolean; onCerrar: () => void; onClave: () => void; onCompartir: () => void }) {
   const hacer = (f: () => void) => () => { onCerrar(); f(); };
   const pj = S.pj, enFicha = S.view === 'ficha' && pj, enEditor = S.view === 'editor' && pj;
   const c = pj && (enFicha || enEditor) ? compute(pj) : null;
@@ -165,6 +167,7 @@ function MenuCompleto({ invitado, onCerrar, onClave }: { invitado: boolean; onCe
             extra={nAv > 0 ? <Insignia etiqueta={`${nAv} cosas por elegir`}>{nAv}</Insignia> : undefined}>Revisar</ItemMenu>
           <ItemMenu icono="print" onClick={imprimir}>Imprimir o guardar PDF</ItemMenu>
           <ItemMenu icono="download" onClick={hacer(() => bajarArchivo(slug(pj.nombre || 'personaje') + '.json', JSON.stringify(pj, null, 1)))}>Descargar respaldo</ItemMenu>
+          {!invitado && <ItemMenu icono="share" onClick={hacer(onCompartir)}>Compartir con otro jugador</ItemMenu>}
           <ItemMenu icono="delete" peligro onClick={hacer(() => borrarPj())}>Borrar personaje</ItemMenu>
         </>
       )}
@@ -201,6 +204,7 @@ function BarraSuperior({ invitado }: { invitado: boolean }) {
   const tirar = useDados();
   const [menu, setMenu] = useState(false);
   const [clave, setClave] = useState(false);
+  const [compartir, setCompartir] = useState(false);
   const pj = S.pj, conPj = !!pj && (S.view === 'ficha' || S.view === 'editor');
   const listo = !!S.usuario && !S.cargando;
   const clase = conPj ? getC(pj, pj.clase)?.n : '';
@@ -275,11 +279,15 @@ function BarraSuperior({ invitado }: { invitado: boolean }) {
         </div>
       </div>
       <Cajon abierto={menu} onCerrar={() => setMenu(false)}>
-        {menu && <MenuCompleto invitado={invitado} onCerrar={() => setMenu(false)} onClave={() => setClave(true)} />}
+        {menu && <MenuCompleto invitado={invitado} onCerrar={() => setMenu(false)} onClave={() => setClave(true)} onCompartir={() => setCompartir(true)} />}
       </Cajon>
       <Dialogo abierto={clave} onCerrar={() => setClave(false)} titulo="Cambiar mi contraseña"
         descripcion="Si el administrador te dio una contraseña temporal, cámbiala aquí.">
         <CambiarContrasena alTerminar={() => setClave(false)} />
+      </Dialogo>
+      <Dialogo abierto={compartir && !!pj} onCerrar={() => setCompartir(false)} titulo={`Compartir a ${pj?.nombre || 'este personaje'}`}
+        descripcion="Escribe a quién se lo quieres compartir. Le aparecerá en su lista de personajes.">
+        {compartir && pj && <CompartirPersonaje id={pj.id} nombre={pj.nombre || 'Sin nombre'} />}
       </Dialogo>
     </Cabecera>
   );
@@ -319,10 +327,10 @@ export function MiTurnoApp({ invitado = false }: { invitado?: boolean }) {
   }, [invitado]);
 
   // Al cambiar de pantalla: título de la pestaña del navegador y foco en el encabezado (teclado y lectores de pantalla).
-  const clave = S.cargando ? 'cargando' : `${S.view}|${S.pj?.id || ''}|${S.camp || ''}`;
+  const clave = S.cargando ? 'cargando' : `${S.view}|${S.pj?.id || ''}|${S.camp || ''}|${S.ajeno?.id || ''}`;
   useEffect(() => {
     if (S.cargando) return;
-    const nombre = S.view === 'ficha' || S.view === 'editor' ? S.pj?.nombre || 'Personaje' : TITULOS[S.view] || 'Mi turno';
+    const nombre = S.view === 'ficha' || S.view === 'editor' ? S.pj?.nombre || 'Personaje' : S.view === 'ajeno' ? S.ajeno?.pj?.nombre || 'Personaje' : TITULOS[S.view] || 'Mi turno';
     document.title = `${nombre} · Mi turno`;
     if (vistaPrevia.current && vistaPrevia.current !== clave) document.getElementById('titulo-vista')?.focus({ preventScroll: true });
     vistaPrevia.current = clave;
@@ -332,7 +340,7 @@ export function MiTurnoApp({ invitado = false }: { invitado?: boolean }) {
   const importarHojas = () => { marcarImportarEnCampana(); fileIn.current?.click(); };
   const nav = S.usuario && !S.cargando ? itemsNav() : [];
   // La ficha ocupa todo el ancho (como el diseño); el resto de pantallas sigue en una columna de lectura
-  const ancha = !S.cargando && !S.error && ((S.view === 'ficha' && !!S.pj) || (S.view === 'mesa' && !!S.hojaMesa));
+  const ancha = !S.cargando && !S.error && ((S.view === 'ficha' && !!S.pj) || (S.view === 'mesa' && !!S.hojaMesa) || (S.view === 'ajeno' && !!S.ajeno));
 
   return (
     <BandejaDados gastar={gastarRecurso} quedan={quedaRecurso}>

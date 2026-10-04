@@ -15,6 +15,13 @@
       "when": 1791068083219,
       "tag": "0001_mesa_codigo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791121574661,
+      "tag": "0002_compartir_personajes",
+      "breakpoints": true
     }
   ]
 }
