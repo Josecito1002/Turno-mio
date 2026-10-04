@@ -1,0 +1,1 @@
+ALTER TABLE "campanas" ADD COLUMN "combate_vivo" jsonb;

@@ -452,7 +452,7 @@ function Competencias({ c }: { c: any }) {
 
 /* ===================== Columna central ===================== */
 /** Recursos de clase y rasgos (Oleada de Acción, Tomar Aliento, Ki…); los PG y los espacios de conjuro van en su tarjeta. */
-function RecursosClase({ c }: { c: any }) {
+export function RecursosClase({ c }: { c: any }) {
   const u = c.pj.used || {}, lectura = useLectura();
   const rs = c.recursos.filter((r: any) => r.id !== 'pg' && !/^slot\d/.test(r.id));
   if (!rs.length) return null;
@@ -567,7 +567,7 @@ function ParaQueSirve({ c, r }: { c: any; r: any }) {
   );
 }
 
-function FilaArsenal({ a, c }: { a: any; c: any }) {
+export function FilaArsenal({ a, c }: { a: any; c: any }) {
   const lectura = useLectura();
   const n = a.w ? a.w.n : a.nombre, dist = !!a.w?.dist;
   const icono = dist ? 'adjust' : a.w ? 'colorize' : 'sports_martial_arts';
@@ -705,7 +705,7 @@ function OtrasAcciones({ c }: { c: any }) {
 }
 
 /* ===================== Columna derecha ===================== */
-function Ranuras({ r, c }: { r: any; c: any }) {
+export function Ranuras({ r, c }: { r: any; c: any }) {
   const lectura = useLectura();
   const used = Math.min(c.pj.used?.[r.id] || 0, r.max), quedan = r.max - used;
   const nivel = r.id.replace('slot', '');
@@ -740,7 +740,7 @@ function Ranuras({ r, c }: { r: any; c: any }) {
   );
 }
 
-function FilaConjuro({ s, c }: { s: any; c: any }) {
+export function FilaConjuro({ s, c }: { s: any; c: any }) {
   const lectura = useLectura();
   const d = datosConjuro(s, c);
   const meta = [TIPOS[s.tiempo || 'accion']?.[0], d.bits.join(', '), s.coste].filter(Boolean).join(' • ');

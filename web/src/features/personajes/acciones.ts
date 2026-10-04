@@ -48,6 +48,13 @@ export function abrir(id: string, view: 'ficha' | 'editor' = 'ficha') {
   render(); irArriba();
 }
 
+/** Abre al personaje en la pantalla de combate en vivo de una mesa a la que se unió. */
+export function entrarCombate(m: NonNullable<typeof S.combateMesa>) {
+  abrir(m.personajeId);
+  if (S.pj?.id !== m.personajeId) { avisar('No se encontró ese personaje en este dispositivo.', 'error'); return; }
+  S.combateMesa = m; S.combateHoja = false; render();
+}
+
 export function nuevo() { S.pj = nuevoPj(); savePj(); S.view = 'editor'; S.step = 'especie'; render(); irArriba(); }
 
 export function setVal(path: string, v: any) {

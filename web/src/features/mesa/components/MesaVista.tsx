@@ -16,6 +16,8 @@ import { Ficha } from '@/features/personajes/components/ficha/Ficha';
 import { CONDICIONES, actualizarPgUnido, cambiarPg, campActual, camps, claveUnido, combatiente, estadoDe, fijarUnidos, guardarCamp, ordenar, unidosCargados, unidosDe } from '../domain/combate';
 import { codigoMesa, guardarCampana, jugadoresMesa, quitarDeMesa } from '../api';
 import { conectarMesaRealtime } from '../realtime-cliente';
+import { publicarCombate } from '../domain/combate-vivo';
+import { combateVivoDm, type EconomiaRonda, type TipoAccionRonda } from '../api';
 import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
 import { enemigosDe, leerSesion, type Encuentro } from '../domain/sesion';
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
@@ -26,7 +28,7 @@ const val = (id: string) => (document.getElementById(id) as HTMLInputElement | n
 function conCamp(fn: (cp: any) => void | false) {
   const cp = campActual(); if (!cp) return;
   if (fn(cp) === false) return;
-  guardarCamp(cp); render();
+  guardarCamp(cp); publicarCombate(cp); render();
 }
 
 function Condiciones({ cp, k, nombre }: { cp: any; k: string; nombre: string }) {
@@ -387,9 +389,38 @@ function ImportarSesion({ cp }: { cp: any }) {
   );
 }
 
+/** Lo que gastaron los jugadores en esta ronda (acción, adicional y reacción), al día cada 2 s mientras haya combate. */
+function useEconomiaVivo(campId: string, activo: boolean) {
+  const [eco, setEco] = useState<Record<string, EconomiaRonda>>({});
+  useEffect(() => {
+    if (!activo) return;
+    let vivo = true;
+    const leer = () => combateVivoDm(campId).then(v => { if (vivo) setEco(v?.economia || {}); }, () => {});
+    leer();
+    const t = setInterval(() => { if (document.visibilityState === 'visible') leer(); }, 2000);
+    return () => { vivo = false; clearInterval(t); };
+  }, [campId, activo]);
+  return eco;
+}
+
+const ETIQUETAS_ACCION: [TipoAccionRonda, string][] = [['accion', 'Acción'], ['adicional', 'Adicional'], ['reaccion', 'Reacción']];
+/** Las tres acciones de la ronda: tachadas las que ya gastó. */
+function AccionesRonda({ eco }: { eco: EconomiaRonda | undefined }) {
+  return (
+    <p className="m-0 mt-1 flex flex-wrap gap-1" aria-label="Acciones de esta ronda">
+      {ETIQUETAS_ACCION.map(([t, n]) => (
+        <span key={t} className={cx('rounded-full px-2 py-0.5 text-xs font-bold', eco?.[t] ? 'bg-soft text-muted line-through' : 'bg-pas/20 text-pas')}>
+          {n}{eco?.[t] ? ' · gastada' : ''}
+        </span>
+      ))}
+    </p>
+  );
+}
+
 function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
   const tirar = useDados();
   const cb = cp.combate;
+  const economia = useEconomiaVivo(cp.id, !!cb.activo);
   const quitarMon = (id: string) => conCamp(c => { c.monstruos = c.monstruos.filter((m: any) => m.id !== id); c.combate.orden = (c.combate.orden || []).filter((o: any) => o.k !== 'm:' + id); });
   if (!cb.activo) {
     const empezar = () => {
@@ -460,6 +491,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
                   : x.tipo === 'jug' ? <Boton tamano="sm" onClick={() => verHoja(x.k)} aria-label={`Ver la hoja de ${x.nombre}`}>Hoja</Boton>
                     : <Boton tamano="sm" onClick={() => quitarMon(x.m.id)} aria-label={`Quitar ${x.nombre}`}>Quitar</Boton>}
               </div>
+              {x.tipo === 'jug' && <AccionesRonda eco={economia[x.u.personajeId]} />}
               <PuntosGolpe x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
               {x.tipo === 'm' && x.m.ref && <VerBloque cp={cp} r={x.m.ref} nombre={x.nombre} />}
             </Tarjeta>

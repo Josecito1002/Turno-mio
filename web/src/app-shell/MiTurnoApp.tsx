@@ -14,6 +14,7 @@ import { faltaParaSubir } from '@/features/personajes/domain/pendientes';
 import { getC } from '@/features/biblioteca/domain/biblioteca';
 import { abrirSubida, bajarArchivo, bajarNivel, borrarPj, descansar, gastarRecurso, quedaRecurso } from '@/features/personajes/acciones';
 import { Ficha } from '@/features/personajes/components/ficha/Ficha';
+import { ModoCombate } from '@/features/personajes/components/ficha/ModoCombate';
 import { SubidaNivel } from '@/features/personajes/components/ficha/SubidaNivel';
 import { Editor } from '@/features/personajes/components/editor/Editor';
 import { Inicio } from '@/features/personajes/components/Inicio';
@@ -47,10 +48,10 @@ function itemsNav(): ItemNav[] {
   if (esAdmin()) items.push({ vista: 'cuentas', texto: 'Cuentas', activa: v === 'cuentas' });
   return items;
 }
-const ir = (v: Vista) => { S.view = v; S.dialogo = ''; S.hojaMesa = null; S.ajeno = null; if (v === 'mesa') S.camp = null; render(); irArriba(); };
+const ir = (v: Vista) => { S.view = v; S.dialogo = ''; S.hojaMesa = null; S.ajeno = null; S.combateMesa = null; S.combateHoja = false; if (v === 'mesa') S.camp = null; render(); irArriba(); };
 
 const editar = () => { S.dialogo = ''; S.view = 'editor'; S.step = S.step || 'especie'; render(); irArriba(); };
-const verHoja = () => { S.dialogo = ''; S.view = 'ficha'; S.tab = 'turno'; render(); irArriba(); };
+const verHoja = () => { S.combateHoja = true; S.dialogo = ''; S.view = 'ficha'; S.tab = 'turno'; render(); irArriba(); };
 const abrirDialogo = (d: string) => { S.view = 'ficha'; S.dialogo = d; render(); };
 const marcarImportarEnCampana = () => { S.importCamp = S.camp; };
 
@@ -72,6 +73,15 @@ function Vista({ elegirArchivos, importarHojas }: { elegirArchivos: () => void; 
   if (vista === 'ajeno') return <HojaAjena />;
   if (vista === 'home') return <Inicio />;
   const c = calcularAbierto();
+  if (vista === 'ficha' && S.combateMesa && S.combateMesa.personajeId === S.pj.id) {
+    if (!S.combateHoja) return <ModoCombate c={c} />;
+    return (
+      <>
+        <div className="mb-3"><Boton variante="primario" onClick={() => { S.combateHoja = false; render(); irArriba(); }}>Volver al combate</Boton></div>
+        <Ficha c={c} />
+      </>
+    );
+  }
   return vista === 'editor' ? <Editor c={c} /> : <Ficha c={c} />;
 }
 

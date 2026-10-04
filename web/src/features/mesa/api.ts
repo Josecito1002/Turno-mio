@@ -32,3 +32,26 @@ export const misMesas = () => gql<{ misMesas: MesaUnida[] }>(`{ misMesas { ${CAM
 
 export const salirMesa = (m: { dmId: string; campanaId: string; personajeId: string }) =>
   gql(`mutation ($dmId: ID!, $campanaId: ID!, $personajeId: ID!) { salirMesa(dmId: $dmId, campanaId: $campanaId, personajeId: $personajeId) }`, m);
+
+/* ---- Combate en vivo: el DM publica ronda, turno y orden; cada jugador gasta su acción, adicional y reacción ---- */
+export type TipoAccionRonda = 'accion' | 'adicional' | 'reaccion';
+export type EconomiaRonda = Partial<Record<TipoAccionRonda, boolean>>;
+export type CombateVivo = {
+  activo?: boolean; ronda?: number; turno?: number;
+  /** Quién actúa y en qué orden; `pid` es el id del personaje cuando es de un jugador unido. */
+  orden?: { k: string; nombre: string; tipo: string; pid?: string }[];
+  economia?: Record<string, EconomiaRonda>;
+  actualizadoEn?: string;
+} | null;
+
+export const fijarCombateVivo = (campanaId: string, datos: unknown, reiniciarEconomia = false) =>
+  gql(`mutation ($campanaId: ID!, $datos: JSON!, $r: Boolean) { fijarCombateVivo(campanaId: $campanaId, datos: $datos, reiniciarEconomia: $r) }`, { campanaId, datos, r: reiniciarEconomia });
+
+export const combateVivoDm = (campanaId: string) =>
+  gql<{ combateVivo: CombateVivo }>(`query ($campanaId: ID!) { combateVivo(campanaId: $campanaId) }`, { campanaId }).then(d => d.combateVivo);
+
+export const combateMesa = (m: { dmId: string; campanaId: string; personajeId: string }) =>
+  gql<{ combateMesa: CombateVivo }>(`query ($dmId: ID!, $campanaId: ID!, $personajeId: ID!) { combateMesa(dmId: $dmId, campanaId: $campanaId, personajeId: $personajeId) }`, m).then(d => d.combateMesa);
+
+export const gastarAccionMesa = (m: { dmId: string; campanaId: string; personajeId: string }, tipo: TipoAccionRonda, gastado: boolean) =>
+  gql(`mutation ($dmId: ID!, $campanaId: ID!, $personajeId: ID!, $tipo: String!, $gastado: Boolean!) { gastarAccionMesa(dmId: $dmId, campanaId: $campanaId, personajeId: $personajeId, tipo: $tipo, gastado: $gastado) }`, { ...m, tipo, gastado });
