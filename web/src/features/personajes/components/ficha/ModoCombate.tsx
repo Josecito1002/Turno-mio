@@ -65,6 +65,32 @@ function OpcionNombre({ uso, elegido, elegir, sub, icono }: { uso: Uso; elegido:
   );
 }
 
+/** Truco o hechizo con el mismo estilo de tarjeta que los ataques: icono, nombre, información; al elegirlo se ve su descripción. */
+function FilaMagia({ s, c, uso, elegido, elegir }: { s: any; c: any; uso: Uso; elegido: Uso | null; elegir: (u: Uso) => void }) {
+  const d = datosConjuro(s, c), truco = !(+s.nivel > 0), marcada = mismo(elegido, uso);
+  const info = [d.bits.join(', '), d.meta, uso.coste && !truco ? uso.coste : ''].filter(Boolean).join(' • ');
+  const salv = s.salv ? String(s.salv).toUpperCase() : '';
+  return (
+    <Opcion uso={uso} elegido={elegido} elegir={elegir}>
+      <div className="flex items-start gap-3 rounded-lg bg-surface-container p-3 shadow-md">
+        <div className="grid size-12 shrink-0 place-items-center rounded-lg bg-surface-container-lowest text-secondary shadow-inner">
+          <Simbolo n={truco ? 'flare' : 'auto_awesome'} className="text-headline-md" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h3 className="m-0 font-serif text-headline-sm text-on-surface">{s.nombre}</h3>
+          <p className="m-0 mt-0.5 text-body-sm text-outline">{info}</p>
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 text-label-caps text-on-surface-variant">
+            {s.ataque && d.atk != null && <span>Modificador: <strong className="text-secondary">{d.atk >= 0 ? '+' : ''}{d.atk} impacto</strong></span>}
+            {salv && <span>Salvación: <strong className="text-secondary">CD {d.cd} de {salv}</strong></span>}
+            {d.dexpr && <span>Daño: <strong className="text-secondary">{d.dexpr}{s.tipo ? ' ' + s.tipo : ''}</strong></span>}
+          </div>
+          {marcada && uso.texto && <p className="m-0 mt-2 border-t border-outline-variant/30 pt-2 text-body-sm text-on-surface-variant" dangerouslySetInnerHTML={{ __html: richT(uso.texto) }} />}
+        </div>
+      </div>
+    </Opcion>
+  );
+}
+
 /** Un menú plegable de opciones (la primera vez abierto el de la clase). */
 function MenuAcciones({ titulo, abierto, hijos, children }: { titulo: string; abierto?: boolean; hijos: number; children: React.ReactNode }) {
   if (!hijos) return null;
@@ -117,11 +143,11 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
         {sinArmas && op(deArma(sinArmas), <FilaArsenal a={sinArmas} c={c} sinTirar />, 'sa')}
         {ataques.map((e: any, i: number) => op(deRasgo(e), <FilaArsenal a={comoArma(e)} c={c} sinTirar />, 'r' + i))}
       </MenuAcciones>
-      <MenuAcciones titulo="Trucos" hijos={trucos.length}>
-        {trucos.map((x: any, i: number) => nom(deConjuro(x), 't' + x.nombre + i, undefined, 'flare'))}
+      <MenuAcciones titulo="Trucos" abierto hijos={trucos.length}>
+        {trucos.map((x: any, i: number) => <FilaMagia key={'t' + x.nombre + i} s={x} c={c} uso={deConjuro(x)} elegido={elegido} elegir={elegir} />)}
       </MenuAcciones>
-      <MenuAcciones titulo="Hechizos" hijos={hechizos.length}>
-        {hechizos.map((x: any, i: number) => nom(deConjuro(x), 'h' + x.nombre + i, datosConjuro(x, c).bits.join(', '), 'auto_awesome'))}
+      <MenuAcciones titulo="Hechizos" abierto hijos={hechizos.length}>
+        {hechizos.map((x: any, i: number) => <FilaMagia key={'h' + x.nombre + i} s={x} c={c} uso={deConjuro(x)} elegido={elegido} elegir={elegir} />)}
       </MenuAcciones>
       <MenuAcciones titulo="Otros" hijos={otros.length}>
         {otros.map((e: any, i: number) => nom(deRasgo(e), 'o' + e.nombre + i, e.coste))}
