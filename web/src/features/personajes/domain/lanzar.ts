@@ -29,6 +29,12 @@ export function espaciosPara(c: any, nivel: number) {
     .sort((a: any, b: any) => a.nivel - b.nivel);
 }
 
+/** Ataques por acción de Atacar: 1, o con Ataque Extra 2 (3 y 4 del Guerrero a nivel 11 y 20). */
+export function ataquesPorAccion(c: any): number {
+  if (!c.extraAttack) return 1;
+  return c.pj?.clase === 'guerrero' ? (c.lvl >= 20 ? 4 : c.lvl >= 11 ? 3 : 2) : 2;
+}
+
 const recursoDe = (c: any, id: string) => (c.recursos || []).find((r: any) => r.id === id);
 /** El recurso, si todavía le queda algún uso. */
 function recursoLibre(c: any, id: string) {

@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { setLib, getSubs, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
 import { compute } from './calculo';
 import { resolver } from '@/features/dados/domain/dados';
-import { bonosPara, dadosAlLanzar, espaciosPara, extrasAtaque } from './lanzar';
+import { ataquesPorAccion, bonosPara, dadosAlLanzar, espaciosPara, extrasAtaque } from './lanzar';
 import { sinDuplicado } from '@/features/biblioteca/domain/mapeo';
 import { nuevoPj } from './modelo';
 import { pendientes, pendientesAlSubir } from './pendientes';
@@ -1175,6 +1175,13 @@ describe('Subclases oficiales que faltaban', () => {
 });
 
 describe('Para qué sirve cada recurso', () => {
+  test('Ataques por acción de Atacar: 1 sin Ataque Extra, 2 con él y hasta 4 en el Guerrero', () => {
+    assert.equal(ataquesPorAccion(pj('guerrero', 3, '', { fue: 16 })), 1);
+    assert.equal(ataquesPorAccion(pj('guerrero', 5, '', { fue: 16 })), 2);
+    assert.equal(ataquesPorAccion(pj('guerrero', 11, '', { fue: 16 })), 3);
+    assert.equal(ataquesPorAccion(pj('guerrero', 20, '', { fue: 16 })), 4);
+    assert.equal(ataquesPorAccion(pj('paladin', 5, '', { fue: 16 })), 2);
+  });
   test('Los espacios de pacto del brujo valen para lanzar conjuros', () => {
     const c = pj('brujo', 5, '', { car: 16 }, { conjuros: [{ nombre: 'Manos ardientes', nivel: 1 }] });
     const e = espaciosPara(c, 1);

@@ -83,7 +83,7 @@ function Cuerpo({ c, uso, enemigos, mesa, yaGastada, alCerrar, alUsar }: { c: an
   const puesto = (i: number) => danos[i] !== '';
 
   const tirarDados = (i = -1) => {
-    try { tirar(dexpr!, `${uso.nombre}: daño${i >= 0 ? ` (golpe ${i + 1})` : ''}`).then(r => (i >= 0 ? setDanos(d => d.map((x, j) => (j === i ? String(r.total) : x))) : setDano(String(r.total))), e => avisar(`No se pudo tirar: ${(e as Error).message}`, 'error')); }
+    try { tirar(dexpr!, `${uso.nombre}: daño${i >= 0 ? ` (ataque ${i + 1})` : ''}`).then(r => (i >= 0 ? setDanos(d => d.map((x, j) => (j === i ? String(r.total) : x))) : setDano(String(r.total))), e => avisar(`No se pudo tirar: ${(e as Error).message}`, 'error')); }
     catch (e) { avisar(`No se pudo tirar: ${(e as Error).message}`, 'error'); }
   };
 
@@ -97,7 +97,7 @@ function Cuerpo({ c, uso, enemigos, mesa, yaGastada, alCerrar, alUsar }: { c: an
     setOcupado(true);
     try {
       const pago = via === 'rasgo' ? `con ${rasgoRec?.nombre}` : via.startsWith('slot') ? `con espacio de nivel ${nivelUsado}` : cj?.ritual ? 'como ritual' : '';
-      const resumen = [pago, nombres.length ? `a ${nombres.join(', ')}` : '', n ? (nGolpes > 1 ? `${danos.map((x, i) => `golpe ${i + 1}: ${parcial(x)}`).join(' + ')} = ${n} de daño` : `${n} de daño`) : '', uso.salv && objetivos.length ? `salvación de ${uso.salv} CD ${uso.cd}` : '', cond].filter(Boolean).join(' · ');
+      const resumen = [pago, nombres.length ? `a ${nombres.join(', ')}` : '', n ? (nGolpes > 1 ? `${danos.map((x, i) => `ataque ${i + 1}: ${parcial(x)}`).join(' + ')} = ${n} de daño` : `${n} de daño`) : '', uso.salv && objetivos.length ? `salvación de ${uso.salv} CD ${uso.cd}` : '', cond].filter(Boolean).join(' · ');
       await usarAccionMesa(mesa, uso.tipo, uso.nombre, resumen);
       if (objetivos.length && (n || cond)) {
         if (uso.salv && uso.cd) await enviarSalvacionMesa(mesa, { objetivos, salv: uso.salv, cd: uso.cd, dano: n, mitad, ...(cond ? { condicion: cond } : {}), nota: uso.nombre });
@@ -157,18 +157,18 @@ function Cuerpo({ c, uso, enemigos, mesa, yaGastada, alCerrar, alUsar }: { c: an
             <>
           {nGolpes > 1 ? (
             <>
-              <span className="mt-1 text-label-caps uppercase text-outline">Daño de cada golpe, uno por uno</span>
+              <span className="mt-1 text-label-caps uppercase text-outline">Daño de cada ataque, uno por uno</span>
               {Array.from({ length: nGolpes }, (_, i) => (i === 0 || puesto(i - 1)) && (
                 <div key={i} className="grid gap-2 rounded bg-surface-container-lowest p-2">
-                  <span className="text-body-sm font-bold text-on-surface">{i === 0 ? 'Primer golpe' : i === 1 ? 'Segundo golpe' : `Golpe ${i + 1}`}</span>
-                  <input aria-label={`Daño del golpe ${i + 1}`} type="number" inputMode="numeric" min={0} placeholder="El que sacaste con tus dados" value={danos[i]}
+                  <span className="text-body-sm font-bold text-on-surface">{['Primer', 'Segundo', 'Tercer', 'Cuarto'][i] || `${i + 1}.º`} ataque</span>
+                  <input aria-label={`Daño del ataque ${i + 1}`} type="number" inputMode="numeric" min={0} placeholder="El que sacaste con tus dados" value={danos[i]}
                     onChange={e => setDanos(d => d.map((x, j) => (j === i ? e.target.value : x)))} className={campo} />
                   {dexpr && <Boton variante="secundario" onClick={() => tirarDados(i)}>O tirar dados virtuales ({dexpr})</Boton>}
                 </div>
               ))}
               {danos.some((x, i) => puesto(i)) && (
                 <p className="m-0 rounded bg-surface-container-lowest p-2 text-body-md font-bold text-on-surface">
-                  Registrado: {danos.filter((_, i) => puesto(i)).map((x, i) => `golpe ${i + 1}: ${parcial(x)}`).join(' + ')} = {n} de daño
+                  Registrado: {danos.filter((_, i) => puesto(i)).map((x, i) => `ataque ${i + 1}: ${parcial(x)}`).join(' + ')} = {n} de daño
                 </p>
               )}
             </>
