@@ -15,7 +15,7 @@ import { Entrada, LanzarConjuro, Mover, datosConjuro } from '../piezas';
 import { fijarPool, irAPaso, moverPool, setVal, tocarPip } from '../../acciones';
 import { desglose } from '../../domain/calculo';
 import { usosDeRecurso, type UsoRecurso } from '../../domain/usos-recurso';
-import { extrasAtaque } from '../../domain/lanzar';
+import { ataquesPorAccion, extrasAtaque } from '../../domain/lanzar';
 import { MONEDAS, bolsaDe } from '../../domain/inventario';
 import { Inventario } from '../Inventario';
 import { Criaturas } from './Criaturas';
@@ -624,7 +624,7 @@ function Arsenal({ c }: { c: any }) {
   const armas = [...c.armas.filter((a: any) => a.mano), ...(c.naturales || [])];
   const guardadas = c.armas.filter((a: any) => !a.mano);
   const sinArmas = { puno: true, nombre: 'Golpe sin armas', atk: c.unarmed.atk, expr: c.unarmed.expr, dmg: c.unarmed.dmg, atkDesg: c.unarmed.atkDesg, dmgDesg: c.unarmed.dmgDesg, notas: [`También puede Agarrar o Empujar (CD ${c.grappleDC})`] };
-  const ataques = c.pj?.clase === 'guerrero' ? (c.lvl >= 20 ? 4 : c.lvl >= 11 ? 3 : 2) : 2;
+  const ataques = ataquesPorAccion(c);
   return (
     <section aria-labelledby="titulo-arsenal" className="flex flex-col gap-3 rounded-lg bg-surface-container-low p-5 shadow-lg">
       <div className="flex flex-wrap items-center justify-between gap-2">
