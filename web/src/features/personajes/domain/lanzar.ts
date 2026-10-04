@@ -25,8 +25,23 @@ export function espaciosPara(c: any, nivel: number) {
   // Los espacios de pacto del brujo (id «pacto») cuentan como los de su nivel
   const nivelDe = (r: any) => /^slot\d+$/.test(r.id) ? +r.id.slice(4) : r.id === 'pacto' ? +(/nivel (\d+)/.exec(r.nombre)?.[1] || c.nivelMax || 0) : 0;
   return (c.recursos || []).filter((r: any) => nivelDe(r) >= nivel && nivelDe(r) > 0)
-    .map((r: any) => ({ nivel: nivelDe(r), nombre: r.nombre, quedan: r.max - Math.min(used[r.id] || 0, r.max) }))
+    .map((r: any) => ({ nivel: nivelDe(r), nombre: r.nombre, quedan: r.max - Math.min(used[r.id] || 0, r.max), max: r.max }))
     .sort((a: any, b: any) => a.nivel - b.nivel);
+}
+
+/** Lo que le queda a un recurso del personaje (Moxie, usos de un rasgo…), o null si no existe. */
+export function restanteDe(c: any, id?: string): { quedan: number; max: number; nombre: string } | null {
+  const r = id ? (c.recursos || []).find((x: any) => x.id === id) : null;
+  return r && r.max > 0 ? { quedan: r.max - Math.min(c.pj?.used?.[r.id] || 0, r.max), max: r.max, nombre: r.nombre } : null;
+}
+
+/** Lo que le queda a un conjuro de nivel: sus usos si lo da un rasgo, o los espacios de su nivel (o del más bajo que lo pueda lanzar). */
+export function restanteConjuro(c: any, s: any): { quedan: number; max: number; nombre: string } | null {
+  if (!(+s.nivel > 0)) return null;
+  const r = restanteDe(c, s.recurso);
+  if (r) return r;
+  const e = espaciosPara(c, +s.nivel)[0];
+  return e ? { quedan: e.quedan, max: e.max, nombre: `espacios de nivel ${e.nivel}` } : null;
 }
 
 /** Ataques por acción de Atacar: 1, o con Ataque Extra 2 (3 y 4 del Guerrero a nivel 11 y 20; 3 con Filo Devorador). */
