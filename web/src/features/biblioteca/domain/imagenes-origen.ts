@@ -131,3 +131,15 @@ export function imagenDeClase(img: Record<string, unknown> | undefined, q: { esp
   let h = 0; for (const ch of semilla) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
   return opciones[h % opciones.length];
 }
+
+/** Imágenes que se le ofrecen a un personaje para elegir: solo de su especie (y su linaje, si ya lo tiene). Si hay de su clase,
+    solo esas (de cualquiera de sus subclases); si no hay, las de otras clases de su misma especie. */
+export function imagenesParaElegir(img: Record<string, unknown> | undefined, q: { especie?: string; sub?: string; clase?: string }): string[] {
+  if (!img || !q.especie) return [];
+  const deEspecie = Object.keys(img).filter(k => {
+    const o = leerClaveOrigen(k);
+    return !!o && !!img[k] && o.especie === q.especie && (!q.sub || o.sub === q.sub);
+  }).sort();
+  const deClase = q.clase ? deEspecie.filter(k => leerClaveOrigen(k)!.clase === q.clase) : [];
+  return deClase.length ? deClase : deEspecie;
+}
