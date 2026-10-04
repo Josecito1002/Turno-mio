@@ -112,8 +112,6 @@ export const almacen = {
     if (invitado) { const l = leerLocal(); delete l[id]; escribirLocal(l); return; }
     const p = pendientes.get('pj:' + id); if (p) { clearTimeout(p.t); pendientes.delete('pj:' + id); }
   },
-  /** Un personaje que ya está guardado en el servidor (por ejemplo, una copia recién hecha). */
-  agregarGuardado(p: PersonajeServidor) { mem.pjs.set(p.id, copia(p.datos)); },
   ultimo(id: string | null) { if (invitado) { escribirUltimo(id); return; } programar('ultimo', () => marcarUltimo(id), 1500); },
 
   campanas() { return copia(mem.campanas); },

@@ -22,6 +22,7 @@ import { MesaVista } from '@/features/mesa/components/MesaVista';
 import { CuentasVista } from '@/features/cuentas/components/CuentasVista';
 import { CambiarContrasena } from '@/features/cuentas/components/CambiarContrasena';
 import { CompartirPersonaje, HojaAjena } from '@/features/personajes/components/Compartir';
+import { abrirEnlace } from '@/features/personajes/acciones-compartir';
 import { cerrarSesion } from '@/features/cuentas/server/acciones';
 
 /* ---------- Íconos de la barra inferior (móvil) ---------- */
@@ -167,7 +168,7 @@ function MenuCompleto({ invitado, onCerrar, onClave, onCompartir }: { invitado: 
             extra={nAv > 0 ? <Insignia etiqueta={`${nAv} cosas por elegir`}>{nAv}</Insignia> : undefined}>Revisar</ItemMenu>
           <ItemMenu icono="print" onClick={imprimir}>Imprimir o guardar PDF</ItemMenu>
           <ItemMenu icono="download" onClick={hacer(() => bajarArchivo(slug(pj.nombre || 'personaje') + '.json', JSON.stringify(pj, null, 1)))}>Descargar respaldo</ItemMenu>
-          {!invitado && <ItemMenu icono="share" onClick={hacer(onCompartir)}>Compartir con otro jugador</ItemMenu>}
+          {!invitado && <ItemMenu icono="share" onClick={hacer(onCompartir)}>Compartir enlace</ItemMenu>}
           <ItemMenu icono="delete" peligro onClick={hacer(() => borrarPj())}>Borrar personaje</ItemMenu>
         </>
       )}
@@ -286,15 +287,15 @@ function BarraSuperior({ invitado }: { invitado: boolean }) {
         <CambiarContrasena alTerminar={() => setClave(false)} />
       </Dialogo>
       <Dialogo abierto={compartir && !!pj} onCerrar={() => setCompartir(false)} titulo={`Compartir a ${pj?.nombre || 'este personaje'}`}
-        descripcion="Escribe a quién se lo quieres compartir. Le aparecerá en su lista de personajes.">
+        descripcion="Crea un enlace y pásalo a quien quieras: por chat, por correo o donde sea.">
         {compartir && pj && <CompartirPersonaje id={pj.id} nombre={pj.nombre || 'Sin nombre'} />}
       </Dialogo>
     </Cabecera>
   );
 }
 
-/** invitado: sin cuenta; los personajes se guardan solo en este navegador. */
-export function MiTurnoApp({ invitado = false }: { invitado?: boolean }) {
+/** invitado: sin cuenta; los personajes se guardan solo en este navegador. enlace: abre el personaje de un enlace compartido. */
+export function MiTurnoApp({ invitado = false, enlace }: { invitado?: boolean; enlace?: string }) {
   useRender();
   const fileIn = useRef<HTMLInputElement>(null);
   const vistaPrevia = useRef('');
@@ -305,6 +306,7 @@ export function MiTurnoApp({ invitado = false }: { invitado?: boolean }) {
       if (!vivo) return;
       S.usuario = usuario; S.list = lista;
       const last = usuario?.ultimoPj;
+      if (enlace) { S.cargando = false; render(); abrirEnlace(enlace); return; }
       if (last && S.list.some(p => p.id === last)) { const p = almacen.pj(last); if (p) { S.pj = reparar(p); S.view = 'ficha'; } }
       S.cargando = false; render();
     }).catch((e: Error) => { S.error = e.message; S.cargando = false; render(); });
@@ -324,10 +326,10 @@ export function MiTurnoApp({ invitado = false }: { invitado?: boolean }) {
       document.body.removeEventListener('dragover', sobre);
       document.body.removeEventListener('drop', soltar);
     };
-  }, [invitado]);
+  }, [invitado, enlace]);
 
   // Al cambiar de pantalla: título de la pestaña del navegador y foco en el encabezado (teclado y lectores de pantalla).
-  const clave = S.cargando ? 'cargando' : `${S.view}|${S.pj?.id || ''}|${S.camp || ''}|${S.ajeno?.id || ''}`;
+  const clave = S.cargando ? 'cargando' : `${S.view}|${S.pj?.id || ''}|${S.camp || ''}|${S.ajeno?.pj?.id || ''}`;
   useEffect(() => {
     if (S.cargando) return;
     const nombre = S.view === 'ficha' || S.view === 'editor' ? S.pj?.nombre || 'Personaje' : S.view === 'ajeno' ? S.ajeno?.pj?.nombre || 'Personaje' : TITULOS[S.view] || 'Mi turno';

@@ -1,12 +1,12 @@
 'use client';
-import { S, render, irArriba, type Vista } from '@/app-shell/estado';
+import { S, render, irArriba, esInvitado, type Vista } from '@/app-shell/estado';
 import { almacen } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
 import { confirmar } from '@/shared/ui/confirmar';
-import { reparar } from './domain/modelo';
+import { nuevoPj, reparar } from './domain/modelo';
 import { compute } from './domain/calculo';
-import { copiarPersonaje, personajeAjeno, type RefPersonaje } from './api';
-import { abrir } from './acciones';
+import { personajeAjeno, personajePorEnlace, type RefPersonaje } from './api';
+import { abrir, savePj } from './acciones';
 
 /** "Ana, Bruno y 3 más": para confirmar sin una lista eterna. */
 export function nombrarVarios(nombres: string[], max = 4) {
@@ -35,32 +35,49 @@ export async function borrarVarios(ids: string[]) {
   return true;
 }
 
-/** Abre en solo lectura la hoja de otra cuenta (compartida contigo, o vista por un administrador). */
+function mostrarAjeno(datos: unknown, jugador: string, volver: Vista, permiteCopiar: boolean) {
+  const pj = reparar(JSON.parse(JSON.stringify(datos)));
+  S.ajeno = { jugador, pj, c: compute(pj), volver, permiteCopiar };
+  S.view = 'ajeno'; S.dialogo = ''; render(); irArriba();
+}
+
+/** Administrador: abre en solo lectura la hoja de otra cuenta. */
 export async function abrirAjeno(r: RefPersonaje & { jugador: string }, volver: Vista) {
   try {
     const p = await personajeAjeno({ usuarioId: r.usuarioId, id: r.id });
     if (!p) { avisar('Ese personaje ya no existe.', 'error'); return; }
-    const pj = reparar(JSON.parse(JSON.stringify(p.datos)));
-    S.ajeno = { usuarioId: r.usuarioId, id: r.id, jugador: r.jugador, pj, c: compute(pj), volver };
-    S.view = 'ajeno'; S.dialogo = ''; render(); irArriba();
+    mostrarAjeno(p.datos, r.jugador, volver, true);
   } catch (e) { avisar(`No se pudo abrir: ${(e as Error).message}`, 'error'); }
 }
 
+/** Abre el personaje de un enlace compartido (con o sin cuenta). */
+export async function abrirEnlace(token: string) {
+  try {
+    const p = await personajePorEnlace(token);
+    if (!p) { avisar('Ese enlace ya no sirve: su dueño lo desactivó o borró el personaje.', 'error'); return; }
+    mostrarAjeno(p.datos, p.jugador, 'home', p.permiteCopiar);
+  } catch (e) { avisar(`No se pudo abrir el enlace: ${(e as Error).message}`, 'error'); }
+}
+
+/** Al salir de un enlace, la dirección vuelve a la de la app (así recargar no reabre el enlace). */
+function salirDelEnlace() {
+  if (window.location.pathname.startsWith('/p/')) window.history.replaceState(null, '', esInvitado() ? '/invitado' : '/');
+}
+
 export function cerrarAjeno() {
+  salirDelEnlace();
   S.view = S.ajeno?.volver || 'home'; S.ajeno = null;
   render(); irArriba();
 }
 
-/** Crea en tu cuenta una copia independiente y la abre. */
-export async function copiarAjeno(r: RefPersonaje) {
-  try {
-    const p = await copiarPersonaje({ usuarioId: r.usuarioId, id: r.id });
-    almacen.agregarGuardado(p);
-    S.list = [...S.list, { id: p.id, name: p.nombre, sub: p.resumen || '' }];
-    S.ajeno = null;
-    abrir(p.id);
-    avisar(`${p.nombre} se copió a tu cuenta. Esta copia es tuya: los cambios no tocan el original.`);
-    return true;
-  } catch (e) { avisar(`No se pudo copiar: ${(e as Error).message}`, 'error'); return false; }
+/** Guarda una copia independiente (otro id) entre tus personajes y la abre. */
+export function copiarAjeno() {
+  const a = S.ajeno; if (!a) return;
+  const pj = structuredClone(a.pj);
+  pj.id = nuevoPj().id;
+  salirDelEnlace();
+  S.ajeno = null; S.pj = pj; pj.used = pj.used || {};
+  savePj();
+  abrir(pj.id);
+  avisar(`${pj.nombre || 'El personaje'} se copió ${esInvitado() ? 'en este navegador' : 'a tu cuenta'}. Esta copia es tuya: los cambios no tocan el original.`);
 }
-

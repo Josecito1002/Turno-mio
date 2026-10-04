@@ -10,22 +10,23 @@ export const borrarPersonaje = (id: string) => gql(`mutation ($id: ID!) { borrar
 
 export const marcarUltimo = (id: string | null) => gql(`mutation ($id: ID) { marcarUltimo(id: $id) }`, { id });
 
-/* ---- Compartir y personajes de otras cuentas ---- */
+/* ---- Enlace para compartir, y personajes de otras cuentas (administrador) ---- */
 export type PersonajeAjeno = { usuarioId: string; jugador: string; id: string; nombre: string; resumen: string | null; actualizadoEn: string };
 export type RefPersonaje = { usuarioId: string; id: string };
+export type Enlace = { token: string; permiteCopiar: boolean };
+export type PersonajeEnlazado = { nombre: string; jugador: string; permiteCopiar: boolean; datos: Record<string, unknown>; actualizadoEn: string };
 const AJENO = 'usuarioId jugador id nombre resumen actualizadoEn';
 
-export const compartidosConmigo = () => gql<{ compartidosConmigo: PersonajeAjeno[] }>(`{ compartidosConmigo { ${AJENO} } }`).then(d => d.compartidosConmigo);
-export const compartidoCon = (id: string) =>
-  gql<{ compartidoCon: { id: string; nombre: string }[] }>(`query ($id: ID!) { compartidoCon(id: $id) { id nombre } }`, { id }).then(d => d.compartidoCon);
-export const compartirPersonaje = (id: string, con: string) =>
-  gql<{ compartirPersonaje: { id: string; nombre: string } }>(`mutation ($id: ID!, $con: String!) { compartirPersonaje(id: $id, con: $con) { id nombre } }`, { id, con }).then(d => d.compartirPersonaje);
-export const dejarDeCompartir = (id: string, conId: string) => gql(`mutation ($id: ID!, $conId: ID!) { dejarDeCompartir(id: $id, conId: $conId) }`, { id, conId });
-export const descartarCompartido = (r: RefPersonaje) => gql(`mutation ($usuarioId: ID!, $id: ID!) { descartarCompartido(usuarioId: $usuarioId, id: $id) }`, r);
+export const enlaceDe = (id: string) => gql<{ enlaceDe: Enlace | null }>(`query ($id: ID!) { enlaceDe(id: $id) { token permiteCopiar } }`, { id }).then(d => d.enlaceDe);
+export const crearEnlace = (id: string, permiteCopiar: boolean, nuevo = false) =>
+  gql<{ crearEnlace: Enlace }>(`mutation ($id: ID!, $p: Boolean!, $n: Boolean) { crearEnlace(id: $id, permiteCopiar: $p, nuevo: $n) { token permiteCopiar } }`, { id, p: permiteCopiar, n: nuevo }).then(d => d.crearEnlace);
+export const quitarEnlace = (id: string) => gql(`mutation ($id: ID!) { quitarEnlace(id: $id) }`, { id });
+/** No hace falta cuenta. */
+export const personajePorEnlace = (token: string) =>
+  gql<{ personajePorEnlace: PersonajeEnlazado | null }>(`query ($t: String!) { personajePorEnlace(token: $t) { nombre jugador permiteCopiar datos actualizadoEn } }`, { t: token }).then(d => d.personajePorEnlace);
+/** Solo administradores. */
 export const personajeAjeno = (r: RefPersonaje) =>
   gql<{ personajeAjeno: PersonajeServidor | null }>(`query ($usuarioId: ID!, $id: ID!) { personajeAjeno(usuarioId: $usuarioId, id: $id) { id nombre resumen datos } }`, r).then(d => d.personajeAjeno);
-export const copiarPersonaje = (r: RefPersonaje) =>
-  gql<{ copiarPersonaje: PersonajeServidor }>(`mutation ($usuarioId: ID!, $id: ID!) { copiarPersonaje(usuarioId: $usuarioId, id: $id) { id nombre resumen datos } }`, r).then(d => d.copiarPersonaje);
 
 /** Borra varios personajes; los de otras cuentas, solo un administrador. Devuelve cuántos se borraron. */
 export const borrarPersonajes = (refs: RefPersonaje[]) =>

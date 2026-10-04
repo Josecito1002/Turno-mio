@@ -1,0 +1,1256 @@
+{
+  "id": "05c0727e-4a93-4a62-a240-e1f80203af6f",
+  "prevId": "1e2d8d33-86d3-47ae-8608-e891ff9fcbf0",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.usuarios": {
+      "name": "usuarios",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hash": {
+          "name": "hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rol": {
+          "name": "rol",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'jugador'"
+        },
+        "ultimo_pj": {
+          "name": "ultimo_pj",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creado_en": {
+          "name": "creado_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "usuarios_email_unique": {
+          "name": "usuarios_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.clases": {
+      "name": "clases",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "es_lib": {
+          "name": "es_lib",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "fuente": {
+          "name": "fuente",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dado_golpe": {
+          "name": "dado_golpe",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "salvaciones": {
+          "name": "salvaciones",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "num_habilidades": {
+          "name": "num_habilidades",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "habilidades": {
+          "name": "habilidades",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "armaduras": {
+          "name": "armaduras",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "armas": {
+          "name": "armas",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "competencia_armas": {
+          "name": "competencia_armas",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "atributo_conjuros": {
+          "name": "atributo_conjuros",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo_lanzador": {
+          "name": "tipo_lanzador",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tabla_espacios": {
+          "name": "tabla_espacios",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tabla_recursos": {
+          "name": "tabla_recursos",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "niveles_asi": {
+          "name": "niveles_asi",
+          "type": "smallint[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nivel_estilo": {
+          "name": "nivel_estilo",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "estilos": {
+          "name": "estilos",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "maestrias": {
+          "name": "maestrias",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hasta_nivel": {
+          "name": "hasta_nivel",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extra": {
+          "name": "extra",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.conjuro_clases": {
+      "name": "conjuro_clases",
+      "schema": "",
+      "columns": {
+        "conjuro_id": {
+          "name": "conjuro_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "clase_id": {
+          "name": "clase_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "conjuro_clases_clase_idx": {
+          "name": "conjuro_clases_clase_idx",
+          "columns": [
+            {
+              "expression": "clase_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "conjuro_clases_conjuro_id_conjuros_id_fk": {
+          "name": "conjuro_clases_conjuro_id_conjuros_id_fk",
+          "tableFrom": "conjuro_clases",
+          "tableTo": "conjuros",
+          "columnsFrom": [
+            "conjuro_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "conjuro_clases_conjuro_id_clase_id_pk": {
+          "name": "conjuro_clases_conjuro_id_clase_id_pk",
+          "columns": [
+            "conjuro_id",
+            "clase_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.conjuros": {
+      "name": "conjuros",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nivel": {
+          "name": "nivel",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tiempo": {
+          "name": "tiempo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'accion'"
+        },
+        "alcance": {
+          "name": "alcance",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "duracion": {
+          "name": "duracion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "concentracion": {
+          "name": "concentracion",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "ritual": {
+          "name": "ritual",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "salvacion": {
+          "name": "salvacion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "ataque": {
+          "name": "ataque",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "dados": {
+          "name": "dados",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "descripcion": {
+          "name": "descripcion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "extra": {
+          "name": "extra",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.dotes": {
+      "name": "dotes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pasiva'"
+        },
+        "texto": {
+          "name": "texto",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "categoria": {
+          "name": "categoria",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "nivel_min": {
+          "name": "nivel_min",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "extra": {
+          "name": "extra",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.especies": {
+      "name": "especies",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "es_lib": {
+          "name": "es_lib",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "fuente": {
+          "name": "fuente",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "resumen": {
+          "name": "resumen",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "velocidad": {
+          "name": "velocidad",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 30
+        },
+        "vision": {
+          "name": "vision",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "etiqueta_sub": {
+          "name": "etiqueta_sub",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extra": {
+          "name": "extra",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.lib_extra": {
+      "name": "lib_extra",
+      "schema": "",
+      "columns": {
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "clave": {
+          "name": "clave",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor": {
+          "name": "valor",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "lib_extra_tipo_clave_pk": {
+          "name": "lib_extra_tipo_clave_pk",
+          "columns": [
+            "tipo",
+            "clave"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.rasgos": {
+      "name": "rasgos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "origen": {
+          "name": "origen",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "clase_id": {
+          "name": "clase_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "subclase": {
+          "name": "subclase",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "especie_id": {
+          "name": "especie_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "subespecie": {
+          "name": "subespecie",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "orden": {
+          "name": "orden",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pasiva'"
+        },
+        "texto": {
+          "name": "texto",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "nivel": {
+          "name": "nivel",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "usos": {
+          "name": "usos",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "descanso": {
+          "name": "descanso",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extra": {
+          "name": "extra",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "rasgos_clase_idx": {
+          "name": "rasgos_clase_idx",
+          "columns": [
+            {
+              "expression": "clase_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "origen",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "subclase",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "orden",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "rasgos_especie_idx": {
+          "name": "rasgos_especie_idx",
+          "columns": [
+            {
+              "expression": "especie_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "orden",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "rasgos_clase_id_clases_id_fk": {
+          "name": "rasgos_clase_id_clases_id_fk",
+          "tableFrom": "rasgos",
+          "tableTo": "clases",
+          "columnsFrom": [
+            "clase_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "rasgos_especie_id_especies_id_fk": {
+          "name": "rasgos_especie_id_especies_id_fk",
+          "tableFrom": "rasgos",
+          "tableTo": "especies",
+          "columnsFrom": [
+            "especie_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.subclases": {
+      "name": "subclases",
+      "schema": "",
+      "columns": {
+        "clase_id": {
+          "name": "clase_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "clave": {
+          "name": "clave",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "extra": {
+          "name": "extra",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "subclases_clase_id_clases_id_fk": {
+          "name": "subclases_clase_id_clases_id_fk",
+          "tableFrom": "subclases",
+          "tableTo": "clases",
+          "columnsFrom": [
+            "clase_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "subclases_clase_id_clave_pk": {
+          "name": "subclases_clase_id_clave_pk",
+          "columns": [
+            "clase_id",
+            "clave"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.subespecies": {
+      "name": "subespecies",
+      "schema": "",
+      "columns": {
+        "especie_id": {
+          "name": "especie_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "clave": {
+          "name": "clave",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "extra": {
+          "name": "extra",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "subespecies_especie_id_especies_id_fk": {
+          "name": "subespecies_especie_id_especies_id_fk",
+          "tableFrom": "subespecies",
+          "tableTo": "especies",
+          "columnsFrom": [
+            "especie_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "subespecies_especie_id_clave_pk": {
+          "name": "subespecies_especie_id_clave_pk",
+          "columns": [
+            "especie_id",
+            "clave"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.trasfondos": {
+      "name": "trasfondos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "es_lib": {
+          "name": "es_lib",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "atributos": {
+          "name": "atributos",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "habilidades": {
+          "name": "habilidades",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "herramientas": {
+          "name": "herramientas",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "dote_id": {
+          "name": "dote_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extra": {
+          "name": "extra",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.enlaces_personaje": {
+      "name": "enlaces_personaje",
+      "schema": "",
+      "columns": {
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "dueno_id": {
+          "name": "dueno_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "personaje_id": {
+          "name": "personaje_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "permite_copiar": {
+          "name": "permite_copiar",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "creado_en": {
+          "name": "creado_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "enlaces_personaje_dueno_id_personaje_id_personajes_usuario_id_id_fk": {
+          "name": "enlaces_personaje_dueno_id_personaje_id_personajes_usuario_id_id_fk",
+          "tableFrom": "enlaces_personaje",
+          "tableTo": "personajes",
+          "columnsFrom": [
+            "dueno_id",
+            "personaje_id"
+          ],
+          "columnsTo": [
+            "usuario_id",
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "enlaces_personaje_personaje_unq": {
+          "name": "enlaces_personaje_personaje_unq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "dueno_id",
+            "personaje_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.personajes": {
+      "name": "personajes",
+      "schema": "",
+      "columns": {
+        "usuario_id": {
+          "name": "usuario_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Sin nombre'"
+        },
+        "resumen": {
+          "name": "resumen",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "datos": {
+          "name": "datos",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "creado_en": {
+          "name": "creado_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "actualizado_en": {
+          "name": "actualizado_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "personajes_usuario_id_usuarios_id_fk": {
+          "name": "personajes_usuario_id_usuarios_id_fk",
+          "tableFrom": "personajes",
+          "tableTo": "usuarios",
+          "columnsFrom": [
+            "usuario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "personajes_usuario_id_id_pk": {
+          "name": "personajes_usuario_id_id_pk",
+          "columns": [
+            "usuario_id",
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.campanas": {
+      "name": "campanas",
+      "schema": "",
+      "columns": {
+        "usuario_id": {
+          "name": "usuario_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "datos": {
+          "name": "datos",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "codigo": {
+          "name": "codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creado_en": {
+          "name": "creado_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "actualizado_en": {
+          "name": "actualizado_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "campanas_usuario_id_usuarios_id_fk": {
+          "name": "campanas_usuario_id_usuarios_id_fk",
+          "tableFrom": "campanas",
+          "tableTo": "usuarios",
+          "columnsFrom": [
+            "usuario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "campanas_usuario_id_id_pk": {
+          "name": "campanas_usuario_id_id_pk",
+          "columns": [
+            "usuario_id",
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "campanas_codigo_unique": {
+          "name": "campanas_codigo_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "codigo"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.mesa_jugadores": {
+      "name": "mesa_jugadores",
+      "schema": "",
+      "columns": {
+        "dm_id": {
+          "name": "dm_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "campana_id": {
+          "name": "campana_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jugador_id": {
+          "name": "jugador_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "personaje_id": {
+          "name": "personaje_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "unido_en": {
+          "name": "unido_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "mesa_jugadores_jugador_idx": {
+          "name": "mesa_jugadores_jugador_idx",
+          "columns": [
+            {
+              "expression": "jugador_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "mesa_jugadores_dm_id_campana_id_campanas_usuario_id_id_fk": {
+          "name": "mesa_jugadores_dm_id_campana_id_campanas_usuario_id_id_fk",
+          "tableFrom": "mesa_jugadores",
+          "tableTo": "campanas",
+          "columnsFrom": [
+            "dm_id",
+            "campana_id"
+          ],
+          "columnsTo": [
+            "usuario_id",
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "mesa_jugadores_jugador_id_personaje_id_personajes_usuario_id_id_fk": {
+          "name": "mesa_jugadores_jugador_id_personaje_id_personajes_usuario_id_id_fk",
+          "tableFrom": "mesa_jugadores",
+          "tableTo": "personajes",
+          "columnsFrom": [
+            "jugador_id",
+            "personaje_id"
+          ],
+          "columnsTo": [
+            "usuario_id",
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "mesa_jugadores_dm_id_campana_id_jugador_id_personaje_id_pk": {
+          "name": "mesa_jugadores_dm_id_campana_id_jugador_id_personaje_id_pk",
+          "columns": [
+            "dm_id",
+            "campana_id",
+            "jugador_id",
+            "personaje_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

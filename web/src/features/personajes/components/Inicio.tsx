@@ -6,7 +6,6 @@ import { FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { MesasDelJugador } from '@/features/mesa/components/UnirseMesa';
 import { abrir, borrarPj, nuevo } from '../acciones';
 import { borrarVarios } from '../acciones-compartir';
-import { CompartidosConmigo } from './Compartir';
 
 const ECONOMIA: [string, string, string][] = [
   ['accion', 'Acción', 'Una por turno: atacar, lanzar un conjuro, correr.'],
@@ -33,7 +32,6 @@ export function Inicio() {
           ))}
         </ul>
       </section>
-      <CompartidosConmigo />
     </>
   );
   const marcados = sel ? S.list.filter(p => sel.has(p.id)) : [];
@@ -81,7 +79,6 @@ export function Inicio() {
           </li>
         ))}
       </ul>
-      <CompartidosConmigo />
       <MesasDelJugador />
     </>
   );
