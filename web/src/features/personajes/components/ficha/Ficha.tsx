@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { Fragment, createContext, useContext, type ReactNode } from 'react';
+import { Fragment, createContext, useContext, useEffect, type ReactNode } from 'react';
 import { S, render } from '@/app-shell/estado';
 import { esc, modStr, norm, richT, sign } from '@/shared/utils/texto';
 import { Aviso, Boton, Dialogo, Simbolo, cx, foco } from '@/shared/ui/kit';
@@ -840,6 +840,12 @@ function Avisos({ c }: { c: any }) {
 /** La hoja del personaje. Con `lectura`, la de un jugador vista desde la mesa del DM: todo visible, nada editable. */
 export function Ficha({ c, lectura = false }: { c: any; lectura?: boolean }) {
   const cerrarDialogo = () => { S.dialogo = ''; render(); };
+  // La hoja de solo lectura se puede duplicar desde el menú: el menú la encuentra aquí
+  useEffect(() => {
+    if (!lectura) return;
+    S.hojaLectura = c.pj;
+    return () => { if (S.hojaLectura === c.pj) S.hojaLectura = null; };
+  }, [lectura, c.pj]);
   return (
     <Lectura.Provider value={lectura}>
       {/* Al imprimir sale la hoja de papel en lugar de la interactiva */}

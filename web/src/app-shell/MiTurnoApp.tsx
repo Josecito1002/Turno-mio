@@ -22,7 +22,7 @@ import { MesaVista } from '@/features/mesa/components/MesaVista';
 import { CuentasVista } from '@/features/cuentas/components/CuentasVista';
 import { CambiarContrasena } from '@/features/cuentas/components/CambiarContrasena';
 import { CompartirPersonaje, HojaAjena } from '@/features/personajes/components/Compartir';
-import { abrirEnlace } from '@/features/personajes/acciones-compartir';
+import { abrirEnlace, duplicarPj, hojaParaDuplicar } from '@/features/personajes/acciones-compartir';
 import { cerrarSesion } from '@/features/cuentas/server/acciones';
 
 /* ---------- Íconos de la barra inferior (móvil) ---------- */
@@ -141,6 +141,7 @@ function MenuCompleto({ invitado, onCerrar, onClave, onCompartir }: { invitado: 
   const hacer = (f: () => void) => () => { onCerrar(); f(); };
   const pj = S.pj, enFicha = S.view === 'ficha' && pj, enEditor = S.view === 'editor' && pj;
   const c = pj && (enFicha || enEditor) ? compute(pj) : null;
+  const ajena = !enFicha && !enEditor ? hojaParaDuplicar() : null;
   const falta = c ? faltaParaSubir(c) : [];
   const nAv = c ? c.avisos.filter((a: { nivel: string }) => a.nivel === 'aviso').length : 0;
   const rol = S.usuario?.rol === 'admin' ? 'Admin' : S.usuario?.rol === 'dm' ? 'DM' : 'Jugador';
@@ -181,9 +182,18 @@ function MenuCompleto({ invitado, onCerrar, onClave, onCompartir }: { invitado: 
           <ItemMenu icono="checklist" onClick={hacer(() => abrirDialogo('revisar'))}
             extra={nAv > 0 ? <Insignia etiqueta={`${nAv} cosas por elegir`}>{nAv}</Insignia> : undefined}>Revisar</ItemMenu>
           <ItemMenu icono="print" onClick={imprimir}>Imprimir o guardar PDF</ItemMenu>
+          <ItemMenu icono="content_copy" onClick={hacer(() => duplicarPj(pj))}>Duplicar personaje</ItemMenu>
           <ItemMenu icono="download" onClick={hacer(() => bajarArchivo(slug(pj.nombre || 'personaje') + '.json', JSON.stringify(pj, null, 1)))}>Descargar respaldo</ItemMenu>
           {!invitado && <ItemMenu icono="share" onClick={hacer(onCompartir)}>Compartir enlace</ItemMenu>}
           <ItemMenu icono="delete" peligro onClick={hacer(() => borrarPj())}>Borrar personaje</ItemMenu>
+        </>
+      )}
+
+      {/* Una hoja ajena (enlace o mesa del DM): se puede duplicar en tu cuenta */}
+      {!enFicha && !enEditor && ajena && (
+        <>
+          <TituloMenu>{ajena.nombre || 'Personaje'}</TituloMenu>
+          <ItemMenu icono="content_copy" onClick={hacer(() => duplicarPj(ajena))}>{invitado ? 'Duplicar aquí' : 'Duplicar en mi cuenta'}</ItemMenu>
         </>
       )}
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import { S, render, irArriba, esInvitado, type Vista } from '@/app-shell/estado';
 import { almacen } from '@/app-shell/almacen';
@@ -70,14 +71,28 @@ export function cerrarAjeno() {
   render(); irArriba();
 }
 
-/** Guarda una copia independiente (otro id) entre tus personajes y la abre. */
-export function copiarAjeno() {
-  const a = S.ajeno; if (!a) return;
-  const pj = structuredClone(a.pj);
+/** La hoja que se está viendo y se puede duplicar: la propia abierta, la de un enlace o la de un jugador en la mesa. */
+export function hojaParaDuplicar(): any {
+  if ((S.view === 'ficha' || S.view === 'editor') && S.pj) return S.pj;
+  if (S.view === 'ajeno' && S.ajeno) return S.ajeno.pj;
+  if (S.view === 'mesa' && S.hojaMesa) return S.hojaLectura;
+  return null;
+}
+
+/** Guarda un duplicado independiente (otro id) entre tus personajes y lo abre. Si el original es tuyo, el nombre lleva "(copia)". */
+export function duplicarPj(origen: any = hojaParaDuplicar()) {
+  if (!origen) return;
+  const propio = S.list.some(p => p.id === origen.id);
+  const pj = structuredClone(origen);
   pj.id = nuevoPj().id;
+  // El duplicado de un personaje de prueba es de verdad: que no lo borre prueba:quitar
+  delete pj.prueba; delete pj.pruebaVersion;
+  if (propio) pj.nombre = `${pj.nombre || 'Sin nombre'} (copia)`;
   salirDelEnlace();
-  S.ajeno = null; S.pj = pj; pj.used = pj.used || {};
+  S.ajeno = null; S.hojaMesa = null; S.hojaLectura = null; S.pj = pj; pj.used = pj.used || {};
   savePj();
   abrir(pj.id);
-  avisar(`${pj.nombre || 'El personaje'} se copió ${esInvitado() ? 'en este navegador' : 'a tu cuenta'}. Esta copia es tuya: los cambios no tocan el original.`);
+  avisar(`${pj.nombre || 'El personaje'} se duplicó ${esInvitado() ? 'en este navegador' : 'en tu cuenta'}. Es independiente: los cambios no tocan el original.`);
 }
+
+export const copiarAjeno = () => duplicarPj(S.ajeno?.pj);

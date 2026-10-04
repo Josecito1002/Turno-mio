@@ -30,6 +30,8 @@ export const S = {
   camp: null as string | null,
   /** Mesa del DM: la hoja de jugador que se está mirando (clave jm:...), o null. */
   hojaMesa: null as string | null,
+  /** Datos de la hoja de solo lectura en pantalla (mesa del DM), para poder duplicarla desde el menú. */
+  hojaLectura: null as any,
   mtab: 'grupo',
   /** Mesa del DM: el monstruo abierto en el bestiario (su clave), o null. */
   monstruoSel: null as string | null,
