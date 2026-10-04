@@ -8,7 +8,7 @@ import { COMUNES } from '@/features/reglas/data/comunes';
 import { FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { CONDICIONES } from '@/features/mesa/domain/combate';
 import { avisar } from '@/shared/ui/avisos';
-import { esc, richT, sign } from '@/shared/utils/texto';
+import { esc, norm, richT, sign } from '@/shared/utils/texto';
 import { descansar, moverPool, setVal } from '../../acciones';
 import { resumen } from '../../domain/modelo';
 import { combateMesa, enviarGolpeMesa, gastarAccionMesa, type CombateVivo, type EconomiaRonda, type OrdenDm, type TipoAccionRonda } from '@/features/mesa/api';
@@ -75,7 +75,7 @@ function FilaMagia({ s, c, uso, elegido, elegir }: { s: any; c: any; uso: Uso; e
     <Opcion uso={uso} elegido={elegido} elegir={elegir}>
       <div className="flex items-start gap-3 rounded-lg bg-surface-container p-3 shadow-md">
         <div className="grid size-12 shrink-0 place-items-center rounded-lg bg-surface-container-lowest text-secondary shadow-inner">
-          <Simbolo n={truco ? 'flare' : 'auto_awesome'} className="text-headline-md" />
+          <Simbolo n={truco ? 'auto_fix_high' : 'auto_stories'} className="text-headline-md" />
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="m-0 font-serif text-headline-sm text-on-surface">{s.nombre}</h3>
@@ -106,6 +106,34 @@ function MenuAcciones({ titulo, abierto, hijos, children }: { titulo: string; ab
   );
 }
 
+/** Icono de un rasgo de clase según lo que hace (por palabras de su nombre y su texto). */
+const ICONOS: [RegExp, string][] = [
+  [/libre|persona|disfraz/, 'masks'], [/pr[eé]parate|temporales|resistencia/, 'health_and_safety'], [/mover|correr|salto|paso|vuelo|velocidad/, 'directions_run'],
+  [/rabia|furia|fuego|llama|ardien/, 'local_fire_department'], [/curar|sanar|imposici|restaur|recuper/, 'healing'], [/inspira|canci|m[uú]sica|bardo/, 'music_note'],
+  [/forma salvaje|bestia|animal|compa[ñn]ero/, 'pets'], [/sombra|invisib|sigilo|ocult|furtiv|escond/, 'visibility_off'], [/escudo|defens|proteg|armadura|guardi/, 'shield'],
+  [/veneno|toxic/, 'science'], [/c[oó]lera|castigo|golpe|ataque|ráfaga|rafaga/, 'swords'], [/\bver\b|sentido|percep|vista/, 'visibility'], [/canalizar|divin|sagrad|luz|radiante/, 'light_mode'],
+  [/escarbar|determinaci|enfoque|concentra|\bmente\b/, 'psychology'], [/\bki\b|moxie|energ/, 'bolt'],
+];
+const iconoDe = (e: any) => { const t = norm(`${e.nombre}`) + ' ' + norm(String(e.texto || '').slice(0, 120)); for (const [r, i] of ICONOS) if (r.test(norm(e.nombre)) || r.test(t)) return i; return 'star'; };
+
+/** Rasgo de clase con el mismo estilo de tarjeta que los ataques; al elegirlo se ve su texto completo. */
+function FilaRasgo({ e, uso, elegido, elegir }: { e: any; uso: Uso; elegido: Uso | null; elegir: (u: Uso) => void }) {
+  const marcada = mismo(elegido, uso);
+  const corta = String(e.texto || '').replace(/\*\*|__/g, '').split(/(?<=\.)\s/)[0];
+  return (
+    <Opcion uso={uso} elegido={elegido} elegir={elegir}>
+      <div className="flex items-start gap-3 rounded-lg bg-surface-container p-3 shadow-md">
+        <div className="grid size-12 shrink-0 place-items-center rounded-lg bg-surface-container-lowest text-primary shadow-inner"><Simbolo n={iconoDe(e)} className="text-headline-md" /></div>
+        <div className="min-w-0 flex-1">
+          <h3 className="m-0 font-serif text-headline-sm text-on-surface">{e.nombre}</h3>
+          <p className="m-0 mt-0.5 text-body-sm text-outline">{[e.coste, !marcada && corta].filter(Boolean).join(' • ')}</p>
+          {marcada && uso.texto && <p className="m-0 mt-2 border-t border-outline-variant/30 pt-2 text-body-sm text-on-surface-variant" dangerouslySetInnerHTML={{ __html: uso.raw ? richT(uso.texto) : esc(uso.texto) }} />}
+        </div>
+      </div>
+    </Opcion>
+  );
+}
+
 const DE_MOVIMIENTO = new Set(['Correr', 'Destrabarse']);
 
 /** Lo que se puede hacer con cada tipo de acción, en tres menús: de la clase (ataques, rasgos y conjuros), de movimiento y genéricas. */
@@ -120,14 +148,14 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
   const op = (u: Uso, hijo: React.ReactNode, k: string | number) => <Opcion key={k} uso={u} elegido={elegido} elegir={elegir}>{hijo}</Opcion>;
   const deArma = (a: any): Uso => ({ tipo: t, nombre: a.nombre, texto: [a.dmg, ...(a.notas || [])].filter(Boolean).join('. ') || 'Ataque', ...(a.cd == null ? { atk: a.atk } : { salv: a.salv, cd: a.cd }), dexpr: a.expr, afecta: true });
   // Un rasgo que ataca sin armas (Golpe sin armas extra) se ve como un ataque, con su puño
-  const comoAtaque = (e: any) => e.roll?.[0] && /sin armas/i.test(e.nombre);
+  const comoAtaque = (e: any) => !!e.roll?.[0];
   const deRasgo = (e: any): Uso => {
     // Un rasgo que ataca (Golpe sin armas extra, Ráfaga de golpes…) trae su tirada: se trata como un ataque
     const atk = e.roll?.[0] ? +(/([+-]\d+)\s*$/.exec(e.roll[0])?.[1] ?? 0) : undefined;
     const gasta = e.recurso && /^1 /.test(e.coste || '') ? e.recurso : undefined;
     return { tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, ...(atk != null ? { atk, dexpr: e.roll[1] } : {}), afecta: atk != null, ...(gasta ? { gasta } : {}) };
   };
-  const comoArma = (e: any) => ({ puno: true, nombre: e.nombre, atk: +(/([+-]\d+)\s*$/.exec(e.roll[0])?.[1] ?? 0), expr: e.roll[1], dmg: String(e.roll[1]).replace(/\s/g, ''), notas: [] as string[] });
+  const comoArma = (e: any) => ({ puno: /sin armas|golpe|pu[ñn]/i.test(`${e.nombre} ${e.texto}`), nombre: e.nombre, atk: +(/([+-]\d+)\s*$/.exec(e.roll[0])?.[1] ?? 0), expr: e.roll[1], dmg: String(e.roll[1]).replace(/\s/g, ''), notas: [] as string[] });
   const deConjuro = (s: any): Uso => {
     const d = datosConjuro(s, c), salv = s.salv ? String(s.salv).toUpperCase() : undefined;
     return { tipo: t, nombre: s.nombre, coste: s.coste || (+s.nivel ? `Nivel ${s.nivel}` : 'Truco'), texto: String(s.desc || '').trim(), raw: true, ...(s.ataque && d.atk != null ? { atk: d.atk } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados),
@@ -150,8 +178,8 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
       <MenuAcciones titulo="Hechizos" abierto hijos={hechizos.length}>
         {hechizos.map((x: any, i: number) => <FilaMagia key={'h' + x.nombre + i} s={x} c={c} uso={deConjuro(x)} elegido={elegido} elegir={elegir} />)}
       </MenuAcciones>
-      <MenuAcciones titulo="Otros" hijos={otros.length}>
-        {otros.map((e: any, i: number) => nom(deRasgo(e), 'o' + e.nombre + i, e.coste))}
+      <MenuAcciones titulo="Acciones de la clase" abierto hijos={otros.length}>
+        {otros.map((e: any, i: number) => <FilaRasgo key={'o' + e.nombre + i} e={e} uso={deRasgo(e)} elegido={elegido} elegir={elegir} />)}
       </MenuAcciones>
       <MenuAcciones titulo="Acciones de movimiento" hijos={mov.length}>
         {mov.map(([n, f]: [string, (c: any) => string]) => nom({ tipo: t, nombre: n, texto: f(c), afecta: false }, n))}
