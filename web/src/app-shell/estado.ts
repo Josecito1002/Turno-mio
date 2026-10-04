@@ -32,6 +32,10 @@ export const S = {
   hojaMesa: null as string | null,
   /** Datos de la hoja de solo lectura en pantalla (mesa del DM), para poder duplicarla desde el menú. */
   hojaLectura: null as any,
+  /** Combate en vivo del jugador: la mesa y el personaje con los que se está jugando, o null. */
+  combateMesa: null as null | { dmId: string; campanaId: string; mesa: string; dm: string; personajeId: string },
+  /** En combate, mostrando la hoja completa en vez de la pantalla de combate. */
+  combateHoja: false as boolean,
   mtab: 'grupo',
   /** Mesa del DM: el monstruo abierto en el bestiario (su clave), o null. */
   monstruoSel: null as string | null,

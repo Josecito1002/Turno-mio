@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useId, useState, type FormEvent } from 'react';
 import { S, esInvitado } from '@/app-shell/estado';
+import { entrarCombate } from '@/features/personajes/acciones';
 import { vaciarPendientes } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
 import { confirmar } from '@/shared/ui/confirmar';
@@ -87,7 +88,10 @@ export function MesasDelJugador() {
           {mesas.map(m => (
             <Fila key={`${m.dmId}|${m.campanaId}|${m.personajeId}`}>
               <span><b className="font-serif">{m.mesa}</b> <span className="text-sm text-muted">DM: {m.dm} · con {m.personaje}</span></span>
-              <Boton tamano="sm" variante="peligro" onClick={() => salir(m)}>Salir</Boton>
+              <span className="flex gap-2">
+                <Boton tamano="sm" variante="primario" onClick={() => entrarCombate(m)}>Combate</Boton>
+                <Boton tamano="sm" variante="peligro" onClick={() => salir(m)}>Salir</Boton>
+              </span>
             </Fila>
           ))}
         </Lista>

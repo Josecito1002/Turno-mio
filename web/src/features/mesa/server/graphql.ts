@@ -1,5 +1,5 @@
 import { randomInt } from 'node:crypto';
-import { and, count, eq } from 'drizzle-orm';
+import { and, count, eq, sql } from 'drizzle-orm';
 import { GraphQLError } from 'graphql';
 import { requiereUsuario, type Contexto, type ModuloGraphQL } from '@/shared/graphql/servidor';
 import { exigir } from '@/features/cuentas/server/permisos';
@@ -54,6 +54,10 @@ const typeDefs = /* GraphQL */ `
     jugadoresMesa(campanaId: ID!): [PersonajeEnMesa!]!
     "Jugador: las mesas a las que unió sus personajes."
     misMesas: [MesaUnida!]!
+    "DM: el combate que ven sus jugadores (null si no hay)."
+    combateVivo(campanaId: ID!): JSON
+    "Jugador: el combate de la mesa a la que unió su personaje (null si no hay)."
+    combateMesa(dmId: ID!, campanaId: ID!, personajeId: ID!): JSON
   }
   extend type Mutation {
     guardarCampana(id: ID!, nombre: String!, datos: JSON!): Campana!
@@ -66,8 +70,23 @@ const typeDefs = /* GraphQL */ `
     unirseMesa(codigo: String!, personajeId: ID!): MesaUnida!
     "Jugador: saca su personaje de una mesa."
     salirMesa(dmId: ID!, campanaId: ID!, personajeId: ID!): Boolean!
+    "DM: publica el estado del combate (ronda, turno, orden). Con reiniciarEconomia, todos recuperan acción, adicional y reacción."
+    fijarCombateVivo(campanaId: ID!, datos: JSON!, reiniciarEconomia: Boolean): Boolean!
+    "Jugador: gasta o recupera su acción, acción adicional o reacción de esta ronda."
+    gastarAccionMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, tipo: String!, gastado: Boolean!): Boolean!
   }
 `;
+
+/** Lo que gasta cada quien en la ronda: acción, adicional y reacción. */
+const TIPOS_ACCION = ['accion', 'adicional', 'reaccion'];
+/** El personaje es de este jugador y está unido a esa mesa; si no, nada se lee ni se escribe. */
+async function exigirUnido(ctx: Contexto, a: { dmId: string; campanaId: string; personajeId: string }) {
+  const u = requiereUsuario(ctx);
+  const [fila] = await ctx.db.select({ n: count() }).from(mesaJugadores)
+    .where(and(eq(mesaJugadores.dmId, a.dmId), eq(mesaJugadores.campanaId, a.campanaId), eq(mesaJugadores.jugadorId, u.id), eq(mesaJugadores.personajeId, a.personajeId)));
+  if (!Number(fila?.n)) throw new GraphQLError('Ese personaje no está en esa mesa.');
+  return u;
+}
 
 const iso = <T extends { actualizadoEn: Date }>(x: T) => ({ ...x, actualizadoEn: x.actualizadoEn.toISOString() });
 
@@ -109,8 +128,38 @@ export const mesaGraphQL: ModuloGraphQL = {
           .where(eq(mesaJugadores.jugadorId, u.id))
           .orderBy(mesaJugadores.unidoEn);
       },
+      combateVivo: async (_: unknown, { campanaId }: { campanaId: string }, ctx: Contexto) => {
+        const u = await exigir(ctx, 'usarMesa', SOLO_DM);
+        const [c] = await ctx.db.select({ v: campanas.combateVivo }).from(campanas).where(and(eq(campanas.usuarioId, u.id), eq(campanas.id, campanaId))).limit(1);
+        return c?.v ?? null;
+      },
+      combateMesa: async (_: unknown, a: { dmId: string; campanaId: string; personajeId: string }, ctx: Contexto) => {
+        await exigirUnido(ctx, a);
+        const [c] = await ctx.db.select({ v: campanas.combateVivo }).from(campanas).where(and(eq(campanas.usuarioId, a.dmId), eq(campanas.id, a.campanaId))).limit(1);
+        return c?.v ?? null;
+      },
     },
     Mutation: {
+      fijarCombateVivo: async (_: unknown, a: { campanaId: string; datos: Record<string, unknown>; reiniciarEconomia?: boolean }, ctx: Contexto) => {
+        const u = await exigir(ctx, 'usarMesa', SOLO_DM);
+        // La economía (lo que gastan los jugadores) se conserva salvo que se pida reiniciarla; lo demás lo manda el DM
+        const { economia: _e, ...datos } = a.datos; void _e;
+        const nuevo = sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || ${JSON.stringify({ ...datos, actualizadoEn: new Date().toISOString() })}::jsonb`;
+        await ctx.db.update(campanas).set({ combateVivo: a.reiniciarEconomia ? sql`(${nuevo}) || '{"economia":{}}'::jsonb` : nuevo })
+          .where(and(eq(campanas.usuarioId, u.id), eq(campanas.id, a.campanaId)));
+        return true;
+      },
+      gastarAccionMesa: async (_: unknown, a: { dmId: string; campanaId: string; personajeId: string; tipo: string; gastado: boolean }, ctx: Contexto) => {
+        await exigirUnido(ctx, a);
+        if (!TIPOS_ACCION.includes(a.tipo)) throw new GraphQLError('Esa acción no existe.');
+        // Un solo UPDATE: dos jugadores gastando a la vez no se pisan (cada uno toca solo su rama)
+        const eco = sql`coalesce(${campanas.combateVivo}->'economia', '{}'::jsonb)`;
+        const suya = sql`coalesce(${eco}->${a.personajeId}::text, '{}'::jsonb) || jsonb_build_object(${a.tipo}::text, ${a.gastado}::boolean)`;
+        await ctx.db.update(campanas).set({
+          combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('economia', ${eco} || jsonb_build_object(${a.personajeId}::text, ${suya}))`,
+        }).where(and(eq(campanas.usuarioId, a.dmId), eq(campanas.id, a.campanaId)));
+        return true;
+      },
       guardarCampana: async (_: unknown, a: { id: string; nombre: string; datos: unknown }, ctx: Contexto) => {
         const u = await exigir(ctx, 'usarMesa', SOLO_DM);
         const fila = { usuarioId: u.id, id: a.id, nombre: a.nombre, datos: a.datos, actualizadoEn: new Date() };

@@ -10,6 +10,9 @@ export const campanas = pgTable('campanas', {
   datos: jsonb('datos').notNull(),
   /** Código que el DM comparte para que los jugadores se unan a la mesa (único; null hasta que se pide). */
   codigo: text('codigo').unique(),
+  /** El combate que ven los jugadores unidos: {activo, ronda, turno, orden, economia}. Aparte de `datos` para que lo que gastan
+      los jugadores (economia) y lo que publica el DM (el resto) no se pisen al guardar la campaña. */
+  combateVivo: jsonb('combate_vivo'),
   creadoEn: timestamp('creado_en', { withTimezone: true }).notNull().defaultNow(),
   actualizadoEn: timestamp('actualizado_en', { withTimezone: true }).notNull().defaultNow(),
 }, t => [primaryKey({ columns: [t.usuarioId, t.id] })]);
