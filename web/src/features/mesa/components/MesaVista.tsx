@@ -25,11 +25,39 @@ import { BloqueMonstruo, BuscadorEnemigo, VistaBestiario, monstruoDe, useCatalog
 
 const val = (id: string) => (document.getElementById(id) as HTMLInputElement | null)?.value || '';
 /** Cada acción trabaja sobre una copia fresca de la campaña, la guarda y redibuja. */
+/* Historial para deshacer (solo del DM, solo en esta pantalla): una copia de lo que cambia en el combate antes de cada cambio */
+const PARTES_HISTORIAL = ['estado', 'combate', 'monstruos', 'pjs'] as const;
+const historial = new Map<string, string[]>();
+const copiaCombate = (cp: any) => JSON.stringify(Object.fromEntries(PARTES_HISTORIAL.map(p => [p, cp[p] ?? null])));
+
 function conCamp(fn: (cp: any) => void | false) {
   const cp = campActual(); if (!cp) return;
+  const antes = copiaCombate(cp);
   if (fn(cp) === false) return;
+  if (copiaCombate(cp) !== antes) { const h = historial.get(cp.id) || []; h.push(antes); historial.set(cp.id, h.slice(-40)); }
   guardarCamp(cp); publicarCombate(cp); render();
 }
+/** Lo que pertenece a un combatiente dentro de una copia del historial. */
+const parteDe = (d: any, k: string) => JSON.stringify([d.estado?.[k] ?? null, k.startsWith('m:') ? (d.monstruos || []).find((m: any) => 'm:' + m.id === k) ?? null : null]);
+/** Deshace el último cambio del combate; con `k`, solo el último que tocó a ese combatiente. */
+function deshacer(k?: string) {
+  const cp = campActual(); if (!cp) return;
+  const h = historial.get(cp.id) || [];
+  const actual = JSON.parse(copiaCombate(cp));
+  let i = h.length - 1;
+  if (k) while (i >= 0 && parteDe(JSON.parse(h[i]), k) === parteDe(actual, k)) i--;
+  if (i < 0) { avisar('No hay nada que deshacer.'); return; }
+  const d = JSON.parse(h[i]);
+  if (!k) { for (const p of PARTES_HISTORIAL) cp[p] = d[p]; h.splice(i); }
+  else {
+    cp.estado = cp.estado || {};
+    if (d.estado?.[k]) cp.estado[k] = d.estado[k]; else delete cp.estado[k];
+    if (k.startsWith('m:')) { const m = (d.monstruos || []).find((x: any) => 'm:' + x.id === k), j = cp.monstruos.findIndex((x: any) => 'm:' + x.id === k); if (m && j >= 0) cp.monstruos[j] = m; }
+    h.splice(i, 1);
+  }
+  guardarCamp(cp); publicarCombate(cp); render();
+}
+const hayQueDeshacer = (id: string) => (historial.get(id) || []).length > 0;
 
 function Condiciones({ cp, k, nombre }: { cp: any; k: string; nombre: string }) {
   const e = estadoDe(cp, k);
@@ -43,10 +71,35 @@ function Condiciones({ cp, k, nombre }: { cp: any; k: string; nombre: string }) 
   return (
     <div className="mt-2">
       {e.cond.length > 0 && <div role="group" aria-label={`Condiciones de ${nombre}`} className="flex flex-wrap gap-1.5">{e.cond.map((n: string) => chip(n, true))}</div>}
-      <details className="mt-1">
-        <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>+ Agregar condición</summary>
-        <div className="mt-1 flex flex-wrap gap-1.5">{CONDICIONES.filter(n => !e.cond.includes(n)).map(n => chip(n, false))}</div>
-      </details>
+      <div className="flex flex-wrap items-center gap-x-3">
+        <details className="mt-1">
+          <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>+ Agregar condición</summary>
+          <div className="mt-1 flex flex-wrap gap-1.5">{CONDICIONES.filter(n => !e.cond.includes(n)).map(n => chip(n, false))}</div>
+        </details>
+        {hayQueDeshacer(cp.id) && <button type="button" onClick={() => deshacer(k)} className={cx('min-h-11 cursor-pointer rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8', foco)}>↶ Deshacer lo último de {nombre}</button>}
+      </div>
+      <RasgosCondicionales cp={cp} k={k} />
+    </div>
+  );
+}
+
+const CONDICIONAL = /\b(si|mientras|cuando|if|while|when)\b|pack tactics|ventaja/i;
+/** Rasgos de un enemigo que dependen de una condición (como las tácticas de manada): una casilla dice si se cumple. */
+function RasgosCondicionales({ cp, k }: { cp: any; k: string }) {
+  const cat = useCatalogo(), mon = k.startsWith('m:') ? cp.monstruos.find((m: any) => 'm:' + m.id === k) : null;
+  const ficha = mon?.ref && (cat || cp.bestiario?.[mon.ref]) ? monstruoDe(cp, mon.ref) : null;
+  const rasgos = (ficha?.rasgos || []).filter((r: any) => CONDICIONAL.test(`${r.en || ''} ${r.t || ''}`));
+  if (!rasgos.length) return null;
+  const e = estadoDe(cp, k), activos: Record<string, boolean> = e.rasgos || {};
+  const poner = (n: string, v: boolean) => conCamp(c => { const x = estadoDe(c, k); x.rasgos = { ...(x.rasgos || {}), [n]: v }; });
+  return (
+    <div className="mt-2 grid gap-1">
+      {rasgos.map((r: any) => (
+        <label key={r.en || r.n} className={cx('flex min-h-11 cursor-pointer items-start gap-2 rounded-lg p-2 text-sm', activos[r.en || r.n] ? 'bg-gol/20' : 'bg-soft')}>
+          <input type="checkbox" checked={!!activos[r.en || r.n]} onChange={ev => poner(r.en || r.n, ev.target.checked)} className="mt-1 size-4" />
+          <span><b>{r.n}</b>: {activos[r.en || r.n] ? <b className="text-gol">se cumple, el efecto está activo.</b> : <span className="text-muted">marca si se cumple.</span>}{r.t ? <span className="block text-muted">{r.t}</span> : null}</span>
+        </label>
+      ))}
     </div>
   );
 }
@@ -464,6 +517,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
       <div className="sticky top-[calc(var(--alto-cabecera,0px)+3.75rem)] z-[5] -mx-4 mt-2 flex flex-wrap items-center gap-2 bg-bg px-4 py-2 backdrop-blur">
         <p className="m-0 flex-1" aria-live="polite">Ronda {cb.ronda}. Turno de <b>{(actual && combatiente(actual.k, cp)?.nombre) || '—'}</b>.</p>
         {nuevos.length > 0 && <Boton onClick={sumarNuevos}>Sumar {nuevos.length === 1 ? 'al jugador nuevo' : `a ${nuevos.length} jugadores nuevos`}</Boton>}
+        {hayQueDeshacer(cp.id) && <Boton onClick={() => deshacer()}>↶ Deshacer</Boton>}
         <Boton variante="primario" onClick={siguiente}>Siguiente turno</Boton>
         <Boton onClick={terminar}>Terminar combate</Boton>
       </div>
