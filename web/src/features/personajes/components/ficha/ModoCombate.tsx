@@ -17,35 +17,53 @@ import { FilaArsenal, FilaConjuro, Ranuras, RecursosClase } from './Ficha';
 
 const TIPOS_BOTON: TipoAccionRonda[] = ['accion', 'adicional', 'reaccion'];
 
-/** Lo que se puede hacer con cada tipo de acción: ataques, rasgos, conjuros y las acciones que cualquiera tiene.
- *  Cada opción tiene su botón «Usar»: abre la confirmación con lo que hace y a quién afecta. */
-function OpcionesDeTipo({ c, t, usar }: { c: any; t: TipoAccionRonda; usar: (u: Uso) => void }) {
+const mismo = (a: Uso | null, b: Uso) => !!a && a.tipo === b.tipo && a.nombre === b.nombre;
+/** Una opción que se elige tocándola (borde verde); abajo hay un solo botón para usar la elegida. */
+function Opcion({ uso, elegido, elegir, children }: { uso: Uso; elegido: Uso | null; elegir: (u: Uso) => void; children: React.ReactNode }) {
+  const marcada = mismo(elegido, uso);
+  return (
+    <div role="radio" aria-checked={marcada} tabIndex={0} onClick={() => elegir(uso)}
+      onKeyDown={e => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); elegir(uso); } }}
+      className={cx('cursor-pointer rounded-xl border-2 p-0.5 transition-colors', foco, marcada ? 'border-green-400 bg-green-400/10' : 'border-transparent')}>
+      {children}
+    </div>
+  );
+}
+
+/** Lo que se puede hacer con cada tipo de acción: ataques, rasgos, conjuros y las acciones que cualquiera tiene. */
+function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda; elegido: Uso | null; elegir: (u: Uso) => void }) {
   const armas = t === 'accion' ? [...c.armas.filter((a: any) => a.mano), ...(c.naturales || [])] : [];
   const ents = c.entries.filter((e: any) => e.t === t);
   const conjuros = (c.conjuros || []).filter((s: any) => (s.tiempo || 'accion') === t);
   const com = COMUNES[t] || [];
-  const boton = (u: Uso) => <Boton tamano="sm" variante="primario" className="mt-1" onClick={() => usar(u)}>Usar {u.nombre}</Boton>;
+  const op = (u: Uso, hijo: React.ReactNode, k: string | number) => <Opcion key={k} uso={u} elegido={elegido} elegir={elegir}>{hijo}</Opcion>;
   const deArma = (a: any): Uso => ({ tipo: t, nombre: a.nombre, texto: [a.dmg, ...(a.notas || [])].filter(Boolean).join('. ') || 'Ataque', ...(a.cd == null ? { atk: a.atk } : { salv: a.salv, cd: a.cd }), dexpr: a.expr, afecta: true });
+  const deRasgo = (e: any): Uso => {
+    // Un rasgo que ataca (Golpe sin armas extra, Ráfaga de golpes…) trae su tirada: se trata como un ataque
+    const atk = e.roll?.[0] ? +(/([+-]\d+)\s*$/.exec(e.roll[0])?.[1] ?? 0) : undefined;
+    const gasta = e.recurso && /^1 /.test(e.coste || '') ? e.recurso : undefined;
+    return { tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, ...(atk != null ? { atk, dexpr: e.roll[1] } : {}), afecta: atk != null, ...(gasta ? { gasta } : {}) };
+  };
   const deConjuro = (s: any): Uso => {
     const d = datosConjuro(s, c), salv = s.salv ? String(s.salv).toUpperCase() : undefined;
     return { tipo: t, nombre: s.nombre, coste: s.coste || (+s.nivel ? `Nivel ${s.nivel}` : 'Truco'), texto: String(s.desc || '').trim(), raw: true, ...(s.ataque && d.atk != null ? { atk: d.atk } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados),
       ...(+s.nivel > 0 ? { conjuro: { nivel: +s.nivel, rasgo: s.recurso, ritual: !!s.ritual, desc: s.desc, base: d.dexpr, bono: d.dexpr ? bonosPara(c, s).reduce((x: number, b: any) => x + (+b.valor || 0), 0) : 0 } } : {}) };
   };
   return (
-    <div className="space-y-3">
+    <div role="radiogroup" aria-label="Elige qué haces" className="space-y-3">
       {armas.length > 0 && (
         <div className="space-y-2"><span className="text-label-caps uppercase text-outline">Ataques</span>
-          {armas.map((a: any, i: number) => <div key={a.nombre + i}><FilaArsenal a={a} c={c} />{boton(deArma(a))}</div>)}</div>
+          {armas.map((a: any, i: number) => op(deArma(a), <FilaArsenal a={a} c={c} />, a.nombre + i))}</div>
       )}
       {ents.length > 0 && <div><span className="text-label-caps uppercase text-outline">Rasgos</span>
-        {ents.map((e: any, i: number) => <div key={i}><Entrada e={e} />{boton({ tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, afecta: false })}</div>)}</div>}
+        {ents.map((e: any, i: number) => op(deRasgo(e), <Entrada e={e} />, i))}</div>}
       {conjuros.length > 0 && (
         <div className="space-y-1"><span className="text-label-caps uppercase text-outline">Conjuros</span>
-          <ul className="m-0 list-none space-y-2 p-0">{conjuros.map((s: any, i: number) => <li key={s.nombre + i}><FilaConjuro s={s} c={c} />{boton(deConjuro(s))}</li>)}</ul></div>
+          <ul className="m-0 list-none space-y-2 p-0">{conjuros.map((s: any, i: number) => <li key={s.nombre + i}>{op(deConjuro(s), <FilaConjuro s={s} c={c} />, 0)}</li>)}</ul></div>
       )}
       {com.length > 0 && (
         <div><span className="text-label-caps uppercase text-outline">Las que cualquiera puede hacer</span>
-          {com.map(([n, f]: [string, (c: any) => string]) => <div key={n}><Entrada e={{ t, nombre: n, texto: f(c), src: 'Reglas básicas' }} />{boton({ tipo: t, nombre: n, texto: f(c), afecta: n === 'Atacar' })}</div>)}</div>
+          {com.map(([n, f]: [string, (c: any) => string]) => op({ tipo: t, nombre: n, texto: f(c), afecta: n === 'Atacar' }, <Entrada e={{ t, nombre: n, texto: f(c), src: 'Reglas básicas' }} />, n))}</div>
       )}
     </div>
   );
@@ -89,6 +107,7 @@ export function ModoCombate({ c }: { c: any }) {
   const [eco, setEco] = useState<EconomiaRonda>({});
   const [abierto, setAbierto] = useState<TipoAccionRonda | null>(null);
   const [uso, setUso] = useState<Uso | null>(null);
+  const [elegido, setElegido] = useState<Uso | null>(null);
   const [error, setError] = useState('');
   const toques = useRef<Partial<Record<TipoAccionRonda, number>>>({});
 
@@ -120,7 +139,7 @@ export function ModoCombate({ c }: { c: any }) {
   const activo = !!viv?.activo, turnoDe = viv?.orden?.[viv.turno || 0];
   const mias = viv?.orden?.find(o => o.pid === personajeId)?.cond || [];
   const esMiTurno = !!turnoDe && turnoDe.pid === m.personajeId;
-  const salir = () => { S.combateMesa = null; S.combateHoja = false; render(); };
+  const salir = () => { S.combateMesa = null; S.combateHoja = false; S.view = 'mesaj'; render(); };
   const enemigos = (viv?.orden || []).filter(o => o.tipo === 'm');
   const ranuras = c.recursos.filter((r: any) => /^slot\d/.test(r.id));
 
@@ -133,7 +152,7 @@ export function ModoCombate({ c }: { c: any }) {
         </div>
         <div className="flex gap-2">
           <Boton tamano="sm" onClick={() => { S.combateHoja = true; render(); }}>Ver hoja completa</Boton>
-          <Boton tamano="sm" variante="peligro" onClick={salir}>Salir del combate</Boton>
+          <Boton tamano="sm" variante="peligro" onClick={salir}>Volver a la mesa</Boton>
         </div>
       </div>
 
@@ -159,7 +178,7 @@ export function ModoCombate({ c }: { c: any }) {
         {TIPOS_BOTON.map(t => {
           const gastada = !!eco[t];
           return (
-            <button key={t} type="button" onClick={() => setAbierto(t)} aria-haspopup="dialog"
+            <button key={t} type="button" onClick={() => { setElegido(null); setAbierto(t); }} aria-haspopup="dialog"
               className={cx('flex min-h-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg p-2 text-center shadow-md transition-all', foco,
                 gastada ? 'bg-surface-container-lowest text-outline opacity-60' : 'bg-primary-container text-on-primary-container hover:brightness-110')}>
               <FormaTipo t={t} className="size-5" />
@@ -182,11 +201,15 @@ export function ModoCombate({ c }: { c: any }) {
         descripcion={abierto ? TIPOS[abierto][1] : undefined}>
         {abierto && (
           <div className="space-y-3">
-            <Boton variante={eco[abierto] ? 'secundario' : 'primario'} onClick={() => gastar(abierto, !eco[abierto])}>
-              {eco[abierto] ? 'Recuperar (me equivoqué)' : `Marcar ${TIPOS[abierto][0].toLowerCase()} como gastada`}
-            </Boton>
+            {eco[abierto] && <Boton variante="secundario" onClick={() => gastar(abierto, false)}>Recuperar {TIPOS[abierto][0].toLowerCase()} (me equivoqué)</Boton>}
             <details className="rounded-lg bg-surface-container-low"><summary className="min-h-11 cursor-pointer list-none px-3 py-2 text-body-sm text-outline">Aplicar daño a un enemigo a mano</summary><div className="p-2"><GolpeAEnemigo enemigos={enemigos} mesa={{ dmId, campanaId, personajeId }} /></div></details>
-            <OpcionesDeTipo c={c} t={abierto} usar={u => { setAbierto(null); setUso(u); }} />
+            <OpcionesDeTipo c={c} t={abierto} elegido={elegido?.tipo === abierto ? elegido : null} elegir={setElegido} />
+            <div className="sticky bottom-0 -mx-1 flex flex-wrap gap-2 bg-surface-container-low/95 p-2 backdrop-blur">
+              <Boton variante="primario" className="flex-1" disabled={!elegido || elegido.tipo !== abierto} onClick={() => { setUso(elegido); setAbierto(null); }}>
+                {elegido && elegido.tipo === abierto ? `Usar ${elegido.nombre}` : 'Toca una opción para elegirla'}
+              </Boton>
+              {!eco[abierto] && <Boton onClick={() => gastar(abierto, true)}>Solo marcarla gastada</Boton>}
+            </div>
           </div>
         )}
       </Dialogo>

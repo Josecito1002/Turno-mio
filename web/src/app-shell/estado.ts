@@ -5,7 +5,7 @@ import { useSyncExternalStore } from 'react';
 export const nuevoDraft = () => ({ id: Date.now(), abierto: '', esp: { n: '', vel: 30, vision: 0, rasgos: [] as any[] }, sub: { clase: '', n: '', rasgos: [] as any[] } });
 
 export type Usuario = { id: string; email: string; nombre: string; rol: string; ultimoPj: string | null };
-export type Vista = 'home' | 'ficha' | 'editor' | 'lib' | 'mesa' | 'cuentas' | 'ajeno';
+export type Vista = 'home' | 'ficha' | 'editor' | 'lib' | 'mesa' | 'cuentas' | 'ajeno' | 'mesaj';
 
 /* Estado de la interfaz, igual que el objeto S de la versión original.
    Se muta directamente y después se llama a render(). */
