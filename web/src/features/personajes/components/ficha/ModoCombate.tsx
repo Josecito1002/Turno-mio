@@ -14,7 +14,7 @@ import { resumen } from '../../domain/modelo';
 import { combateMesa, enviarGolpeMesa, gastarAccionMesa, type CombateVivo, type EconomiaRonda, type OrdenDm, type TipoAccionRonda } from '@/features/mesa/api';
 import { EFECTO_CONDICION } from '@/features/mesa/domain/condiciones';
 import { datosConjuro } from '../piezas';
-import { ataquesPorAccion, bonosPara, golpesDeRasgo } from '../../domain/lanzar';
+import { ataquesPorAccion, bonosPara, golpesDeRasgo, restanteConjuro, restanteDe } from '../../domain/lanzar';
 import { UsoAccion, type Uso } from './UsoAccion';
 import { FilaArsenal, Ranuras, RecursosClase } from './Ficha';
 
@@ -87,6 +87,7 @@ function FilaMagia({ s, c, uso, elegido, elegir }: { s: any; c: any; uso: Uso; e
           </div>
           {marcada && uso.texto && <p className="m-0 mt-2 border-t border-outline-variant/30 pt-2 text-body-sm text-on-surface-variant" dangerouslySetInnerHTML={{ __html: richT(uso.texto) }} />}
         </div>
+        <Restante r={restanteConjuro(c, s)} />
       </div>
     </Opcion>
   );
@@ -129,7 +130,7 @@ function MascaraLuchador({ className }: { className?: string }) {
 }
 
 /** Rasgo de clase con el mismo estilo de tarjeta que los ataques; al elegirlo se ve su texto completo. */
-function FilaRasgo({ e, uso, elegido, elegir }: { e: any; uso: Uso; elegido: Uso | null; elegir: (u: Uso) => void }) {
+function FilaRasgo({ e, c, uso, elegido, elegir }: { e: any; c: any; uso: Uso; elegido: Uso | null; elegir: (u: Uso) => void }) {
   const marcada = mismo(elegido, uso);
   const corta = String(e.texto || '').replace(/\*\*|__/g, '').split(/(?<=\.)\s/)[0];
   return (
@@ -141,8 +142,20 @@ function FilaRasgo({ e, uso, elegido, elegir }: { e: any; uso: Uso; elegido: Uso
           <p className="m-0 mt-0.5 text-body-sm text-outline">{[e.coste, !marcada && corta].filter(Boolean).join(' • ')}</p>
           {marcada && uso.texto && <p className="m-0 mt-2 border-t border-outline-variant/30 pt-2 text-body-sm text-on-surface-variant" dangerouslySetInnerHTML={{ __html: uso.raw ? richT(uso.texto) : esc(uso.texto) }} />}
         </div>
+        <Restante r={restanteDe(c, e.recurso)} />
       </div>
     </Opcion>
+  );
+}
+
+/** Lo que te queda del recurso que gasta una opción (2/3 Moxie), a la derecha de su tarjeta. */
+function Restante({ r }: { r: { quedan: number; max: number; nombre: string } | null }) {
+  if (!r) return null;
+  return (
+    <div className={cx('shrink-0 self-center rounded-lg bg-surface-container-lowest px-2 py-1 text-center', r.quedan ? 'text-primary' : 'text-error')} aria-label={`Te quedan ${r.quedan} de ${r.max}: ${r.nombre}`}>
+      <div className="font-serif text-headline-sm font-extrabold leading-none">{r.quedan}/{r.max}</div>
+      <div className="max-w-24 truncate text-[0.65rem] uppercase text-outline">{r.nombre}</div>
+    </div>
   );
 }
 
@@ -206,7 +219,10 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
       <MenuAcciones titulo="Ataques" abierto hijos={delaClase}>
         {armas.map((a: any, i: number) => op(deArma(a), <FilaArsenal a={a} c={c} sinTirar />, 'a' + a.nombre + i))}
         {sinArmas && op(deArma(sinArmas), <FilaArsenal a={sinArmas} c={c} sinTirar />, 'sa')}
-        {ataques.map((e: any, i: number) => op(deRasgo(e), <FilaArsenal a={comoArma(e)} c={c} sinTirar />, 'r' + i))}
+        {ataques.map((e: any, i: number) => {
+          const fila = <FilaArsenal a={comoArma(e)} c={c} sinTirar />, r = restanteDe(c, e.recurso);
+          return op(deRasgo(e), r ? <div className="flex items-center gap-2"><div className="min-w-0 flex-1">{fila}</div><Restante r={r} /></div> : fila, 'r' + i);
+        })}
       </MenuAcciones>
       <MenuAcciones titulo="Trucos" abierto hijos={trucos.length}>
         {trucos.map((x: any, i: number) => <FilaMagia key={'t' + x.nombre + i} s={x} c={c} uso={deConjuro(x)} elegido={elegido} elegir={elegir} />)}
@@ -215,7 +231,7 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
         {hechizos.map((x: any, i: number) => <FilaMagia key={'h' + x.nombre + i} s={x} c={c} uso={deConjuro(x)} elegido={elegido} elegir={elegir} />)}
       </MenuAcciones>
       <MenuAcciones titulo="Acciones de la clase" abierto hijos={otros.length}>
-        {otros.map((e: any, i: number) => <FilaRasgo key={'o' + e.nombre + i} e={e} uso={deRasgo(e)} elegido={elegido} elegir={elegir} />)}
+        {otros.map((e: any, i: number) => <FilaRasgo key={'o' + e.nombre + i} e={e} c={c} uso={deRasgo(e)} elegido={elegido} elegir={elegir} />)}
       </MenuAcciones>
       <MenuAcciones titulo="Acciones de movimiento" hijos={mov.length}>
         {mov.map(([n, f]: [string, (c: any) => string]) => nom({ tipo: t, nombre: n, texto: f(c), afecta: false }, n))}
