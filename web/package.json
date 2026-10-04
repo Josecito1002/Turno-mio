@@ -23,6 +23,7 @@
     "prueba:quitar": "tsx scripts/gemini/personajes-prueba.ts --lista --borrar",
     "db:limpiar-imagenes": "tsx --env-file-if-exists=.env.local scripts/limpiar-imagenes.ts",
     "db:actualizar-clase": "tsx --env-file-if-exists=.env.local scripts/actualizar-clase.ts",
+    "mesa:jugadores": "tsx --env-file-if-exists=.env.local scripts/mesa-jugadores.ts",
     "ws": "tsx scripts/servidor-ws.ts"
   },
   "dependencies": {
