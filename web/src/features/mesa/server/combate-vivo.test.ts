@@ -74,8 +74,8 @@ describe('combate en vivo', () => {
     const w = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
     assert.equal(w.golpes.length, 1); assert.equal(w.golpes[0].objetivo, 'm:def');
   });
-  test('un golpe solo va a enemigos, con daño válido y de quien está en la mesa', async () => {
-    await assert.rejects(M.enviarGolpeMesa(null, { ...unido, objetivo: 'pj:x', dano: 1 }, ctx(jug)));
+  test('un golpe va a un combatiente válido, con daño válido y de quien está en la mesa', async () => {
+    await assert.rejects(M.enviarGolpeMesa(null, { ...unido, objetivo: 'zz:x', dano: 1 }, ctx(jug)));
     await assert.rejects(M.enviarGolpeMesa(null, { ...unido, objetivo: 'm:a', dano: -5 }, ctx(jug)));
     await assert.rejects(M.enviarGolpeMesa(null, { ...unido, objetivo: 'm:a', dano: 1 }, ctx(otro)));
   });
@@ -120,5 +120,13 @@ describe('combate en vivo', () => {
     assert.equal(v.ordenes.length, 30); assert.equal(v.ordenes[29].tipo, 'corto');
     await assert.rejects(M.enviarOrdenDm(null, { campanaId: 'c1', tipo: 'largo' }, ctx(jug)));
     await assert.rejects(M.enviarOrdenDm(null, { campanaId: 'c1', tipo: 'otra' }, ctx(dm)));
+  });
+  test('lo que se le hace a otro jugador le llega a su pantalla como una orden, y lo de un personaje del DM queda como golpe', async () => {
+    await M.enviarGolpeMesa(null, { ...unido, objetivo: 'jm:ju1:pjz', dano: 4, cura: true, condicion: 'Bendecido', bono: '+1d4 a ataques y salvaciones' }, ctx(jug));
+    await M.enviarGolpeMesa(null, { ...unido, objetivo: 'pj:abc', dano: 2, cura: true }, ctx(jug));
+    const v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    const o = v.ordenes.find((x: any) => x.tipo === 'efecto');
+    assert.equal(o.personajeId, 'pjz'); assert.equal(o.cura, true); assert.equal(o.dano, 4); assert.equal(o.condicion, 'Bendecido');
+    assert.ok(v.golpes.some((g: any) => g.objetivo === 'pj:abc' && g.cura));
   });
 });

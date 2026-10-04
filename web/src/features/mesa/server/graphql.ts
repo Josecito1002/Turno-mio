@@ -89,8 +89,8 @@ const typeDefs = /* GraphQL */ `
     fijarCombateVivo(campanaId: ID!, datos: JSON!, reiniciarEconomia: Boolean): Boolean!
     "Jugador: gasta o recupera su acción, acción adicional o reacción de esta ronda."
     gastarAccionMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, tipo: String!, gastado: Boolean!): Boolean!
-    "Jugador: manda un golpe (daño y/o condición) a un enemigo; el DM lo aplica cuando tiene la mesa abierta."
-    enviarGolpeMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, objetivo: String!, dano: Int!, condicion: String, nota: String): Boolean!
+    "Jugador: manda un golpe, curación, condición o bono a un combatiente. A un enemigo o personaje del DM lo aplica el DM con la mesa abierta; a otro jugador le llega a su pantalla."
+    enviarGolpeMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, objetivo: String!, dano: Int!, cura: Boolean, condicion: String, bono: String, nota: String): Boolean!
     "DM: marca o recupera la acción, adicional o reacción de cualquier combatiente (jugador, personaje propio o enemigo)."
     fijarAccionDm(campanaId: ID!, clave: String!, tipo: String!, gastado: Boolean!): Boolean!
     "Jugador: usa una acción (la marca como gastada y deja dicho qué hizo)."
@@ -213,12 +213,22 @@ export const mesaGraphQL: ModuloGraphQL = {
         }).where(and(eq(campanas.usuarioId, a.dmId), eq(campanas.id, a.campanaId)));
         return true;
       },
-      enviarGolpeMesa: async (_: unknown, a: { dmId: string; campanaId: string; personajeId: string; objetivo: string; dano: number; condicion?: string | null; nota?: string | null }, ctx: Contexto) => {
+      enviarGolpeMesa: async (_: unknown, a: { dmId: string; campanaId: string; personajeId: string; objetivo: string; dano: number; cura?: boolean | null; condicion?: string | null; bono?: string | null; nota?: string | null }, ctx: Contexto) => {
         await exigirUnido(ctx, a);
-        if (!/^m:[\w-]{1,40}$/.test(a.objetivo)) throw new GraphQLError('Ese objetivo no es un enemigo.');
+        if (!/^(m:[\w-]{1,40}|pj:[\w-]{1,60}|jm:[\w-]{1,60}:[\w-]{1,60})$/.test(a.objetivo)) throw new GraphQLError('Ese objetivo no es válido.');
         if (!Number.isInteger(a.dano) || a.dano < 0 || a.dano > 999) throw new GraphQLError('Ese daño no es válido.');
         const [p] = await ctx.db.select({ n: personajes.nombre }).from(personajes).where(and(eq(personajes.usuarioId, requiereUsuario(ctx).id), eq(personajes.id, a.personajeId))).limit(1);
-        const golpe = { id: randomUUID(), de: p?.n || 'Un jugador', objetivo: a.objetivo, dano: a.dano, condicion: a.condicion ? String(a.condicion).slice(0, 40) : null, nota: a.nota ? String(a.nota).slice(0, 80) : null, ts: new Date().toISOString() };
+        const comun = { id: randomUUID(), de: p?.n || 'Un jugador', dano: a.dano, cura: !!a.cura, condicion: a.condicion ? String(a.condicion).slice(0, 40) : null, bono: a.bono ? String(a.bono).slice(0, 200) : null, nota: a.nota ? String(a.nota).slice(0, 80) : null, ts: new Date().toISOString() };
+        // A otro jugador le llega a su pantalla (como una orden); lo demás lo aplica el DM
+        if (a.objetivo.startsWith('jm:')) {
+          const orden = JSON.stringify([{ ...comun, tipo: 'efecto', personajeId: a.objetivo.split(':')[2] }]);
+          const lista = sql`coalesce(${campanas.combateVivo}->'ordenes', '[]'::jsonb) || ${orden}::jsonb`;
+          const ultimas = sql`coalesce((select jsonb_agg(o order by n) from (select o, n from jsonb_array_elements(${lista}) with ordinality t(o, n) order by n desc limit 30) x), '[]'::jsonb)`;
+          await ctx.db.update(campanas).set({ combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('ordenes', ${ultimas})` })
+            .where(and(eq(campanas.usuarioId, a.dmId), eq(campanas.id, a.campanaId)));
+          return true;
+        }
+        const golpe = { ...comun, objetivo: a.objetivo };
         const lista = sql`coalesce(${campanas.combateVivo}->'golpes', '[]'::jsonb)`;
         // Un solo UPDATE (varios jugadores a la vez no se pisan); se guardan como mucho 60 pendientes
         await ctx.db.update(campanas).set({

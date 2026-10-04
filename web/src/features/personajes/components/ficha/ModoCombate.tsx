@@ -15,10 +15,25 @@ import { combateMesa, enviarGolpeMesa, gastarAccionMesa, type CombateVivo, type 
 import { EFECTO_CONDICION } from '@/features/mesa/domain/condiciones';
 import { datosConjuro } from '../piezas';
 import { ataquesPorAccion, bonosPara, golpesDeRasgo, restanteConjuro, restanteDe } from '../../domain/lanzar';
-import { UsoAccion, type Uso } from './UsoAccion';
+import { UsoAccion, type Marca, type Objetivo, type Uso } from './UsoAccion';
+import { EFECTOS_ALIADO, SEGUIMIENTOS } from '@/features/reglas/data/efectos-conjuro';
 import { FilaArsenal, Ranuras, RecursosClase } from './Ficha';
 
 const TIPOS_BOTON: TipoAccionRonda[] = ['accion', 'adicional', 'reaccion'];
+
+/** Lo que otro jugador te hizo con una acción: daño (primero a los PG temporales), curación, y un efecto que queda a la vista hasta que lo quites. */
+function aplicarEfecto(o: OrdenDm) {
+  const pj = S.pj; if (!pj) return;
+  const n = Math.max(0, Math.round(o.dano || 0));
+  if (n && o.cura) moverPool('pg', n);
+  else if (n) {
+    const temp = Math.max(0, +pj.pgTemp || 0), t = Math.min(temp, n);
+    if (t) setVal('pgTemp', temp - t);
+    if (n - t) moverPool('pg', -(n - t));
+  }
+  if (o.condicion || o.bono) setVal('efectos', [...(pj.efectos || []).filter((x: any) => x.nombre !== (o.condicion || 'Efecto')), { nombre: o.condicion || 'Efecto', texto: o.bono || '', de: o.de || '' }]);
+  avisar(`${o.de || 'Alguien'}${o.nota ? ` (${o.nota})` : ''}: ${n ? (o.cura ? `te cura ${n} PG` : `te hace ${n} de daño`) : ''}${o.condicion ? `${n ? ', ' : ''}${o.condicion}` : ''}.`);
+}
 
 /** Aplica a esta hoja los descansos y la inspiración que mandó el DM. Se recuerda cuáles ya se aplicaron (por personaje);
  *  la primera vez solo cuentan las de los últimos 10 minutos, para no repetir lo de otras sesiones. */
@@ -32,6 +47,7 @@ function aplicarOrdenes(ordenes: OrdenDm[] | undefined, pid: string) {
   try { localStorage.setItem(clave, JSON.stringify([...(vistos || []), ...ordenes.map(o => o.id)].slice(-80))); } catch { /* idem */ }
   for (const o of nuevas) {
     if (o.tipo === 'inspiracion') { setVal('inspiracion', true); avisar('Tu DM te dio inspiración.'); }
+    else if (o.tipo === 'efecto') aplicarEfecto(o);
     else descansar(o.tipo);
   }
 }
@@ -187,6 +203,7 @@ function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any
       {mismo(elegido, u) && u.texto && <p className="m-0 mx-2 mb-2 mt-1 rounded-lg bg-surface-container-lowest p-2 text-body-sm text-on-surface-variant" dangerouslySetInnerHTML={{ __html: u.raw ? richT(u.texto) : esc(u.texto) }} />}
     </Opcion>
   );
+  const mias = marcas.filter((x: any) => x.en === t);
   const nAtaques = ataquesPorAccion(c);
   // Efectos que suman ataques solo mientras se cumplen: una casilla dice si valen ahora
   const puedeRenunciar = (c.entries || []).some((e: any) => RENUNCIA.test(String(typeof e.texto === 'function' ? '' : e.texto || '')) || /golpe brutal|maniobra/i.test(e.nombre || ''));
@@ -202,14 +219,20 @@ function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any
     const n = golpesDeRasgo(c, e), golpes = n > 1 ? n : undefined;
     // Un ataque más (Golpe Repentino) también apunta a un objetivo
     const ataca = atk != null || !!golpes || /\b(?:un|otro) ataque (?:más|adicional|extra)\b|\bhacer (?:un|otro) ataque\b/i.test(String(e.texto || ''));
-    return { tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, ...(golpes ? { golpes } : {}), ...(atk != null ? { atk, dexpr: e.roll[1] } : {}), afecta: ataca, ...(gasta ? { gasta } : {}) };
+    const efecto = EFECTOS_ALIADO[norm(e.nombre)];
+    return { tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, ...(efecto ? { efecto } : {}), ...(golpes ? { golpes } : {}), ...(atk != null ? { atk, dexpr: e.roll[1] } : {}), afecta: ataca || !!efecto, ...(gasta ? { gasta } : {}) };
   };
   const comoArma = (e: any) => ({ puno: /sin armas|golpe|pu[ñn]/i.test(`${e.nombre} ${e.texto}`), nombre: e.nombre, atk: +(/([+-]\d+)\s*$/.exec(e.roll[0])?.[1] ?? 0), expr: e.roll[1], dmg: String(e.roll[1]).replace(/\s/g, ''), notas: [] as string[] });
   const deConjuro = (s: any): Uso => {
     const d = datosConjuro(s, c), salv = s.salv ? String(s.salv).toUpperCase() : undefined;
-    return { tipo: t, nombre: s.nombre, coste: s.coste || (+s.nivel ? `Nivel ${s.nivel}` : 'Truco'), texto: String(s.desc || '').trim(), raw: true, ...(s.ataque && d.atk != null ? { atk: d.atk } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados),
-      ...(norm(s.nombre) === 'rayo de hechiceria' ? { marca: { id: 'rayo-de-hechiceria', nombre: 'Rayo de hechicería', dexpr: '1d12', tipo: 'relámpago', texto: 'Causas 1d12 de daño de relámpago a la criatura marcada, sin necesidad de otro ataque.' } } : {}),
-      ...(+s.nivel > 0 ? { conjuro: { nivel: +s.nivel, rasgo: s.recurso, ritual: !!s.ritual, desc: s.desc, base: d.dexpr, bono: d.dexpr ? bonosPara(c, s).reduce((x: number, b: any) => x + (+b.valor || 0), 0) : 0 } } : {}) };
+    const sg = SEGUIMIENTOS[norm(s.nombre)], ef = EFECTOS_ALIADO[norm(s.nombre)];
+    // Un conjuro que cura: devuelve puntos de golpe y no ataca ni pide salvación
+    const cura = !s.ataque && !salv && /recuper\w* (?:\w+ ){0,3}puntos de golpe|recuper\w* \d+d\d+/i.test(String(s.desc || ''));
+    return { tipo: t, nombre: s.nombre, coste: s.coste || (+s.nivel ? `Nivel ${s.nivel}` : 'Truco'), texto: String(s.desc || '').trim(), raw: true, ...(s.ataque && d.atk != null ? { atk: d.atk } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: ef ? undefined : d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados || ef || cura),
+      ...(sg ? { marca: { id: norm(s.nombre).replace(/\s+/g, '-'), nombre: sg.nombre, texto: sg.texto, dexpr: sg.dado || d.dexpr || '', tipo: sg.tipo, en: sg.en, desde: sg.desde, objetivo: sg.objetivo,
+        ...(sg.ataque && d.atk != null ? { atk: d.atk } : {}), ...(sg.salv ? { salv: sg.salv, cd: d.cd } : {}), ...(sg.porNivel ? { porNivel: sg.porNivel, nivelBase: sg.nivelBase } : {}) } as Marca } : {}),
+      ...(ef ? { efecto: ef } : {}), ...(cura ? { cura: true } : {}),
+      ...(+s.nivel > 0 ? { conjuro: { nivel: +s.nivel, rasgo: s.recurso, ritual: !!s.ritual, desc: s.desc, base: ef ? '' : d.dexpr, bono: d.dexpr && !ef ? bonosPara(c, s).reduce((x: number, b: any) => x + (+b.valor || 0), 0) : 0 } } : {}) };
   };
   const nom = (u: Uso, k: string | number, sub?: string, icono?: string) => <OpcionNombre key={k} uso={u} elegido={elegido} elegir={elegir} sub={sub} icono={icono} />;
   const trucos = conjuros.filter((x: any) => !(+x.nivel > 0)), hechizos = conjuros.filter((x: any) => +x.nivel > 0);
@@ -234,12 +257,13 @@ function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any
       <MenuAcciones titulo="Acciones de la clase" abierto hijos={otros.length}>
         {otros.map((e: any, i: number) => <FilaRasgo key={'o' + e.nombre + i} e={e} c={c} uso={deRasgo(e)} elegido={elegido} elegir={elegir} />)}
       </MenuAcciones>
-      {t === 'adicional' && marcas.length > 0 && (
-        <MenuAcciones titulo="Marcas activas" abierto hijos={marcas.length}>
-          {marcas.map((x: any) => (
+      {mias.length > 0 && (
+        <MenuAcciones titulo="Conjuros que siguen activos" abierto hijos={mias.length}>
+          {mias.map((x: any) => (
             <div key={x.id} className="space-y-1">
-              {nom({ tipo: t, nombre: `${x.nombre}: daño de la marca${x.nombreObj ? ` (${x.nombreObj})` : ''}`, texto: x.texto, dexpr: x.dexpr, afecta: true }, 'mk' + x.id, `${x.dexpr} de daño de ${x.tipo} a la criatura marcada`, 'auto_fix_high')}
-              <button type="button" onClick={() => quitarMarca(x.id)} className="min-h-11 cursor-pointer rounded px-2 text-body-sm text-outline underline">La marca se acabó (se liberó o terminó el conjuro)</button>
+              {nom({ tipo: t, nombre: `${x.nombre}: repetir${x.nombreObj ? ` (${x.nombreObj})` : ''}`, texto: x.texto, dexpr: x.dexpr || undefined, afecta: true,
+                ...(x.atk != null ? { atk: x.atk } : {}), ...(x.salv ? { salv: x.salv, cd: x.cd } : {}) }, 'mk' + x.id, [x.dexpr, x.tipo].filter(Boolean).join(' de '), 'auto_fix_high')}
+              <button type="button" onClick={() => quitarMarca(x.id)} className="min-h-11 cursor-pointer rounded px-2 text-body-sm text-outline underline">Ya no sigue activo (terminó o se liberó)</button>
             </div>
           ))}
         </MenuAcciones>
@@ -295,6 +319,14 @@ function ResumenCombate({ c, m, conds, dur, ven, esMiTurno }: { c: any; m: { mes
           {ven && <p className="m-0 text-body-sm text-on-surface"><b className={ven === 'v' ? 'text-green-400' : 'text-error'}>{ven === 'v' ? 'Ventaja' : 'Desventaja'} en tus ataques.</b> Lo puso tu DM.</p>}
           {conds.map(n => (
             <p key={n} className="m-0 text-body-sm text-on-surface"><b className="text-error">{n}.</b> {EFECTO_CONDICION[n] || ''}{n === 'Derribado' && esMiTurno ? ' (Es tu turno: lo notarás al moverte.)' : ''} <span className="text-outline">{dur[n] ? `Dura: ${dur[n]}.` : 'Dura hasta que tu DM la quite.'}</span></p>
+          ))}
+        </div>
+      )}
+      {(pj.efectos || []).length > 0 && (
+        <div className="mt-3 grid gap-1 rounded-lg bg-primary-container/30 p-2" aria-label="Efectos que tienes">
+          {(pj.efectos as any[]).map(x => (
+            <p key={x.nombre} className="m-0 text-body-sm text-on-surface"><b className="text-primary">{x.nombre}</b>{x.de ? ` (de ${x.de})` : ''}. {x.texto}{' '}
+              <button type="button" className="cursor-pointer text-outline underline" onClick={() => setVal('efectos', (pj.efectos as any[]).filter(y => y.nombre !== x.nombre))}>Quitar</button></p>
           ))}
         </div>
       )}
@@ -372,7 +404,7 @@ export function ModoCombate({ c }: { c: any }) {
 
   // Al terminar el combate se acaban las marcas
   const terminado = !!viv && !viv.activo;
-  useEffect(() => { if (terminado && c.pj.marcas?.length) setVal('marcas', []); }, [terminado, c.pj.marcas?.length]);
+  useEffect(() => { if (terminado && c.pj.marcas?.length) setVal('marcas', []); if (terminado && c.pj.efectos?.length) setVal('efectos', []); }, [terminado, c.pj.marcas?.length, c.pj.efectos?.length]);
 
   const gastar = (t: TipoAccionRonda, gastado: boolean) => {
     toques.current[t] = Date.now();
@@ -384,10 +416,13 @@ export function ModoCombate({ c }: { c: any }) {
   const yo = viv?.orden?.find(o => o.pid === personajeId), mias = yo?.cond || [];
   const esMiTurno = !!turnoDe && turnoDe.pid === m.personajeId;
   const enemigos = (viv?.orden || []).filter(o => o.tipo === 'm');
+  // A quién se le puede hacer algo: enemigos primero y luego aliados (otros jugadores, mascotas y tú mismo)
+  const objetivos: Objetivo[] = [...enemigos.map(o => ({ k: o.k, nombre: o.nombre })),
+    ...(viv?.orden || []).filter(o => o.tipo !== 'm').map(o => ({ k: o.k, nombre: o.k === yo?.k ? `${o.nombre} (tú)` : o.nombre, aliado: true }))];
   const ranuras = c.recursos.filter((r: any) => /^slot\d/.test(r.id));
   // Las marcas que dejaste (Rayo de hechicería) dan su acción adicional desde la ronda siguiente a la que las pusiste
   const ronda = viv?.ronda || 1;
-  const marcas = activo ? (c.pj.marcas || []).filter((x: any) => ronda > x.ronda) : [];
+  const marcas = activo ? (c.pj.marcas || []).filter((x: any) => x.desde === 'ya' || ronda > x.ronda) : [];
   const marcar = (mk: any, objetivo: string, nombreObj: string) => { setVal('marcas', [...(c.pj.marcas || []).filter((x: any) => x.id !== mk.id), { ...mk, objetivo, nombreObj, ronda }]); };
   const quitarMarca = (id: string) => { setVal('marcas', (c.pj.marcas || []).filter((x: any) => x.id !== id)); };
   const volverACampana = () => { S.combateMesa = null; S.combateHoja = false; S.campJ = { dmId, campanaId }; S.campJTab = 'combate'; S.view = 'mesaj'; render(); irArriba(); };
@@ -449,7 +484,7 @@ export function ModoCombate({ c }: { c: any }) {
         )}
       </Dialogo>
 
-      <UsoAccion c={c} uso={uso} ventaja={yo?.ven || ''} enemigos={enemigos} mesa={{ dmId, campanaId, personajeId }} yaGastada={!!(uso && eco[uso.tipo])} alCerrar={() => setUso(null)}
+      <UsoAccion c={c} uso={uso} ventaja={yo?.ven || ''} enemigos={objetivos} mesa={{ dmId, campanaId, personajeId }} yaGastada={!!(uso && eco[uso.tipo])} alCerrar={() => setUso(null)}
         alUsar={t => { toques.current[t] = Date.now(); setEco(p => ({ ...p, [t]: true })); }} alMarcar={marcar} />
     </div>
   );
