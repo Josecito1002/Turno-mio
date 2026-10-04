@@ -1185,6 +1185,15 @@ describe('Para qué sirve cada recurso', () => {
     assert.ok(!nombres.includes('Rayo de escarcha'), 'los trucos no gastan espacios');
     assert.ok(nombres.includes('Astucia Mágica'));
   });
+  test('Lo que usa un recurso sale por tipo de acción y, dentro de cada tipo, por nombre', () => {
+    const c = pj('brujo', 5, '', { car: 16 }, { conjuros: [{ nombre: 'Sugestión', nivel: 2, tiempo: 'accion' }, { nombre: 'Escudo', nivel: 1, tiempo: 'reaccion' }, { nombre: 'Armadura de Agathys', nivel: 1, tiempo: 'accion' }] });
+    const { usos } = usosDeRecurso(c, c.recursos.find((x: any) => x.id === 'pacto'));
+    const orden = ['accion', 'adicional', 'reaccion', 'gratis', 'fuera', 'pasiva'];
+    const tipos = usos.map(u => orden.indexOf(u.t || 'pasiva'));
+    assert.deepEqual(tipos, [...tipos].sort((a, b) => a - b));
+    const acciones = usos.filter(u => u.t === 'accion').map(u => u.nombre);
+    assert.deepEqual(acciones, [...acciones].sort((a, b) => a.localeCompare(b, 'es')));
+  });
   test('Un recurso de rasgo dice para qué sirve con el texto del rasgo', () => {
     const c = pj('paladin', 5);
     const { para, usos } = usosDeRecurso(c, c.recursos.find((x: any) => x.id === 'manos'));

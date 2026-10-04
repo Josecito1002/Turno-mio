@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { norm } from '@/shared/utils/texto';
+import { ORDEN_TIPOS } from '@/features/reglas/data/caracteristicas';
 
 /** Algo de la hoja que gasta (o recupera) un recurso: un rasgo, una opción, un conjuro o un ataque. */
-export type UsoRecurso = { nombre: string; t?: string; coste?: string; texto?: string; src?: string; conjuro?: boolean };
+export type UsoRecurso = { nombre: string; t?: string; coste?: string; texto?: string; src?: string; conjuro?: boolean; /** El rasgo o conjuro completo, para mostrar su detalle */ fuente?: any };
 
 /* El texto de un rasgo, sin el formato de la biblioteca, cortado en su primera frase */
 const primeraFrase = (t: unknown) => {
@@ -27,8 +28,8 @@ export function nivelEspacios(c: any, r: any): number {
 export function usosDeRecurso(c: any, r: any): { para: string; usos: UsoRecurso[] } {
   const usos: UsoRecurso[] = [], vistos = new Set<string>();
   const sumar = (u: UsoRecurso) => { const k = norm(u.nombre); if (!vistos.has(k)) { vistos.add(k); usos.push(u); } };
-  const deRasgo = (e: any): UsoRecurso => ({ nombre: e.nombre, t: e.t, coste: e.coste, texto: primeraFrase(e.texto), src: e.src });
-  const deConjuro = (s: any): UsoRecurso => ({ nombre: s.nombre, t: s.tiempo || 'accion', coste: s.coste, texto: primeraFrase(s.desc), src: s.rasgo, conjuro: true });
+  const deRasgo = (e: any): UsoRecurso => ({ nombre: e.nombre, t: e.t, coste: e.coste, texto: primeraFrase(e.texto), src: e.src, fuente: e });
+  const deConjuro = (s: any): UsoRecurso => ({ nombre: s.nombre, t: s.tiempo || 'accion', coste: s.coste, texto: primeraFrase(s.desc), src: s.rasgo, conjuro: true, fuente: s });
   const nv = nivelEspacios(c, r);
   const entries = c.entries || [], conjuros = c.conjuros || [];
 
@@ -44,7 +45,7 @@ export function usosDeRecurso(c: any, r: any): { para: string; usos: UsoRecurso[
     .sort((a: any, b: any) => +a.nivel - +b.nivel)
     .forEach((s: any) => sumar({ ...deConjuro(s), coste: `Conjuro de nivel ${s.nivel}` }));
   [...(c.naturales || []), ...(c.armas || [])].filter((a: any) => a.gasta === r.id)
-    .forEach((a: any) => sumar({ nombre: a.nombre, t: 'accion', texto: primeraFrase((a.notas || []).join('. ')) }));
+    .forEach((a: any) => sumar({ nombre: a.nombre, t: 'accion', texto: primeraFrase((a.notas || []).join('. ')), fuente: { nombre: a.nombre, t: 'accion', texto: (a.notas || []).join('. ') || a.dmg || '', src: 'Ataque' } }));
 
   let para = '';
   if (r.id === 'pacto' || (nv && /pacto/.test(norm(r.nombre)))) para = `Para lanzar tus conjuros de brujo; siempre se lanzan a nivel ${nv}.`;
@@ -52,5 +53,8 @@ export function usosDeRecurso(c: any, r: any): { para: string; usos: UsoRecurso[
   else if (conjuroPropio) para = `Lanzas ${conjuroPropio.nombre} sin gastar espacio de conjuro.`;
   else if (propio?.texto) para = primeraFrase(propio.texto);
   else if (usos[0]?.texto) para = usos[0].texto;
+  // Por tipo de acción (en el orden de la hoja) y, dentro de cada tipo, por nombre
+  const orden = (t?: string) => { const i = ORDEN_TIPOS.indexOf(t || 'pasiva'); return i < 0 ? ORDEN_TIPOS.length : i; };
+  usos.sort((a, b) => orden(a.t) - orden(b.t) || a.nombre.localeCompare(b.nombre, 'es'));
   return { para, usos };
 }
