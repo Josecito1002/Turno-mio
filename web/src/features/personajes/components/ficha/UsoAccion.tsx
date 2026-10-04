@@ -24,6 +24,8 @@ export type Uso = {
   dexpr?: string;
   /** Cuántos golpes o ataques hace de una vez (Uno-Dos: 2); cada uno se registra por separado y el daño se suma */
   golpes?: number;
+  /** Efectos que suman ataques solo si se cumplen (el jugador marca si valen ahora) */
+  condiciones?: { rasgo: string; texto: string; mas: number }[];
   /** Si hace daño o impone algo a otros */
   afecta: boolean;
   /** Recurso que gasta al usarlo (un uso del rasgo) */
@@ -41,26 +43,33 @@ export function condicionesEn(texto: string): string[] {
 }
 
 /** Confirmar el uso de una acción: lee sus efectos, elige a quién afecta y, al confirmar, la gasta y se lo cuenta al DM. */
-export function UsoAccion({ c, uso, enemigos, mesa, yaGastada, alCerrar, alUsar }: {
-  c: any; uso: Uso | null; enemigos: { k: string; nombre: string }[]; mesa: { dmId: string; campanaId: string; personajeId: string };
+export function UsoAccion({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar }: {
+  c: any; uso: Uso | null; ventaja?: '' | 'v' | 'd'; enemigos: { k: string; nombre: string }[]; mesa: { dmId: string; campanaId: string; personajeId: string };
   yaGastada: boolean; alCerrar: () => void; alUsar: (t: TipoAccionRonda) => void;
 }) {
   return (
     <Dialogo abierto={!!uso} onCerrar={alCerrar} titulo={uso?.nombre || ''} ancho="lg"
       descripcion={uso ? `${TIPOS[uso.tipo][0]}${uso.coste ? ` · ${uso.coste}` : ''}` : undefined}>
-      {uso && <Cuerpo key={uso.nombre + uso.tipo} c={c} uso={uso} enemigos={enemigos} mesa={mesa} yaGastada={yaGastada} alCerrar={alCerrar} alUsar={alUsar} />}
+      {uso && <Cuerpo key={uso.nombre + uso.tipo} c={c} uso={uso} ventaja={ventaja} enemigos={enemigos} mesa={mesa} yaGastada={yaGastada} alCerrar={alCerrar} alUsar={alUsar} />}
     </Dialogo>
   );
 }
 
-function Cuerpo({ c, uso, enemigos, mesa, yaGastada, alCerrar, alUsar }: { c: any; uso: Uso; enemigos: { k: string; nombre: string }[]; mesa: { dmId: string; campanaId: string; personajeId: string }; yaGastada: boolean; alCerrar: () => void; alUsar: (t: TipoAccionRonda) => void }) {
+function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar }: { c: any; uso: Uso; ventaja?: '' | 'v' | 'd'; enemigos: { k: string; nombre: string }[]; mesa: { dmId: string; campanaId: string; personajeId: string }; yaGastada: boolean; alCerrar: () => void; alUsar: (t: TipoAccionRonda) => void }) {
   const tirar = useDados();
   const area = !!uso.salv && AREA.test(uso.texto);
   const conds = condicionesEn(uso.texto);
   const [objetivos, setObjetivos] = useState<string[]>([]);
   const [dano, setDano] = useState('');
-  const nGolpes = uso.golpes && uso.golpes > 1 ? uso.golpes : 1;
-  const [danos, setDanos] = useState<string[]>(() => Array(nGolpes).fill(''));
+  // Efectos que suman ataques solo si se cumplen: el jugador marca cuáles valen ahora
+  const [marcadas, setMarcadas] = useState<string[]>([]);
+  const extra = (uso.condiciones || []).filter(x => marcadas.includes(x.rasgo)).reduce((t, x) => t + x.mas, 0);
+  const maxGolpes = (uso.golpes && uso.golpes > 1 ? uso.golpes : 1) + (uso.condiciones || []).reduce((t, x) => t + x.mas, 0);
+  const nGolpes = (uso.golpes && uso.golpes > 1 ? uso.golpes : 1) + extra;
+  const [danos, setDanos] = useState<string[]>(() => Array(maxGolpes).fill(''));
+  // Una tirada virtual se hace una sola vez: después el valor queda fijo (o se escribe a mano desde el principio)
+  const [tiradas, setTiradas] = useState<boolean[]>(() => Array(maxGolpes).fill(false));
+  const [tirada1, setTirada1] = useState(false);
   const [cond, setCond] = useState(uso.salv ? conds[0] || '' : '');
   const [ocupado, setOcupado] = useState(false);
   // Con qué se paga un conjuro de nivel: un espacio (de ese nivel o mayor), el rasgo que lo da o, si es ritual, sin gastar
@@ -79,12 +88,15 @@ function Cuerpo({ c, uso, enemigos, mesa, yaGastada, alCerrar, alUsar }: { c: an
   const alternar = (k: string) => setObjetivos(o => (uso.salv && area ? (o.includes(k) ? o.filter(x => x !== k) : [...o, k]) : o[0] === k ? [] : [k]));
   const nombres = objetivos.map(k => enemigos.find(e => e.k === k)?.nombre || '').filter(Boolean);
   const parcial = (x: string) => Math.max(0, Math.round(+x || 0));
-  const n = nGolpes > 1 ? danos.reduce((t, x) => t + parcial(x), 0) : parcial(dano);
+  const n = nGolpes > 1 ? danos.slice(0, nGolpes).reduce((t, x) => t + parcial(x), 0) : parcial(dano);
   const puesto = (i: number) => danos[i] !== '';
 
   const tirarDados = (i = -1) => {
-    try { tirar(dexpr!, `${uso.nombre}: daño${i >= 0 ? ` (ataque ${i + 1})` : ''}`).then(r => (i >= 0 ? setDanos(d => d.map((x, j) => (j === i ? String(r.total) : x))) : setDano(String(r.total))), e => avisar(`No se pudo tirar: ${(e as Error).message}`, 'error')); }
-    catch (e) { avisar(`No se pudo tirar: ${(e as Error).message}`, 'error'); }
+    if (i >= 0 ? tiradas[i] : tirada1) return;
+    if (i >= 0) setTiradas(t => t.map((x, j) => (j === i ? true : x))); else setTirada1(true);
+    const soltar = () => { if (i >= 0) setTiradas(t => t.map((x, j) => (j === i ? false : x))); else setTirada1(false); };
+    try { tirar(dexpr!, `${uso.nombre}: daño${i >= 0 ? ` (ataque ${i + 1})` : ''}`).then(r => (i >= 0 ? setDanos(d => d.map((x, j) => (j === i ? String(r.total) : x))) : setDano(String(r.total))), e => { soltar(); avisar(`No se pudo tirar: ${(e as Error).message}`, 'error'); }); }
+    catch (e) { soltar(); avisar(`No se pudo tirar: ${(e as Error).message}`, 'error'); }
   };
 
   const confirmar = async () => {
@@ -97,14 +109,14 @@ function Cuerpo({ c, uso, enemigos, mesa, yaGastada, alCerrar, alUsar }: { c: an
     setOcupado(true);
     try {
       const pago = via === 'rasgo' ? `con ${rasgoRec?.nombre}` : via.startsWith('slot') ? `con espacio de nivel ${nivelUsado}` : cj?.ritual ? 'como ritual' : '';
-      const resumen = [pago, nombres.length ? `a ${nombres.join(', ')}` : '', n ? (nGolpes > 1 ? `${danos.map((x, i) => `ataque ${i + 1}: ${parcial(x)}`).join(' + ')} = ${n} de daño` : `${n} de daño`) : '', uso.salv && objetivos.length ? `salvación de ${uso.salv} CD ${uso.cd}` : '', cond].filter(Boolean).join(' · ');
+      const resumen = [pago, nombres.length ? `a ${nombres.join(', ')}` : '', n ? (nGolpes > 1 ? `${danos.slice(0, nGolpes).map((x, i) => `ataque ${i + 1}: ${parcial(x)}`).join(' + ')} = ${n} de daño` : `${n} de daño`) : '', uso.salv && objetivos.length ? `salvación de ${uso.salv} CD ${uso.cd}` : '', cond].filter(Boolean).join(' · ');
       await usarAccionMesa(mesa, uso.tipo, uso.nombre, resumen);
       if (objetivos.length && (n || cond)) {
         if (uso.salv && uso.cd) await enviarSalvacionMesa(mesa, { objetivos, salv: uso.salv, cd: uso.cd, dano: n, mitad, ...(cond ? { condicion: cond } : {}), nota: uso.nombre });
         else for (const objetivo of objetivos) await enviarGolpeMesa(mesa, { objetivo, dano: n, ...(cond ? { condicion: cond } : {}), nota: uso.nombre });
       }
       alUsar(uso.tipo);
-      avisar(`${uso.nombre}: listo${nGolpes > 1 ? `, ${danos.map(parcial).join(' + ')} = ${n} de daño` : ''}. ${objetivos.length && uso.salv ? 'Tu DM verá qué enemigos deben tirar la salvación.' : 'Tu DM ya lo ve.'}`);
+      avisar(`${uso.nombre}: listo${nGolpes > 1 ? `, ${danos.slice(0, nGolpes).map(parcial).join(' + ')} = ${n} de daño` : ''}. ${objetivos.length && uso.salv ? 'Tu DM verá qué enemigos deben tirar la salvación.' : 'Tu DM ya lo ve.'}`);
       alCerrar();
     } catch (e) { avisar(`No se pudo confirmar: ${(e as Error).message}`, 'error'); }
     finally { setOcupado(false); }
@@ -115,7 +127,13 @@ function Cuerpo({ c, uso, enemigos, mesa, yaGastada, alCerrar, alUsar }: { c: an
       <div className="rounded-lg bg-surface-container-low p-3 text-body-md text-on-surface-variant">
         <span className="text-label-caps uppercase text-outline">Qué hace</span>
         <p className="m-0 mt-1" dangerouslySetInnerHTML={{ __html: uso.raw ? richT(uso.texto) : esc(uso.texto) }} />
-        {uso.atk != null && <p className="m-0 mt-1 font-bold text-on-surface">Ataque: {uso.atk >= 0 ? '+' : ''}{uso.atk} al impacto</p>}
+        {uso.atk != null && <p className="m-0 mt-1 font-bold text-on-surface">Ataque: {uso.atk >= 0 ? '+' : ''}{uso.atk} al impacto{ventaja ? <span className={ventaja === 'v' ? ' text-green-400' : ' text-error'}> · {ventaja === 'v' ? 'con ventaja' : 'con desventaja'} (lo puso tu DM)</span> : ''}</p>}
+        {(uso.condiciones || []).map(x => (
+          <label key={x.rasgo} className="mt-2 flex min-h-11 cursor-pointer items-center gap-2 rounded bg-surface-container-lowest px-2 text-body-sm text-on-surface">
+            <input type="checkbox" checked={marcadas.includes(x.rasgo)} onChange={e => setMarcadas(m => (e.target.checked ? [...m, x.rasgo] : m.filter(y => y !== x.rasgo)))} className="size-4" />
+            <span>{x.texto} (se cumple)</span>
+          </label>
+        ))}
         {uso.salv && <p className="m-0 mt-1 font-bold text-on-surface">Los objetivos tiran salvación de {uso.salv} contra CD {uso.cd}</p>}
       </div>
 
@@ -161,22 +179,24 @@ function Cuerpo({ c, uso, enemigos, mesa, yaGastada, alCerrar, alUsar }: { c: an
               {Array.from({ length: nGolpes }, (_, i) => (i === 0 || puesto(i - 1)) && (
                 <div key={i} className="grid gap-2 rounded bg-surface-container-lowest p-2">
                   <span className="text-body-sm font-bold text-on-surface">{['Primer', 'Segundo', 'Tercer', 'Cuarto'][i] || `${i + 1}.º`} ataque</span>
-                  <input aria-label={`Daño del ataque ${i + 1}`} type="number" inputMode="numeric" min={0} placeholder="El que sacaste con tus dados" value={danos[i]}
+                  <input aria-label={`Daño del ataque ${i + 1}`} type="number" inputMode="numeric" min={0} placeholder="El que sacaste con tus dados" value={danos[i]} readOnly={tiradas[i]}
                     onChange={e => setDanos(d => d.map((x, j) => (j === i ? e.target.value : x)))} className={campo} />
-                  {dexpr && <Boton variante="secundario" onClick={() => tirarDados(i)}>O tirar dados virtuales ({dexpr})</Boton>}
+                  {dexpr && !tiradas[i] && !puesto(i) && <Boton variante="secundario" onClick={() => tirarDados(i)}>O tirar dados virtuales ({dexpr})</Boton>}
+                  {tiradas[i] && <span className="text-body-sm text-outline">Tirada hecha: no se puede repetir.</span>}
                 </div>
               ))}
-              {danos.some((x, i) => puesto(i)) && (
+              {danos.slice(0, nGolpes).some((x, i) => puesto(i)) && (
                 <p className="m-0 rounded bg-surface-container-lowest p-2 text-body-md font-bold text-on-surface">
-                  Registrado: {danos.filter((_, i) => puesto(i)).map((x, i) => `ataque ${i + 1}: ${parcial(x)}`).join(' + ')} = {n} de daño
+                  Registrado: {danos.slice(0, nGolpes).filter((_, i) => puesto(i)).map((x, i) => `ataque ${i + 1}: ${parcial(x)}`).join(' + ')} = {n} de daño
                 </p>
               )}
             </>
           ) : (
             <>
           <span className="mt-1 text-label-caps uppercase text-outline">Daño{mitad ? ' (si falla; mitad si supera la salvación)' : ''}</span>
-          <input aria-label="Daño" type="number" inputMode="numeric" min={0} placeholder="El que sacaste con tus dados" value={dano} onChange={e => setDano(e.target.value)} className={campo} />
-          {dexpr && <Boton variante="secundario" onClick={() => tirarDados()}>O tirar dados virtuales ({dexpr})</Boton>}
+          <input aria-label="Daño" type="number" inputMode="numeric" min={0} placeholder="El que sacaste con tus dados" value={dano} readOnly={tirada1} onChange={e => setDano(e.target.value)} className={campo} />
+          {dexpr && !tirada1 && dano === '' && <Boton variante="secundario" onClick={() => tirarDados()}>O tirar dados virtuales ({dexpr})</Boton>}
+          {tirada1 && <span className="text-body-sm text-outline">Tirada hecha: no se puede repetir.</span>}
             </>
           )}
             </>

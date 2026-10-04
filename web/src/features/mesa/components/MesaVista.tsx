@@ -71,6 +71,27 @@ function Condiciones({ cp, k, nombre }: { cp: any; k: string; nombre: string }) 
   return (
     <div className="mt-2">
       {e.cond.length > 0 && <div role="group" aria-label={`Condiciones de ${nombre}`} className="flex flex-wrap gap-1.5">{e.cond.map((n: string) => chip(n, true))}</div>}
+      {e.cond.length > 0 && (
+        <div className="mt-1 grid gap-1">
+          {e.cond.map((n: string) => (
+            <label key={n} className="flex items-center gap-2 text-xs text-muted">
+              <span className="w-24 shrink-0 font-bold">{n}</span>
+              <input type="text" maxLength={60} defaultValue={e.dur?.[n] || ''} placeholder="Hasta cuándo (1 minuto, fin de su turno…)" aria-label={`Duración de ${n} en ${nombre}`}
+                onBlur={ev => { const v = ev.target.value.trim(); if (v !== (e.dur?.[n] || '')) conCamp(c => { const x = estadoDe(c, k); x.dur = { ...(x.dur || {}), [n]: v }; }); }}
+                className={cx('min-h-9 w-full rounded-lg border border-rule bg-surface px-2 text-sm text-ink', foco)} />
+            </label>
+          ))}
+        </div>
+      )}
+      {k.startsWith('jm:') && (
+        <label className="mt-1 flex items-center gap-2 text-xs text-muted">
+          <span className="w-24 shrink-0 font-bold">Sus ataques</span>
+          <select value={e.ven || ''} aria-label={`Ventaja o desventaja de ${nombre}`} onChange={ev => conCamp(c => { estadoDe(c, k).ven = ev.target.value; })}
+            className={cx('min-h-9 w-full rounded-lg border border-rule bg-surface px-2 text-sm text-ink', foco)}>
+            <option value="">Normales</option><option value="v">Con ventaja</option><option value="d">Con desventaja</option>
+          </select>
+        </label>
+      )}
       <div className="flex flex-wrap items-center gap-x-3">
         <details className="mt-1">
           <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>+ Agregar condición</summary>
