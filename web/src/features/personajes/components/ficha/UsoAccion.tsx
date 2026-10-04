@@ -25,6 +25,7 @@ export type Uso = {
   /** Cuántos golpes o ataques hace de una vez (Uno-Dos: 2); cada uno se registra por separado y el daño se suma */
   golpes?: number;
   /** Efectos que suman ataques solo si se cumplen (el jugador marca si valen ahora) */
+  renuncia?: boolean;
   condiciones?: { rasgo: string; texto: string; mas: number }[];
   /** Si hace daño o impone algo a otros */
   afecta: boolean;
@@ -63,6 +64,7 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar }
   const [dano, setDano] = useState('');
   // Efectos que suman ataques solo si se cumplen: el jugador marca cuáles valen ahora
   const [marcadas, setMarcadas] = useState<string[]>([]);
+  const [renuncia, setRenuncia] = useState(false);
   const extra = (uso.condiciones || []).filter(x => marcadas.includes(x.rasgo)).reduce((t, x) => t + x.mas, 0);
   const maxGolpes = (uso.golpes && uso.golpes > 1 ? uso.golpes : 1) + (uso.condiciones || []).reduce((t, x) => t + x.mas, 0);
   const nGolpes = (uso.golpes && uso.golpes > 1 ? uso.golpes : 1) + extra;
@@ -127,7 +129,13 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar }
       <div className="rounded-lg bg-surface-container-low p-3 text-body-md text-on-surface-variant">
         <span className="text-label-caps uppercase text-outline">Qué hace</span>
         <p className="m-0 mt-1" dangerouslySetInnerHTML={{ __html: uso.raw ? richT(uso.texto) : esc(uso.texto) }} />
-        {uso.atk != null && <p className="m-0 mt-1 font-bold text-on-surface">Ataque: {uso.atk >= 0 ? '+' : ''}{uso.atk} al impacto{ventaja ? <span className={ventaja === 'v' ? ' text-green-400' : ' text-error'}> · {ventaja === 'v' ? 'con ventaja' : 'con desventaja'} (lo puso tu DM)</span> : ''}</p>}
+        {uso.atk != null && <p className="m-0 mt-1 font-bold text-on-surface">Ataque: {uso.atk >= 0 ? '+' : ''}{uso.atk} al impacto{ventaja && !renuncia ? <span className={ventaja === 'v' ? ' text-green-400' : ' text-error'}> · {ventaja === 'v' ? 'con ventaja' : 'con desventaja'} (lo puso tu DM)</span> : ''}</p>}
+        {uso.renuncia && ventaja === 'v' && (
+          <label className="mt-2 flex min-h-11 cursor-pointer items-center gap-2 rounded bg-surface-container-lowest px-2 text-body-sm text-on-surface">
+            <input type="checkbox" checked={renuncia} onChange={e => setRenuncia(e.target.checked)} className="size-4" />
+            <span>Renuncio a la ventaja en este ataque</span>
+          </label>
+        )}
         {(uso.condiciones || []).map(x => (
           <label key={x.rasgo} className="mt-2 flex min-h-11 cursor-pointer items-center gap-2 rounded bg-surface-container-lowest px-2 text-body-sm text-on-surface">
             <input type="checkbox" checked={marcadas.includes(x.rasgo)} onChange={e => setMarcadas(m => (e.target.checked ? [...m, x.rasgo] : m.filter(y => y !== x.rasgo)))} className="size-4" />
