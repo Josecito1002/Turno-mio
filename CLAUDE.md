@@ -70,6 +70,15 @@ Sus encargos los genera `npm run gemini:encargo-extra` (`scripts/gemini/encargo-
   Al aplicarla, se suma a `OBJETOS_MAGICOS_GENERADOS` en `src/features/reglas/data/generadas/objetos-magicos.ts`, que
   tiene prioridad sobre el catálogo inicial. Comprobar que los conjuros existan en la app y que las claves no se repitan.
 
+### Lote 22: bestiario (Manual de Monstruos 2025)
+
+- Las estadísticas salen de 5etools con `npm run bestiario:base` → `src/features/reglas/data/generadas/bestiario.ts` (503
+  monstruos; conserva los nombres y textos ya aplicados).
+- `npm run gemini:encargo-bestiario` genera `lote-22a-bestiario.md` … `22i` (unos 60 monstruos cada uno, por desafío; solo
+  pide los que siguen en inglés). Gemini pone nombre oficial en español (o el inglés si no hay), descripción y textos.
+- Respuestas en `docs/gemini/respuesta-22?-bestiario.md`; `npm run gemini:aplicar-bestiario` informa y con `--aplicar` escribe.
+- Formato del archivo "Info sesión" que importa la Mesa del DM: `docs/info-sesion.md`.
+
 ## Revisión en la app
 
 - **No revises la app con un navegador automático**: la revisión la hace el usuario en Vercel.

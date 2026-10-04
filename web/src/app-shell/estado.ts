@@ -31,6 +31,8 @@ export const S = {
   /** Mesa del DM: la hoja de jugador que se está mirando (clave jm:...), o null. */
   hojaMesa: null as string | null,
   mtab: 'grupo',
+  /** Mesa del DM: el monstruo abierto en el bestiario (su clave), o null. */
+  monstruoSel: null as string | null,
   importCamp: null as string | null,
 };
 

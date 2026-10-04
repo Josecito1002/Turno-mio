@@ -17,6 +17,9 @@ import { CONDICIONES, actualizarPgUnido, cambiarPg, campActual, camps, claveUnid
 import { codigoMesa, guardarCampana, jugadoresMesa, quitarDeMesa } from '../api';
 import { conectarMesaRealtime } from '../realtime-cliente';
 import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
+import { enemigosDe, leerSesion, type Encuentro } from '../domain/sesion';
+import { cargarBestiario } from '@/features/reglas/data/bestiario';
+import { BloqueMonstruo, BuscadorEnemigo, VistaBestiario, monstruoDe, useCatalogo } from './Bestiario';
 
 const val = (id: string) => (document.getElementById(id) as HTMLInputElement | null)?.value || '';
 /** Cada acción trabaja sobre una copia fresca de la campaña, la guarda y redibuja. */
@@ -264,12 +267,17 @@ function TarjetaPj({ cp, x }: { cp: any; x: any }) {
 
 function FormEnemigos({ abierto, cp }: { abierto: boolean; cp: any }) {
   const id = useId(), f = (k: string) => id + k;
+  // El monstruo del bestiario elegido (si después se cambia el nombre a mano, deja de contar)
+  const [elegido, setElegido] = useState<{ k: string; n: string } | null>(null);
+  const poner = (k: string, v: string | number) => { const el = document.getElementById(f(k)) as HTMLInputElement | null; if (el) el.value = String(v); };
+  const deBestiario = (k: string, m: any) => { poner('N', m.n); poner('CA', m.ca); poner('PG', m.pg); poner('B', m.ini); setElegido({ k, n: m.n }); };
   const agregar = () => {
     const n = val(f('N')).trim() || 'Enemigo', q = Math.min(20, Math.max(1, +val(f('Q')) || 1)), pg = Math.max(1, +val(f('PG')) || 1);
-    const ca = +val(f('CA')) || 10, bono = +val(f('B')) || 0;
+    const ca = +val(f('CA')) || 10, bono = +val(f('B')) || 0, ref = elegido && elegido.n === n ? elegido.k : undefined;
+    setElegido(null);
     conCamp(c => {
       for (let i = 0; i < q; i++) {
-        const m = { id: Date.now().toString(36) + i, nombre: q > 1 ? `${n} ${i + 1}` : n, ca, pgMax: pg, pg, bono };
+        const m = { id: Date.now().toString(36) + i, nombre: q > 1 ? `${n} ${i + 1}` : n, ca, pgMax: pg, pg, bono, ...(ref ? { ref } : {}) };
         c.monstruos.push(m);
         if (c.combate.activo) c.combate.orden.push({ k: 'm:' + m.id, init: rnd(20) + m.bono, bono: m.bono });
       }
@@ -280,6 +288,7 @@ function FormEnemigos({ abierto, cp }: { abierto: boolean; cp: any }) {
   return (
     <Plegable titulo="Agregar enemigos" abierto={abierto}>
       <div className="grid gap-3" key={cp.monstruos.length}>
+        <BuscadorEnemigo cp={cp} elegir={deBestiario} />
         <Campo etiqueta="Nombre"><input id={f('N')} type="text" placeholder="Goblin" className={claseCampo} /></Campo>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Campo etiqueta="CA"><input id={f('CA')} type="number" defaultValue={13} className={claseCampo} /></Campo>
@@ -290,6 +299,90 @@ function FormEnemigos({ abierto, cp }: { abierto: boolean; cp: any }) {
         <Boton variante="primario" className="justify-self-start" onClick={agregar}>Agregar</Boton>
       </div>
     </Plegable>
+  );
+}
+
+/** El bloque de estadísticas de un enemigo del bestiario, plegado dentro de su fila o su tarjeta de combate. */
+function VerBloque({ cp, r, nombre }: { cp: any; r: string; nombre: string }) {
+  const cat = useCatalogo(), m = cat || cp.bestiario?.[r] ? monstruoDe(cp, r) : null;
+  return (
+    <Plegable titulo={`Bloque de ${nombre}`} className="w-full">
+      {m ? <BloqueMonstruo k={r} m={m} /> : <Nota>{cat ? 'Ese monstruo ya no está en el bestiario.' : 'Cargando el bestiario…'}</Nota>}
+    </Plegable>
+  );
+}
+
+/** Pone los enemigos de un encuentro preparado en el combate (reemplaza a los que había si no hay combate en curso). */
+function prepararEncuentro(e: Encuentro) {
+  conCamp(c => {
+    const nuevos = enemigosDe(e, r => monstruoDe(c, r));
+    if (c.combate.activo) {
+      c.monstruos.push(...nuevos);
+      for (const m of nuevos) c.combate.orden.push({ k: 'm:' + m.id, init: rnd(20) + m.bono, bono: m.bono });
+      ordenar(c);
+    } else c.monstruos = nuevos;
+    c.encuentroActual = e.id;
+  });
+  S.mtab = 'combate'; render(); irArriba();
+  avisar(`${e.nombre}: enemigos listos en Combate.`);
+}
+
+/** Una pestaña por combate preparado en el archivo de sesión. */
+function PanelEncuentro({ cp, e }: { cp: any; e: Encuentro }) {
+  const cat = useCatalogo();
+  const quitar = async () => {
+    if (!(await confirmar({ titulo: `¿Quitar ${e.nombre}?`, texto: 'Solo se quita la preparación; el combate en curso no cambia.', si: 'Quitar', peligro: true }))) return;
+    conCamp(c => { c.encuentros = (c.encuentros || []).filter((x: any) => x.id !== e.id); }); S.mtab = 'combate'; render();
+  };
+  return (
+    <Seccion titulo={e.nombre} descripcion={cp.sesion?.nombre ? `Preparado en ${cp.sesion.nombre}.` : undefined}
+      acciones={<div className="flex flex-wrap gap-2"><Boton variante="primario" onClick={() => prepararEncuentro(e)} disabled={!cat}>{cp.combate.activo ? 'Sumar al combate en curso' : 'Preparar este combate'}</Boton><Boton variante="fantasma" onClick={quitar}>Quitar</Boton></div>}>
+      {e.notas && <Nota>{e.notas}</Nota>}
+      <ul className="m-0 grid list-none gap-2 p-0">
+        {e.enemigos.map((x, i) => {
+          const m = cat ? monstruoDe(cp, x.ref) : null;
+          return (
+            <Tarjeta as="li" key={i} className="border-l-4 border-acc">
+              <b className="font-serif text-lg">{x.cantidad > 1 ? `${x.cantidad} × ` : ''}{x.nombre || m?.n || x.ref}</b>
+              {m && <span className="block text-sm text-muted">Desafío {m.cr} · CA {m.ca} · {m.pg} PG · iniciativa {sign(m.ini)}{m.propio ? ' · de esta campaña' : ''}</span>}
+              {m && <Plegable titulo="Ver bloque"><BloqueMonstruo k={x.ref} m={m} /></Plegable>}
+            </Tarjeta>
+          );
+        })}
+      </ul>
+    </Seccion>
+  );
+}
+
+/** Importar "Info sesión N" (JSON o CSV): crea una pestaña por combate y guarda los monstruos nuevos en la campaña. */
+function ImportarSesion({ cp }: { cp: any }) {
+  const id = useId();
+  const leer = async (f: File) => {
+    try {
+      const [texto, cat] = await Promise.all([f.text(), cargarBestiario()]);
+      const s = leerSesion(texto, f.name, cat, cp.bestiario || {});
+      if (!s.encuentros.length) { avisar('El archivo no trae ningún combate.', 'aviso'); return; }
+      conCamp(c => {
+        c.bestiario = { ...(c.bestiario || {}), ...s.monstruos };
+        // Un combate con el mismo nombre se reemplaza (volver a importar la sesión la actualiza)
+        const nombres = new Set(s.encuentros.map(e => norm(e.nombre)));
+        c.encuentros = [...(c.encuentros || []).filter((e: any) => !nombres.has(norm(e.nombre))), ...s.encuentros];
+        c.sesion = { nombre: s.nombre, ...(s.notas ? { notas: s.notas } : {}), importadaEn: new Date().toISOString() };
+      });
+      S.mtab = 'enc-' + s.encuentros[0].id; render(); irArriba();
+      const nuevos = Object.keys(s.monstruos).length;
+      avisar(`${s.nombre}: ${s.encuentros.length} combate${s.encuentros.length === 1 ? '' : 's'}${nuevos ? `, ${nuevos} monstruo${nuevos === 1 ? '' : 's'} nuevo${nuevos === 1 ? '' : 's'}` : ''}.${s.sinDatos.length ? ` Sin datos (quedan con CA 12 y 10 PG): ${s.sinDatos.join(', ')}.` : ''}`, s.sinDatos.length ? 'aviso' : undefined);
+    } catch (e) { avisar(`No se pudo leer el archivo: ${(e as Error).message}`, 'error'); }
+  };
+  return (
+    <Seccion titulo="Preparar sesión">
+      <Nota>Importa el archivo «Info sesión» del creador de campañas (JSON o CSV): cada combate queda en su pestaña con sus enemigos, y los que no están en el bestiario se guardan en esta campaña.{cp.sesion?.nombre ? ` Última importada: ${cp.sesion.nombre}.` : ''}</Nota>
+      <label htmlFor={id} className={cx('inline-flex min-h-11 cursor-pointer items-center rounded-xl bg-surface px-4 font-bold ring-1 ring-inset ring-rule hover:bg-soft focus-within:outline-3 focus-within:outline-rea')}>
+        Importar info de sesión
+        <input id={id} type="file" accept=".json,.csv,application/json,text/csv" className="sr-only" onChange={e => { const f = e.target.files?.[0]; if (f) leer(f); e.target.value = ''; }} />
+      </label>
+      {cp.sesion?.notas && <Plegable titulo={`Notas de ${cp.sesion.nombre}`}><p className="m-0 whitespace-pre-line">{cp.sesion.notas}</p></Plegable>}
+    </Seccion>
   );
 }
 
@@ -311,7 +404,8 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
         <Seccion titulo="Enemigos">
           <Lista>{cp.monstruos.length ? cp.monstruos.map((m: any) => (
             <Fila key={m.id}><span>{m.nombre} <span className="text-sm text-muted">CA {m.ca}, {m.pg}/{m.pgMax} PG, iniciativa {sign(m.bono)}</span></span>
-              <Boton tamano="sm" onClick={() => quitarMon(m.id)} aria-label={`Quitar ${m.nombre}`}>Quitar</Boton></Fila>
+              <Boton tamano="sm" onClick={() => quitarMon(m.id)} aria-label={`Quitar ${m.nombre}`}>Quitar</Boton>
+              {m.ref && <VerBloque cp={cp} r={m.ref} nombre={m.nombre} />}</Fila>
           )) : <Fila><span className="text-sm text-muted">Sin enemigos todavía.</span></Fila>}</Lista>
           <FormEnemigos abierto cp={cp} />
         </Seccion>
@@ -366,6 +460,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
                     : <Boton tamano="sm" onClick={() => quitarMon(x.m.id)} aria-label={`Quitar ${x.nombre}`}>Quitar</Boton>}
               </div>
               <PuntosGolpe x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
+              {x.tipo === 'm' && x.m.ref && <VerBloque cp={cp} r={x.m.ref} nombre={x.nombre} />}
             </Tarjeta>
           );
         })}
@@ -487,7 +582,9 @@ function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) 
   const grupo = cp.pjs.map((id: string) => combatiente('pj:' + id, cp)).filter(Boolean);
   const total = grupo.length + unidos.length;
   const fuera = S.list.filter(p => !cp.pjs.includes(p.id));
-  const mtab = S.mtab || 'grupo';
+  const encuentros: Encuentro[] = cp.encuentros || [];
+  const enc = encuentros.find(e => S.mtab === 'enc-' + e.id);
+  const mtab = S.mtab === 'bestiario' || S.mtab === 'combate' || enc ? S.mtab : 'grupo';
   const agregar = () => {
     const ids = [...document.querySelectorAll<HTMLInputElement>('#campAddList input:checked')].map(i => i.value);
     if (!ids.length) { avisar('Marca al menos un personaje.', 'aviso'); return; }
@@ -500,7 +597,8 @@ function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) 
         <Boton variante="fantasma" onClick={() => abrirCampana(null)}>← Todas las campañas</Boton>
       </EncabezadoPagina>
       <Pestanas idBase="mesa" etiqueta="Secciones de la campaña" activa={mtab} onCambiar={k => { S.mtab = k; render(); }}
-        items={[{ id: 'grupo', texto: 'Grupo' }, { id: 'combate', texto: cp.combate.activo ? `Combate · ronda ${cp.combate.ronda}` : 'Combate' }]} />
+        items={[{ id: 'grupo', texto: 'Grupo' }, { id: 'combate', texto: cp.combate.activo ? `Combate · ronda ${cp.combate.ronda}` : 'Combate' },
+          ...encuentros.map((e: Encuentro) => ({ id: 'enc-' + e.id, texto: e.nombre })), { id: 'bestiario', texto: 'Bestiario' }]} />
       <PanelPestana idBase="mesa" activa={mtab}>
         {mtab === 'grupo' ? (
           <>
@@ -543,10 +641,11 @@ function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) 
               <Nota className="mt-4">Pide a cada jugador su respaldo (en su hoja: Descargar respaldo) e impórtalo aquí; se agrega solo a la campaña.</Nota>
               <Boton onClick={importarHojas}>Importar hojas de jugadores</Boton>
             </Seccion>
+            <ImportarSesion cp={cp} />
             <Exportar cp={cp} unidos={unidos} grupo={grupo} />
             <Seccion titulo="Zona de cuidado"><Boton variante="peligro" onClick={borrar}>Borrar campaña</Boton></Seccion>
           </>
-        ) : <Combate cp={cp} grupo={grupo} />}
+        ) : mtab === 'bestiario' ? <VistaBestiario cp={cp} /> : enc ? <PanelEncuentro cp={cp} e={enc} /> : <Combate cp={cp} grupo={grupo} />}
       </PanelPestana>
     </>
   );
