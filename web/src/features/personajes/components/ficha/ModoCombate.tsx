@@ -47,41 +47,62 @@ function Opcion({ uso, elegido, elegir, children }: { uso: Uso; elegido: Uso | n
   );
 }
 
-/** Lo que se puede hacer con cada tipo de acción: ataques, rasgos, conjuros y las acciones que cualquiera tiene. */
+/** Un menú plegable de opciones (la primera vez abierto el de la clase). */
+function MenuAcciones({ titulo, abierto, hijos, children }: { titulo: string; abierto?: boolean; hijos: number; children: React.ReactNode }) {
+  if (!hijos) return null;
+  return (
+    <details open={abierto} className="group rounded-lg bg-surface-container-low">
+      <summary className={cx('flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-lg px-3 py-2', foco)}>
+        <span className="font-serif text-body-lg font-bold text-on-surface">{titulo} <span className="text-body-sm font-normal text-outline">({hijos})</span></span>
+        <Simbolo n="expand_more" className="text-body-lg text-outline transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="space-y-2 px-2 pb-3">{children}</div>
+    </details>
+  );
+}
+
+const DE_MOVIMIENTO = new Set(['Correr', 'Destrabarse']);
+
+/** Lo que se puede hacer con cada tipo de acción, en tres menús: de la clase (ataques, rasgos y conjuros), de movimiento y genéricas. */
 function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda; elegido: Uso | null; elegir: (u: Uso) => void }) {
   const armas = t === 'accion' ? [...c.armas.filter((a: any) => a.mano), ...(c.naturales || [])] : [];
+  const sinArmas = t === 'accion' ? { puno: true, nombre: 'Golpe sin armas', atk: c.unarmed.atk, expr: c.unarmed.expr, dmg: c.unarmed.dmg, atkDesg: c.unarmed.atkDesg, dmgDesg: c.unarmed.dmgDesg, notas: [`También puede Agarrar o Empujar (CD ${c.grappleDC})`] } : null;
   const ents = c.entries.filter((e: any) => e.t === t);
   const conjuros = (c.conjuros || []).filter((s: any) => (s.tiempo || 'accion') === t);
-  const com = COMUNES[t] || [];
+  // «Atacar» ya está en los ataques de arriba; los demás van a movimiento o a genéricas
+  const com = (COMUNES[t] || []).filter(([n]: [string]) => n !== 'Atacar');
+  const mov = com.filter(([n]: [string]) => DE_MOVIMIENTO.has(n)), gen = com.filter(([n]: [string]) => !DE_MOVIMIENTO.has(n));
   const op = (u: Uso, hijo: React.ReactNode, k: string | number) => <Opcion key={k} uso={u} elegido={elegido} elegir={elegir}>{hijo}</Opcion>;
   const deArma = (a: any): Uso => ({ tipo: t, nombre: a.nombre, texto: [a.dmg, ...(a.notas || [])].filter(Boolean).join('. ') || 'Ataque', ...(a.cd == null ? { atk: a.atk } : { salv: a.salv, cd: a.cd }), dexpr: a.expr, afecta: true });
+  // Un rasgo que ataca sin armas (Golpe sin armas extra) se ve como un ataque, con su puño
+  const comoAtaque = (e: any) => e.roll?.[0] && /sin armas/i.test(e.nombre);
   const deRasgo = (e: any): Uso => {
     // Un rasgo que ataca (Golpe sin armas extra, Ráfaga de golpes…) trae su tirada: se trata como un ataque
     const atk = e.roll?.[0] ? +(/([+-]\d+)\s*$/.exec(e.roll[0])?.[1] ?? 0) : undefined;
     const gasta = e.recurso && /^1 /.test(e.coste || '') ? e.recurso : undefined;
     return { tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, ...(atk != null ? { atk, dexpr: e.roll[1] } : {}), afecta: atk != null, ...(gasta ? { gasta } : {}) };
   };
+  const comoArma = (e: any) => ({ puno: true, nombre: e.nombre, atk: +(/([+-]\d+)\s*$/.exec(e.roll[0])?.[1] ?? 0), expr: e.roll[1], dmg: String(e.roll[1]).replace(/\s/g, ''), notas: [] as string[] });
   const deConjuro = (s: any): Uso => {
     const d = datosConjuro(s, c), salv = s.salv ? String(s.salv).toUpperCase() : undefined;
     return { tipo: t, nombre: s.nombre, coste: s.coste || (+s.nivel ? `Nivel ${s.nivel}` : 'Truco'), texto: String(s.desc || '').trim(), raw: true, ...(s.ataque && d.atk != null ? { atk: d.atk } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados),
       ...(+s.nivel > 0 ? { conjuro: { nivel: +s.nivel, rasgo: s.recurso, ritual: !!s.ritual, desc: s.desc, base: d.dexpr, bono: d.dexpr ? bonosPara(c, s).reduce((x: number, b: any) => x + (+b.valor || 0), 0) : 0 } } : {}) };
   };
+  const delaClase = armas.length + (sinArmas ? 1 : 0) + ents.length + conjuros.length;
   return (
-    <div role="radiogroup" aria-label="Elige qué haces" className="space-y-3">
-      {armas.length > 0 && (
-        <div className="space-y-2"><span className="text-label-caps uppercase text-outline">Ataques</span>
-          {armas.map((a: any, i: number) => op(deArma(a), <FilaArsenal a={a} c={c} />, a.nombre + i))}</div>
-      )}
-      {ents.length > 0 && <div><span className="text-label-caps uppercase text-outline">Rasgos</span>
-        {ents.map((e: any, i: number) => op(deRasgo(e), <Entrada e={e} />, i))}</div>}
-      {conjuros.length > 0 && (
-        <div className="space-y-1"><span className="text-label-caps uppercase text-outline">Conjuros</span>
-          <ul className="m-0 list-none space-y-2 p-0">{conjuros.map((s: any, i: number) => <li key={s.nombre + i}>{op(deConjuro(s), <FilaConjuro s={s} c={c} />, 0)}</li>)}</ul></div>
-      )}
-      {com.length > 0 && (
-        <div><span className="text-label-caps uppercase text-outline">Las que cualquiera puede hacer</span>
-          {com.map(([n, f]: [string, (c: any) => string]) => op({ tipo: t, nombre: n, texto: f(c), afecta: n === 'Atacar' }, <Entrada e={{ t, nombre: n, texto: f(c), src: 'Reglas básicas' }} />, n))}</div>
-      )}
+    <div role="radiogroup" aria-label="Elige qué haces" className="space-y-2">
+      <MenuAcciones titulo="Acciones de la clase" abierto hijos={delaClase}>
+        {armas.map((a: any, i: number) => op(deArma(a), <FilaArsenal a={a} c={c} />, 'a' + a.nombre + i))}
+        {sinArmas && op(deArma(sinArmas), <FilaArsenal a={sinArmas} c={c} />, 'sa')}
+        {ents.map((e: any, i: number) => comoAtaque(e) ? op(deRasgo(e), <FilaArsenal a={comoArma(e)} c={c} />, 'r' + i) : op(deRasgo(e), <Entrada e={e} />, 'r' + i))}
+        {conjuros.map((s: any, i: number) => op(deConjuro(s), <FilaConjuro s={s} c={c} />, 's' + s.nombre + i))}
+      </MenuAcciones>
+      <MenuAcciones titulo="Acciones de movimiento" hijos={mov.length}>
+        {mov.map(([n, f]: [string, (c: any) => string]) => op({ tipo: t, nombre: n, texto: f(c), afecta: false }, <Entrada e={{ t, nombre: n, texto: f(c), src: 'Reglas básicas' }} />, n))}
+      </MenuAcciones>
+      <MenuAcciones titulo="Acciones genéricas" hijos={gen.length}>
+        {gen.map(([n, f]: [string, (c: any) => string]) => op({ tipo: t, nombre: n, texto: f(c), afecta: false }, <Entrada e={{ t, nombre: n, texto: f(c), src: 'Reglas básicas' }} />, n))}
+      </MenuAcciones>
     </div>
   );
 }

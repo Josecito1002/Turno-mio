@@ -570,7 +570,8 @@ function ParaQueSirve({ c, r }: { c: any; r: any }) {
 export function FilaArsenal({ a, c }: { a: any; c: any }) {
   const lectura = useLectura();
   const n = a.w ? a.w.n : a.nombre, dist = !!a.w?.dist;
-  const icono = dist ? 'adjust' : a.w ? 'colorize' : 'sports_martial_arts';
+  // Los golpes sin armas llevan un puño; los ataques naturales, el ícono de artes marciales
+  const icono = dist ? 'adjust' : a.w ? 'colorize' : a.puno ? 'sports_mma' : 'sports_martial_arts';
   const txt = dist ? 'text-secondary' : 'text-primary';
   const maestria = a.maestria ? String(a.maestria).split(':')[0] : '';
   const desc = [dist ? 'A distancia' : 'Cuerpo a cuerpo', a.dmg, ...(a.notas || [])].filter(Boolean).join(' • ');
@@ -601,7 +602,7 @@ export function FilaArsenal({ a, c }: { a: any; c: any }) {
             extras={lectura ? undefined : extrasAtaque(c, a)} mods={a.atkDesg} dmgMods={a.dmgDesg} ariaLabel={`Tirar ataque con ${n}, ${sign(a.atk)}`}
             className={cx('flex flex-1 items-center justify-center gap-1 rounded bg-surface-container-lowest px-3 py-2 text-label-md font-bold shadow-inner transition-all sm:flex-none',
               dist ? 'text-secondary hover:bg-secondary hover:text-on-secondary' : 'text-primary hover:bg-primary hover:text-on-primary')}>
-            <Simbolo n={dist ? 'gps_fixed' : 'sports_martial_arts'} className="text-body-md" />{dist ? 'Disparar' : 'Tirar ataque'}
+            <Simbolo n={dist ? 'gps_fixed' : a.puno ? 'sports_mma' : 'sports_martial_arts'} className="text-body-md" />{dist ? 'Disparar' : 'Tirar ataque'}
           </BotonTirada>
         )}
         <BotonTirada estilo="libre" expr={a.expr} label={`${n}: daño`} min3={a.min3} gasta={lectura ? undefined : a.gasta} mods={a.dmgDesg} ariaLabel={`Tirar daño de ${n}: ${a.dmg}`}
@@ -622,7 +623,7 @@ export function FilaArsenal({ a, c }: { a: any; c: any }) {
 function Arsenal({ c }: { c: any }) {
   const armas = [...c.armas.filter((a: any) => a.mano), ...(c.naturales || [])];
   const guardadas = c.armas.filter((a: any) => !a.mano);
-  const sinArmas = { nombre: 'Golpe sin armas', atk: c.unarmed.atk, expr: c.unarmed.expr, dmg: c.unarmed.dmg, atkDesg: c.unarmed.atkDesg, dmgDesg: c.unarmed.dmgDesg, notas: [`También puede Agarrar o Empujar (CD ${c.grappleDC})`] };
+  const sinArmas = { puno: true, nombre: 'Golpe sin armas', atk: c.unarmed.atk, expr: c.unarmed.expr, dmg: c.unarmed.dmg, atkDesg: c.unarmed.atkDesg, dmgDesg: c.unarmed.dmgDesg, notas: [`También puede Agarrar o Empujar (CD ${c.grappleDC})`] };
   const ataques = c.pj?.clase === 'guerrero' ? (c.lvl >= 20 ? 4 : c.lvl >= 11 ? 3 : 2) : 2;
   return (
     <section aria-labelledby="titulo-arsenal" className="flex flex-col gap-3 rounded-lg bg-surface-container-low p-5 shadow-lg">
