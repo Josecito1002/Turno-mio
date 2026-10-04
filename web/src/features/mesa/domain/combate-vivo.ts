@@ -13,7 +13,7 @@ export function datosVivos(cp: any) {
   const cb = cp.combate || {};
   const orden = (cb.orden || []).map((o: any) => {
     const x = combatiente(o.k, cp);
-    return x ? { k: o.k, nombre: x.nombre, tipo: x.tipo, pid: o.k.startsWith('jm:') ? o.k.split(':')[2] : undefined, cond: [...(cp.estado?.[o.k]?.cond || [])], dur: { ...(cp.estado?.[o.k]?.dur || {}) }, ven: cp.estado?.[o.k]?.ven || '' } : null;
+    return x ? { k: o.k, nombre: x.nombre, tipo: x.m?.aliado ? 'aliado' : x.tipo, pid: o.k.startsWith('jm:') ? o.k.split(':')[2] : undefined, cond: [...(cp.estado?.[o.k]?.cond || [])], dur: { ...(cp.estado?.[o.k]?.dur || {}) }, ven: cp.estado?.[o.k]?.ven || '' } : null;
   }).filter(Boolean);
   return { activo: !!cb.activo, ronda: cb.ronda || 1, turno: cb.turno || 0, orden };
 }
