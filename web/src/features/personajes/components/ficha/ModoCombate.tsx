@@ -150,7 +150,11 @@ function FilaRasgo({ e, uso, elegido, elegir }: { e: any; uso: Uso; elegido: Uso
 const CONDICIONALES = [
   { rasgo: 'Conquistador Invencible', texto: 'Conquistador Invencible activo: un ataque más con la acción Atacar', mas: 1 },
   { rasgo: 'Yo Astral Despierto', texto: 'Yo Astral Despierto activo y atacas solo con los brazos astrales: un ataque más', mas: 1 },
+  { rasgo: 'Rompehordas', texto: 'Rompehordas: un ataque extra contra otro enemigo cercano a tu objetivo (una vez por turno)', mas: 1 },
 ];
+
+/** Rasgos cuyo efecto pide renunciar a la ventaja del ataque (Golpe Brutal, maniobras del Maestro de Batalla). */
+const RENUNCIA = /renuncia(s|r)? (a la|a tu) ventaja|renunciar a la ventaja/i;
 
 const DE_MOVIMIENTO = new Set(['Correr', 'Destrabarse']);
 
@@ -172,8 +176,9 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
   );
   const nAtaques = ataquesPorAccion(c);
   // Efectos que suman ataques solo mientras se cumplen: una casilla dice si valen ahora
+  const puedeRenunciar = (c.entries || []).some((e: any) => RENUNCIA.test(String(typeof e.texto === 'function' ? '' : e.texto || '')) || /golpe brutal|maniobra/i.test(e.nombre || ''));
   const condicionales = t === 'accion' ? CONDICIONALES.filter(x => c.entries.some((e: any) => norm(e.nombre) === norm(x.rasgo))) : [];
-  const deArma = (a: any): Uso => ({ tipo: t, nombre: a.nombre, ...(nAtaques > 1 && t === 'accion' ? { golpes: nAtaques } : {}), ...(condicionales.length ? { condiciones: condicionales } : {}), texto: [a.w?.dist ? 'Ataque a distancia' : 'Ataque cuerpo a cuerpo', ...(nAtaques > 1 && t === 'accion' ? [`Con Ataque Extra haces ${nAtaques} ataques con la acción Atacar`] : []), a.dmg && `Daño: ${a.dmg}`, a.maestria && `Maestría: ${a.maestria}`, ...(a.notas || [])].filter(Boolean).join('. ') || 'Ataque', ...(a.cd == null ? { atk: a.atk } : { salv: a.salv, cd: a.cd }), dexpr: a.expr, afecta: true });
+  const deArma = (a: any): Uso => ({ tipo: t, nombre: a.nombre, ...(nAtaques > 1 && t === 'accion' ? { golpes: nAtaques } : {}), ...(condicionales.length ? { condiciones: condicionales } : {}), ...(puedeRenunciar ? { renuncia: true } : {}), texto: [a.w?.dist ? 'Ataque a distancia' : 'Ataque cuerpo a cuerpo', ...(nAtaques > 1 && t === 'accion' ? [`Con Ataque Extra haces ${nAtaques} ataques con la acción Atacar`] : []), a.dmg && `Daño: ${a.dmg}`, a.maestria && `Maestría: ${a.maestria}`, ...(a.notas || [])].filter(Boolean).join('. ') || 'Ataque', ...(a.cd == null ? { atk: a.atk } : { salv: a.salv, cd: a.cd }), dexpr: a.expr, afecta: true });
   // Un rasgo que ataca sin armas (Golpe sin armas extra) se ve como un ataque, con su puño
   const comoAtaque = (e: any) => !!e.roll?.[0];
   const deRasgo = (e: any): Uso => {
