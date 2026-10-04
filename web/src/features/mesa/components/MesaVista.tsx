@@ -17,7 +17,7 @@ import { CONDICIONES, actualizarPgUnido, cambiarPg, campActual, camps, claveUnid
 import { codigoMesa, guardarCampana, jugadoresMesa, quitarDeMesa } from '../api';
 import { conectarMesaRealtime } from '../realtime-cliente';
 import { publicarCombate } from '../domain/combate-vivo';
-import { combateVivoDm, type EconomiaRonda, type TipoAccionRonda } from '../api';
+import { combateVivoDm, confirmarGolpes, type EconomiaRonda, type Golpe, type TipoAccionRonda } from '../api';
 import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
 import { enemigosDe, leerSesion, type Encuentro } from '../domain/sesion';
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
@@ -443,12 +443,31 @@ function ImportarSesion({ cp }: { cp: any }) {
 }
 
 /** Lo que gastaron los jugadores en esta ronda (acción, adicional y reacción), al día cada 2 s mientras haya combate. */
+/** Golpes ya aplicados en esta pantalla: la lista del servidor tarda un rato en vaciarse y no deben contarse dos veces. */
+const golpesAplicados = new Set<string>();
+/** Aplica a los enemigos lo que mandaron los jugadores (daño y condición) y avisa al servidor para vaciar la lista. */
+function aplicarGolpes(campId: string, golpes: Golpe[]) {
+  const nuevos = golpes.filter(g => !golpesAplicados.has(g.id));
+  if (nuevos.length) {
+    conCamp(c => {
+      if (c.id !== campId) return false;
+      for (const g of nuevos) {
+        const m = c.monstruos.find((x: any) => 'm:' + x.id === g.objetivo);
+        if (m) { m.pg = Math.max(0, m.pg - g.dano); if (g.condicion) { const e = estadoDe(c, g.objetivo); if (!e.cond.includes(g.condicion)) e.cond.push(g.condicion); } }
+        avisar(m ? `${g.de}${g.nota ? ` (${g.nota})` : ''}: ${g.dano} de daño a ${m.nombre}${g.condicion ? `, ${g.condicion}` : ''}.` : `${g.de} golpeó a un enemigo que ya no está.`);
+      }
+    });
+    nuevos.forEach(g => golpesAplicados.add(g.id));
+  }
+  confirmarGolpes(campId, golpes.map(g => g.id)).catch(() => {});
+}
+
 function useEconomiaVivo(campId: string, activo: boolean) {
   const [eco, setEco] = useState<Record<string, EconomiaRonda>>({});
   useEffect(() => {
     if (!activo) return;
     let vivo = true;
-    const leer = () => combateVivoDm(campId).then(v => { if (vivo) setEco(v?.economia || {}); }, () => {});
+    const leer = () => combateVivoDm(campId).then(v => { if (!vivo) return; setEco(v?.economia || {}); if (v?.golpes?.length) aplicarGolpes(campId, v.golpes); }, () => {});
     leer();
     const t = setInterval(() => { if (document.visibilityState === 'visible') leer(); }, 2000);
     return () => { vivo = false; clearInterval(t); };

@@ -36,11 +36,14 @@ export const salirMesa = (m: { dmId: string; campanaId: string; personajeId: str
 /* ---- Combate en vivo: el DM publica ronda, turno y orden; cada jugador gasta su acción, adicional y reacción ---- */
 export type TipoAccionRonda = 'accion' | 'adicional' | 'reaccion';
 export type EconomiaRonda = Partial<Record<TipoAccionRonda, boolean>>;
+export type Golpe = { id: string; de: string; objetivo: string; dano: number; condicion: string | null; nota: string | null; ts: string };
 export type CombateVivo = {
   activo?: boolean; ronda?: number; turno?: number;
   /** Quién actúa y en qué orden; `pid` es el id del personaje cuando es de un jugador unido. */
   orden?: { k: string; nombre: string; tipo: string; pid?: string; cond?: string[] }[];
   economia?: Record<string, EconomiaRonda>;
+  /** Golpes que mandaron los jugadores y el DM todavía no aplica. */
+  golpes?: Golpe[];
   actualizadoEn?: string;
 } | null;
 
@@ -55,3 +58,9 @@ export const combateMesa = (m: { dmId: string; campanaId: string; personajeId: s
 
 export const gastarAccionMesa = (m: { dmId: string; campanaId: string; personajeId: string }, tipo: TipoAccionRonda, gastado: boolean) =>
   gql(`mutation ($dmId: ID!, $campanaId: ID!, $personajeId: ID!, $tipo: String!, $gastado: Boolean!) { gastarAccionMesa(dmId: $dmId, campanaId: $campanaId, personajeId: $personajeId, tipo: $tipo, gastado: $gastado) }`, { ...m, tipo, gastado });
+
+export const enviarGolpeMesa = (m: { dmId: string; campanaId: string; personajeId: string }, g: { objetivo: string; dano: number; condicion?: string; nota?: string }) =>
+  gql(`mutation ($dmId: ID!, $campanaId: ID!, $personajeId: ID!, $objetivo: String!, $dano: Int!, $condicion: String, $nota: String) { enviarGolpeMesa(dmId: $dmId, campanaId: $campanaId, personajeId: $personajeId, objetivo: $objetivo, dano: $dano, condicion: $condicion, nota: $nota) }`, { ...m, ...g });
+
+export const confirmarGolpes = (campanaId: string, ids: string[]) =>
+  gql(`mutation ($campanaId: ID!, $ids: [String!]!) { confirmarGolpes(campanaId: $campanaId, ids: $ids) }`, { campanaId, ids });

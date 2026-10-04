@@ -6,7 +6,9 @@ import { Boton, Dialogo, Simbolo, cx, foco } from '@/shared/ui/kit';
 import { TIPOS } from '@/features/reglas/data/caracteristicas';
 import { COMUNES } from '@/features/reglas/data/comunes';
 import { FormaTipo } from '@/features/reglas/components/TipoAccion';
-import { combateMesa, gastarAccionMesa, type CombateVivo, type EconomiaRonda, type TipoAccionRonda } from '@/features/mesa/api';
+import { CONDICIONES } from '@/features/mesa/domain/combate';
+import { avisar } from '@/shared/ui/avisos';
+import { combateMesa, enviarGolpeMesa, gastarAccionMesa, type CombateVivo, type EconomiaRonda, type TipoAccionRonda } from '@/features/mesa/api';
 import { EFECTO_CONDICION } from '@/features/mesa/domain/condiciones';
 import { Entrada } from '../piezas';
 import { FilaArsenal, FilaConjuro, Ranuras, RecursosClase } from './Ficha';
@@ -34,6 +36,38 @@ function OpcionesDeTipo({ c, t }: { c: any; t: TipoAccionRonda }) {
         <div><span className="text-label-caps uppercase text-outline">Las que cualquiera puede hacer</span>
           {com.map(([n, f]: [string, (c: any) => string]) => <Entrada key={n} e={{ t, nombre: n, texto: f(c), src: 'Reglas básicas' }} />)}</div>
       )}
+    </div>
+  );
+}
+
+
+/** Mandar daño (y una condición) a un enemigo: el DM lo aplica en su Mesa. */
+function GolpeAEnemigo({ enemigos, mesa }: { enemigos: { k: string; nombre: string }[]; mesa: { dmId: string; campanaId: string; personajeId: string } }) {
+  const [objetivo, setObjetivo] = useState(''), [dano, setDano] = useState(''), [cond, setCond] = useState(''), [nota, setNota] = useState(''), [ocupado, setOcupado] = useState(false);
+  const elegido = enemigos.some(e => e.k === objetivo) ? objetivo : enemigos[0]?.k || '';
+  if (!enemigos.length) return <p className="m-0 rounded-lg bg-surface-container-low p-3 text-body-sm text-outline">No hay enemigos en el combate todavía.</p>;
+  const campo = 'min-h-11 w-full rounded bg-surface-container-lowest px-2 text-body-md text-on-surface';
+  const enviar = async () => {
+    const n = Math.max(0, Math.round(+dano || 0));
+    if (!n && !cond) { avisar('Pon el daño o una condición.', 'error'); return; }
+    setOcupado(true);
+    try {
+      await enviarGolpeMesa(mesa, { objetivo: elegido, dano: n, ...(cond ? { condicion: cond } : {}), ...(nota.trim() ? { nota: nota.trim() } : {}) });
+      avisar(`Enviado a ${enemigos.find(e => e.k === elegido)?.nombre}: ${n} de daño${cond ? `, ${cond}` : ''}. Tu DM lo aplica.`);
+      setDano(''); setCond(''); setNota('');
+    } catch (e) { avisar(`No se pudo enviar: ${(e as Error).message}`, 'error'); }
+    finally { setOcupado(false); }
+  };
+  return (
+    <div className="grid gap-2 rounded-lg bg-surface-container-low p-3 shadow-md">
+      <span className="text-label-caps uppercase text-outline">Aplicar a un enemigo</span>
+      <select aria-label="Enemigo" value={elegido} onChange={e => setObjetivo(e.target.value)} className={campo}>{enemigos.map(e => <option key={e.k} value={e.k}>{e.nombre}</option>)}</select>
+      <div className="grid grid-cols-2 gap-2">
+        <input aria-label="Daño" type="number" inputMode="numeric" min={0} placeholder="Daño total" value={dano} onChange={e => setDano(e.target.value)} className={campo} />
+        <select aria-label="Condición" value={cond} onChange={e => setCond(e.target.value)} className={campo}><option value="">Sin condición</option>{CONDICIONES.map(n => <option key={n}>{n}</option>)}</select>
+      </div>
+      <input aria-label="Con qué" type="text" maxLength={80} placeholder="Con qué (opcional): Bola de fuego" value={nota} onChange={e => setNota(e.target.value)} className={campo} />
+      <Boton variante="primario" disabled={ocupado} onClick={enviar}>Aplicar</Boton>
     </div>
   );
 }
@@ -139,6 +173,7 @@ export function ModoCombate({ c }: { c: any }) {
             <Boton variante={eco[abierto] ? 'secundario' : 'primario'} onClick={() => gastar(abierto, !eco[abierto])}>
               {eco[abierto] ? 'Recuperar (me equivoqué)' : `Marcar ${TIPOS[abierto][0].toLowerCase()} como gastada`}
             </Boton>
+            <GolpeAEnemigo enemigos={(viv?.orden || []).filter(o => o.tipo === 'm')} mesa={{ dmId, campanaId, personajeId }} />
             <OpcionesDeTipo c={c} t={abierto} />
           </div>
         )}
