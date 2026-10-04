@@ -47,7 +47,7 @@ export type OrdenDm = { id: string; tipo: 'corto' | 'largo' | 'inspiracion'; per
 export type CombateVivo = {
   activo?: boolean; ronda?: number; turno?: number;
   /** Quién actúa y en qué orden; `pid` es el id del personaje cuando es de un jugador unido. */
-  orden?: { k: string; nombre: string; tipo: string; pid?: string; cond?: string[] }[];
+  orden?: { k: string; nombre: string; tipo: string; pid?: string; cond?: string[]; dur?: Record<string, string>; ven?: '' | 'v' | 'd' }[];
   economia?: Record<string, EconomiaRonda>;
   /** Golpes que mandaron los jugadores y el DM todavía no aplica. */
   golpes?: Golpe[];

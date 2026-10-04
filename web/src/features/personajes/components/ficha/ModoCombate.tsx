@@ -146,6 +146,12 @@ function FilaRasgo({ e, uso, elegido, elegir }: { e: any; uso: Uso; elegido: Uso
   );
 }
 
+/** Rasgos que dan más ataques con la acción Atacar solo mientras están activos. */
+const CONDICIONALES = [
+  { rasgo: 'Conquistador Invencible', texto: 'Conquistador Invencible activo: un ataque más con la acción Atacar', mas: 1 },
+  { rasgo: 'Yo Astral Despierto', texto: 'Yo Astral Despierto activo y atacas solo con los brazos astrales: un ataque más', mas: 1 },
+];
+
 const DE_MOVIMIENTO = new Set(['Correr', 'Destrabarse']);
 
 /** Lo que se puede hacer con cada tipo de acción, en tres menús: de la clase (ataques, rasgos y conjuros), de movimiento y genéricas. */
@@ -165,7 +171,9 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
     </Opcion>
   );
   const nAtaques = ataquesPorAccion(c);
-  const deArma = (a: any): Uso => ({ tipo: t, nombre: a.nombre, ...(nAtaques > 1 && t === 'accion' ? { golpes: nAtaques } : {}), texto: [a.w?.dist ? 'Ataque a distancia' : 'Ataque cuerpo a cuerpo', ...(nAtaques > 1 && t === 'accion' ? [`Con Ataque Extra haces ${nAtaques} ataques con la acción Atacar`] : []), a.dmg && `Daño: ${a.dmg}`, a.maestria && `Maestría: ${a.maestria}`, ...(a.notas || [])].filter(Boolean).join('. ') || 'Ataque', ...(a.cd == null ? { atk: a.atk } : { salv: a.salv, cd: a.cd }), dexpr: a.expr, afecta: true });
+  // Efectos que suman ataques solo mientras se cumplen: una casilla dice si valen ahora
+  const condicionales = t === 'accion' ? CONDICIONALES.filter(x => c.entries.some((e: any) => norm(e.nombre) === norm(x.rasgo))) : [];
+  const deArma = (a: any): Uso => ({ tipo: t, nombre: a.nombre, ...(nAtaques > 1 && t === 'accion' ? { golpes: nAtaques } : {}), ...(condicionales.length ? { condiciones: condicionales } : {}), texto: [a.w?.dist ? 'Ataque a distancia' : 'Ataque cuerpo a cuerpo', ...(nAtaques > 1 && t === 'accion' ? [`Con Ataque Extra haces ${nAtaques} ataques con la acción Atacar`] : []), a.dmg && `Daño: ${a.dmg}`, a.maestria && `Maestría: ${a.maestria}`, ...(a.notas || [])].filter(Boolean).join('. ') || 'Ataque', ...(a.cd == null ? { atk: a.atk } : { salv: a.salv, cd: a.cd }), dexpr: a.expr, afecta: true });
   // Un rasgo que ataca sin armas (Golpe sin armas extra) se ve como un ataque, con su puño
   const comoAtaque = (e: any) => !!e.roll?.[0];
   const deRasgo = (e: any): Uso => {
@@ -215,7 +223,7 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
 }
 
 /** La tarjeta resumida del personaje (como la que ve el DM): pasivas, PG con daño y curación directos, y los botones de la pantalla. */
-function ResumenCombate({ c, m, salir }: { c: any; m: { mesa: string; dm: string }; salir: () => void }) {
+function ResumenCombate({ c, m, salir, conds, dur, ven, esMiTurno }: { c: any; m: { mesa: string; dm: string }; salir: () => void; conds: string[]; dur: Record<string, string>; ven: '' | 'v' | 'd'; esMiTurno: boolean }) {
   const pj = c.pj, [n, setN] = useState('');
   const pg = c.recursos.find((r: any) => r.id === 'pg');
   const max = pg?.max ?? c.hpMax, actual = max - Math.min(pj.used?.pg || 0, max);
@@ -250,6 +258,14 @@ function ResumenCombate({ c, m, salir }: { c: any; m: { mesa: string; dm: string
       </dl>
       <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface-container"><div className={cx('h-full rounded-full transition-all', barra)} style={{ width: `${Math.max(0, Math.min(100, pct))}%` }} /></div>
       <p className="m-0 mt-2 text-body-md text-on-surface"><span className="font-serif text-headline-md font-extrabold">{actual}</span> / {max} PG{temp ? ` · +${temp} temporales` : ''}</p>
+      {(conds.length > 0 || ven) && (
+        <div className="mt-3 grid gap-1 rounded-lg bg-error-container/30 p-2" aria-label="Tus condiciones">
+          {ven && <p className="m-0 text-body-sm text-on-surface"><b className={ven === 'v' ? 'text-green-400' : 'text-error'}>{ven === 'v' ? 'Ventaja' : 'Desventaja'} en tus ataques.</b> Lo puso tu DM.</p>}
+          {conds.map(n => (
+            <p key={n} className="m-0 text-body-sm text-on-surface"><b className="text-error">{n}.</b> {EFECTO_CONDICION[n] || ''}{n === 'Derribado' && esMiTurno ? ' (Es tu turno: lo notarás al moverte.)' : ''} <span className="text-outline">{dur[n] ? `Dura: ${dur[n]}.` : 'Dura hasta que tu DM la quite.'}</span></p>
+          ))}
+        </div>
+      )}
       <div className="mt-2 grid grid-cols-[1fr_auto_auto] gap-2">
         <input aria-label="Cantidad de puntos de golpe" type="number" inputMode="numeric" min={0} placeholder="Puntos" value={n} onChange={e => setN(e.target.value)}
           className="min-h-11 w-full rounded bg-surface-container-lowest px-2 text-body-md text-on-surface" />
@@ -330,7 +346,7 @@ export function ModoCombate({ c }: { c: any }) {
   };
 
   const activo = !!viv?.activo, turnoDe = viv?.orden?.[viv.turno || 0];
-  const mias = viv?.orden?.find(o => o.pid === personajeId)?.cond || [];
+  const yo = viv?.orden?.find(o => o.pid === personajeId), mias = yo?.cond || [];
   const esMiTurno = !!turnoDe && turnoDe.pid === m.personajeId;
   const salir = () => { S.combateMesa = null; S.combateHoja = false; S.view = 'mesaj'; render(); };
   const enemigos = (viv?.orden || []).filter(o => o.tipo === 'm');
@@ -338,7 +354,7 @@ export function ModoCombate({ c }: { c: any }) {
 
   return (
     <div className="mx-auto grid max-w-3xl gap-4 pb-24">
-      <ResumenCombate c={c} m={m} salir={salir} />
+      <ResumenCombate c={c} m={m} salir={salir} conds={mias} dur={yo?.dur || {}} ven={yo?.ven || ''} esMiTurno={esMiTurno} />
 
       {(ranuras.length > 0 || c.recursos.some((r: any) => r.id !== 'pg' && !/^slot\d/.test(r.id))) && (
         <section className="grid gap-3" aria-label="Recursos">
@@ -357,14 +373,6 @@ export function ModoCombate({ c }: { c: any }) {
         ) : <p className="m-0 text-body-md text-on-surface-variant">El DM todavía no ha empezado el combate. Esta pantalla se actualizará sola.</p>}
         {error && <p className="m-0 mt-1 text-body-sm text-error">No se pudo sincronizar: {error}</p>}
       </div>
-
-      {mias.length > 0 && (
-        <div className="grid gap-1 rounded-lg bg-error-container/30 p-3 shadow-lg" aria-label="Tus condiciones">
-          {mias.map(n => (
-            <p key={n} className="m-0 text-body-sm text-on-surface"><b className="text-error">{n}.</b> {EFECTO_CONDICION[n] || ''}{n === 'Derribado' && esMiTurno ? ' (Es tu turno: lo notarás al moverte.)' : ''}</p>
-          ))}
-        </div>
-      )}
 
       <nav aria-label="Tu turno" className="fixed inset-x-0 bottom-[var(--alto-nav-inferior,0px)] z-10 border-t border-rule bg-surface-container-low/95 backdrop-blur print:hidden">
         <div className="mx-auto grid max-w-3xl grid-cols-3 gap-2 p-2" role="group">
@@ -399,7 +407,7 @@ export function ModoCombate({ c }: { c: any }) {
         )}
       </Dialogo>
 
-      <UsoAccion c={c} uso={uso} enemigos={enemigos} mesa={{ dmId, campanaId, personajeId }} yaGastada={!!(uso && eco[uso.tipo])} alCerrar={() => setUso(null)}
+      <UsoAccion c={c} uso={uso} ventaja={yo?.ven || ''} enemigos={enemigos} mesa={{ dmId, campanaId, personajeId }} yaGastada={!!(uso && eco[uso.tipo])} alCerrar={() => setUso(null)}
         alUsar={t => { toques.current[t] = Date.now(); setEco(p => ({ ...p, [t]: true })); }} />
     </div>
   );
