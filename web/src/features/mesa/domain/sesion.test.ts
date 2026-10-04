@@ -21,7 +21,7 @@ describe('Info sesión (Mesa del DM)', () => {
     assert.deepEqual(s.sinDatos, []);
     const enemigos = enemigosDe(s.encuentros[0], r => s.monstruos[r] || CAT[r] || null);
     assert.equal(enemigos.length, 4);
-    assert.equal(enemigos[0].nombre, 'Goblin Warrior 1');
+    assert.equal(enemigos[0].nombre, `${CAT['goblin-warrior'].n} 1`);
     assert.equal(enemigos[0].pgMax, 10);
     assert.equal(enemigos[3].ca, 16);
   });

@@ -10,7 +10,16 @@ const DESTINO = 'src/features/reglas/data/generadas/bestiario.ts', DIR = '../doc
 const aplicar = process.argv.includes('--aplicar');
 const B: Record<string, any> = structuredClone(BESTIARIO_GENERADO);
 const avisos: string[] = [];
+const SIN_EFECTO = /^(no tiene efectos adicionales|sin efectos adicionales|ataque (cuerpo a cuerpo|a distancia)( o (arrojadizo|a distancia))?( b[aá]sico| simple| sin efectos adicionales))\.?$/i;
 let monstruos = 0, partes = 0;
+/** El nombre en español conserva los usos y la recarga del original ("(1/Day)" → "(1/día)", "(Recarga 5–6)"), que Gemini a veces omite */
+function conUsos(en: string, n: string) {
+  let r = n.replace(/\s*\(\d+\/D[ií]a\)/i, '');
+  const dia = en.match(/\((\d+)\/Day/), rec = en.match(/\((Recarga[^)]*)\)/);
+  if (dia && !/\/d[ií]a/i.test(n)) r += ` (${dia[1]}/día)`; else if (dia) r = n.replace(/\/D[ií]a/, '/día');
+  if (rec && !/Recarga/.test(r)) r += ` (${rec[1]})`;
+  return r;
+}
 
 const archivos = existsSync(DIR) ? readdirSync(DIR).filter(f => /^respuesta-22[a-z]-bestiario\.md$/.test(f)).sort() : [];
 if (!archivos.length) { console.log('No hay respuestas del lote 22 en docs/gemini.'); process.exit(0); }
@@ -26,14 +35,19 @@ for (const f of archivos) {
     if (x.texto) mo.texto = x.texto;
     monstruos++;
     const todas = ['rasgos', 'acciones', 'adicionales', 'reacciones', 'legendarias', 'conjuros'].flatMap(s => mo[s] || []);
-    for (const [en, p] of Object.entries<any>(x.partes || {})) {
+    // Gemini copia el nombre tal cual del encargo: con "(conjuros)" detrás o con la marca {@recharge N} sin convertir
+    const partesX: Record<string, any> = {};
+    for (const [en0, p] of Object.entries<any>(x.partes || {}))
+      partesX[en0.replace(/\s*\(conjuros\)$/, '').replace(/\{@recharge(?: (\d))?\}/g, (_: string, r: string) => r && r !== '6' ? `(Recarga ${r}–6)` : '(Recarga 6)').trim()] = p;
+    for (const [en, p] of Object.entries<any>(partesX)) {
       const a = todas.find((y: any) => y.en === en);
       if (!a) { avisos.push(`${f}: ${k} no tiene "${en}"`); continue; }
-      if (p.n) a.n = p.n;
-      if (p.t && !('lista' in a)) a.t = p.t;
+      if (p.n) a.n = conUsos(en, p.n);
+      // Las acciones sin nada que explicar no llevan texto: el bloque ya muestra el ataque, el alcance y el daño
+      if (!('lista' in a)) { if (p.t && !SIN_EFECTO.test(p.t.trim())) a.t = p.t; else delete a.t; }
       partes++;
     }
-    const faltan = todas.filter((y: any) => !x.partes?.[y.en] && !('lista' in y)).map((y: any) => y.en);
+    const faltan = todas.filter((y: any) => !partesX[y.en] && !('lista' in y)).map((y: any) => y.en);
     if (faltan.length) avisos.push(`${f}: ${k} sin texto para ${faltan.join(', ')}`);
     if (/NO CONFIRMADO/.test(JSON.stringify(x))) avisos.push(`${f}: ${k} tiene marcas [NO CONFIRMADO]`);
   }

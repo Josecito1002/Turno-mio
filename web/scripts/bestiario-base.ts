@@ -63,7 +63,7 @@ function conjuros(sc: any[] | undefined) {
     if (s.will) grupos.push('A voluntad: ' + s.will.map(sinEtiquetas).join(', '));
     for (const [k, v] of Object.entries<any>(s.daily || {})) grupos.push(`${k.replace('e', '')}/día${k.endsWith('e') ? ' cada uno' : ''}: ` + v.map(sinEtiquetas).join(', '));
     const cd = JSON.stringify(s.headerEntries || []).match(/\{@dc (\d+)\}/), atk = JSON.stringify(s.headerEntries || []).match(/\{@hit (\d+)\}/);
-    return { en: sinEtiquetas(s.name), n: sinEtiquetas(s.name), como: s.displayAs || 'action', ab: AB[s.ability] || s.ability, cd: cd ? +cd[1] : undefined, atk: atk ? +atk[1] : undefined, lista: grupos };
+    return { en: nombre(s.name), n: nombre(s.name), como: s.displayAs || 'action', ab: AB[s.ability] || s.ability, cd: cd ? +cd[1] : undefined, atk: atk ? +atk[1] : undefined, lista: grupos };
   });
 }
 
