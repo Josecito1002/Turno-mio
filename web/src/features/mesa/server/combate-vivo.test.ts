@@ -64,4 +64,19 @@ describe('combate en vivo', () => {
   test('solo existen la acción, la adicional y la reacción', async () => {
     await assert.rejects(M.gastarAccionMesa(null, { ...unido, tipo: 'otra', gastado: true }, ctx(jug)), /no existe/);
   });
+  test('los golpes de los jugadores se acumulan, se confirman y la publicación del DM no los pisa', async () => {
+    await M.enviarGolpeMesa(null, { ...unido, objetivo: 'm:abc', dano: 7, condicion: 'Derribado' }, ctx(jug));
+    await M.enviarGolpeMesa(null, { ...unido, objetivo: 'm:def', dano: 3 }, ctx(jug));
+    await M.fijarCombateVivo(null, { campanaId: 'c1', datos: { activo: true, ronda: 2, turno: 0, orden: [], golpes: [] } }, ctx(dm));
+    const v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    assert.equal(v.golpes.length, 2); assert.equal(v.golpes[0].condicion, 'Derribado'); 
+    await M.confirmarGolpes(null, { campanaId: 'c1', ids: [v.golpes[0].id] }, ctx(dm));
+    const w = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    assert.equal(w.golpes.length, 1); assert.equal(w.golpes[0].objetivo, 'm:def');
+  });
+  test('un golpe solo va a enemigos, con daño válido y de quien está en la mesa', async () => {
+    await assert.rejects(M.enviarGolpeMesa(null, { ...unido, objetivo: 'pj:x', dano: 1 }, ctx(jug)));
+    await assert.rejects(M.enviarGolpeMesa(null, { ...unido, objetivo: 'm:a', dano: -5 }, ctx(jug)));
+    await assert.rejects(M.enviarGolpeMesa(null, { ...unido, objetivo: 'm:a', dano: 1 }, ctx(otro)));
+  });
 });
