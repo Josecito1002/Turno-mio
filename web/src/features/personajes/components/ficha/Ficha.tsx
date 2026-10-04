@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { Fragment, createContext, useContext, useEffect, type ReactNode } from 'react';
+import { Fragment, createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { S, render } from '@/app-shell/estado';
 import { esc, modStr, norm, richT, sign } from '@/shared/utils/texto';
 import { Aviso, Boton, Dialogo, Simbolo, cx, foco } from '@/shared/ui/kit';
@@ -14,7 +14,7 @@ import { useDados } from '@/features/dados/components/Bandeja';
 import { Entrada, LanzarConjuro, Mover, datosConjuro } from '../piezas';
 import { fijarPool, irAPaso, moverPool, setVal, tocarPip } from '../../acciones';
 import { desglose } from '../../domain/calculo';
-import { usosDeRecurso } from '../../domain/usos-recurso';
+import { usosDeRecurso, type UsoRecurso } from '../../domain/usos-recurso';
 import { extrasAtaque } from '../../domain/lanzar';
 import { MONEDAS, bolsaDe } from '../../domain/inventario';
 import { Inventario } from '../Inventario';
@@ -492,36 +492,57 @@ function RecursosClase({ c }: { c: any }) {
   );
 }
 
-/** Letra pequeña bajo un recurso: para qué sirve y, al tocarla, todo lo de la hoja que lo gasta (como en la subida de nivel). */
+/** Letra pequeña bajo un recurso: para qué sirve y, al tocarla, lo que lo usa, por tipo de acción y por nombre.
+ *  Cada nombre abre un popup con su detalle (como el de subir de nivel). */
 function ParaQueSirve({ c, r }: { c: any; r: any }) {
+  const [abierto, setAbierto] = useState<UsoRecurso | null>(null);
   const { para, usos } = usosDeRecurso(c, r);
   if (!para && !usos.length) return null;
   const cuantos = usos.length ? `${usos.length} ${usos.length === 1 ? 'cosa lo usa' : 'cosas lo usan'}` : '';
+  const tipos = [...new Set(usos.map(u => (u.t && TIPOS[u.t] ? u.t : 'pasiva')))];
+  const f = abierto?.fuente, d = abierto?.conjuro && f ? datosConjuro(f, c) : null;
+  const texto = !f ? '' : abierto?.conjuro ? String(f.desc || '').trim() : String(f.texto || '');
   return (
-    <details className="group rounded bg-surface-container-lowest/60">
-      <summary className={cx('flex min-h-9 cursor-pointer list-none items-start gap-1 rounded px-2 py-1.5 [&::-webkit-details-marker]:hidden', foco)}>
-        <Simbolo n="chevron_right" className="mt-px text-body-md text-outline transition-transform group-open:rotate-90" />
-        <span className="min-w-0 flex-1 text-body-sm text-on-surface-variant">
-          {para || 'Para qué sirve'}
-          {cuantos && <span className="whitespace-nowrap text-primary"> · {cuantos}</span>}
-        </span>
-      </summary>
-      {usos.length > 0 && (
-        <ul className="m-0 list-none space-y-2 px-3 pb-3 pt-1">
-          {usos.map(u => (
-            <li key={u.nombre} className="border-l-2 border-outline-variant/60 pl-2">
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                <b className="text-body-sm text-on-surface">{u.nombre}</b>
-                {u.t && TIPOS[u.t] && <EtiquetaTipo t={u.t} />}
-                {u.coste && <span className="text-label-caps text-outline">{u.coste}</span>}
+    <>
+      <details className="group rounded bg-surface-container-lowest/60">
+        <summary className={cx('flex min-h-9 cursor-pointer list-none items-start gap-1 rounded px-2 py-1.5 [&::-webkit-details-marker]:hidden', foco)}>
+          <Simbolo n="chevron_right" className="mt-px text-body-md text-outline transition-transform group-open:rotate-90" />
+          <span className="min-w-0 flex-1 text-body-sm text-on-surface-variant">
+            {para || 'Para qué sirve'}
+            {cuantos && <span className="whitespace-nowrap text-primary"> · {cuantos}</span>}
+          </span>
+        </summary>
+        {usos.length > 0 && (
+          <div className="space-y-2 px-3 pb-3 pt-1">
+            {tipos.map(t => (
+              <div key={t}>
+                <EtiquetaTipo t={t} />
+                <ul className="m-0 mt-1 flex list-none flex-wrap gap-1 p-0">
+                  {usos.filter(u => (u.t && TIPOS[u.t] ? u.t : 'pasiva') === t).map(u => (
+                    <li key={u.nombre}>
+                      <button type="button" onClick={() => setAbierto(u)} aria-haspopup="dialog"
+                        className={cx('min-h-9 cursor-pointer rounded bg-surface-container px-2 py-1 text-body-sm font-semibold text-on-surface hover:bg-surface-container-high', foco)}>{u.nombre}</button>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              {u.texto && u.texto !== para && <p className="m-0 text-body-sm text-on-surface-variant">{u.texto}</p>}
-              {u.src && <p className="m-0 text-label-caps text-outline">De {u.src}</p>}
-            </li>
-          ))}
-        </ul>
-      )}
-    </details>
+            ))}
+          </div>
+        )}
+      </details>
+      <Dialogo abierto={!!abierto} onCerrar={() => setAbierto(null)} titulo={abierto?.nombre || ''}
+        descripcion={abierto && <span className="inline-flex flex-wrap items-center gap-x-2">{abierto.t && TIPOS[abierto.t] && <EtiquetaTipo t={abierto.t} />}{abierto.coste && <span>{abierto.coste}</span>}</span>}>
+        {abierto && (
+          <div className="space-y-2 text-body-md text-on-surface-variant">
+            {d?.meta && <p className="m-0 text-outline">{d.meta}</p>}
+            {texto && <p className="m-0" dangerouslySetInnerHTML={{ __html: f?.raw || abierto.conjuro ? richT(texto) : esc(texto) }} />}
+            {d?.origen && <p className="m-0">{d.origen}.</p>}
+            {abierto.src && <p className="m-0 text-label-caps uppercase text-outline">De {abierto.src}</p>}
+            <p className="m-0 text-label-caps uppercase text-outline">Gasta de: {r.nombre}</p>
+          </div>
+        )}
+      </Dialogo>
+    </>
   );
 }
 
