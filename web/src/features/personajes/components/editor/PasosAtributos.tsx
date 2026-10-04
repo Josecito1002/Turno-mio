@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { S, render } from '@/app-shell/estado';
 import { avisar } from '@/shared/ui/avisos';
 import { norm, sign } from '@/shared/utils/texto';
-import { Aviso, Boton, Campo, Casilla as CasillaKit, Fila, Lista, Nota, Plegable, Seccion, Segmentado, Tarjeta, cx, foco } from '@/shared/ui/kit';
+import { Aviso, Boton, Campo, Casilla as CasillaKit, Dialogo, Fila, Lista, Nota, Plegable, Seccion, Segmentado, Tarjeta, cx, foco } from '@/shared/ui/kit';
 import { Desplegable } from '@/shared/ui/desplegable';
 import { AB, ALL_AB, COMPRA, ESTANDAR, SKILLS, TIPOS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { ARMAS, ARMADURAS, MAESTRIAS } from '@/features/reglas/data/equipo';
@@ -13,7 +13,9 @@ import { kitClase, type VarianteKit } from '@/features/reglas/data/equipo-clases
 import { esDoteMejora, habilidadesDeClase } from '@/features/reglas/domain/restricciones';
 import { competenteArma, textoArmaduras, textoArmas } from '@/features/reglas/domain/competencias';
 import { mejoraDeDote } from '@/features/reglas/domain/mejora-dote';
-import { allDotes } from '@/features/biblioteca/domain/biblioteca';
+import { allDotes, getSubs } from '@/features/biblioteca/domain/biblioteca';
+import { CLASES } from '@/features/reglas/data/clases';
+import { aplicarOrden, sugerenciaDe } from '../../domain/sugerencias-caracteristicas';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { quitarEquipoClase, savePj, tirarPg, tomarEquipoClase } from '../../acciones';
 import { AbSel, CampoArea, CampoNumero, CampoTexto, Selector } from './campos';
@@ -92,6 +94,45 @@ function comprar(g: any, k: string, d: number) { const v = g.compra[k] + d; if (
 function reiniciarTiradas(g: any) { g.valores = []; g.dados = []; g.asig = {}; S.sel = null; guardar(); }
 function elegirValor(i: number) { S.sel = S.sel === i ? null : i; render(); }
 
+/** Qué características priorizar según la clase (y su subclase): se ve el orden y se puede repartir los valores con un toque. */
+function Sugerencias({ pj }: { pj: any }) {
+  const [abierto, setAbierto] = useState(false);
+  const [sub, setSub] = useState('');
+  const g = pj.gen, clase = pj.clase as string;
+  const subs = clase ? getSubs(pj, clase).filter((x: any) => x.key !== 'cadena') : [];
+  const elegida = subs.find((x: any) => x.key === sub);
+  const sug = clase ? sugerenciaDe(clase, elegida?.n) : null;
+  const nombreAb = (k: string) => AB.find(a => a[0] === k)![3];
+  const puede = g.metodo === 'compra' || ((g.metodo === 'tirar' || g.metodo === 'estandar') && g.valores.length >= 6);
+  const aplicar = () => { if (sug && aplicarOrden(g, sug.orden)) { guardar(); avisar('Valores repartidos según la sugerencia. Puedes moverlos como quieras.'); setAbierto(false); } };
+  const chip = (activo: boolean) => cx('min-h-9 cursor-pointer rounded-full px-3 text-sm font-bold', foco, activo ? 'bg-gol text-bg' : 'bg-soft hover:bg-rule/70');
+  return (
+    <>
+      <Boton variante="fantasma" onClick={() => setAbierto(true)}>Sugerencias</Boton>
+      <Dialogo abierto={abierto} onCerrar={() => setAbierto(false)} titulo="Sugerencias de características" ancho="lg"
+        descripcion={clase ? `Para ${CLASES[clase]?.n || clase}` : undefined}>
+        {!sug ? <p className="m-0">Elige primero tu clase en el paso Clase y aquí verás a qué darle prioridad.</p> : (
+          <div className="space-y-3">
+            <div role="group" aria-label="Subclase" className="flex flex-wrap gap-1.5">
+              <button type="button" aria-pressed={!sub} onClick={() => setSub('')} className={chip(!sub)}>Estándar de la clase</button>
+              {subs.map((x: any) => <button key={x.key} type="button" aria-pressed={sub === x.key} onClick={() => setSub(x.key)} className={chip(sub === x.key)}>{x.n}</button>)}
+            </div>
+            <ol className="m-0 grid list-none gap-1 p-0">
+              {sug.orden.map((k, i) => (
+                <li key={k} className="flex items-center gap-3 rounded-xl bg-soft px-3 py-2"><b className="font-serif text-xl">{i + 1}</b><span className="font-bold">{nombreAb(k)}</span>
+                  <span className="ml-auto text-sm text-muted">{g.metodo === 'compra' || g.metodo === 'estandar' ? ESTANDAR[i] : ''}</span></li>
+              ))}
+            </ol>
+            <p className="m-0 text-sm text-muted">{sug.nota}{elegida && !sug.esSub ? ' Esta subclase no cambia el consejo de la clase.' : ''}</p>
+            <Boton variante="primario" disabled={!puede} onClick={aplicar}>Repartir mis valores así</Boton>
+            {!puede && <p className="m-0 text-sm text-muted">{g.metodo === 'manual' ? 'Con «A mano» solo se muestra el orden.' : 'Tira o elige tus seis valores y después los repartimos.'}</p>}
+          </div>
+        )}
+      </Dialogo>
+    </>
+  );
+}
+
 export function PasoStats({ pj, c }: { pj: any; c: any }) {
   const tirar = useDados();
   const g = pj.gen;
@@ -110,6 +151,7 @@ export function PasoStats({ pj, c }: { pj: any; c: any }) {
       <Seccion titulo="Cómo generas las características">
         <Segmentado etiqueta="Método" valor={g.metodo} onCambiar={metodo}
           opciones={[['tirar', 'Tirar dados'], ['estandar', 'Arreglo estándar'], ['compra', 'Compra de puntos'], ['manual', 'A mano']]} />
+        <div className="mt-2"><Sugerencias pj={pj} /></div>
         {g.metodo === 'tirar' && (
           <>
             <Nota>Cada tirada es 4d6 y se descarta el dado más bajo.</Nota>
