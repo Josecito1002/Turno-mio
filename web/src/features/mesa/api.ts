@@ -39,7 +39,7 @@ export type EconomiaRonda = Partial<Record<TipoAccionRonda, boolean>>;
 export type CombateVivo = {
   activo?: boolean; ronda?: number; turno?: number;
   /** Quién actúa y en qué orden; `pid` es el id del personaje cuando es de un jugador unido. */
-  orden?: { k: string; nombre: string; tipo: string; pid?: string }[];
+  orden?: { k: string; nombre: string; tipo: string; pid?: string; cond?: string[] }[];
   economia?: Record<string, EconomiaRonda>;
   actualizadoEn?: string;
 } | null;

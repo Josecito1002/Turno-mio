@@ -7,6 +7,7 @@ import { TIPOS } from '@/features/reglas/data/caracteristicas';
 import { COMUNES } from '@/features/reglas/data/comunes';
 import { FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { combateMesa, gastarAccionMesa, type CombateVivo, type EconomiaRonda, type TipoAccionRonda } from '@/features/mesa/api';
+import { EFECTO_CONDICION } from '@/features/mesa/domain/condiciones';
 import { Entrada } from '../piezas';
 import { FilaArsenal, FilaConjuro, Ranuras, RecursosClase } from './Ficha';
 
@@ -72,6 +73,7 @@ export function ModoCombate({ c }: { c: any }) {
   };
 
   const activo = !!viv?.activo, turnoDe = viv?.orden?.[viv.turno || 0];
+  const mias = viv?.orden?.find(o => o.pid === personajeId)?.cond || [];
   const esMiTurno = !!turnoDe && turnoDe.pid === m.personajeId;
   const salir = () => { S.combateMesa = null; S.combateHoja = false; render(); };
   const ranuras = c.recursos.filter((r: any) => /^slot\d/.test(r.id));
@@ -98,6 +100,14 @@ export function ModoCombate({ c }: { c: any }) {
         ) : <p className="m-0 text-body-md text-on-surface-variant">El DM todavía no ha empezado el combate. Esta pantalla se actualizará sola.</p>}
         {error && <p className="m-0 mt-1 text-body-sm text-error">No se pudo sincronizar: {error}</p>}
       </div>
+
+      {mias.length > 0 && (
+        <div className="grid gap-1 rounded-lg bg-error-container/30 p-3 shadow-lg" aria-label="Tus condiciones">
+          {mias.map(n => (
+            <p key={n} className="m-0 text-body-sm text-on-surface"><b className="text-error">{n}.</b> {EFECTO_CONDICION[n] || ''}{n === 'Derribado' && esMiTurno ? ' (Es tu turno: lo notarás al moverte.)' : ''}</p>
+          ))}
+        </div>
+      )}
 
       <div className="grid grid-cols-3 gap-2" role="group" aria-label="Tu turno">
         {TIPOS_BOTON.map(t => {
