@@ -146,11 +146,17 @@ function Cuerpo({ c, uso, enemigos, mesa, yaGastada, alCerrar, alUsar }: { c: an
             </ul>
           ) : <p className="m-0 text-body-sm text-outline">No hay enemigos en el combate.</p>}
 
+          {!objetivos.length && enemigos.length > 0 && <p className="m-0 text-body-sm text-outline">Elige primero a quién; después ponemos el daño.</p>}
+          {objetivos.length > 0 && (
+            <>
           <span className="mt-1 text-label-caps uppercase text-outline">Daño{mitad ? ' (si falla; mitad si supera la salvación)' : ''}</span>
           <input aria-label="Daño" type="number" inputMode="numeric" min={0} placeholder="El que sacaste con tus dados" value={dano} onChange={e => setDano(e.target.value)} className={campo} />
           {dexpr && <Boton variante="secundario" onClick={tirarDados}>O tirar dados virtuales ({dexpr})</Boton>}
 
-          {(uso.salv || conds.length > 0) && (
+            </>
+          )}
+
+          {objetivos.length > 0 && (uso.salv || conds.length > 0) && (
             <>
               <span className="mt-1 text-label-caps uppercase text-outline">{uso.salv ? 'Condición si falla la salvación' : 'Condición que impone'}</span>
               <select aria-label="Condición" value={cond} onChange={e => setCond(e.target.value)} className={campo}>
