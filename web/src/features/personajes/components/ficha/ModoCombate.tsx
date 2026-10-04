@@ -95,7 +95,7 @@ function OpcionesDeTipo({ c, t, elegido, elegir }: { c: any; t: TipoAccionRonda;
         {armas.map((a: any, i: number) => op(deArma(a), <FilaArsenal a={a} c={c} />, 'a' + a.nombre + i))}
         {sinArmas && op(deArma(sinArmas), <FilaArsenal a={sinArmas} c={c} />, 'sa')}
         {ents.map((e: any, i: number) => comoAtaque(e) ? op(deRasgo(e), <FilaArsenal a={comoArma(e)} c={c} />, 'r' + i) : op(deRasgo(e), <Entrada e={e} />, 'r' + i))}
-        {conjuros.map((s: any, i: number) => op(deConjuro(s), <FilaConjuro s={s} c={c} />, 's' + s.nombre + i))}
+        {conjuros.map((s: any, i: number) => op(deConjuro(s), <FilaConjuro s={s} c={c} icono />, 's' + s.nombre + i))}
       </MenuAcciones>
       <MenuAcciones titulo="Acciones de movimiento" hijos={mov.length}>
         {mov.map(([n, f]: [string, (c: any) => string]) => op({ tipo: t, nombre: n, texto: f(c), afecta: false }, <Entrada e={{ t, nombre: n, texto: f(c), src: 'Reglas básicas' }} />, n))}
