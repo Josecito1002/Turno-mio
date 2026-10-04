@@ -13,7 +13,7 @@ import { kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
 import { esDoteOrigen } from '@/features/reglas/domain/restricciones';
 import { fuenteClase, fuenteEspecie, fuenteSubclase, fuenteTrasfondo } from '@/features/reglas/data/fuentes';
 import { getLib, getSubs, getT, allDotes, descEspecie, descSubespecie, descClase, descSubclase, sinRepetidas, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
-import { PanelMedia, useRotar } from '@/features/biblioteca/components/PanelMedia';
+import { PanelMedia, useAzar } from '@/features/biblioteca/components/PanelMedia';
 import { PREFIJO_ORIGEN, imagenesDeEspecie, imagenesOrigen, slugNombre } from '@/features/biblioteca/domain/imagenes-origen';
 import { Entrada } from '../piezas';
 import { quitarEquipoTrasfondo, savePj, setVal, tomarEquipoTrasfondo } from '../../acciones';
@@ -46,7 +46,7 @@ const clavesEspecie = (k: string, E: any): string[] => {
 };
 function TarjetaEspecie({ k, e, d, on, sub }: { k: string; e: any; d: string; on: boolean; sub: string }) {
   const LIB = getLib(), fija = on && sub ? LIB.img?.[claveSub(k, sub)] : '';
-  const claves = fija ? [] : clavesEspecie(k, e), i = useRotar(claves.length), kImg = claves[i] || '';
+  const claves = fija ? [] : clavesEspecie(k, e), i = useAzar(claves.length), kImg = claves[i] || '';
   return <Tarjeta on={on} onClick={() => elegirEspecie(k)} img={fija || LIB.img?.[kImg]} imgArriba={!fija && kImg.startsWith(PREFIJO_ORIGEN)} titulo={e.n} sub={d} clampSub
     fuente={k === 'custom' ? undefined : fuenteEspecie(k, e)} />;
 }
@@ -105,7 +105,7 @@ const familiaDe = (k: string) => FAMILIAS.find(f => f.de(k.replace(/^lib:/, ''))
 
 /** Tarjeta de una familia de especies: al tocarla se elige la primera, y encima de Linaje salen todas para cambiar */
 function TarjetaFamilia({ n, d, miembros, on, abrir }: { n: string; d: string; miembros: string[]; on: boolean; abrir: () => void }) {
-  const LIB = getLib(), claves = miembros.flatMap(k => clavesEspecie(k, ESPECIES[k] || LIB.especies[k])), i = useRotar(claves.length), kImg = claves[i] || '';
+  const LIB = getLib(), claves = miembros.flatMap(k => clavesEspecie(k, ESPECIES[k] || LIB.especies[k])), i = useAzar(claves.length), kImg = claves[i] || '';
   return <Tarjeta on={on} onClick={abrir} img={LIB.img?.[kImg]} imgArriba={kImg.startsWith(PREFIJO_ORIGEN)} titulo={n} sub={`${d} Elige cuál (${miembros.length}).`} clampSub />;
 }
 
@@ -169,7 +169,7 @@ const mismaSubclase = (pj: any, clase: string, sk: string) => {
 };
 const temasDe = (pj: any, clase: string, subclase?: string) => imagenesOrigen(getLib().img, { especie: pj.especie?.key, sub: pj.especie?.sub, clase, subclase: subclase ? mismaSubclase(pj, clase, subclase) : undefined });
 function TarjetaTematica({ temas, img, ...rest }: { temas: string[]; img?: string; on: boolean; onClick: () => void; titulo: string; sub: string; clampSub?: boolean; fuente?: any }) {
-  const i = useRotar(temas.length);
+  const i = useAzar(temas.length);
   return <Tarjeta {...rest} img={temas.length ? getLib().img![temas[i]] : img} imgArriba={temas.length > 0} />;
 }
 
