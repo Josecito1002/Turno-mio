@@ -101,6 +101,25 @@ export const estadoDe = (cp: any, k: string) => { cp.estado = cp.estado || {}; r
 
 export function ordenar(cp: any) {
   const cur = cp.combate.orden[cp.combate.turno]?.k;
-  cp.combate.orden.sort((a: any, b: any) => b.init - a.init || b.bono - a.bono);
+  // Un compañero que actúa en el turno de su dueño toma su iniciativa y va justo después de él
+  const de = (o: any) => (o.con ? cp.combate.orden.find((x: any) => x.k === o.con) : null) || o;
+  cp.combate.orden.forEach((o: any) => { if (o.con && de(o) !== o) o.init = de(o).init; });
+  cp.combate.orden.sort((a: any, b: any) => b.init - a.init || de(b).bono - de(a).bono || (de(a).k < de(b).k ? -1 : de(a).k > de(b).k ? 1 : 0) || (a.con ? 1 : 0) - (b.con ? 1 : 0));
   const i = cp.combate.orden.findIndex((o: any) => o.k === cur); cp.combate.turno = i >= 0 ? i : 0;
+}
+
+/** Las bestias, mascotas y criaturas del personaje `k` entran solas al combate: las que actúan en su turno (compañeros de
+    clase, criaturas invocadas) toman su iniciativa y van justo después; el familiar tira la suya. Se crean como aliados. */
+export function sumarCompaneros(cp: any, k: string, tirar: (n: number) => number) {
+  const x = combatiente(k, cp); if (!x?.c?.criaturas?.length) return;
+  const dueno = cp.combate.orden.find((o: any) => o.k === k);
+  for (const cr of x.c.criaturas) {
+    if (cr.pg <= 0) continue;
+    const id = `al-${k.replace(/[^a-z0-9]/gi, '')}-${cr.id}`;
+    if (!(cp.monstruos || []).some((m: any) => m.id === id)) cp.monstruos.push({ id, nombre: `${cr.nombre} (de ${x.nombre})`, ca: cr.ca, pgMax: cr.pgMax, pg: cr.pg, bono: 0, aliado: true });
+    if (cp.combate.orden.some((o: any) => o.k === 'm:' + id)) continue;
+    const propia = cr.de === 'familiar', bono = propia ? Math.floor(((cr.ab?.des ?? 10) - 10) / 2) : 0;
+    const m = cp.monstruos.find((y: any) => y.id === id); m.bono = bono;
+    cp.combate.orden.push(propia || !dueno ? { k: 'm:' + id, init: tirar(20) + bono, bono } : { k: 'm:' + id, init: dueno.init, bono: dueno.bono, con: k });
+  }
 }

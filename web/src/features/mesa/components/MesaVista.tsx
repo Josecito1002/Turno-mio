@@ -13,7 +13,7 @@ import { rnd } from '@/features/dados/domain/dados';
 import { resumen } from '@/features/personajes/domain/modelo';
 import { abrir, bajarArchivo } from '@/features/personajes/acciones';
 import { Ficha } from '@/features/personajes/components/ficha/Ficha';
-import { CONDICIONES, actualizarPgUnido, cambiarPg, campActual, camps, claveUnido, combatiente, estadoDe, fijarUnidos, guardarCamp, ordenar, unidosCargados, unidosDe } from '../domain/combate';
+import { CONDICIONES, actualizarPgUnido, cambiarPg, campActual, camps, claveUnido, combatiente, estadoDe, fijarUnidos, guardarCamp, ordenar, sumarCompaneros, unidosCargados, unidosDe } from '../domain/combate';
 import { codigoMesa, guardarCampana, jugadoresMesa, quitarDeMesa } from '../api';
 import { conectarMesaRealtime } from '../realtime-cliente';
 import { publicarCombate } from '../domain/combate-vivo';
@@ -611,7 +611,9 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
     const empezar = () => {
       conCamp(c => {
         const orden = [...c.pjs.map((id: string) => 'pj:' + id), ...unidosDe(c.id).map(claveUnido), ...c.monstruos.map((m: any) => 'm:' + m.id)].map(k => combatiente(k, c)).filter(Boolean).map((x: any) => ({ k: x.k, init: rnd(20) + x.bono, bono: x.bono }));
-        c.combate = { activo: true, ronda: 1, turno: 0, orden }; ordenar(c); c.combate.turno = 0;
+        c.combate = { activo: true, ronda: 1, turno: 0, orden };
+        for (const o of [...orden]) if (!o.k.startsWith('m:')) sumarCompaneros(c, o.k, rnd);
+        ordenar(c); c.combate.turno = 0;
       });
       irArriba(); avisar('Iniciativa tirada para todos.');
     };
@@ -635,7 +637,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
   // Jugadores que se unieron con el código después de tirar iniciativa
   const nuevos = unidosDe(cp.id).map(claveUnido).filter(k => !cb.orden.some((o: any) => o.k === k));
   const sumarNuevos = () => conCamp(c => {
-    for (const k of nuevos) { const x = combatiente(k, c); if (x) c.combate.orden.push({ k, init: rnd(20) + x.bono, bono: x.bono }); }
+    for (const k of nuevos) { const x = combatiente(k, c); if (x) { c.combate.orden.push({ k, init: rnd(20) + x.bono, bono: x.bono }); sumarCompaneros(c, k, rnd); } }
     ordenar(c);
   });
   const siguiente = () => conCamp(c => { const b = c.combate; if (!b.orden.length) return false; b.turno++; if (b.turno >= b.orden.length) { b.turno = 0; b.ronda++; } });
@@ -680,7 +682,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
                 <div className="min-w-0 flex-1">
                   {esTurno && <span className="mb-0.5 inline-block rounded-full bg-adi px-2 text-xs font-extrabold text-bg">Turno actual</span>}
                   <b className="block font-serif text-lg">{x.nombre}</b>
-                  <span className="block text-sm text-muted">CA {x.ca}{x.tipo === 'm' ? ', enemigo' : `, percepción pasiva ${x.c.passive}`}{x.tipo === 'jug' ? `, juega ${x.jugador}` : ''}{caido ? ', caído' : ''}</span>
+                  <span className="block text-sm text-muted">CA {x.ca}{x.tipo === 'm' ? (x.m.aliado ? ', compañero' : ', enemigo') : `, percepción pasiva ${x.c.passive}`}{x.tipo === 'jug' ? `, juega ${x.jugador}` : ''}{caido ? ', caído' : ''}</span>
                 </div>
                 {x.tipo === 'pj' ? <Boton tamano="sm" onClick={() => abrir(x.pj.id)}>Hoja</Boton>
                   : x.tipo === 'jug' ? <Boton tamano="sm" onClick={() => verHoja(x.k)} aria-label={`Ver la hoja de ${x.nombre}`}>Hoja</Boton>
