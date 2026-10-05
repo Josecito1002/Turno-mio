@@ -13,6 +13,26 @@ Otra persona revisa y aplica tu respuesta con un script, así que el formato tie
 5. Si algo no se entiende en el texto, escríbelo igual con la marca [NO CONFIRMADO].
 6. Responde solo con las partes pedidas, cada una con su marcador en una línea (`=== A ===`, `=== B ===`...).
 
+## Ajustes a las reglas (prioridad sobre lo anterior)
+
+1. **No resumas.** Cada rasgo debe conservar TODAS las reglas del texto oficial: cada opción, cada condición, cada excepción
+   y cada limitación. Si el rasgo tiene varias opciones (por ejemplo tatuajes, formas, brutalidades), descríbelas todas, una
+   por una. Largo no es problema: usa las frases que hagan falta.
+2. **Cifras siempre.** Copia exactos los dados, distancias, duraciones, CD, usos y niveles ("2d6", "30 pies", "1 minuto").
+   Prohibido escribir "enorme daño", "cierto daño" o similares: si el texto oficial da un número o una fórmula, va en tu texto.
+   Si no puedes confirmar una cifra, escribe [NO CONFIRMADO] en vez de inventarla.
+3. **Español de D&D.** Redacta todo el texto en español con la terminología oficial de D&D 5e en español (Manual del Jugador
+   2024 / ediciones anteriores): "acción adicional", "tirada de salvación", "espacio de conjuro", "Dado de Golpe", "puntos de
+   golpe temporales", "ventaja/desventaja", condiciones (Asustado, Hechizado, Derribado...), tipos de daño (necrótico, psíquico,
+   de fuerza...), "Puntos de Hechicería", "Furia", "Forma Salvaje", "Canalizar Divinidad", etc. Los conjuros que ya existen
+   llevan su nombre oficial en español. Redacta con tus palabras (no copies la traducción de ningún libro), pero completo.
+4. **Nombres propios nuevos** (subclases, rasgos, dotes, especies, conjuros nuevos): si NO conoces una traducción oficial
+   confirmada, déjalos en inglés. Si propones una traducción, márcala (PROPUESTA) y deja el original entre paréntesis.
+5. **Respuesta completa y válida.** Usa el formato de las partes A a E con sus marcadores, sin `[cite: n]` ni notas de
+   fuente dentro de los textos. Claves de clase en español como en la app: barbaro, bardo, brujo, clerigo, druida, explorador,
+   guerrero, hechicero, mago, monje, paladin, picaro. No cortes la respuesta: si es muy larga, termina una parte y avisa
+   en qué parte quedaste para continuar cuando te escriba "continúa".
+
 ## Qué se pide
 Las 5 especies de Underdark Options 2: **Deep Imaskari, Drider, Illithidkin, Kuo-toa y Myconid**, con todos sus rasgos (tamaño, velocidad, rasgos y las elecciones que ofrezcan). Ninguna trae linajes; si alguna ofrece opciones a elegir, ponlas como elección en B.
 
