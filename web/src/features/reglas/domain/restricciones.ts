@@ -48,9 +48,11 @@ export const conjuroDeLaLista = (s: any, lista: string | null) => !!lista && (s.
 
 /* ---------- Dotes ---------- */
 /** La biblioteca importada mezcla equipo (packs, herramientas, instrumentos) con dotes: solo estas categorías son dotes. */
-const CATEGORIAS_DOTE = new Set(['', 'origen', 'general', 'epica', 'marca de dragon']);
-export const esDote = (d: any) => !!d && CATEGORIAS_DOTE.has(norm(d.cat || ''));
+const CATEGORIAS_DOTE = new Set(['', 'origen', 'general', 'epica', 'marca de dragon', 'wild talent', 'ceremorphosis']);
+/** La categoría sin la etiqueta "(Playtest)" de las dotes de Unearthed Arcana. */
+const categoriaDote = (d: any) => norm(d?.cat || '').replace(/\s*\(playtest\)$/, '');
+export const esDote = (d: any) => !!d && CATEGORIAS_DOTE.has(categoriaDote(d));
 /** Dotes de origen: las de las reglas y las marcas de dragón. */
-export const esDoteOrigen = (k: string, d: any) => !!DOTES[k] || ['origen', 'marca de dragon'].includes(norm(d?.cat || ''));
+export const esDoteOrigen = (k: string, d: any) => !!DOTES[k] || ['origen', 'marca de dragon'].includes(categoriaDote(d));
 /** Dotes para una mejora de característica: generales y de origen; las épicas desde nivel 19. */
 export const esDoteMejora = (k: string, d: any, nivel: number) => esDote(d) && (d.nivelMin || 1) <= nivel && !/estilo/.test(norm(d.cat || ''));
