@@ -178,7 +178,7 @@ export const PLAYTEST_2026: Record<string, Record<string, { n: string; rasgos: a
    "n": "Circle of the Titan",
    "rasgos": [
     {
-     "nombre": "Circle of the Titan Spells",
+     "nombre": "Conjuros de Circle of the Titan",
      "t": "pasiva",
      "texto": "Cuando alcanzas niveles específicos de Druida, siempre tienes preparados los siguientes conjuros: Agrandar o reducir, Taumaturgia y Onda atronadora a nivel 3; Miedo a nivel 5; Escudo de fuego a nivel 7; y Onda destructiva a nivel 9. Puedes lanzar estos conjuros mientras estás en tu Forma de Titán (Titan Form).",
      "n": 3,
@@ -477,7 +477,7 @@ export const PLAYTEST_2026: Record<string, Record<string, { n: string; rasgos: a
    "n": "Demonic Sorcery",
    "rasgos": [
     {
-     "nombre": "Demonic Spells",
+     "nombre": "Conjuros de Demonic Sorcery",
      "t": "pasiva",
      "texto": "Cuando alcanzas niveles específicos de Hechicero, siempre tienes preparados los siguientes conjuros: Perdición, Susurros disonantes, Crecimiento de púas y Telaraña a nivel 3; Lanzar maldición y Disipar magia a nivel 5; Insecto gigante y Terreno alucinatorio a nivel 7; Contactar con otro plano y Modificar memoria a nivel 9.",
      "n": 3,
@@ -715,7 +715,7 @@ export const PLAYTEST_2026: Record<string, Record<string, { n: string; rasgos: a
    "n": "Primordial Patron",
    "rasgos": [
     {
-     "nombre": "Elemental Spells",
+     "nombre": "Conjuros de Primordial Patron",
      "t": "pasiva",
      "texto": "Eliges un elemento: Aire (daño de trueno), Tierra (daño de ácido), Fuego (daño de fuego) o Agua (daño de frío). Puedes cambiar tu elemento elegido (y tu patrón) siempre que ganes un nivel. La magia de tu patrón asegura que siempre tengas preparados los conjuros primordiales, junto con los conjuros de tu elemento, cuando alcances los niveles de Brujo especificados. Nivel 3 Primordiales: Orbe cromático, Visión en la oscuridad (Aire: Caída de pluma, Hacer añicos; Tierra: Enmarañar, Apertura; Fuego: Manos ardientes, Calentar metal; Agua: Alterar el propio aspecto, Cuchillo de hielo). Nivel 5 Primordiales: Arma elemental (Aire: Volar; Tierra: Crecimiento vegetal; Fuego: Bola de fuego; Agua: Caminar por el agua). Nivel 7 Primordiales: Invocar elemental (el elemento del espíritu coincide con tu elemento elegido) (Aire: Libertad de movimiento; Tierra: Esfera vitriólica; Fuego: Muro de fuego; Agua: Controlar el agua). Nivel 9 Primordiales: Comulgar con la naturaleza (Aire: Impacto del viento de acero; Tierra: Muro de piedra; Fuego: Descarga flamígera; Agua: Cono de frío).",
      "n": 3,
@@ -767,7 +767,7 @@ export const PLAYTEST_2026: Record<string, Record<string, { n: string; rasgos: a
    "n": "Oath of the Spellguard",
    "rasgos": [
     {
-     "nombre": "Oath of the Spellguard Spells",
+     "nombre": "Conjuros de Oath of the Spellguard",
      "t": "pasiva",
      "texto": "La magia de tu juramento asegura que siempre tengas ciertos conjuros preparados. Cuando alcanzas los niveles de Paladín especificados, siempre tienes preparados los conjuros listados: Detectar magia y Escudo (nivel 3), Ver lo invisible y Silencio (nivel 5), Contrahechizo y Disipar magia (nivel 9), Libertad de movimiento y Esfera elástica de Otiluke (nivel 13), Círculo de poder y Santificar (nivel 17).",
      "n": 3,
@@ -1228,7 +1228,7 @@ export const PSION_SUBCLASES_2026: Record<string, { n: string; rasgos: any[] }> 
     "n": 3,
     "nombre": "Teleportation",
     "t": "pasiva",
-    "texto": "Puedes lanzar Paso brumoso sin gastar un espacio de conjuro, y debes terminar un Descanso Largo antes de poder lanzarlo de esta manera de nuevo. También puedes recuperar su uso gastando un Dado de Energía Psiónica (sin requerir acción).",
+    "texto": "Puedes lanzar Paso brumoso sin gastar un espacio de conjuro, y debes terminar un Descanso Largo antes de poder lanzarlo de esta manera de nuevo. También puedes recuperar su uso gastando un Psionic Energy Die (sin requerir acción).",
     "manual": true,
     "usos": 1,
     "reset": "largo"
@@ -1246,7 +1246,7 @@ export const PSION_SUBCLASES_2026: Record<string, { n: string; rasgos: any[] }> 
     "n": 6,
     "nombre": "Warp Space",
     "t": "pasiva",
-    "texto": "Cuando lanzas Hacer añicos, puedes gastar un Dado de Energía Psiónica para modificar el conjuro y que el radio de su Esfera pase a ser de 20 pies. Además, las criaturas que fallan la tirada de salvación contra el conjuro son atraídas en línea recta hacia [NO CONFIRMADO].",
+    "texto": "Cuando lanzas Hacer añicos, puedes gastar un Psionic Energy Die para modificar el conjuro y que el radio de su Esfera pase a ser de 20 pies. Además, las criaturas que fallan la tirada de salvación contra el conjuro son atraídas en línea recta hacia el centro de la Esfera y terminan en el espacio desocupado más cercano al centro.",
     "manual": true,
     "usos": 0,
     "reset": "largo"
@@ -1255,7 +1255,7 @@ export const PSION_SUBCLASES_2026: Record<string, { n: string; rasgos: any[] }> 
     "n": 10,
     "nombre": "Duplicitous Target",
     "t": "reaccion",
-    "texto": "Cuando una criatura que puedes ver hace una tirada de ataque contra ti, puedes usar una Reacción para gastar un Dado de Energía Psiónica y elegir a una criatura voluntaria que puedas ver a 30 pies o menos de ti que no tenga la condición de Incapacitado. Tú y la criatura voluntaria se teletransportan, intercambiando lugares. La criatura se convierte entonces en el objetivo de la tirada de ataque.",
+    "texto": "Cuando una criatura que puedes ver hace una tirada de ataque contra ti, puedes usar una Reacción para gastar un Psionic Energy Die y elegir a una criatura voluntaria que puedas ver a 30 pies o menos de ti que no tenga la condición de Incapacitado. Tú y la criatura voluntaria se teletransportan, intercambiando lugares. La criatura se convierte entonces en el objetivo de la tirada de ataque.",
     "manual": true,
     "usos": 0,
     "reset": "largo"
@@ -1264,7 +1264,7 @@ export const PSION_SUBCLASES_2026: Record<string, { n: string; rasgos: any[] }> 
     "n": 14,
     "nombre": "Mass Teleportation",
     "t": "accion",
-    "texto": "Como acción Mágica, gastas cuatro Dados de Energía Psiónica y eliges criaturas Enormes o más pequeñas a 30 pies o menos de ti, hasta un número de criaturas igual a tu modificador de Inteligencia (mínimo una criatura). Cada criatura elegida es teletransportada a un espacio desocupado que puedas ver a 150 pies o menos de ti. Una criatura involuntaria que supere una tirada de salvación de Sabiduría contra tu CD de salvación de conjuros no se ve afectada.",
+    "texto": "Como acción Mágica, gastas cuatro Psionic Energy Dice y eliges criaturas Enormes o más pequeñas a 30 pies o menos de ti, hasta un número de criaturas igual a tu modificador de Inteligencia (mínimo una criatura). Cada criatura elegida es teletransportada a un espacio desocupado que puedas ver a 150 pies o menos de ti. Una criatura involuntaria que supere una tirada de salvación de Sabiduría contra tu CD de salvación de conjuros no se ve afectada.",
     "manual": true,
     "usos": 0,
     "reset": "largo"

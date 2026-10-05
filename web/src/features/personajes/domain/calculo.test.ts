@@ -31,6 +31,7 @@ import { PICARO_2024 } from '../../../../scripts/datos/picaro-2024';
 import { PLAYTEST_2025 } from '../../../../scripts/datos/playtest-2025';
 import { ARTIFICE_2026 } from '../../../../scripts/datos/artifice-2026';
 import { PSION_2025 } from '../../../../scripts/datos/psion-2025';
+import { PLAYTEST_2026 } from '../../../../scripts/datos/playtest-2026';
 import { fuenteSubclase } from '@/features/reglas/data/fuentes';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
 import { ARMAS } from '@/features/reglas/data/equipo';
@@ -1254,8 +1255,23 @@ describe('Psion (Unearthed Arcana 2025)', () => {
     assert.match(entrada(pj(P, 1), 'Spellcasting').texto, /CD 13/); // 8 + 2 + INT 3
   });
   test('conjuros siempre preparados de Telepath y Psi Warper según el nivel', () => {
-    assert.match(entrada(pj(P, 5, 'lib:telepath'), 'Telepath Spells').texto, /Perdición.*Contrahechizo, Ralentizar/);
-    assert.doesNotMatch(entrada(pj(P, 5, 'lib:telepath'), 'Telepath Spells').texto, /Compulsión/);
+    assert.match(entrada(pj(P, 5, 'lib:telepath'), 'Conjuros de Telepath').texto, /Perdición.*Contrahechizo, Ralentizar/);
+    assert.doesNotMatch(entrada(pj(P, 5, 'lib:telepath'), 'Conjuros de Telepath').texto, /Compulsión/);
     assert.match(entrada(pj(P, 3, 'lib:psi-warper'), 'Conjuros de Psi Warper').texto, /Paso brumoso/);
+  });
+});
+
+describe('Subclases de playtest 2026: conjuros siempre preparados', () => {
+  beforeEach(() => setLib({ clases: { brujo: { subclases: { 'primordial-patron': PLAYTEST_2026.brujo['primordial-patron'] } }, paladin: { subclases: { 'oath-of-the-spellguard': PLAYTEST_2026.paladin['oath-of-the-spellguard'] } } } }));
+  test('Primordial Patron suma los conjuros del elemento elegido', () => {
+    const c = pj('brujo', 5, 'lib:primordial-patron', {}, { elecciones: { 'elemento-primordial': 'fuego' } });
+    const t = entrada(c, 'Conjuros de Primordial Patron').texto;
+    assert.match(t, /Orbe cromático.*Manos ardientes.*Bola de fuego/);
+    assert.doesNotMatch(t, /Cuchillo de hielo/);
+  });
+  test('Oath of the Spellguard: los conjuros salen en la hoja sin contar en el límite', () => {
+    const c = pj('paladin', 9, 'lib:oath-of-the-spellguard');
+    assert.match(entrada(c, 'Conjuros de Oath of the Spellguard').texto, /Contrahechizo, Disipar magia/);
+    assert.ok(c.siempre.has('contrahechizo'));
   });
 });

@@ -441,7 +441,7 @@ export const PSION_2025: any = {
    "n": "Metamorph",
    "rasgos": [
     {
-     "nombre": "Metamorph Spells",
+     "nombre": "Conjuros de Metamorph",
      "t": "pasiva",
      "texto": "Cuando alcanzas un nivel de Psion especificado en la tabla de Metamorph Spells, de ahí en adelante siempre tienes los conjuros listados preparados: Alterar el propio aspecto, Curar heridas, Infligir heridas y Restablecimiento menor (Nivel 3); Aura de vitalidad y Acelerar (Nivel 5); Polimorfar y Piel pétrea (Nivel 7); Contagio y Curar heridas en masa (Nivel 9).",
      "n": 3,
@@ -509,7 +509,7 @@ export const PSION_2025: any = {
    "n": "Psykinetic",
    "rasgos": [
     {
-     "nombre": "Psykinetic Spells",
+     "nombre": "Conjuros de Psykinetic",
      "t": "pasiva",
      "texto": "Cuando alcanzas un nivel de Psion especificado en la tabla de Psykinetic Spells, de ahí en adelante siempre tienes los conjuros listados preparados: Nube de dagas, Levitar, Escudo y Onda atronadora (Nivel 3); Lentitud y Telekinetic Crush (Nivel 5); Esfera elástica de Otiluke y Dar forma a la piedra (Nivel 7); Telequinesis y Muro de fuerza (Nivel 9).",
      "n": 3,
@@ -586,7 +586,7 @@ export const PSION_2025: any = {
      "reset": "largo"
     },
     {
-     "nombre": "Telepath Spells",
+     "nombre": "Conjuros de Telepath",
      "t": "pasiva",
      "texto": "Cuando alcanzas un nivel de Psion especificado en la tabla de Telepath Spells, de ahí en adelante siempre tienes los conjuros listados preparados: Perdición, Orden imperiosa, Detectar pensamientos y Mind Spike (Nivel 3); Contrahechizo y Lentitud (Nivel 5); Compulsión y Confusión (Nivel 7); Modificar memoria y Yolande's Regal Presence (Nivel 9).",
      "n": 3,
@@ -657,7 +657,7 @@ export const PSION_2025: any = {
      "n": 3,
      "nombre": "Teleportation",
      "t": "pasiva",
-     "texto": "Puedes lanzar Paso brumoso sin gastar un espacio de conjuro, y debes terminar un Descanso Largo antes de poder lanzarlo de esta manera de nuevo. También puedes recuperar su uso gastando un Dado de Energía Psiónica (sin requerir acción).",
+     "texto": "Puedes lanzar Paso brumoso sin gastar un espacio de conjuro, y debes terminar un Descanso Largo antes de poder lanzarlo de esta manera de nuevo. También puedes recuperar su uso gastando un Psionic Energy Die (sin requerir acción).",
      "manual": true,
      "usos": 1,
      "reset": "largo"
@@ -675,7 +675,7 @@ export const PSION_2025: any = {
      "n": 6,
      "nombre": "Warp Space",
      "t": "pasiva",
-     "texto": "Cuando lanzas Hacer añicos, puedes gastar un Dado de Energía Psiónica para modificar el conjuro y que el radio de su Esfera pase a ser de 20 pies. Además, las criaturas que fallan la tirada de salvación contra el conjuro son atraídas en línea recta hacia [NO CONFIRMADO].",
+     "texto": "Cuando lanzas Hacer añicos, puedes gastar un Psionic Energy Die para modificar el conjuro y que el radio de su Esfera pase a ser de 20 pies. Además, las criaturas que fallan la tirada de salvación contra el conjuro son atraídas en línea recta hacia el centro de la Esfera y terminan en el espacio desocupado más cercano al centro.",
      "manual": true,
      "usos": 0,
      "reset": "largo"
@@ -684,7 +684,7 @@ export const PSION_2025: any = {
      "n": 10,
      "nombre": "Duplicitous Target",
      "t": "reaccion",
-     "texto": "Cuando una criatura que puedes ver hace una tirada de ataque contra ti, puedes usar una Reacción para gastar un Dado de Energía Psiónica y elegir a una criatura voluntaria que puedas ver a 30 pies o menos de ti que no tenga la condición de Incapacitado. Tú y la criatura voluntaria se teletransportan, intercambiando lugares. La criatura se convierte entonces en el objetivo de la tirada de ataque.",
+     "texto": "Cuando una criatura que puedes ver hace una tirada de ataque contra ti, puedes usar una Reacción para gastar un Psionic Energy Die y elegir a una criatura voluntaria que puedas ver a 30 pies o menos de ti que no tenga la condición de Incapacitado. Tú y la criatura voluntaria se teletransportan, intercambiando lugares. La criatura se convierte entonces en el objetivo de la tirada de ataque.",
      "manual": true,
      "usos": 0,
      "reset": "largo"
@@ -693,7 +693,7 @@ export const PSION_2025: any = {
      "n": 14,
      "nombre": "Mass Teleportation",
      "t": "accion",
-     "texto": "Como acción Mágica, gastas cuatro Dados de Energía Psiónica y eliges criaturas Enormes o más pequeñas a 30 pies o menos de ti, hasta un número de criaturas igual a tu modificador de Inteligencia (mínimo una criatura). Cada criatura elegida es teletransportada a un espacio desocupado que puedas ver a 150 pies o menos de ti. Una criatura involuntaria que supere una tirada de salvación de Sabiduría contra tu CD de salvación de conjuros no se ve afectada.",
+     "texto": "Como acción Mágica, gastas cuatro Psionic Energy Dice y eliges criaturas Enormes o más pequeñas a 30 pies o menos de ti, hasta un número de criaturas igual a tu modificador de Inteligencia (mínimo una criatura). Cada criatura elegida es teletransportada a un espacio desocupado que puedas ver a 150 pies o menos de ti. Una criatura involuntaria que supere una tirada de salvación de Sabiduría contra tu CD de salvación de conjuros no se ve afectada.",
      "manual": true,
      "usos": 0,
      "reset": "largo"

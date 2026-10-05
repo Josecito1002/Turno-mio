@@ -1434,7 +1434,7 @@ Versión usada: los PDF de Unearthed Arcana (Apocalyptic Subclasses 2025, Arcane
 - Se agregan 21 subclases (en `scripts/datos/playtest-2026.ts`): Tattooed Warrior, Warrior of Venom, Circle of Preservation, Circle of the Titan, Circle of Spores (UA 2026), Gladiator, Hell Knight, Defiled Sorcery, Demonic Sorcery, Faerzress Sorcery, Ancestral Sorcery, Sorcerer-King Patron, Primordial Patron, Oath of the Spellguard, Magic Stealer, House Agent, Path of Lament, Path of Unlight, Imaskarcanist, Freedom Domain y Pestilence Domain.
 - Psi Warper (Psion) queda guardada en `PSION_SUBCLASES_2026` hasta que exista la clase Psion en la biblioteca.
 - Nombres propios sin traducción oficial en inglés. Los conjuros se llaman como en el catálogo de la app.
-- Pendiente de confirmar: Primordial Patron (los conjuros dependen del elemento elegido, el texto lo describe), Warp Space de Psi Warper (el PDF corta la frase), Santificar (Hallow) e Intermitencia (Blink) sin equivalente en el catálogo.
+- Confirmado después: Primordial Patron ahora tiene selector de elemento (tabla de conjuros del PDF) y Warp Space se completó con el PDF (las criaturas son atraídas hacia el centro de la Esfera). Siguen sin traducción confirmada Hallow y Blink (quedan en inglés).
 
 ## Lote 26, 27 y 29: especies y dotes de Unearthed Arcana (playtest)
 

@@ -13,9 +13,9 @@ export const reglas = [
   {de:/^psion$/, n:/^spellcasting$/, t:'pasiva',
     efecto: c => { c.trucosReglas = TRUCOS(c.lvl); c.prepReglas = PREPARADOS[c.lvl - 1]; },
     texto: c => `Lanzas conjuros de Psion con INT (CD ${8 + c.pb + c.m.int}, ${c.pb + c.m.int >= 0 ? '+' : ''}${c.pb + c.m.int} al ataque). Conoces ${TRUCOS(c.lvl)} trucos de Psion y preparas ${PREPARADOS[c.lvl - 1]} conjuros de nivel 1 o más, de un nivel para el que tengas espacios; puedes cambiar uno al subir de nivel. Tus conjuros de Psion no necesitan componentes verbales ni materiales, salvo los materiales que se consumen o que tienen un costo.`},
-  {de:/^metamorph \(playtest\)$/, n:/^metamorph spells$/, texto: siempre([[3,["Alterar el propio aspecto","Curar heridas","Infligir heridas","Restablecimiento menor"]],[5,["Aura de vitalidad","Acelerar"]],[7,["Polimorfar","Piel pétrea"]],[9,["Contagio","Curar heridas en masa"]]])},
-  {de:/^psykinetic \(playtest\)$/, n:/^psykinetic spells$/, texto: siempre([[3,["Nube de dagas","Levitar","Escudo","Onda atronadora"]],[5,["Ralentizar","Telekinetic Crush"]],[7,["Esfera elástica de Otiluke","Moldear la piedra"]],[9,["Telequinesis","Muro de fuerza"]]])},
-  {de:/^telepath \(playtest\)$/, n:/^telepath spells$/, texto: siempre([[3,["Perdición","Orden imperiosa","Detectar pensamientos","Clavo mental"]],[5,["Contrahechizo","Ralentizar"]],[7,["Compulsión","Confusión"]],[9,["Alterar los recuerdos","Presencia regia de Yolande"]]])},
+  {de:/^metamorph \(playtest\)$/, n:/^conjuros de metamorph$/, texto: siempre([[3,["Alterar el propio aspecto","Curar heridas","Infligir heridas","Restablecimiento menor"]],[5,["Aura de vitalidad","Acelerar"]],[7,["Polimorfar","Piel pétrea"]],[9,["Contagio","Curar heridas en masa"]]])},
+  {de:/^psykinetic \(playtest\)$/, n:/^conjuros de psykinetic$/, texto: siempre([[3,["Nube de dagas","Levitar","Escudo","Onda atronadora"]],[5,["Ralentizar","Telekinetic Crush"]],[7,["Esfera elástica de Otiluke","Moldear la piedra"]],[9,["Telequinesis","Muro de fuerza"]]])},
+  {de:/^telepath \(playtest\)$/, n:/^conjuros de telepath$/, texto: siempre([[3,["Perdición","Orden imperiosa","Detectar pensamientos","Clavo mental"]],[5,["Contrahechizo","Ralentizar"]],[7,["Compulsión","Confusión"]],[9,["Alterar los recuerdos","Presencia regia de Yolande"]]])},
 ];
 
 export const clavesPlaytest: Record<string, string> = {
