@@ -9,9 +9,10 @@ import * as monje from './monje';
 import * as paladin from './paladin';
 import * as picaro from './picaro';
 import * as playtest2026 from './playtest-2026';
+import * as psion from './psion';
 
-const todas: any[] = [druida, explorador, guerrero, hechicero, mago, monje, paladin, picaro, playtest2026];
+const todas: any[] = [druida, explorador, guerrero, hechicero, mago, monje, paladin, picaro, playtest2026, psion];
 export const REGLAS_GENERADAS: any[] = todas.flatMap(x => x.reglas);
 export const FUENTES_GENERADAS: Record<string, string> = Object.assign({}, ...todas.map(x => x.fuentes));
 export const DESCRIPCIONES_GENERADAS: Record<string, string> = Object.assign({}, ...todas.map(x => x.descripciones));
-export const CLAVES_PLAYTEST_GENERADAS: Record<string, string> = playtest2026.clavesPlaytest;
+export const CLAVES_PLAYTEST_GENERADAS: Record<string, string> = { ...playtest2026.clavesPlaytest, ...psion.clavesPlaytest };

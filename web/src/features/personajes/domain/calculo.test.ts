@@ -30,6 +30,7 @@ import { PALADIN_2024 } from '../../../../scripts/datos/paladin-2024';
 import { PICARO_2024 } from '../../../../scripts/datos/picaro-2024';
 import { PLAYTEST_2025 } from '../../../../scripts/datos/playtest-2025';
 import { ARTIFICE_2026 } from '../../../../scripts/datos/artifice-2026';
+import { PSION_2025 } from '../../../../scripts/datos/psion-2025';
 import { fuenteSubclase } from '@/features/reglas/data/fuentes';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
 import { ARMAS } from '@/features/reglas/data/equipo';
@@ -1226,5 +1227,35 @@ describe('Para qué sirve cada recurso', () => {
     const c = pj('paladin', 5);
     const canal = usosDeRecurso(c, c.recursos.find((x: any) => x.id === 'canal')).usos.map(u => u.nombre);
     assert.ok(canal.includes('Sentido Divino'));
+  });
+});
+
+describe('Psion (Unearthed Arcana 2025)', () => {
+  const P = 'lib:psion';
+  beforeEach(() => setLib({ clases: { [P]: PSION_2025 } }));
+  test('espacios de conjuro, trucos y preparados según la tabla del Psion', () => {
+    const c1 = pj(P, 1), c5 = pj(P, 5), c20 = pj(P, 20);
+    assert.deepEqual(c1.slots.map((s: any) => s.n), [2]);
+    assert.deepEqual(c5.slots.map((s: any) => s.n), [4, 3, 2]);
+    assert.deepEqual(c20.slots.map((s: any) => s.n), [4, 3, 3, 3, 3, 2, 2, 1, 1]);
+    for (const [nivel, t, p] of [[1, 2, 4], [4, 3, 7], [10, 4, 15], [20, 4, 22]]) {
+      const c = pj(P, nivel);
+      assert.deepEqual([c.trucosMax, c.prepMax], [t, p], `nivel ${nivel}`);
+    }
+  });
+  test('Psionic Energy Dice: cantidad y tamaño según el nivel', () => {
+    for (const [nivel, dados, caras] of [[1, 4, 6], [5, 6, 8], [9, 8, 8], [11, 8, 10], [17, 12, 12]]) {
+      const c = pj(P, nivel);
+      assert.equal(recurso(c, 'Psionic Energy Dice')?.max, dados, `nivel ${nivel}`);
+      assert.match(entrada(c, 'Psionic Energy Dice').texto, new RegExp(`${dados}d${caras}\\b`));
+    }
+  });
+  test('Spellcasting usa INT para la CD', () => {
+    assert.match(entrada(pj(P, 1), 'Spellcasting').texto, /CD 13/); // 8 + 2 + INT 3
+  });
+  test('conjuros siempre preparados de Telepath y Psi Warper según el nivel', () => {
+    assert.match(entrada(pj(P, 5, 'lib:telepath'), 'Telepath Spells').texto, /Perdición.*Contrahechizo, Ralentizar/);
+    assert.doesNotMatch(entrada(pj(P, 5, 'lib:telepath'), 'Telepath Spells').texto, /Compulsión/);
+    assert.match(entrada(pj(P, 3, 'lib:psi-warper'), 'Conjuros de Psi Warper').texto, /Paso brumoso/);
   });
 });

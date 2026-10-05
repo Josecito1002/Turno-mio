@@ -38,7 +38,7 @@ export const reglas = [
   {de:/^ancestral\ sorcery \(playtest\)$/, n:/^superior\ spell\ disruption$/, usos: c => 1, reset: "largo"},
   {de:/^ancestral\ sorcery \(playtest\)$/, n:/^conjuros\ de\ ancestral\ sorcery$/, texto: siempre([[3, ["Orden imperiosa", "Guía", "Localizar objeto", "Protección contra el bien y el mal", "Resistencia", "Arma espiritual"]], [5, ["Círculo mágico", "Espíritus guardianes"]], [7, ["Adivinación", "Localizar criatura"]], [9, ["Conocer las leyendas", "Presencia regia de Yolande"]]])},
   {de:/^psi\ warper \(playtest\)$/, n:/^teleportation$/, usos: c => 1, reset: "largo"},
-  {de:/^psi\ warper \(playtest\)$/, n:/^conjuros\ de\ psi\ warper$/, texto: siempre([[3, ["Retirada expeditiva", "Caída de pluma", "Paso brumoso", "Hacer añicos"]], [5, ["Intermitencia", "Acelerar"]], [7, ["Destierro", "Puerta dimensional"]], [9, ["Golpe de Viento Acerado", "Círculo de teletransportación"]]])},
+  {de:/^psi\ warper \(playtest\)$/, n:/^conjuros\ de\ psi\ warper$/, texto: siempre([[3, ["Retirada expeditiva", "Caída de pluma", "Paso brumoso", "Hacer añicos"]], [5, ["Blink", "Acelerar"]], [7, ["Destierro", "Puerta dimensional"]], [9, ["Golpe de Viento Acerado", "Círculo de teletransportación"]]])},
   {de:/^house\ agent \(playtest\)$/, n:/^conjuros\ de\ house\ agent$/, texto: c => `Conoces el truco Amistad y puedes lanzar Encontrar familiar solo como ritual (tu familiar es una Araña; tu patrocinador aporta el material del primer lanzamiento). Conjuros de la insignia, una vez cada uno por descanso largo: ${[[3,'Hechizar persona'],[5,'Sugestión'],[9,'Patrón hipnótico']].filter(([n]) => c.lvl >= n).map(([, s]) => s).join(', ')}.`},
 ];
 
@@ -63,6 +63,7 @@ export const clavesPlaytest: Record<string, string> = {
  "imaskarcanist": "Unearthed Arcana Underdark Options (2026)",
  "freedom-domain": "Unearthed Arcana Underdark Options 2 (2026)",
  "faerzress-sorcery": "Unearthed Arcana Underdark Options 2 (2026)",
+ "psi-warper": "Unearthed Arcana The Psion (2025)",
  "pestilence-domain": "Unearthed Arcana Villainous Options (2026)",
  "ancestral-sorcery": "Unearthed Arcana Arcane Subclasses (2025)"
 };

@@ -1444,6 +1444,15 @@ Versión usada: Underdark Options 2 (2026), Villainous Options (2026), Underdark
 - Dotes nuevas (`scripts/datos/dotes-playtest.ts`, categoría con "(Playtest)"): 4 de origen, 4 épicas, 5 de Ceremorphosis y las 10 Wild Talent. Los requisitos van al inicio del texto.
 - Las dotes no calculan usos ni conjuros solos: son texto. Los nombres propios quedan en inglés.
 
+## Lote 23: Psion (Unearthed Arcana, Psion Update 2025)
+
+Versión usada: Psion Update (octubre de 2025), con el Psi Warper de The Psion (mayo de 2025). Material de prueba; la clase es nueva en la biblioteca (`lib:psion`).
+
+- Tablas de energía, trucos, preparados y espacios de conjuro tomadas del PDF (no de la respuesta de Gemini, que no las traía). Las disciplinas van dentro del rasgo Psionic Discipline.
+- Subclases: Metamorph, Psykinetic, Telepath y Psi Warper.
+- Lista de conjuros del Psion: 142 conjuros marcados con la clase `lib:psion`; 16 conjuros nuevos de la UA se agregaron a la biblioteca (nombres en inglés). Befuddlement (Manual del Jugador 2024) no está en la biblioteca y no se pudo agregar sin su texto.
+- Sin kit de equipo inicial (todavía no hay `equipo-clases` para el Psion).
+
 ## Revisados en pasadas anteriores
 
 - [x] **Competencia Adicional** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- caballero|competencia adicional -->

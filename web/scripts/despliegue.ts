@@ -1,7 +1,8 @@
 /* Corre en Vercel antes de `next build`, solo en producción, y deja la base igual que el repositorio:
    1. Aplica las migraciones pendientes.
    2. Biblioteca: cada clase, especie y dote de biblioteca-mi-turno.json que difiera de la base se reescribe (lo que
-      solo está en la base, como lo aportado desde la app, no se toca).
+      solo está en la base, como lo aportado desde la app, no se toca). Los conjuros solo se suman: los que faltan, y las
+      clases que el archivo les da y la base todavía no.
    3. Personajes de prueba: la cuenta de scripts/datos/personajes-prueba.json queda con exactamente esos.
    4. Borra las imágenes antiguas de clase y subclase (scripts/imagenes-antiguas.ts).
    Así una sesión sin acceso a la base (Claude Code en la nube) solo tiene que subir los cambios.
@@ -62,6 +63,18 @@ async function main() {
       cambios.push(`dote ${d.id}`);
       const { id: _id, ...resto } = d; void _id;
       if (!ver) await db.insert(t.dotes).values(d).onConflictDoUpdate({ target: t.dotes.id, set: resto });
+    }
+    // Conjuros: solo se agregan los que faltan y las clases que les falten (no se reescribe nada)
+    const fc = libAFilas({ conjuros: archivo.conjuros || {} } as any);
+    const [conjurosBase, clasesBase] = await Promise.all([db.select({ id: t.conjuros.id }).from(t.conjuros), db.select().from(t.conjuroClases)]);
+    const idsBase = new Set(conjurosBase.map((x: any) => x.id)), parejas = new Set(clasesBase.map((x: any) => `${x.conjuroId}|${x.claseId}`));
+    const conjurosNuevos = fc.conjuros.filter((x: any) => !idsBase.has(x.id));
+    const clasesNuevas = fc.conjuroClases.filter((x: any) => !parejas.has(`${x.conjuroId}|${x.claseId}`));
+    if (conjurosNuevos.length) cambios.push(`conjuros nuevos: ${conjurosNuevos.map((x: any) => x.id).join(', ')}`);
+    if (clasesNuevas.length) cambios.push(`${clasesNuevas.length} clase(s) de conjuro`);
+    if (!ver) {
+      if (conjurosNuevos.length) await db.insert(t.conjuros).values(conjurosNuevos as any).onConflictDoNothing();
+      if (clasesNuevas.length) await db.insert(t.conjuroClases).values(clasesNuevas as any).onConflictDoNothing();
     }
     console.log(`[despliegue] Biblioteca: ${cambios.length ? `${ver ? 'cambiaría' : 'actualizado'}: ${cambios.join(', ')}` : 'ya estaba al día'}.`);
 

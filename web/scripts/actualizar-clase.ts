@@ -1,5 +1,5 @@
 /* Pone al día partes de la biblioteca con su versión más reciente, en biblioteca-mi-turno.json y en la base.
-   Uso: npm run db:actualizar-clase -- <clase|pugilista|artifice|especies|playtest|dotes|especies-playtest> [--solo-archivo] [--ver]
+   Uso: npm run db:actualizar-clase -- <clase|pugilista|artifice|especies|playtest|dotes|especies-playtest|psion> [--solo-archivo] [--ver]
    --solo-archivo: no toca la base.  --ver: muestra lo que cambiaría y no guarda nada.
    Solo reemplaza lo que se actualiza (esa clase, esas especies); el resto de la biblioteca no se toca. */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -13,6 +13,8 @@ import { PLAYTEST_2025 } from './datos/playtest-2025';
 import { PLAYTEST_2026 } from './datos/playtest-2026';
 import { DOTES_PLAYTEST } from './datos/dotes-playtest';
 import { ESPECIES_PLAYTEST } from './datos/especies-playtest';
+import { PSION_2025, PSION_CONJUROS_NUEVOS, PSION_LISTA } from './datos/psion-2025';
+import { norm } from '../src/shared/utils/texto';
 
 const RUTA = '../biblioteca-mi-turno.json';
 
@@ -74,13 +76,35 @@ function sumarNuevos(seccion: 'dotes' | 'especies', datos: Record<string, any>, 
   console.log(`${seccion} que se agregan (${nuevas.length}):`, nuevas.map(k => datos[k].n).join(' | ') || 'nada');
   if (ver) return;
   archivo[seccion] = { ...archivo[seccion], ...structuredClone(datos) };
-  writeFileSync(RUTA, JSON.stringify(archivo, null, 1).replace(/\n/g, '\r\n'));
+  writeFileSync(RUTA, JSON.stringify(archivo, null, 1));
+  console.log(`${RUTA} actualizado. La base se actualiza al publicar.`);
+}
+
+/* Psion: la clase, sus conjuros nuevos y la clase lib:psion en cada conjuro de su lista. Solo el archivo; la base se pone al día al publicar */
+function aplicarPsion(ver: boolean) {
+  const archivo = JSON.parse(readFileSync(RUTA, 'utf8'));
+  const nuevos = Object.keys(PSION_CONJUROS_NUEVOS).filter(k => !archivo.conjuros?.[k]);
+  const conjuros = { ...archivo.conjuros, ...Object.fromEntries(nuevos.map(k => [k, structuredClone(PSION_CONJUROS_NUEVOS[k])])) };
+  const porNombre = new Map<string, any>(Object.values<any>(conjuros).map(s => [norm(s.nombre), s]));
+  const sinJson = PSION_LISTA.filter(nombre => !porNombre.has(norm(nombre)));
+  let marcados = 0;
+  for (const nombre of PSION_LISTA) {
+    const s = porNombre.get(norm(nombre));
+    if (s && !(s.clases || []).includes('lib:psion')) { s.clases = [...(s.clases || []), 'lib:psion']; marcados++; }
+  }
+  console.log(`Psion: ${archivo.clases['lib:psion'] ? 'se reemplaza' : 'se agrega'} lib:psion (${PSION_2025.rasgos.length} rasgos, ${Object.keys(PSION_2025.subclases).length} subclases).`);
+  console.log(`Conjuros nuevos: ${nuevos.length}. Conjuros marcados para el Psion en el archivo: ${marcados}. Solo en el catálogo del código: ${sinJson.length}.`);
+  if (ver) return;
+  archivo.clases['lib:psion'] = structuredClone(PSION_2025);
+  archivo.conjuros = conjuros;
+  writeFileSync(RUTA, JSON.stringify(archivo, null, 1));
   console.log(`${RUTA} actualizado. La base se actualiza al publicar.`);
 }
 
 async function main() {
   const args = process.argv.slice(2);
   const op = args.find(a => !a.startsWith('--')) || '';
+  if (op === 'psion') return aplicarPsion(args.includes('--ver'));
   if (op === 'dotes') return sumarNuevos('dotes', DOTES_PLAYTEST, args.includes('--ver'));
   if (op === 'especies-playtest') return sumarNuevos('especies', ESPECIES_PLAYTEST, args.includes('--ver'));
   const cambios = OPCIONES[op] || await deDatos(op);
@@ -104,7 +128,7 @@ async function main() {
   if (ver) { await db?.cerrar(); return; }
 
   for (const { c, nueva } of nuevas) archivo[c.seccion][c.id] = nueva;
-  writeFileSync(RUTA, JSON.stringify(archivo, null, 1).replace(/\n/g, '\r\n'));
+  writeFileSync(RUTA, JSON.stringify(archivo, null, 1));
   console.log(`\n${RUTA} actualizado.`);
   if (db) {
     let rasgos = 0;

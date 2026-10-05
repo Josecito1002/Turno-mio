@@ -27,6 +27,7 @@ const CLASES_LIB: Record<string, Fuente> = {
   artifice: dndb('Eberron: Forge of the Artificer (2025)'),
   'lib:arcanista': dndb('Eberron: Forge of the Artificer (2025)'),
   'lib:cazador-sangre': dndb('Blood Hunter, de Matt Mercer (D&D Beyond)'),
+  'lib:psion': playtest('Unearthed Arcana Psion Update (2025)'),
   'lib:pugilista': { tipo: 'homebrew', libro: 'The Pugilist Class, de Benjamin Huffman' },
 };
 export function fuenteClase(k: string): Fuente {

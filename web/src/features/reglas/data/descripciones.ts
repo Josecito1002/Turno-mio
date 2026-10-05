@@ -80,6 +80,7 @@ export const DESC_CLASES: Record<string, any> = {
   paladin:'Guerreros sagrados unidos por un juramento, que curan con las manos y castigan con luz divina.',
   picaro:'Expertos en sigilo y habilidades que golpean donde más duele cuando nadie los ve venir.',
   'cazador-sangre':'Cazadores de monstruos que sacrifican su propia sangre para potenciar armas y maldiciones.',
+  psion:'Lanzadores que usan la energía de su mente: dados de energía psiónica, telepatía, telequinesis y disciplinas.',
   pugilista:'Peleadores callejeros que confían en sus puños, su aguante y su descaro.',
   arcanista:'Inventores arcanos que infunden magia en objetos y artefactos.',
 };
