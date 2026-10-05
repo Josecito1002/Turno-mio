@@ -114,6 +114,10 @@ function unaPorCombinacion(img: Record<string, unknown> | undefined, filtro: (o:
 export const imagenesDeEspecie = (img: Record<string, unknown> | undefined, especie: string) =>
   unaPorCombinacion(img, o => o.especie === especie);
 
+/** Claves de imagen del set de una subraza con cualquier clase (para su tarjeta y su cuadro). */
+export const imagenesDeSubraza = (img: Record<string, unknown> | undefined, especie: string, sub: string) =>
+  unaPorCombinacion(img, o => o.especie === especie && o.sub === sub);
+
 /** Imagen por defecto de un personaje: la de su especie con su clase y subclase; si no hay, la de su especie con otra clase;
     si tampoco, la de su clase y subclase con cualquier especie, y por último cualquiera de su clase. Siempre la misma para el mismo personaje (según `semilla`). */
 export function imagenDeClase(img: Record<string, unknown> | undefined, q: { especie?: string; sub?: string; clase: string; subclase?: string }, semilla = '') {

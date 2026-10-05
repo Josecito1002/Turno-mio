@@ -182,13 +182,13 @@ export function useAzar(n: number) {
 
 /** Imagen y descripción de una especie o clase; el administrador las edita.
     Con `sub` (la subraza elegida) el mismo cuadro muestra su nombre, su descripción, lo que da (`children`) y su imagen.
-    Sin subraza elegida, `azar` son las claves de las imágenes de la especie (subrazas y set de especie y clase): se elige una al azar y queda fija.
+    `azar` son las claves de imágenes de respaldo (las de la especie, o las de la subraza elegida si no tiene imagen propia): se elige una al azar y queda fija.
     Con `soloAzar` (clases) no hay imagen propia de la clave: solo las de `azar`, del set de especie y clase. */
 export function PanelMedia({ k, n, d, fuente, sub, azar, soloAzar, children }: { k: string; n: string; d: string; fuente?: Fuente; sub?: Sub; azar?: string[]; soloAzar?: boolean; children?: React.ReactNode }) {
   const LIB = getLib(), editando = S.crop && (S.crop.k === k || S.crop.k === sub?.k);
   const conImg = (azar || []).filter(x => LIB.img?.[x]);
-  const i = useAzar(sub ? 0 : conImg.length);
-  const deAzar = !sub && conImg.length ? conImg[i] : '';
+  const i = useAzar(conImg.length);
+  const deAzar = conImg.length ? conImg[i] : '';
   const mostrada = (sub && LIB.img?.[sub.k]) || (deAzar && LIB.img![deAzar]) || (!soloAzar && LIB.img?.[k]);
   // Las imágenes de especie con clase son retratos verticales: en el cuadro se ve la parte de arriba
   const retrato = !(sub && LIB.img?.[sub.k]) && deAzar.startsWith(PREFIJO_ORIGEN);

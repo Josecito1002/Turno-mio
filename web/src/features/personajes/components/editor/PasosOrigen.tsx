@@ -14,7 +14,7 @@ import { esDoteOrigen } from '@/features/reglas/domain/restricciones';
 import { fuenteClase, fuenteEspecie, fuenteSubclase, fuenteTrasfondo } from '@/features/reglas/data/fuentes';
 import { getLib, getSubs, getT, allDotes, descEspecie, descSubespecie, descClase, descSubclase, sinRepetidas, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
 import { PanelMedia, useAzar } from '@/features/biblioteca/components/PanelMedia';
-import { PREFIJO_ORIGEN, imagenesDeEspecie, imagenesOrigen, slugNombre } from '@/features/biblioteca/domain/imagenes-origen';
+import { PREFIJO_ORIGEN, imagenesDeEspecie, imagenesDeSubraza, imagenesOrigen, slugNombre } from '@/features/biblioteca/domain/imagenes-origen';
 import { Entrada } from '../piezas';
 import { quitarEquipoTrasfondo, savePj, setVal, tomarEquipoTrasfondo } from '../../acciones';
 import { TarjetasBuscables, Tarjeta } from './Tarjetas';
@@ -44,10 +44,15 @@ const clavesEspecie = (k: string, E: any): string[] => {
   const LIB = getLib();
   return [k, ...Object.keys(E?.subs || {}).map(s => claveSub(k, s)), ...imagenesDeEspecie(LIB.img, k)].filter(x => LIB.img?.[x]);
 };
+/** Claves de las imágenes de una subraza que existen: la suya y las del set de esa subraza con cualquier clase */
+const clavesSubraza = (k: string, s: string): string[] => {
+  const LIB = getLib();
+  return [claveSub(k, s), ...imagenesDeSubraza(LIB.img, k, s)].filter(x => LIB.img?.[x]);
+};
 function TarjetaEspecie({ k, e, d, on, sub }: { k: string; e: any; d: string; on: boolean; sub: string }) {
-  const LIB = getLib(), fija = on && sub ? LIB.img?.[claveSub(k, sub)] : '';
-  const claves = fija ? [] : clavesEspecie(k, e), i = useAzar(claves.length), kImg = claves[i] || '';
-  return <Tarjeta on={on} onClick={() => elegirEspecie(k)} img={fija || LIB.img?.[kImg]} imgArriba={!fija && kImg.startsWith(PREFIJO_ORIGEN)} titulo={e.n} sub={d} clampSub
+  const LIB = getLib(), deSub = on && sub ? clavesSubraza(k, sub) : [];
+  const claves = deSub.length ? deSub : clavesEspecie(k, e), i = useAzar(claves.length), kImg = claves[i] || '';
+  return <Tarjeta on={on} onClick={() => elegirEspecie(k)} img={LIB.img?.[kImg]} imgArriba={kImg.startsWith(PREFIJO_ORIGEN)} titulo={e.n} sub={d} clampSub
     fuente={k === 'custom' ? undefined : fuenteEspecie(k, e)} />;
 }
 
@@ -59,18 +64,24 @@ function rasgosDeSubespecie(pj: any, sub: string) {
   return con.entries.filter((e: any) => e.grupo === 'especie' && !base.has(clave(e)));
 }
 
+/** Tarjeta de una subraza: su imagen o, si no tiene, una del set de esa subraza elegida al azar */
+function TarjetaSubraza({ k, s, x, on, onClick }: { k: string; s: string; x: any; on: boolean; onClick: () => void }) {
+  const claves = clavesSubraza(k, s), kImg = claves[useAzar(claves.length)] || '';
+  return <Tarjeta on={on} onClick={onClick} img={getLib().img?.[kImg]} imgArriba={kImg.startsWith(PREFIJO_ORIGEN)}
+    titulo={x.n + (x.dmg ? ` (${x.dmg})` : '')} sub={descSubespecie(k, s)} clampSub />;
+}
+
 /** Linaje, legado o ascendencia: una tarjeta por subraza, con su imagen. La elegida se describe en el cuadro de la
     especie. Pasado el nivel 1 solo queda la elegida. */
 function ElegirSubespecie({ pj, E, fija }: { pj: any; E: any; fija: boolean }) {
-  const k = pj.especie.key, LIB = getLib();
+  const k = pj.especie.key;
   const subs = Object.entries<any>(E.subs).filter(([s]) => !fija || s === pj.especie.sub);
   return (
     <Seccion titulo={E.subL || 'Subraza'}>
       <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-2 p-0">
         {subs.map(([s, x]) => (
           <li key={s} className="flex">
-            <Tarjeta on={pj.especie.sub === s} onClick={() => { if (!fija) setVal('especie.sub', s); }} img={LIB.img?.[claveSub(k, s)]}
-              titulo={x.n + (x.dmg ? ` (${x.dmg})` : '')} sub={descSubespecie(k, s)} clampSub />
+            <TarjetaSubraza k={k} s={s} x={x} on={pj.especie.sub === s} onClick={() => { if (!fija) setVal('especie.sub', s); }} />
           </li>
         ))}
       </ul>
@@ -84,7 +95,7 @@ function CuadroEspecie({ pj, E }: { pj: any; E: any }) {
   const k = pj.especie.key, s = pj.especie.sub, x = s && E.subs?.[s];
   const rasgos = x ? rasgosDeSubespecie(pj, s) : [];
   return (
-    <PanelMedia k={k} n={E.n} d={descEspecie(k)} fuente={fuenteEspecie(k, E)} azar={clavesEspecie(k, E)}
+    <PanelMedia k={k} n={E.n} d={descEspecie(k)} fuente={fuenteEspecie(k, E)} azar={x ? clavesSubraza(k, s) : clavesEspecie(k, E)}
       sub={x ? { k: claveSub(k, s), n: x.n + (x.dmg ? ` (${x.dmg})` : ''), d: descSubespecie(k, s) } : undefined}>
       {rasgos.length > 0 && (
         <div className="mt-2">
