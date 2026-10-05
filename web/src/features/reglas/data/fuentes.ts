@@ -11,7 +11,7 @@ import { norm } from '@/shared/utils/texto';
 import { CLASES } from './clases';
 import { ESPECIES } from './especies';
 import { TRASFONDOS } from './trasfondos';
-import { FUENTES_GENERADAS } from './generadas';
+import { FUENTES_GENERADAS, CLAVES_PLAYTEST_GENERADAS } from './generadas';
 
 export type TipoFuente = 'basicas' | 'dndbeyond' | 'homebrew' | 'playtest';
 export type Fuente = { tipo: TipoFuente; libro?: string };
@@ -98,7 +98,7 @@ const SUBCLASES_PLAYTEST: Record<string, string> = {
 };
 /* Las de playtest que se llaman igual que una subclase publicada (Caballero, Heraldo de la Tormenta, Rompejuramentos):
    se distinguen por su clave */
-export const CLAVES_PLAYTEST: Record<string, string> = { 'caballero-playtest': UA_2025, 'heraldo-tormenta': UA_2025, rompejuramentos: UA_2025 };
+export const CLAVES_PLAYTEST: Record<string, string> = { 'caballero-playtest': UA_2025, 'heraldo-tormenta': UA_2025, rompejuramentos: UA_2025, ...CLAVES_PLAYTEST_GENERADAS };
 export const esClavePlaytest = (key = '') => !!CLAVES_PLAYTEST[key.replace(/^lib:/, '')];
 /** s: subclase como la da getSubs (lib: si viene de la biblioteca); clase: clave de la clase. */
 export function fuenteSubclase(s: { n: string; lib?: boolean; key?: string }, clase: string): Fuente {

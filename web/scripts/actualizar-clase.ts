@@ -10,6 +10,7 @@ import { PUGILISTA_2024, ARENA_ROYALE_EXTRA } from './datos/pugilista-2024';
 import { ESPECIES_2025 } from './datos/especies-2025';
 import { ARTIFICE_2026 } from './datos/artifice-2026';
 import { PLAYTEST_2025 } from './datos/playtest-2025';
+import { PLAYTEST_2026 } from './datos/playtest-2026';
 
 const RUTA = '../biblioteca-mi-turno.json';
 
@@ -31,9 +32,9 @@ const OPCIONES: Record<string, Cambio[]> = {
   // Artífice: se suman las subclases nuevas sin tocar las del lote 2
   artifice: [{ seccion: 'clases', id: 'lib:arcanista', nueva: actual => ({ ...actual, subclases: { ...(actual?.subclases || {}), ...structuredClone(ARTIFICE_2026.subclases) } }) }],
   // Subclases de prueba (Unearthed Arcana): se suman a las de cada clase sin quitar ninguna
-  playtest: Object.entries(PLAYTEST_2025).map(([clase, subs]) => ({
+  playtest: [...new Set([...Object.keys(PLAYTEST_2025), ...Object.keys(PLAYTEST_2026)])].map(clase => ({
     seccion: 'clases' as const, id: clase,
-    nueva: (actual: any) => ({ ...actual, subclases: { ...(actual?.subclases || {}), ...structuredClone(subs) } }),
+    nueva: (actual: any) => ({ ...actual, subclases: { ...(actual?.subclases || {}), ...structuredClone(PLAYTEST_2025[clase] || {}), ...structuredClone(PLAYTEST_2026[clase] || {}) } }),
   })),
   // Se conservan el nombre, la etiqueta de subespecie y lo demás de cada especie; cambian velocidad, visión, fuente y rasgos
   especies: Object.entries(ESPECIES_2025).map(([k, e]) => ({
@@ -57,7 +58,7 @@ async function deDatos(op: string): Promise<Cambio[] | undefined> {
   if (!/^[a-z]+$/.test(op) || !existsSync(`scripts/datos/${op}-2024.ts`)) return undefined;
   const datos = (await import(ruta))[`${op.toUpperCase()}_2024`];
   // Las subclases de prueba (Unearthed Arcana) no vienen en el lote: se conservan
-  const playtest = (actual: any) => Object.fromEntries(Object.keys(PLAYTEST_2025[op] || {}).filter(k => actual?.subclases?.[k]).map(k => [k, actual.subclases[k]]));
+  const playtest = (actual: any) => Object.fromEntries(Object.keys({ ...PLAYTEST_2025[op], ...PLAYTEST_2026[op] }).filter(k => actual?.subclases?.[k]).map(k => [k, actual.subclases[k]]));
   return datos && [{ seccion: 'clases', id: op, nueva: actual => {
     const n = { ...actual, ...structuredClone(datos) };
     return { ...n, subclases: { ...n.subclases, ...playtest(actual) } };

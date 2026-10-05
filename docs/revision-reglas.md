@@ -1427,6 +1427,15 @@ Dudosos: 12. Con tipo claro: 1. Ya revisados: 0.
 - [ ] **Don de Visión Verdadera** (nivel 19): hoy `pasiva`, no menciona tipo de acción <!-- dote epica|don de vision verdadera -->
 - [ ] **Bendición de Siberys** (nivel 19): hoy `pasiva`, queda pasiva pero parece activarse; no menciona tipo de acción <!-- dote epica|bendicion de siberys -->
 
+## Lote 23 a 28: subclases de Unearthed Arcana (playtest)
+
+Versión usada: los PDF de Unearthed Arcana (Apocalyptic Subclasses 2025, Arcane Subclasses 2025, Villainous Options y Revisited 2026, Mystic Subclasses 2026, Underdark Options 1 y 2 2026). Son material de prueba, con etiqueta Playtest; no reemplazan nada oficial.
+
+- Se agregan 21 subclases (en `scripts/datos/playtest-2026.ts`): Tattooed Warrior, Warrior of Venom, Circle of Preservation, Circle of the Titan, Circle of Spores (UA 2026), Gladiator, Hell Knight, Defiled Sorcery, Demonic Sorcery, Faerzress Sorcery, Ancestral Sorcery, Sorcerer-King Patron, Primordial Patron, Oath of the Spellguard, Magic Stealer, House Agent, Path of Lament, Path of Unlight, Imaskarcanist, Freedom Domain y Pestilence Domain.
+- Psi Warper (Psion) queda guardada en `PSION_SUBCLASES_2026` hasta que exista la clase Psion en la biblioteca.
+- Nombres propios sin traducción oficial en inglés. Los conjuros se llaman como en el catálogo de la app.
+- Pendiente de confirmar: Primordial Patron (los conjuros dependen del elemento elegido, el texto lo describe), Warp Space de Psi Warper (el PDF corta la frase), Santificar (Hallow) e Intermitencia (Blink) sin equivalente en el catálogo.
+
 ## Revisados en pasadas anteriores
 
 - [x] **Competencia Adicional** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- caballero|competencia adicional -->
