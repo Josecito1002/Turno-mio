@@ -1,5 +1,5 @@
 /* Pone al día partes de la biblioteca con su versión más reciente, en biblioteca-mi-turno.json y en la base.
-   Uso: npm run db:actualizar-clase -- <clase|pugilista|artifice|especies|playtest> [--solo-archivo] [--ver]
+   Uso: npm run db:actualizar-clase -- <clase|pugilista|artifice|especies|playtest|dotes|especies-playtest> [--solo-archivo] [--ver]
    --solo-archivo: no toca la base.  --ver: muestra lo que cambiaría y no guarda nada.
    Solo reemplaza lo que se actualiza (esa clase, esas especies); el resto de la biblioteca no se toca. */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -11,6 +11,8 @@ import { ESPECIES_2025 } from './datos/especies-2025';
 import { ARTIFICE_2026 } from './datos/artifice-2026';
 import { PLAYTEST_2025 } from './datos/playtest-2025';
 import { PLAYTEST_2026 } from './datos/playtest-2026';
+import { DOTES_PLAYTEST } from './datos/dotes-playtest';
+import { ESPECIES_PLAYTEST } from './datos/especies-playtest';
 
 const RUTA = '../biblioteca-mi-turno.json';
 
@@ -65,9 +67,22 @@ async function deDatos(op: string): Promise<Cambio[] | undefined> {
   } }];
 }
 
+/* Dotes y especies de playtest: se suman a la sección del archivo; la base se pone al día al publicar (scripts/despliegue.ts) */
+function sumarNuevos(seccion: 'dotes' | 'especies', datos: Record<string, any>, ver: boolean) {
+  const archivo = JSON.parse(readFileSync(RUTA, 'utf8'));
+  const nuevas = Object.keys(datos).filter(k => !archivo[seccion]?.[k]);
+  console.log(`${seccion} que se agregan (${nuevas.length}):`, nuevas.map(k => datos[k].n).join(' | ') || 'nada');
+  if (ver) return;
+  archivo[seccion] = { ...archivo[seccion], ...structuredClone(datos) };
+  writeFileSync(RUTA, JSON.stringify(archivo, null, 1).replace(/\n/g, '\r\n'));
+  console.log(`${RUTA} actualizado. La base se actualiza al publicar.`);
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const op = args.find(a => !a.startsWith('--')) || '';
+  if (op === 'dotes') return sumarNuevos('dotes', DOTES_PLAYTEST, args.includes('--ver'));
+  if (op === 'especies-playtest') return sumarNuevos('especies', ESPECIES_PLAYTEST, args.includes('--ver'));
   const cambios = OPCIONES[op] || await deDatos(op);
   if (!cambios) throw new Error(`Opción desconocida. Opciones: ${Object.keys(OPCIONES).join(', ')}`);
   const archivo = JSON.parse(readFileSync(RUTA, 'utf8'));

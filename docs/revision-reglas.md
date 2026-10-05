@@ -1436,6 +1436,14 @@ Versión usada: los PDF de Unearthed Arcana (Apocalyptic Subclasses 2025, Arcane
 - Nombres propios sin traducción oficial en inglés. Los conjuros se llaman como en el catálogo de la app.
 - Pendiente de confirmar: Primordial Patron (los conjuros dependen del elemento elegido, el texto lo describe), Warp Space de Psi Warper (el PDF corta la frase), Santificar (Hallow) e Intermitencia (Blink) sin equivalente en el catálogo.
 
+## Lote 26, 27 y 29: especies y dotes de Unearthed Arcana (playtest)
+
+Versión usada: Underdark Options 2 (2026), Villainous Options (2026), Underdark Options (2026) y The Psion (2025). Material de prueba.
+
+- Especies nuevas (`scripts/datos/especies-playtest.ts`): Deep Imaskari, Drider, Illithidkin, Kuo-toa y Myconid. El tipo de criatura y el tamaño se agregaron del PDF como primer rasgo.
+- Dotes nuevas (`scripts/datos/dotes-playtest.ts`, categoría con "(Playtest)"): 4 de origen, 4 épicas, 5 de Ceremorphosis y las 10 Wild Talent. Los requisitos van al inicio del texto.
+- Las dotes no calculan usos ni conjuros solos: son texto. Los nombres propios quedan en inglés.
+
 ## Revisados en pasadas anteriores
 
 - [x] **Competencia Adicional** (nivel 3): `pasiva`. subclase nueva; Xanathar's Guide to Everything (2017). <!-- caballero|competencia adicional -->
