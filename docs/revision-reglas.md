@@ -1503,3 +1503,11 @@ Versión usada: Psion Update (octubre de 2025), con el Psi Warper de The Psion (
 - [x] **Marea Creciente** (nivel 10): sustituido por Hijo de la Tormenta (vuelo y resistencias); Manual del Jugador (2024). <!-- circulo del mar|marea creciente -->
 - [x] **Unión con el Océano** (nivel 14): sustituido por Don Oceánico (emanación en un aliado); Manual del Jugador (2024). <!-- circulo del mar|union con el oceano -->
 - [x] **Luminosidad Completa** (nivel 14): pasa a llamarse Lleno de Estrellas (pasiva, resistencia física en forma estelar); Manual del Jugador (2024). <!-- circulo de las estrellas|luminosidad completa -->
+
+## Traducción de nombres del contenido playtest (2026-10-05)
+
+- Se tradujeron al español los nombres evidentes o conocidos (con Baldur's Gate 3 y la comunidad como guía) de las cinco especies nuevas y sus rasgos
+  (Myconido, Visión en la Oscuridad, Telepatía…), las 23 dotes, las subclases playtest, sus rasgos y los del Psion.
+- Se dejan en inglés los nombres propios o de lore sin traducción conocida: Unlight, Faerzress, Imaskar, Illithidkin, Drider, Kuo-toa,
+  y los conjuros Hallow y Blink. "Psion" también se conserva como nombre de la clase.
+- Las especies nuevas ya tienen descripción en la selección de especie.

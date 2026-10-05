@@ -1244,20 +1244,20 @@ describe('Psion (Unearthed Arcana 2025)', () => {
       assert.deepEqual([c.trucosMax, c.prepMax], [t, p], `nivel ${nivel}`);
     }
   });
-  test('Psionic Energy Dice: cantidad y tamaño según el nivel', () => {
+  test('Dados de Energía Psiónica: cantidad y tamaño según el nivel', () => {
     for (const [nivel, dados, caras] of [[1, 4, 6], [5, 6, 8], [9, 8, 8], [11, 8, 10], [17, 12, 12]]) {
       const c = pj(P, nivel);
-      assert.equal(recurso(c, 'Psionic Energy Dice')?.max, dados, `nivel ${nivel}`);
-      assert.match(entrada(c, 'Psionic Energy Dice').texto, new RegExp(`${dados}d${caras}\\b`));
+      assert.equal(recurso(c, 'Dados de Energía Psiónica')?.max, dados, `nivel ${nivel}`);
+      assert.match(entrada(c, 'Dados de Energía Psiónica').texto, new RegExp(`${dados}d${caras}\\b`));
     }
   });
   test('Spellcasting usa INT para la CD', () => {
-    assert.match(entrada(pj(P, 1), 'Spellcasting').texto, /CD 13/); // 8 + 2 + INT 3
+    assert.match(entrada(pj(P, 1), 'Lanzamiento de Conjuros').texto, /CD 13/); // 8 + 2 + INT 3
   });
   test('conjuros siempre preparados de Telepath y Psi Warper según el nivel', () => {
-    assert.match(entrada(pj(P, 5, 'lib:telepath'), 'Conjuros de Telepath').texto, /Perdición.*Contrahechizo, Ralentizar/);
-    assert.doesNotMatch(entrada(pj(P, 5, 'lib:telepath'), 'Conjuros de Telepath').texto, /Compulsión/);
-    assert.match(entrada(pj(P, 3, 'lib:psi-warper'), 'Conjuros de Psi Warper').texto, /Paso brumoso/);
+    assert.match(entrada(pj(P, 5, 'lib:telepath'), 'Conjuros de Telépata').texto, /Perdición.*Contrahechizo, Ralentizar/);
+    assert.doesNotMatch(entrada(pj(P, 5, 'lib:telepath'), 'Conjuros de Telépata').texto, /Compulsión/);
+    assert.match(entrada(pj(P, 3, 'lib:psi-warper'), 'Conjuros de Deformador Psi').texto, /Paso brumoso/);
   });
 });
 
@@ -1265,13 +1265,13 @@ describe('Subclases de playtest 2026: conjuros siempre preparados', () => {
   beforeEach(() => setLib({ clases: { brujo: { subclases: { 'primordial-patron': PLAYTEST_2026.brujo['primordial-patron'] } }, paladin: { subclases: { 'oath-of-the-spellguard': PLAYTEST_2026.paladin['oath-of-the-spellguard'] } } } }));
   test('Primordial Patron suma los conjuros del elemento elegido', () => {
     const c = pj('brujo', 5, 'lib:primordial-patron', {}, { elecciones: { 'elemento-primordial': 'fuego' } });
-    const t = entrada(c, 'Conjuros de Primordial Patron').texto;
+    const t = entrada(c, 'Conjuros de Patrón Primordial').texto;
     assert.match(t, /Orbe cromático.*Manos ardientes.*Bola de fuego/);
     assert.doesNotMatch(t, /Cuchillo de hielo/);
   });
   test('Oath of the Spellguard: los conjuros salen en la hoja sin contar en el límite', () => {
     const c = pj('paladin', 9, 'lib:oath-of-the-spellguard');
-    assert.match(entrada(c, 'Conjuros de Oath of the Spellguard').texto, /Contrahechizo, Disipar magia/);
+    assert.match(entrada(c, 'Conjuros de Juramento del Guardián de Conjuros').texto, /Contrahechizo, Disipar magia/);
     assert.ok(c.siempre.has('contrahechizo'));
   });
 });

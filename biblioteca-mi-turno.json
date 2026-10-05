@@ -1284,10 +1284,10 @@
      ]
     },
     "path-of-lament": {
-     "n": "Path of Lament",
+     "n": "Senda del Lamento",
      "rasgos": [
       {
-       "nombre": "Banshee's Wail",
+       "nombre": "Lamento de la Banshee",
        "t": "adicional",
        "texto": "Cuando activas tu Furia (Rage) o como una Acción adicional mientras tu Furia esté activa, puedes emitir un gemido lúgubre. Cada criatura de tu elección en una Emanación de 30 pies centrada en ti hace una tirada de salvación de Constitución (CD 8 + tu mod. de Constitución + tu Bonificador por Competencia). Si falla, recibe daño psíquico y queda con la condición Sordo por 1 minuto. Si tiene éxito, solo recibe la mitad del daño. Para determinar el daño psíquico, tira una cantidad de d12s igual a tu bonificador de Daño de Furia y súmalos. Puedes usar esto una cantidad de veces igual a tu mod. de Constitución (mínimo de una vez) y recuperas los usos al terminar un Descanso Largo. También puedes recuperar todos los usos gastando un uso de tu Furia (sin requerir acción).",
        "n": 3,
@@ -1296,7 +1296,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Commune with the Dead",
+       "nombre": "Comunión con los Muertos",
        "t": "fuera",
        "texto": "Puedes lanzar el conjuro Hablar con los muertos (Speak with Dead), pero solo como un Ritual. Sabiduría es tu aptitud mágica para este conjuro.",
        "n": 6,
@@ -1305,7 +1305,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Horrifying Strike",
+       "nombre": "Golpe Horripilante",
        "t": "pasiva",
        "texto": "Una vez por turno, cuando impactas a una criatura con una tirada de ataque basada en Fuerza mientras tu Furia esté activa, puedes intentar horrorizar al objetivo. El objetivo debe superar una tirada de salvación de Sabiduría (CD 8 + tu modificador de Constitución + tu Bonificador por Competencia) o tener la condición Asustado hasta el inicio de tu próximo turno.",
        "n": 6,
@@ -1314,18 +1314,18 @@
        "reset": "largo"
       },
       {
-       "nombre": "Otherworldly Anguish",
+       "nombre": "Angustia Sobrenatural",
        "t": "pasiva",
-       "texto": "Deathly Wail: Si un objetivo falla su tirada de salvación contra tu Banshee's Wail y tiene Puntos de Golpe iguales al doble de tu nivel de Bárbaro o menos, cae a 0 Puntos de Golpe en lugar de recibir daño. Impenetrable Sorrow: No puedes ser poseído. Resistance: Tienes Resistencia al daño de frío y necrótico mientras tu Furia esté activa.",
+       "texto": "Deathly Wail: Si un objetivo falla su tirada de salvación contra tu Lamento de la Banshee y tiene Puntos de Golpe iguales al doble de tu nivel de Bárbaro o menos, cae a 0 Puntos de Golpe en lugar de recibir daño. Impenetrable Sorrow: No puedes ser poseído. Resistance: Tienes Resistencia al daño de frío y necrótico mientras tu Furia esté activa.",
        "n": 10,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Sorrow Form",
+       "nombre": "Forma de Pesar",
        "t": "pasiva",
-       "texto": "Cuando activas tu Furia, puedes empoderarte con la no muerte, ganando los siguientes beneficios durante 1 minuto o hasta que caigas a 0 Puntos de Golpe. Una vez que usas este rasgo, no puedes volver a hacerlo hasta terminar un Descanso Largo. Immunities: Tienes Inmunidad a las condiciones Hechizado y Asustado (si tienes alguna al empoderarte, la condición termina en ti) y no puedes ganar niveles de Fatiga. Life-Draining Strike: Cuando una criatura falla su salvación contra tu Horrifying Strike, la criatura recibe 2d10 de daño necrótico y tú recuperas Puntos de Golpe iguales al daño necrótico infligido. Undead: Tu Tipo de Criatura es Muerto Viviente (Undead).",
+       "texto": "Cuando activas tu Furia, puedes empoderarte con la no muerte, ganando los siguientes beneficios durante 1 minuto o hasta que caigas a 0 Puntos de Golpe. Una vez que usas este rasgo, no puedes volver a hacerlo hasta terminar un Descanso Largo. Immunities: Tienes Inmunidad a las condiciones Hechizado y Asustado (si tienes alguna al empoderarte, la condición termina en ti) y no puedes ganar niveles de Fatiga. Life-Draining Strike: Cuando una criatura falla su salvación contra tu Golpe Horripilante, la criatura recibe 2d10 de daño necrótico y tú recuperas Puntos de Golpe iguales al daño necrótico infligido. Undead: Tu Tipo de Criatura es Muerto Viviente (Undead).",
        "n": 14,
        "manual": true,
        "usos": 1,
@@ -1334,10 +1334,10 @@
      ]
     },
     "path-of-unlight": {
-     "n": "Path of Unlight",
+     "n": "Senda de Unlight",
      "rasgos": [
       {
-       "nombre": "Radiant Rage",
+       "nombre": "Furia Radiante",
        "t": "pasiva",
        "texto": "La energía de Unlight alimenta tu Furia. Si una criatura te impacta con una tirada de ataque cuerpo a cuerpo mientras tu Furia está activa, la criatura recibe daño radiante igual a tu bonificador de Daño de Furia. Además, mientras tu Furia está activa, emites luz brillante en un radio de 20 pies.",
        "n": 3,
@@ -1346,16 +1346,16 @@
        "reset": "largo"
       },
       {
-       "nombre": "Unlight Revelation",
+       "nombre": "Revelación de Unlight",
        "t": "pasiva",
-       "texto": "Obtienes competencia en la habilidad Percepción, si no la tenías ya, y obtienes Pericia en esa habilidad. Mientras tu Furia está activa, tienes visión ciega con un alcance igual al de la luz brillante que proporciona tu Radiant Rage.",
+       "texto": "Obtienes competencia en la habilidad Percepción, si no la tenías ya, y obtienes Pericia en esa habilidad. Mientras tu Furia está activa, tienes visión ciega con un alcance igual al de la luz brillante que proporciona tu Furia Radiante.",
        "n": 6,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Infectious Unlight",
+       "nombre": "Unlight Contagioso",
        "t": "pasiva",
        "texto": "El daño que infliges con tu Golpe Brutal (Brutal Strike) puede ser radiante o de su tipo habitual a tu elección. Añades \"Radiant Infection\" a tus opciones de Golpe Brutal: el objetivo queda infectado por Unlight durante 1 minuto. Mientras está infectado, emite luz brillante en un radio de 10 pies y recibe 1d6 de daño radiante al inicio de cada uno de sus turnos. El objetivo hace una tirada de salvación de Constitución (CD 8 + tu modificador de Fuerza + tu Bonificador por Competencia) al final de cada uno de sus turnos, terminando el efecto en sí mismo si tiene éxito.",
        "n": 10,
@@ -1364,7 +1364,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Harbinger of Unlight",
+       "nombre": "Heraldo de Unlight",
        "t": "pasiva",
        "texto": "Tienes resistencia al daño radiante.",
        "n": 10,
@@ -1373,7 +1373,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Brilliant Rage",
+       "nombre": "Furia Brillante",
        "t": "adicional",
        "texto": "El aura de tu Unlight se fortalece: emites luz brillante en un radio de 30 pies mientras tu Furia está activa. Como acción adicional, desatas un brillo cegador y cada criatura de tu elección a menos de 30 pies hace una tirada de salvación de Constitución (CD 8 + tu modificador de Fuerza + tu Bonificador por Competencia). Si falla, la criatura recibe 1d12 de daño radiante y obtiene la condición Cegado hasta el final de tu próximo turno; si tiene éxito, solo recibe la mitad del daño. Una vez que usas este rasgo, no puedes volver a hacerlo hasta terminar un descanso largo, a menos que gastes un uso de tu Furia (sin requerir acción) para recuperarlo.",
        "n": 14,
@@ -2297,10 +2297,10 @@
      ]
     },
     "sorcerer-king-patron": {
-     "n": "Sorcerer-King Patron",
+     "n": "Patrón Rey Hechicero",
      "rasgos": [
       {
-       "nombre": "Conjuros de Sorcerer-King Patron",
+       "nombre": "Conjuros de Patrón Rey Hechicero",
        "t": "pasiva",
        "texto": "La magia de tu patrón asegura que siempre tengas ciertos conjuros listos; siempre que alcanzas un nivel de brujo especificado, de ahí en adelante siempre tienes los conjuros listados preparados. Nivel 3: Orden, Duelo compelido, Inmovilizar persona, Mind Spike y Castigo iracundo. Nivel 5: Miedo y Recado. Nivel 7: Compulsión y Castigo asombroso. Nivel 9: Dominar persona y Estática sináptica. Psionic Casting: Cuando lanzas un conjuro de la lista de Sorcerer-King Spells, puedes hacerlo sin componentes verbales o componentes materiales, excepto los componentes materiales que sean consumidos por el conjuro o que tengan un costo especificado en el conjuro.",
        "n": 3,
@@ -2309,7 +2309,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Tyrant's Herald",
+       "nombre": "Heraldo del Tirano",
        "t": "adicional",
        "texto": "Obtienes los siguientes beneficios. Intimidating Presence: Obtienes competencia en la habilidad de Intimidación si no la tienes ya. También tienes pericia en Intimidación. Voice of Tyranny: Puedes lanzar Orden como una acción adicional sin gastar un espacio de conjuro. Puedes hacerlo un número de veces igual a tu modificador de Carisma (mínimo de una vez), y recuperas todos los usos gastados cuando terminas un descanso largo.",
        "n": 3,
@@ -2318,7 +2318,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Decisive Edict",
+       "nombre": "Edicto Decisivo",
        "t": "gratis",
        "texto": "Cuando lanzas un conjuro usando un espacio de conjuro de Magia del Pacto, puedes causar que poder profano estalle en una emanación de 30 pies originada en ti. Por cada criatura que puedas ver en la emanación, elige uno de los siguientes efectos. Marshal: La criatura tiene ventaja en las tiradas de ataque hasta el final de su siguiente turno. Oppress: La criatura debe superar una tirada de salvación de Sabiduría contra tu CD de salvación de conjuros o tener la condición de asustado hasta el final de su siguiente turno. Una vez que usas este rasgo, no puedes hacerlo de nuevo hasta que termines un descanso corto o largo. También recuperas el uso de este rasgo cuando usas tu rasgo Astucia mágica.",
        "n": 6,
@@ -2327,7 +2327,7 @@
        "reset": "corto"
       },
       {
-       "nombre": "Vindictive Rebuke",
+       "nombre": "Reprensión Vengativa",
        "t": "reaccion",
        "texto": "Cuando un enemigo te impacta con una tirada de ataque, puedes tomar una reacción para forzar al enemigo a volver a tirar el d20, y el enemigo debe usar la nueva tirada. Si esta reacción convierte la tirada de ataque en un fallo, la criatura desencadenante recibe daño psíquico igual a tu nivel de brujo. Puedes usar este rasgo un número de veces igual a tu modificador de Carisma (mínimo de una vez), y recuperas todos los usos gastados cuando terminas un descanso largo.",
        "n": 10,
@@ -2336,7 +2336,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Absolute Tyranny",
+       "nombre": "Tiranía Absoluta",
        "t": "pasiva",
        "texto": "Cada vez que lanzas Orden, puedes seleccionar a una criatura adicional dentro del alcance del conjuro. Además, una criatura asustada por ti falla automáticamente su tirada de salvación contra cualquier conjuro de Orden que lances.",
        "n": 14,
@@ -2347,10 +2347,10 @@
      ]
     },
     "primordial-patron": {
-     "n": "Primordial Patron",
+     "n": "Patrón Primordial",
      "rasgos": [
       {
-       "nombre": "Conjuros de Primordial Patron",
+       "nombre": "Conjuros de Patrón Primordial",
        "t": "pasiva",
        "texto": "Eliges un elemento: Aire (daño de trueno), Tierra (daño de ácido), Fuego (daño de fuego) o Agua (daño de frío). Puedes cambiar tu elemento elegido (y tu patrón) siempre que ganes un nivel. La magia de tu patrón asegura que siempre tengas preparados los conjuros primordiales, junto con los conjuros de tu elemento, cuando alcances los niveles de Brujo especificados. Nivel 3 Primordiales: Orbe cromático, Visión en la oscuridad (Aire: Caída de pluma, Hacer añicos; Tierra: Enmarañar, Apertura; Fuego: Manos ardientes, Calentar metal; Agua: Alterar el propio aspecto, Cuchillo de hielo). Nivel 5 Primordiales: Arma elemental (Aire: Volar; Tierra: Crecimiento vegetal; Fuego: Bola de fuego; Agua: Caminar por el agua). Nivel 7 Primordiales: Invocar elemental (el elemento del espíritu coincide con tu elemento elegido) (Aire: Libertad de movimiento; Tierra: Esfera vitriólica; Fuego: Muro de fuego; Agua: Controlar el agua). Nivel 9 Primordiales: Comulgar con la naturaleza (Aire: Impacto del viento de acero; Tierra: Muro de piedra; Fuego: Descarga flamígera; Agua: Cono de frío).",
        "n": 3,
@@ -2359,7 +2359,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Elemental Node",
+       "nombre": "Nodo Elemental",
        "t": "accion",
        "texto": "Como Acción mágica, puedes crear una Esfera de magia elemental de 5 pies de radio centrada en un punto que puedas ver a 60 pies de ti (su magia se parece a tu elemento elegido). En turnos posteriores, puedes tomar una Acción adicional para mover el nodo hasta 30 pies. Cuando aparece el nodo, cada criatura excepto tú en el nodo hace una salvación de Destreza contra tu CD de conjuros; si falla, recibe 1d6 de daño del tipo de tu elemento, o la mitad de daño si tiene éxito. Una criatura también hace esta salvación cuando el nodo entra en su espacio, cuando entra en el nodo o termina su turno allí (solo una vez por turno). El nodo dura 1 minuto, hasta que lo descartes (sin acción) o uses este rasgo de nuevo. Una vez usado, no puedes volver a hacerlo hasta terminar un Descanso Corto o Largo a menos que gastes un espacio de conjuro de Magia del Pacto (sin acción) para restaurarlo. El daño aumenta a 2d6 (nivel 6) y 3d6 (nivel 14).",
        "n": 3,
@@ -2368,7 +2368,7 @@
        "reset": "corto"
       },
       {
-       "nombre": "Elemental Haven",
+       "nombre": "Refugio Elemental",
        "t": "pasiva",
        "texto": "Elemental Protection: Mientras estés dentro de tu nodo, tienes un bonificador a la CA igual a tu modificador de Carisma (mínimo de 1). Elemental Teleport: Como Acción adicional, puedes teletransportarte dentro de tu nodo o al espacio desocupado más cercano a menos de 5 pies de él. Puedes usar este beneficio una cantidad de veces igual a tu mod. de Carisma (mínimo de una), y recuperas los usos al terminar un Descanso Largo.",
        "n": 6,
@@ -2377,18 +2377,18 @@
        "reset": "largo"
       },
       {
-       "nombre": "Primeval Protection",
+       "nombre": "Protección Ancestral",
        "t": "pasiva",
-       "texto": "Elemental Fortitude: Tienes Resistencia al tipo de daño de tu elemento elegido. Además, mientras estás dentro de tu Elemental Node, tienes Inmunidad a ese tipo de daño. Node Improvement: Tu Elemental Node es ahora una Esfera de 10 pies de radio.",
+       "texto": "Elemental Fortitude: Tienes Resistencia al tipo de daño de tu elemento elegido. Además, mientras estás dentro de tu Nodo Elemental, tienes Inmunidad a ese tipo de daño. Node Improvement: Tu Nodo Elemental es ahora una Esfera de 10 pies de radio.",
        "n": 10,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Elemental Harbinger",
+       "nombre": "Presagio Elemental",
        "t": "pasiva",
-       "texto": "Elemental Vortex: Cada vez que gastes un espacio de conjuro de Magia del Pacto mientras estás dentro de tu Elemental Node, puedes intentar arrastrar a una criatura hacia el nodo. Una criatura que elijas a 30 pies del nodo debe superar una tirada de salvación de Fuerza o ser arrastrada hasta 15 pies hacia el centro. Node Improvement: Tu Elemental Node ahora dura hasta 1 hora. Primordial Herald: Mientras estés dentro del área de tu nodo, puedes lanzar el conjuro Aliado planar (Planar Ally) sin gastar un espacio de conjuro; al lanzarlo así, pronuncias el nombre de tu patrón. Una vez que usas este beneficio, no puedes volver a hacerlo hasta que termines 2d4 Descansos Largos.",
+       "texto": "Elemental Vortex: Cada vez que gastes un espacio de conjuro de Magia del Pacto mientras estás dentro de tu Nodo Elemental, puedes intentar arrastrar a una criatura hacia el nodo. Una criatura que elijas a 30 pies del nodo debe superar una tirada de salvación de Fuerza o ser arrastrada hasta 15 pies hacia el centro. Node Improvement: Tu Nodo Elemental ahora dura hasta 1 hora. Primordial Herald: Mientras estés dentro del área de tu nodo, puedes lanzar el conjuro Aliado planar (Planar Ally) sin gastar un espacio de conjuro; al lanzarlo así, pronuncias el nombre de tu patrón. Una vez que usas este beneficio, no puedes volver a hacerlo hasta que termines 2d4 Descansos Largos.",
        "n": 14,
        "manual": true,
        "usos": 0,
@@ -3746,7 +3746,7 @@
      ]
     },
     "freedom-domain": {
-     "n": "Freedom Domain",
+     "n": "Dominio de la Libertad",
      "rasgos": [
       {
        "nombre": "Conjuros de Dominio",
@@ -3758,7 +3758,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Invoke Liberty",
+       "nombre": "Invocar Libertad",
        "t": "accion",
        "texto": "Como acción de Magia, gastas un uso de Canalizar Divinidad para que cada aliado en una emanación de 30 pies originada en ti pueda terminar una de las siguientes condiciones en sí mismo: Asustado, Agarrado, Paralizado o Apresado (a nivel 9 añade Hechizado y Petrificado). La criatura puede entonces usar su reacción para moverse hasta su velocidad sin provocar ataques de oportunidad.",
        "n": 3,
@@ -3767,7 +3767,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Unencumbered Grace",
+       "nombre": "Gracia sin Trabas",
        "t": "pasiva",
        "texto": "Mientras no llevas armadura, tu Clase de Armadura base es 10 + tu modificador de Destreza + tu modificador de Sabiduría (puedes usar un escudo y mantener el beneficio). Obtienes competencia en Acrobacias, o Pericia si ya la tenías.",
        "n": 3,
@@ -3776,7 +3776,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Unstoppable",
+       "nombre": "Imparable",
        "t": "pasiva",
        "texto": "Tu movimiento no se ve afectado por terreno difícil. Además, obtienes competencia en tiradas de salvación de Destreza, o en otra si ya eras competente en esta.",
        "n": 6,
@@ -3785,7 +3785,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Avatar of Freedom",
+       "nombre": "Avatar de la Libertad",
        "t": "adicional",
        "texto": "Como acción adicional, manifiestas una emanación de 30 pies que te rodea por 10 minutos (termina si la descartas o tienes la condición Incapacitado). Un aliado que entra por primera vez en un turno o empieza su turno allí gana 30 pies de velocidad hasta el final de su próximo turno. Además, el movimiento de los aliados en la emanación no se ve afectado por terreno difícil y tienen ventaja en pruebas de Destreza. Un uso por descanso corto o largo.",
        "n": 17,
@@ -3796,11 +3796,11 @@
      ]
     },
     "pestilence-domain": {
-     "n": "Pestilence Domain",
+     "n": "Dominio de la Pestilencia",
      "rasgos": [
       {
        "n": 3,
-       "nombre": "Conjuros de Pestilence Domain",
+       "nombre": "Conjuros de Dominio de la Pestilencia",
        "t": "pasiva",
        "texto": "A los niveles 3, 5, 7 y 9 amplías tu lista de conjuros preparados con los conjuros de esta subclase.",
        "manual": true,
@@ -3809,7 +3809,7 @@
       },
       {
        "n": 3,
-       "nombre": "Blight Weaver",
+       "nombre": "Tejedor de Plaga",
        "t": "pasiva",
        "texto": "Obtienes Resistencia al daño necrótico y de veneno, y no puedes ser infectado por contagios mágicos. Además, el daño de tus conjuros y rasgos de clérigo ignora la Resistencia al daño necrótico y de veneno. Cuando lanzas un conjuro o usas un rasgo de clérigo que inflige daño necrótico o de veneno, puedes cambiar ese daño por el otro tipo.",
        "manual": true,
@@ -3818,7 +3818,7 @@
       },
       {
        "n": 3,
-       "nombre": "Plague Blessing",
+       "nombre": "Bendición de la Peste",
        "t": "accion",
        "texto": "Como acción Mágica, puedes presentar tu Símbolo Sagrado y gastar un uso de Canalizar Divinidad para manifestar una Emanación de 5 pies de plaga marchita a tu alrededor o de una criatura voluntaria que toques, con una duración de 1 minuto. Termina antes si la descartas (sin acción), la manifiestas de nuevo o tienes la condición de Incapacitado. Cada criatura de tu elección que comience su turno en la Emanación debe superar una tirada de salvación de Constitución contra tu CD de salvación de conjuros o ganar 1 nivel de Agotamiento. Esto no puede aumentar el nivel de Agotamiento de una criatura por encima de tu modificador de Sabiduría, con un mínimo de 1. La plaga manifiesta un síntoma específico (elige o tira 1d6): 1) es drenado de todo color, quedando en grises monocromáticos; 2) suelta escamas metálicas color óxido y cruje al moverse; 3) secreta mucosidad maloliente; 4) está rodeado por una nube de insectos zumbantes; 5) le brotan hongos u otro follaje de su carne; 6) está cubierto de pústulas brillantes.",
        "manual": true,
@@ -3827,7 +3827,7 @@
       },
       {
        "n": 6,
-       "nombre": "Virulent Burst",
+       "nombre": "Estallido Virulento",
        "t": "reaccion",
        "texto": "Cuando un enemigo a 60 pies o menos de ti es reducido a 0 Puntos de Golpe, puedes usar tu Reacción para que una plaga estalle en una Emanación de 10 pies desde el enemigo; si este tenía al menos 1 nivel de Agotamiento, la Emanación aumenta a 20 pies. Cada criatura de tu elección dentro de la Emanación hace una tirada de salvación de Constitución contra tu CD de conjuros. Si falla, sufre un efecto a tu elección: Putrid Shock (tiene la condición de Incapacitado hasta el final de su próximo turno y su Velocidad es 0 mientras esté Incapacitado) o Toxic Infection (recibe 3d6 de daño necrótico o de veneno, a tu elección).",
        "manual": true,
@@ -3836,7 +3836,7 @@
       },
       {
        "n": 17,
-       "nombre": "Vermin Form",
+       "nombre": "Forma de Alimaña",
        "t": "adicional",
        "texto": "Como Acción Adicional, puedes transformarte en un enjambre Mediano de plagas Diminutas (como cucarachas, gusanos o ratas). Mantienes tu forma general, personalidad, recuerdos, capacidad de hablar y el equipo utilizable. Ganas Inmunidad a estar Apresado, Paralizado, Derribado y Sujeto, y Resistencia al daño Contundente, Perforante y Cortante. Puedes entrar y ocupar el espacio de otra criatura y viceversa, posees Velocidad de escalada igual a tu Velocidad, y puedes escalar superficies difíciles (incluyendo techos) sin prueba de característica. Al entrar en el espacio de un enemigo, o si este entra o termina su turno en el tuyo, recibe daño igual a tu modificador de Sabiduría (necrótico, perforante o de veneno, a tu elección) solo una vez por turno. Vuelves a tu forma verdadera tras 10 minutos, si decides terminarlo (sin acción), estás Incapacitado o mueres. Tras usarlo, debes terminar un Descanso Largo o gastar un espacio de conjuro de nivel 5+ (sin acción) para restaurar su uso.",
        "manual": true,
@@ -4289,10 +4289,10 @@
      ]
     },
     "circle-of-preservation": {
-     "n": "Circle of Preservation",
+     "n": "Círculo de la Preservación",
      "rasgos": [
       {
-       "nombre": "Conjuros de Circle of Preservation",
+       "nombre": "Conjuros de Círculo de la Preservación",
        "t": "pasiva",
        "texto": "Cuando alcanzas un nivel de druida especificado, de ahí en adelante siempre tienes preparados los siguientes conjuros. Nivel 3: Bendecir, Restablecimiento menor, Protección contra el veneno y Santuario. Nivel 5: Faro de esperanza y Crecimiento vegetal. Nivel 7: Aura de vida y Custodia contra la muerte. Nivel 9: Restablecimiento mayor y Consagrar.",
        "n": 3,
@@ -4301,7 +4301,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Preserved Land",
+       "nombre": "Tierra Preservada",
        "t": "adicional",
        "texto": "Como acción adicional, puedes gastar un uso de tu Forma Salvaje para llenar un cubo de 15 pies originado en un punto en el suelo que puedas ver a 120 pies de ti con energía revitalizante. El efecto dura 1 minuto, o hasta que tengas la condición de incapacitado, estés a más de 120 pies de distancia del cubo, o mueras. Cada vez que una criatura (incluyéndote a ti) termina su turno en el cubo, puedes otorgarle uno de los siguientes beneficios. Bolster: La criatura obtiene puntos de golpe temporales iguales a 1d4 más tu nivel de druida. Purify: Terminas un efecto en la criatura que le cause la condición de asustado o envenenado. Además, vegetación no mágica nativa de la región brota en el suelo dentro del cubo. Esta vegetación desaparece cuando el efecto termina. Como acción adicional en turnos posteriores, puedes mover el cubo hasta 30 pies a otra área en el suelo a no más de 120 pies de ti.",
        "n": 3,
@@ -4310,7 +4310,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Student of Preservation",
+       "nombre": "Estudiante de la Preservación",
        "t": "pasiva",
        "texto": "Tus estudios te otorgan los siguientes beneficios. Frugal Casting: Cuando lanzas un conjuro de druida, puedes lanzarlo sin componentes materiales, excepto los componentes materiales que sean consumidos por el conjuro o que tengan un costo especificado en el conjuro. Además, cada vez que lanzas un conjuro de druida que requiere un componente material que es consumido por el conjuro, hay un 10 por ciento de probabilidad de que el componente no se consuma como parte de ese lanzamiento. Tool Proficiency: Obtienes competencia con un tipo de Herramientas de artesano de tu elección.",
        "n": 3,
@@ -4319,16 +4319,16 @@
        "reset": "largo"
       },
       {
-       "nombre": "Improved Preservation",
+       "nombre": "Preservación Mejorada",
        "t": "pasiva",
-       "texto": "Tu Preserved Land se vuelve más poderosa de las siguientes maneras. Fortify Protectors: Mientras estén dentro del cubo creado por tu Preserved Land, tú y tus aliados obtienen un bonificador a las tiradas de salvación de Constitución igual a tu modificador de Sabiduría (mínimo de +1). Reject Desecrators: Cada vez que el cubo creado por tu Preserved Land entra en el espacio de un enemigo y cada vez que un enemigo entra en el cubo o termina su turno allí, ese enemigo hace una tirada de salvación de Sabiduría contra tu CD de salvación de conjuros. Si falla la salvación, el enemigo recibe 2d10 de daño radiante, y su velocidad se reduce a la mitad hasta el final de su siguiente turno conforme nuevos brotes se elevan para entorpecerlo. Si tiene éxito en la salvación, el enemigo sufre solo la mitad del daño. Un enemigo hace esta salvación solo una vez por turno.",
+       "texto": "Tu Tierra Preservada se vuelve más poderosa de las siguientes maneras. Fortify Protectors: Mientras estén dentro del cubo creado por tu Tierra Preservada, tú y tus aliados obtienen un bonificador a las tiradas de salvación de Constitución igual a tu modificador de Sabiduría (mínimo de +1). Reject Desecrators: Cada vez que el cubo creado por tu Tierra Preservada entra en el espacio de un enemigo y cada vez que un enemigo entra en el cubo o termina su turno allí, ese enemigo hace una tirada de salvación de Sabiduría contra tu CD de salvación de conjuros. Si falla la salvación, el enemigo recibe 2d10 de daño radiante, y su velocidad se reduce a la mitad hasta el final de su siguiente turno conforme nuevos brotes se elevan para entorpecerlo. Si tiene éxito en la salvación, el enemigo sufre solo la mitad del daño. Un enemigo hace esta salvación solo una vez por turno.",
        "n": 6,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Facilitated Restoration",
+       "nombre": "Restauración Facilitada",
        "t": "accion",
        "texto": "Puedes lanzar Restablecimiento menor o Restablecimiento mayor sin gastar un espacio de conjuro ni requerir componentes de conjuro. Puedes usar este rasgo para lanzar un conjuro de esta forma una cantidad de veces igual a tu modificador de Sabiduría (mínimo de una vez), y recuperas todos los usos gastados cuando terminas un descanso largo.",
        "n": 10,
@@ -4337,9 +4337,9 @@
        "reset": "largo"
       },
       {
-       "nombre": "Sacrosanct Land",
+       "nombre": "Tierra Sacrosanta",
        "t": "reaccion",
-       "texto": "El tamaño del cubo creado por tu Preserved Land aumenta a un cubo de 30 pies. Además, cuando una criatura que puedes ver en el área de tu Preserved Land es impactada por una tirada de ataque, puedes tomar una reacción para reducir a la mitad el daño de ese ataque contra la criatura.",
+       "texto": "El tamaño del cubo creado por tu Tierra Preservada aumenta a un cubo de 30 pies. Además, cuando una criatura que puedes ver en el área de tu Tierra Preservada es impactada por una tirada de ataque, puedes tomar una reacción para reducir a la mitad el daño de ese ataque contra la criatura.",
        "n": 14,
        "manual": true,
        "usos": 0,
@@ -4348,28 +4348,28 @@
      ]
     },
     "circle-of-the-titan": {
-     "n": "Circle of the Titan",
+     "n": "Círculo del Titán",
      "rasgos": [
       {
-       "nombre": "Conjuros de Circle of the Titan",
+       "nombre": "Conjuros de Círculo del Titán",
        "t": "pasiva",
-       "texto": "Cuando alcanzas niveles específicos de Druida, siempre tienes preparados los siguientes conjuros: Agrandar o reducir, Taumaturgia y Onda atronadora a nivel 3; Miedo a nivel 5; Escudo de fuego a nivel 7; y Onda destructiva a nivel 9. Puedes lanzar estos conjuros mientras estás en tu Forma de Titán (Titan Form).",
+       "texto": "Cuando alcanzas niveles específicos de Druida, siempre tienes preparados los siguientes conjuros: Agrandar o reducir, Taumaturgia y Onda atronadora a nivel 3; Miedo a nivel 5; Escudo de fuego a nivel 7; y Onda destructiva a nivel 9. Puedes lanzar estos conjuros mientras estás en tu Forma de Titán (Forma de Titán).",
        "n": 3,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Titan Form",
+       "nombre": "Forma de Titán",
        "t": "accion",
-       "texto": "Cuando usas Forma Salvaje, puedes adoptar una Titan Form (Forma de Titán), eligiendo entre los bloques de Behemoth, Leviathan e Insectoid. Puedes permanecer en esta forma por 10 minutos, en lugar de un número de horas. Cada forma gana beneficios adicionales en niveles especificados, y aplicas los rasgos de tus formas de Bestia a tu Forma de Titán. Determinas libremente su aspecto. Bloque Behemoth: Tamaño Grande, Enorme (nivel 10+) o Gargantuesco (nivel 14+); tu Tipo de Criatura y Alineamiento no cambian; CA 13 + Sabiduría; Puntos de Golpe temporales iguales a 4 veces tu nivel de Druida; Velocidad 40 pies, Trepar 40 pies; Fuerza y Destreza iguales a Sabiduría (las demás sin cambios); Visión en la oscuridad 60 pies; Rasgo Siege Monster (doble daño a objetos y estructuras). Acciones: Multiattack (Nivel 5+) haces dos ataques de Rend. Rend: Ataque de conjuro cuerpo a cuerpo, alcance 10 pies, Impacto: 1d8 + Sabiduría de daño cortante (aumenta a 2d8 en nivel 6, y 3d8 en nivel 12). Incandescent Breath: Gastas un espacio de conjuro nivel 1+; Salvación de Destreza contra tu CD en línea de 5x60 pies, Fallo: 2d10 de daño radiante por nivel del espacio gastado, Éxito: mitad de daño. Acción adicional Rampager (Nivel 10+): Gastas un espacio nivel 1+ y te mueves hasta la mitad de tu Velocidad sin provocar ataques de oportunidad; al entrar en el espacio de un enemigo que es al menos dos tamaños menor que tú por primera vez en un turno, hace salvación de Fuerza contra tu CD, Fallo: queda Derribado (si ya estaba Derribado, recibe 1d10 de daño contundente por nivel del espacio). Bloque Leviathan: Igual base, pero Velocidad 40 pies, Nadar 40 pies; rasgo Anfibio (puedes respirar aire y agua); su Rend hace daño contundente. Bloque Insectoid: Igual base, pero Velocidad 40 pies, Volar 40 pies (Nivel 10+); rasgo Flyby (Nivel 10+, no provocas ataque de oportunidad al salir del alcance de un enemigo volando); su Rend hace daño perforante. Acción Energizing Pollen: Gastas un espacio nivel 1+, te mueves hasta la mitad de tu Velocidad sin provocar ataques de oportunidad emitiendo polen curativo; al moverte a 5 pies de otra criatura durante este movimiento, puedes restaurarle una cantidad de Puntos de Golpe igual a 2d6 por nivel del espacio (una criatura solo puede recibir esta curación una vez por turno). Acción adicional Toxic Deluge (Nivel 10+): Gastas un espacio nivel 1+, emitiendo un miasma tóxico; salvación de Constitución contra tu CD en Emanación de 10 pies, Fallo: 2d4 de daño de veneno por nivel del espacio y el objetivo tiene la condición Envenenado hasta el inicio de tu próximo turno.",
+       "texto": "Cuando usas Forma Salvaje, puedes adoptar una Forma de Titán (Forma de Titán), eligiendo entre los bloques de Behemoth, Leviathan e Insectoid. Puedes permanecer en esta forma por 10 minutos, en lugar de un número de horas. Cada forma gana beneficios adicionales en niveles especificados, y aplicas los rasgos de tus formas de Bestia a tu Forma de Titán. Determinas libremente su aspecto. Bloque Behemoth: Tamaño Grande, Enorme (nivel 10+) o Gargantuesco (nivel 14+); tu Tipo de Criatura y Alineamiento no cambian; CA 13 + Sabiduría; Puntos de Golpe temporales iguales a 4 veces tu nivel de Druida; Velocidad 40 pies, Trepar 40 pies; Fuerza y Destreza iguales a Sabiduría (las demás sin cambios); Visión en la oscuridad 60 pies; Rasgo Siege Monster (doble daño a objetos y estructuras). Acciones: Multiattack (Nivel 5+) haces dos ataques de Rend. Rend: Ataque de conjuro cuerpo a cuerpo, alcance 10 pies, Impacto: 1d8 + Sabiduría de daño cortante (aumenta a 2d8 en nivel 6, y 3d8 en nivel 12). Incandescent Breath: Gastas un espacio de conjuro nivel 1+; Salvación de Destreza contra tu CD en línea de 5x60 pies, Fallo: 2d10 de daño radiante por nivel del espacio gastado, Éxito: mitad de daño. Acción adicional Rampager (Nivel 10+): Gastas un espacio nivel 1+ y te mueves hasta la mitad de tu Velocidad sin provocar ataques de oportunidad; al entrar en el espacio de un enemigo que es al menos dos tamaños menor que tú por primera vez en un turno, hace salvación de Fuerza contra tu CD, Fallo: queda Derribado (si ya estaba Derribado, recibe 1d10 de daño contundente por nivel del espacio). Bloque Leviathan: Igual base, pero Velocidad 40 pies, Nadar 40 pies; rasgo Anfibio (puedes respirar aire y agua); su Rend hace daño contundente. Bloque Insectoid: Igual base, pero Velocidad 40 pies, Volar 40 pies (Nivel 10+); rasgo Flyby (Nivel 10+, no provocas ataque de oportunidad al salir del alcance de un enemigo volando); su Rend hace daño perforante. Acción Energizing Pollen: Gastas un espacio nivel 1+, te mueves hasta la mitad de tu Velocidad sin provocar ataques de oportunidad emitiendo polen curativo; al moverte a 5 pies de otra criatura durante este movimiento, puedes restaurarle una cantidad de Puntos de Golpe igual a 2d6 por nivel del espacio (una criatura solo puede recibir esta curación una vez por turno). Acción adicional Toxic Deluge (Nivel 10+): Gastas un espacio nivel 1+, emitiendo un miasma tóxico; salvación de Constitución contra tu CD en Emanación de 10 pies, Fallo: 2d4 de daño de veneno por nivel del espacio y el objetivo tiene la condición Envenenado hasta el inicio de tu próximo turno.",
        "n": 3,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Dire Impact",
+       "nombre": "Impacto Terrible",
        "t": "pasiva",
        "texto": "Tu Forma de Titán trae mayor devastación. Elemental Rend: Cada vez que impactes con el ataque Rend de tu Forma de Titán, puedes hacer que inflija tu elección de daño de ácido, frío, fuego, relámpago o trueno en lugar de su tipo normal. Shock Wave: Una vez por turno, inmediatamente después de moverte al menos la mitad de tu Velocidad, puedes crear una onda de choque en una Emanación de 10 pies originada en ti. Cada criatura en la Emanación debe superar una tirada de salvación de Constitución contra tu CD de conjuros o quedar con la condición Derribado.",
        "n": 6,
@@ -4378,7 +4378,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Primal Havoc",
+       "nombre": "Estrago Primordial",
        "t": "pasiva",
        "texto": "El poder indómito surge en ti. Huge Size: Puedes elegir ser de tamaño Enorme al asumir tu Forma de Titán si estás en un espacio lo suficientemente grande. Toughened Hide: Inmediatamente después de asumir una Forma de Titán Enorme o más grande, puedes gastar un espacio de conjuro de nivel 1+. Durante la duración de la forma, obtienes un bonificador a tu CA igual a la mitad del nivel del espacio gastado (redondeando hacia arriba). Above It All: Mientras eres Enorme o más grande en tu Forma de Titán, el Terreno Difícil causado por nieve densa, hielo, escombros o maleza no te cuesta movimiento adicional.",
        "n": 10,
@@ -4387,7 +4387,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Monstrous Appetite",
+       "nombre": "Apetito Monstruoso",
        "t": "pasiva",
        "texto": "Tu transformación encarna el vasto tamaño y terror. Gargantuan Size: Puedes elegir ser de tamaño Gargantuesco al asumir tu Forma de Titán si el espacio lo permite. Grappling Rend: Una vez por turno, mientras seas Enorme o mayor y golpees a una criatura con el Rend de tu Forma de Titán, puedes aplicarle la condición Apresado (la CD de escape equivale a tu CD de conjuros). Solo puedes tener a un objetivo apresado de esta manera a la vez. Swallow: Como Acción adicional mientras eres Gargantuesco, elige una criatura Grande o más pequeña Apresada por ti. El objetivo hace una tirada de salvación de Fuerza contra tu CD. Si falla, te tragas al objetivo y la condición Apresado termina en él. Una criatura tragada tiene las condiciones Cegado y Apresado, tiene Cobertura Total contra ataques y efectos fuera de tu estómago, y recibe daño de ácido al inicio de cada uno de tus turnos. Tira una cantidad de d12s igual a tu modificador de Sabiduría para este daño. El número de criaturas que puedes tener tragadas a la vez es igual a tu modificador de Sabiduría (mínimo de una). Debes mantener la Concentración para retener a las criaturas tragadas en tu estómago. Si pierdes la Concentración o dejas tu Forma de Titán, regurgitas a todas las criaturas tragadas, cada una de las cuales cae en un espacio a menos de 10 pies de ti y tiene la condición Derribado.",
        "n": 14,
@@ -4398,7 +4398,7 @@
      ]
     },
     "esporas-playtest": {
-     "n": "Circle of Spores (Playtest 2026)",
+     "n": "Círculo de las Esporas (Playtest 2026)",
      "rasgos": [
       {
        "nombre": "Conjuros del Círculo",
@@ -4410,7 +4410,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Halo of Spores",
+       "nombre": "Halo de Esporas",
        "t": "reaccion",
        "texto": "Esporas invisibles llenan una emanación de 10 pies originada en ti, dándote telepatía a 10 pies de alcance. Cuando una criatura que ves se mueve dentro de tu emanación o empieza su turno allí, puedes usar tu reacción para infectarla. Hace una salvación de Constitución contra tu CD; si falla, recibe 1d4 de daño necrótico (aumenta a 1d6 a nivel 6, 1d8 a nivel 10 y 1d10 a nivel 14). Si tiene éxito, tiene desventaja en su próxima tirada de ataque antes del final de su turno.",
        "n": 3,
@@ -4419,25 +4419,25 @@
        "reset": "largo"
       },
       {
-       "nombre": "Symbiotic Entity",
+       "nombre": "Entidad Simbiótica",
        "t": "adicional",
-       "texto": "Como acción adicional, puedes gastar un uso de tu Forma Salvaje para despertar tus esporas. Obtienes puntos de golpe temporales iguales a cuatro veces tu nivel de druida por 10 minutos (termina antes si lo descartas, estás Incapacitado o lo usas de nuevo). Mientras tus esporas están despiertas, puedes tirar el dado de daño de Halo of Spores una segunda vez para sumarlo al total (Deadly Halo), y una vez por turno infliges 1d6 de daño necrótico extra con un ataque cuerpo a cuerpo (arma o impacto sin armas).",
+       "texto": "Como acción adicional, puedes gastar un uso de tu Forma Salvaje para despertar tus esporas. Obtienes puntos de golpe temporales iguales a cuatro veces tu nivel de druida por 10 minutos (termina antes si lo descartas, estás Incapacitado o lo usas de nuevo). Mientras tus esporas están despiertas, puedes tirar el dado de daño de Halo de Esporas una segunda vez para sumarlo al total (Deadly Halo), y una vez por turno infliges 1d6 de daño necrótico extra con un ataque cuerpo a cuerpo (arma o impacto sin armas).",
        "n": 3,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Fungal Infestation",
+       "nombre": "Infestación Fúngica",
        "t": "reaccion",
-       "texto": "Si una Bestia o Humanoide Pequeño o Mediano muere a menos de 10 pies, usas tu reacción para reanimarlo con 1 punto de golpe. Si Symbiotic Entity está activa, puedes transferir tus puntos de golpe temporales a él. Usa el bloque del Zombi, se anima por 1 hora y luego muere (o si lo terminas como acción adicional o cae a 0 puntos de golpe). Actúa justo después de tu turno y obedece órdenes mentales; sin órdenes, Esquiva y evita peligro. Tienes usos iguales a tu modificador de Sabiduría (mínimo 1) por descanso largo.",
+       "texto": "Si una Bestia o Humanoide Pequeño o Mediano muere a menos de 10 pies, usas tu reacción para reanimarlo con 1 punto de golpe. Si Entidad Simbiótica está activa, puedes transferir tus puntos de golpe temporales a él. Usa el bloque del Zombi, se anima por 1 hora y luego muere (o si lo terminas como acción adicional o cae a 0 puntos de golpe). Actúa justo después de tu turno y obedece órdenes mentales; sin órdenes, Esquiva y evita peligro. Tienes usos iguales a tu modificador de Sabiduría (mínimo 1) por descanso largo.",
        "n": 6,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Explosive Burst",
+       "nombre": "Estallido Explosivo",
        "t": "pasiva",
        "texto": "Cuando una criatura Muerta Viviente creada por ti muere, explota. Cada criatura de tu elección a menos de 10 pies hace una salvación de Constitución contra tu CD de conjuros, recibiendo 2d8 de daño necrótico si falla, o la mitad si tiene éxito.",
        "n": 10,
@@ -4446,7 +4446,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Fungal Body",
+       "nombre": "Cuerpo Fúngico",
        "t": "pasiva",
        "texto": "Tienes inmunidad a las condiciones Cegado, Sordo, Asustado y Envenenado. Todo golpe crítico contra ti cuenta como normal, a menos que tengas la condición Incapacitado. Si tienes la condición Inconsciente (la cual no reduce tu velocidad a 0), tus esporas controlan tu movimiento en tu turno manteniéndote cerca de aliados y lejos del peligro.",
        "n": 14,
@@ -5827,19 +5827,19 @@
      ]
     },
     "gladiator": {
-     "n": "Gladiator",
+     "n": "Gladiador",
      "rasgos": [
       {
-       "nombre": "Brutality",
+       "nombre": "Brutalidad",
        "t": "gratis",
-       "texto": "Una vez por turno, cuando impactas a una criatura con una tirada de ataque usando un arma cuerpo a cuerpo, puedes añadir uno de los siguientes efectos de Brutality de tu elección. Puedes hacer esto un número de veces igual a tu modificador de Carisma (mínimo de una vez), y recuperas todos los usos gastados cuando terminas un descanso corto o largo. Bleed: Puedes activar la propiedad de maestría Sap además de una propiedad de maestría diferente que estés usando con esa arma, y el objetivo recibe daño adicional igual a tu modificador de Carisma (mínimo de 1 de daño). El tipo del daño adicional es el mismo tipo que el del arma. Bluff: Puedes activar la propiedad de maestría Vex además de una propiedad de maestría diferente que estés usando con esa arma, y tienes ventaja en la próxima tirada de salvación que hagas antes del final de tu siguiente turno. Stumble: Puedes activar la propiedad de maestría Topple además de una propiedad de maestría diferente que estés usando con esa arma, y en su próximo turno, el objetivo solo puede tomar una acción o una acción adicional, no ambas.",
+       "texto": "Una vez por turno, cuando impactas a una criatura con una tirada de ataque usando un arma cuerpo a cuerpo, puedes añadir uno de los siguientes efectos de Brutalidad de tu elección. Puedes hacer esto un número de veces igual a tu modificador de Carisma (mínimo de una vez), y recuperas todos los usos gastados cuando terminas un descanso corto o largo. Bleed: Puedes activar la propiedad de maestría Sap además de una propiedad de maestría diferente que estés usando con esa arma, y el objetivo recibe daño adicional igual a tu modificador de Carisma (mínimo de 1 de daño). El tipo del daño adicional es el mismo tipo que el del arma. Bluff: Puedes activar la propiedad de maestría Vex además de una propiedad de maestría diferente que estés usando con esa arma, y tienes ventaja en la próxima tirada de salvación que hagas antes del final de tu siguiente turno. Stumble: Puedes activar la propiedad de maestría Topple además de una propiedad de maestría diferente que estés usando con esa arma, y en su próximo turno, el objetivo solo puede tomar una acción o una acción adicional, no ambas.",
        "n": 3,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Combat Theatrics",
+       "nombre": "Teatralidad de Combate",
        "t": "pasiva",
        "texto": "Obtienes los siguientes beneficios. Athletic Flair: Cada vez que haces una prueba de Destreza (Acrobacias) o Fuerza (Atletismo), obtienes un bonificador a la prueba igual a tu modificador de Carisma (mínimo de +1). Bonus Proficiency: Obtienes competencia en una de estas habilidades de tu elección: Acrobacias, Atletismo, Engaño, Intimidación o Interpretación.",
        "n": 3,
@@ -5848,34 +5848,34 @@
        "reset": "largo"
       },
       {
-       "nombre": "Flourish Parry",
+       "nombre": "Parada con Floritura",
        "t": "reaccion",
-       "texto": "Cuando un enemigo te impacta con una tirada de ataque cuerpo a cuerpo, puedes tomar una reacción para sumar tu modificador de Carisma (mínimo de +1) a tu CA contra el ataque, lo que potencialmente causa que el ataque falle. Flourish Counter: Si esta reacción hace que el ataque falle, puedes tomar represalias con un poderoso contraataque como parte de la misma reacción. Haz una tirada de ataque con un arma cuerpo a cuerpo contra la criatura desencadenante. Si este ataque impacta, puedes usar uno de tus efectos de Brutality en el objetivo sin gastar un uso de ese rasgo. Una vez que este contraataque impacta, no puedes usar este rasgo para hacer otro contraataque hasta que termines un descanso largo. También puedes restaurar tu uso de este contraataque gastando un uso de Nuevas energías (no requiere acción).",
+       "texto": "Cuando un enemigo te impacta con una tirada de ataque cuerpo a cuerpo, puedes tomar una reacción para sumar tu modificador de Carisma (mínimo de +1) a tu CA contra el ataque, lo que potencialmente causa que el ataque falle. Flourish Counter: Si esta reacción hace que el ataque falle, puedes tomar represalias con un poderoso contraataque como parte de la misma reacción. Haz una tirada de ataque con un arma cuerpo a cuerpo contra la criatura desencadenante. Si este ataque impacta, puedes usar uno de tus efectos de Brutalidad en el objetivo sin gastar un uso de ese rasgo. Una vez que este contraataque impacta, no puedes usar este rasgo para hacer otro contraataque hasta que termines un descanso largo. También puedes restaurar tu uso de este contraataque gastando un uso de Nuevas energías (no requiere acción).",
        "n": 7,
        "manual": true,
        "usos": 1,
        "reset": "largo"
       },
       {
-       "nombre": "Bolder Brutalities",
+       "nombre": "Brutalidades Audaces",
        "t": "pasiva",
-       "texto": "Los siguientes efectos se añaden a tus opciones de Brutality. Rive: Puedes activar la propiedad de maestría Cleave además de una propiedad de maestría diferente que estés usando con esa arma, y puedes sumar tu modificador de aptitud al daño del ataque adicional realizado como parte de la activación de esa propiedad. Rush: Puedes activar la propiedad de maestría Push además de una propiedad de maestría diferente que estés usando con esa arma, y puedes moverte inmediatamente hasta tu velocidad sin provocar ataques de oportunidad. Stagger: Puedes activar la propiedad de maestría Slow además de una propiedad de maestría diferente que estés usando con esa arma, y el objetivo tiene desventaja en la próxima tirada de salvación que haga antes del final de su siguiente turno.",
+       "texto": "Los siguientes efectos se añaden a tus opciones de Brutalidad. Rive: Puedes activar la propiedad de maestría Cleave además de una propiedad de maestría diferente que estés usando con esa arma, y puedes sumar tu modificador de aptitud al daño del ataque adicional realizado como parte de la activación de esa propiedad. Rush: Puedes activar la propiedad de maestría Push además de una propiedad de maestría diferente que estés usando con esa arma, y puedes moverte inmediatamente hasta tu velocidad sin provocar ataques de oportunidad. Stagger: Puedes activar la propiedad de maestría Slow además de una propiedad de maestría diferente que estés usando con esa arma, y el objetivo tiene desventaja en la próxima tirada de salvación que haga antes del final de su siguiente turno.",
        "n": 10,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Brutal Resurgence",
+       "nombre": "Resurgir Brutal",
        "t": "pasiva",
-       "texto": "Cada vez que usas tu rasgo Nuevas energías para recuperar puntos de golpe, recuperas un uso gastado de Brutality. También recuperas un uso gastado de Brutality cada vez que usas tu Acción súbita.",
+       "texto": "Cada vez que usas tu rasgo Nuevas energías para recuperar puntos de golpe, recuperas un uso gastado de Brutalidad. También recuperas un uso gastado de Brutalidad cada vez que usas tu Acción súbita.",
        "n": 15,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Mutilate",
+       "nombre": "Mutilar",
        "t": "gratis",
        "texto": "Cuando impactas a una criatura malherida con una tirada de ataque, puedes intentar herirla críticamente. El objetivo hace una tirada de salvación de Constitución (CD 8 más tu modificador de Carisma y tu bonificador por competencia). Si falla la salvación, el objetivo sufre los siguientes efectos. Maimed: Si el objetivo toma la acción de Atacar, solo puede hacer un ataque. Sluggish: La velocidad del objetivo se reduce a la mitad y tiene un penalizador de -2 a su Clase de Armadura. Estos efectos duran hasta que el objetivo recupere puntos de golpe. Una vez que un objetivo falla su tirada de salvación contra este rasgo, no puedes usarlo de nuevo hasta que termines un descanso largo.",
        "n": 18,
@@ -5886,10 +5886,10 @@
      ]
     },
     "hell-knight": {
-     "n": "Hell Knight",
+     "n": "Caballero Infernal",
      "rasgos": [
       {
-       "nombre": "Diabolical Gift",
+       "nombre": "Don Diabólico",
        "t": "pasiva",
        "texto": "Devil's Sight: Puedes ver normalmente en Luz Tenue y Oscuridad (tanto mágica como no mágica) a menos de 120 pies de ti. Devil's Talents: Conoces Infernal, el idioma de los diablos (si ya lo conoces, aprendes otro idioma a tu elección). Además, ganas competencia en una de las siguientes habilidades a tu elección: Engaño, Interpretación o Juego de Manos.",
        "n": 3,
@@ -5898,25 +5898,25 @@
        "reset": "largo"
       },
       {
-       "nombre": "Hell-Forged Weapon",
+       "nombre": "Arma Forjada en el Infierno",
        "t": "pasiva",
-       "texto": "Cuando usas la acción de Atacar, puedes imbuir de fuego infernal cada arma que sostengas, transformándola en un arma forjada en el infierno (Hell-Forged Weapon). Permanece transformada hasta que uses este rasgo de nuevo, tengas la condición Inconsciente, el arma esté a más de 5 pies de ti por 1 minuto o más, o termines el efecto antes (sin requerir acción). Mientras empuñas esta arma, emite Luz Tenue en un radio de 5 pies, y cada vez que infliges daño con el arma, puede infligir daño de frío, fuego o necrótico (o su daño normal), a tu elección al momento de imbuir el arma.",
+       "texto": "Cuando usas la acción de Atacar, puedes imbuir de fuego infernal cada arma que sostengas, transformándola en un arma forjada en el infierno (Arma Forjada en el Infierno). Permanece transformada hasta que uses este rasgo de nuevo, tengas la condición Inconsciente, el arma esté a más de 5 pies de ti por 1 minuto o más, o termines el efecto antes (sin requerir acción). Mientras empuñas esta arma, emite Luz Tenue en un radio de 5 pies, y cada vez que infliges daño con el arma, puede infligir daño de frío, fuego o necrótico (o su daño normal), a tu elección al momento de imbuir el arma.",
        "n": 3,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Infernal Wound",
+       "nombre": "Herida Infernal",
        "t": "pasiva",
-       "texto": "Tienes un Dado de Herida Infernal (Infernal Wound Die), que es 1d6. Cuando impactas a una criatura con tu Hell-Forged Weapon, puedes infligir daño adicional igual a una tirada de tu dado (del mismo tipo que elegiste al imbuir el arma). También le provocas al objetivo una herida infernal si no tiene una. Mientras esté herido de esta forma, el objetivo recibe daño del tipo elegido igual a una tirada de tu dado al inicio de cada uno de sus turnos. La herida dura 1 minuto, hasta que el objetivo recupere Puntos de Golpe, o hasta que el objetivo (u otra criatura a 5 pies de él) use una acción para restañar la herida. Puedes usar este rasgo una cantidad de veces igual a tu modificador de Constitución (mínimo de una vez), y recuperas los usos al terminar un Descanso Corto o Largo.",
+       "texto": "Tienes un Dado de Herida Infernal (Herida Infernal Die), que es 1d6. Cuando impactas a una criatura con tu Arma Forjada en el Infierno, puedes infligir daño adicional igual a una tirada de tu dado (del mismo tipo que elegiste al imbuir el arma). También le provocas al objetivo una herida infernal si no tiene una. Mientras esté herido de esta forma, el objetivo recibe daño del tipo elegido igual a una tirada de tu dado al inicio de cada uno de sus turnos. La herida dura 1 minuto, hasta que el objetivo recupere Puntos de Golpe, o hasta que el objetivo (u otra criatura a 5 pies de él) use una acción para restañar la herida. Puedes usar este rasgo una cantidad de veces igual a tu modificador de Constitución (mínimo de una vez), y recuperas los usos al terminar un Descanso Corto o Largo.",
        "n": 3,
        "manual": true,
        "usos": "max(1, CON)",
        "reset": "corto"
       },
       {
-       "nombre": "Advanced Wounds",
+       "nombre": "Heridas Avanzadas",
        "t": "pasiva",
        "texto": "Cuando tiras tu Dado de Herida Infernal, puedes aplicar uno de los siguientes efectos (solo una vez hasta el inicio de tu próximo turno). Si sacas un 6, el efecto tiene una bonificación de Devil's Luck. Purulence of Minauros: Pus cáustico brota; cada enemigo en una Emanación de 5 pies centrada en el objetivo recibe daño de ácido igual a tu modificador de Constitución y el objetivo queda Envenenado hasta el final de su próximo turno. Devil's Luck: Los que reciben daño de ácido sufren un penalizador de -1 a su CA hasta el final de tu próximo turno. Rupture of Cania: El objetivo recibe daño de fuerza igual a tu mod. de Constitución. Devil's Luck: El objetivo resta 1d6 a su próxima tirada de salvación antes del final de tu próximo turno. Stygian Gangrene: El objetivo recibe daño de frío igual a tu mod. de Constitución y no puede tomar Reacciones hasta el inicio de su próximo turno. Devil's Luck: La Velocidad del objetivo se reduce a la mitad hasta el final de su próximo turno.",
        "n": 7,
@@ -5925,7 +5925,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Infernal Equipment",
+       "nombre": "Equipo Infernal",
        "t": "pasiva",
        "texto": "Infernal Resilience: Al terminar un Descanso Corto o Largo, elige daño de frío, fuego o necrótico. Mientras lleves armadura Pesada o empuñes un Escudo, tienes Resistencia a ese daño hasta que elijas uno diferente con este rasgo. Unholy Power: Cuando tiras tu Dado de Herida Infernal, puedes tratar un resultado de 1 como un 6.",
        "n": 7,
@@ -5934,16 +5934,16 @@
        "reset": "largo"
       },
       {
-       "nombre": "Hellfire Surge",
+       "nombre": "Oleada de Fuego Infernal",
        "t": "pasiva",
-       "texto": "Cuando usas tu Acción Súbita (Action Surge) mientras empuñas tu Hell-Forged Weapon, emanas fuego infernal en una Emanación de 20 pies originada en ti que dura hasta el final de tu próximo turno. Cada vez que una criatura que sufre una herida infernal comienza su turno dentro de la Emanación, recibe daño igual a dos tiradas de tu Dado de Herida Infernal en lugar de una.",
+       "texto": "Cuando usas tu Acción Súbita (Action Surge) mientras empuñas tu Arma Forjada en el Infierno, emanas fuego infernal en una Emanación de 20 pies originada en ti que dura hasta el final de tu próximo turno. Cada vez que una criatura que sufre una herida infernal comienza su turno dentro de la Emanación, recibe daño igual a dos tiradas de tu Dado de Herida Infernal en lugar de una.",
        "n": 10,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Devil's Misfortune",
+       "nombre": "Desgracia del Diablo",
        "t": "reaccion",
        "texto": "Cuando una criatura con una herida infernal te impacta con una tirada de ataque, puedes usar una Reacción para tirar tu Dado de Herida Infernal y reducir el daño recibido en esa cantidad. Si sacas un 6, tira el dado de nuevo (hasta un máximo de tres tiradas en total) y reduce el daño por el total sumado. Además, si el ataque es un Impacto Crítico, se convierte en un impacto normal.",
        "n": 15,
@@ -5952,7 +5952,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Infernal Bargain",
+       "nombre": "Trato Infernal",
        "t": "pasiva",
        "texto": "Si sacas un 6 en tu Dado de Herida Infernal tres o más veces antes del inicio de tu próximo turno, ganas Inspiración Heroica. Puedes usar esta Inspiración de la siguiente forma: Si una criatura que ves a 120 pies de ti tira un d20 para una Prueba de d20 (D20 Test), puedes gastar tu Inspiración Heroica para forzarla a repetir la tirada. Si el resultado hace que el objetivo tenga éxito, tú recuperas un uso gastado de Indomable (Indomitable) o Nuevas Energías (Second Wind) a tu elección. Si falla, tú pierdes Puntos de Golpe iguales a 3d6 más tu nivel de Guerrero.",
        "n": 18,
@@ -6410,10 +6410,10 @@
      ]
     },
     "defiled-sorcery": {
-     "n": "Defiled Sorcery",
+     "n": "Hechicería Profanada",
      "rasgos": [
       {
-       "nombre": "Conjuros de Defiled Sorcery",
+       "nombre": "Conjuros de Hechicería Profanada",
        "t": "pasiva",
        "texto": "Siempre que alcanzas un nivel de hechicero especificado en la tabla de conjuros de Defiler, de ahí en adelante siempre tienes preparados los conjuros listados. Nivel 3: Ceguera/sordera, Infligir heridas, Rayo de debilitamiento y Rayo de enfermedad. Nivel 5: Maldición y Toque vampírico. Nivel 7: Marchitar y Terreno alucinatorio. Nivel 9: Caparazón antivida y Contagio.",
        "n": 3,
@@ -6422,7 +6422,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Defile and Empower",
+       "nombre": "Profanar y Potenciar",
        "t": "gratis",
        "texto": "Una vez por turno, cuando tiras el daño de un conjuro que lanzas usando un espacio de conjuro, puedes desviar tu energía vital hacia el conjuro y potenciarlo. Tira un número de tus Dados de Golpe no gastados, hasta un número igual a la mitad del nivel del espacio de conjuro gastado (redondeando hacia arriba, mínimo de un dado), y añade el total sacado a una tirada de daño del conjuro. Esos Dados de Golpe se gastan entonces. Life Steal: En lugar de extraer de tu propia fuerza vital al usar este rasgo, puedes intentar robar vida a otra criatura que puedas ver a 30 pies de ti. Esa criatura hace una tirada de salvación de Constitución contra tu CD de salvación de conjuros; las criaturas que tienen inmunidad a la condición de fatiga superan automáticamente la salvación. Si falla la salvación, en lugar de tirar tus Dados de Golpe, tira un número de los Dados de Golpe no gastados de la criatura, hasta un número igual a la mitad del nivel del espacio gastado (redondeando hacia abajo, mínimo de un dado); luego añades ese total sacado a una tirada de daño del conjuro, y esos Dados de Golpe se gastan para la criatura. Una vez que una criatura falla su salvación contra Life Steal, no puedes usar Life Steal de nuevo hasta que termines un descanso largo, a menos que gastes 3 Puntos de Hechicería (no requiere acción) para restaurar tu uso de él.",
        "n": 3,
@@ -6431,7 +6431,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Corrupted Caster",
+       "nombre": "Lanzador Corrupto",
        "t": "adicional",
        "texto": "Obtienes los siguientes beneficios. Defiler's Ward: Cuando tomas una acción adicional para transformar Puntos de Hechicería en un espacio de conjuro, puedes envolver tu cuerpo en una red protectora de energía profanadora. Tira un número de d6 igual al nivel del espacio de conjuro creado. Obtienes puntos de golpe temporales iguales al total sacado. Si una criatura te impacta con una tirada de ataque cuerpo a cuerpo mientras tienes puntos de golpe temporales, la criatura recibe daño necrótico o de veneno (tu elección) igual a tu modificador de Carisma. Strengthened Rot: El daño infligido por tus conjuros de hechicero y tus rasgos de hechicero ignora la resistencia al daño necrótico y de veneno.",
        "n": 6,
@@ -6440,7 +6440,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Withering Aura",
+       "nombre": "Aura Marchitante",
        "t": "pasiva",
        "texto": "Cuando usas tu rasgo Hechicería innata, un aura de magia profanadora llena una emanación de 15 pies originada en ti mientras tu Hechicería innata esté activa, otorgándote los siguientes beneficios adicionales. Defiling Shroud: Cuando un enemigo dentro del aura te impacta con una tirada de ataque, puedes reducir el daño total de ese ataque contra ti. La reducción es igual a tu modificador de Carisma. Essence Siphon: Cuando un enemigo muere dentro del aura, recuperas 1d4 Puntos de Hechicería. Una vez que usas este beneficio, no puedes recuperar Puntos de Hechicería de esta manera hasta que uses Hechicería innata de nuevo.",
        "n": 14,
@@ -6449,9 +6449,9 @@
        "reset": "largo"
       },
       {
-       "nombre": "Superior Defiler",
+       "nombre": "Profanador Superior",
        "t": "pasiva",
-       "texto": "Obtienes los siguientes beneficios. Fouled Soul: Tienes inmunidad a las condiciones de envenenado y fatiga. Furthered Defilement: El tamaño de tu Withering Aura aumenta a una emanación de 30 pies. Además, los enemigos no pueden recuperar puntos de golpe mientras estén en tu aura.",
+       "texto": "Obtienes los siguientes beneficios. Fouled Soul: Tienes inmunidad a las condiciones de envenenado y fatiga. Furthered Defilement: El tamaño de tu Aura Marchitante aumenta a una emanación de 30 pies. Además, los enemigos no pueden recuperar puntos de golpe mientras estén en tu aura.",
        "n": 18,
        "manual": true,
        "usos": 0,
@@ -6460,10 +6460,10 @@
      ]
     },
     "demonic-sorcery": {
-     "n": "Demonic Sorcery",
+     "n": "Hechicería Demoníaca",
      "rasgos": [
       {
-       "nombre": "Conjuros de Demonic Sorcery",
+       "nombre": "Conjuros de Hechicería Demoníaca",
        "t": "pasiva",
        "texto": "Cuando alcanzas niveles específicos de Hechicero, siempre tienes preparados los siguientes conjuros: Perdición, Susurros disonantes, Crecimiento de púas y Telaraña a nivel 3; Lanzar maldición y Disipar magia a nivel 5; Insecto gigante y Terreno alucinatorio a nivel 7; Contactar con otro plano y Modificar memoria a nivel 9.",
        "n": 3,
@@ -6472,7 +6472,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Abyssal Rupture",
+       "nombre": "Ruptura Abisal",
        "t": "adicional",
        "texto": "Cuando usas tu Hechicería Innata (Innate Sorcery), creas una ruptura hacia el Abismo que llena una Esfera de 10 pies de radio centrada en un punto que puedas ver a 30 pies de ti. Al activar tu Hechicería Innata y como Acción adicional mientras esté activa, puedes elegir una de las opciones debajo. Mientras la ruptura persista, puedes mover el centro de la Esfera a un punto que puedas ver a 30 pies de ti al inicio de cada uno de tus turnos. Demonic Lash: Haz un ataque de conjuro cuerpo a cuerpo contra un objetivo a 5 pies de la ruptura. Si impacta, el objetivo recibe 1d8 de daño cortante y, si es de tamaño Grande o menor, puedes tirar de él hasta 10 pies hacia el centro de la Esfera. Terrifying Screams: Cada criatura en la ruptura debe superar una tirada de salvación de Sabiduría contra tu CD de conjuros o recibir 1d4 de daño psíquico.",
        "n": 3,
@@ -6481,25 +6481,25 @@
        "reset": "largo"
       },
       {
-       "nombre": "Abyssal Realm",
+       "nombre": "Reino Abisal",
        "t": "accion",
-       "texto": "Cuando gastas al menos 1 Punto de Hechicería como parte de una Acción mágica o una Acción adicional en tu turno, puedes arrastrar influencia del Abismo. Al hacerlo, creas una Emanación de 10 pies centrada en ti, o llenas la Esfera de tu Abyssal Rupture con magia de una de las capas del Abismo (CD equivale a tu CD de conjuros). Gaping Maw's Frenzy: Designa una dirección horizontal; cada criatura en el área que falle una tirada de salvación de Carisma debe usar todo su movimiento posible para moverse en esa dirección al inicio de su próximo turno por la ruta más segura. Maze of Azzatar: Salvación de Inteligencia; si falla, ganas los beneficios de la condición Invisible contra el objetivo hasta el inicio de tu próximo turno. Slime Pits' Haze: Salvación de Constitución; si falla, el objetivo tiene la condición Hechizado o Envenenado (tú eliges) hasta el inicio de tu próximo turno.",
+       "texto": "Cuando gastas al menos 1 Punto de Hechicería como parte de una Acción mágica o una Acción adicional en tu turno, puedes arrastrar influencia del Abismo. Al hacerlo, creas una Emanación de 10 pies centrada en ti, o llenas la Esfera de tu Ruptura Abisal con magia de una de las capas del Abismo (CD equivale a tu CD de conjuros). Gaping Maw's Frenzy: Designa una dirección horizontal; cada criatura en el área que falle una tirada de salvación de Carisma debe usar todo su movimiento posible para moverse en esa dirección al inicio de su próximo turno por la ruta más segura. Maze of Azzatar: Salvación de Inteligencia; si falla, ganas los beneficios de la condición Invisible contra el objetivo hasta el inicio de tu próximo turno. Slime Pits' Haze: Salvación de Constitución; si falla, el objetivo tiene la condición Hechizado o Envenenado (tú eliges) hasta el inicio de tu próximo turno.",
        "n": 6,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Abyssal Conduit",
+       "nombre": "Conducto Abisal",
        "t": "pasiva",
-       "texto": "Rupture Expansion: El tamaño de tu Abyssal Rupture ahora es una Esfera de 30 pies de radio, y el área es Terreno Difícil para tus enemigos. Fiendish Servant: Siempre tienes preparado el conjuro Invocar infernal (Summon Fiend). Cuando lanzas el conjuro, puedes modificarlo para que no requiera Concentración. Al hacerlo, la duración del conjuro se vuelve 1 minuto para ese lanzamiento, y debes elegir Demonio al invocar al infernal. Además, el infernal tiene Ventaja en tiradas de ataque mientras esté dentro de tu Abyssal Rupture.",
+       "texto": "Rupture Expansion: El tamaño de tu Ruptura Abisal ahora es una Esfera de 30 pies de radio, y el área es Terreno Difícil para tus enemigos. Fiendish Servant: Siempre tienes preparado el conjuro Invocar infernal (Summon Fiend). Cuando lanzas el conjuro, puedes modificarlo para que no requiera Concentración. Al hacerlo, la duración del conjuro se vuelve 1 minuto para ese lanzamiento, y debes elegir Demonio al invocar al infernal. Además, el infernal tiene Ventaja en tiradas de ataque mientras esté dentro de tu Ruptura Abisal.",
        "n": 14,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Abyssal Explosion",
+       "nombre": "Explosión Abisal",
        "t": "accion",
        "texto": "Como Acción mágica, llenas una Esfera de 30 pies de radio con una explosión de energía abisal. Cada criatura en la Esfera hace una tirada de salvación de Constitución contra tu CD. Si falla, una criatura recibe 8d6 de daño de fuerza (si no es un Infernal) y tiene la condición Incapacitado hasta el inicio de tu próximo turno. Una vez que usas este rasgo, no puedes volver a usarlo hasta que termines un Descanso Largo, a menos que gastes 7 Puntos de Hechicería (sin requerir acción) para restaurar su uso.",
        "n": 18,
@@ -6510,7 +6510,7 @@
      ]
     },
     "faerzress-sorcery": {
-     "n": "Faerzress Sorcery",
+     "n": "Hechicería de Faerzress",
      "rasgos": [
       {
        "nombre": "Conjuros de Faerzress",
@@ -6522,7 +6522,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Faerzress Zone",
+       "nombre": "Zona de Faerzress",
        "t": "accion",
        "texto": "Como acción de Magia, gastas 3 Puntos de Hechicería para llenar un área a menos de 120 pies de ti (no mayor a un cubo de 40 pies) con faerzress por 24 horas. Las criaturas allí superan automáticamente las salvaciones contra Adivinación, los sensores/ojos mágicos no entran, y no se puede teletransportar a 1 milla o más desde o hacia allí. Está tenuemente iluminado, pero quienes tienen visión en la oscuridad ven en color y tienen ventaja en Percepción visual. El efecto se vuelve permanente tras 365 días consecutivos.",
        "n": 3,
@@ -6531,7 +6531,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Immunity to Faerzress",
+       "nombre": "Inmunidad a Faerzress",
        "t": "pasiva",
        "texto": "Ignoras los efectos perjudiciales del faerzress. Las criaturas en el área afectada no superan automáticamente tus conjuros de Adivinación, tus sensores mágicos pueden entrar y los teletransportes de tus criaturas ignoran la restricción de distancia de faerzress.",
        "n": 3,
@@ -6540,16 +6540,16 @@
        "reset": "largo"
       },
       {
-       "nombre": "Faerzress Affinity",
+       "nombre": "Afinidad con Faerzress",
        "t": "pasiva",
-       "texto": "Obtienes resistencia al daño por relámpago. También obtienes visión en la oscuridad a 60 pies (aumenta 30 pies si ya la tenías) y puedes distinguir colores en la oscuridad. Tienes ventaja en pruebas de Percepción visual en luz tenue o en la oscuridad. Además, tu Immunity to Faerzress se aplica a aliados a menos de 30 pies de ti.",
+       "texto": "Obtienes resistencia al daño por relámpago. También obtienes visión en la oscuridad a 60 pies (aumenta 30 pies si ya la tenías) y puedes distinguir colores en la oscuridad. Tienes ventaja en pruebas de Percepción visual en luz tenue o en la oscuridad. Además, tu Inmunidad a Faerzress se aplica a aliados a menos de 30 pies de ti.",
        "n": 6,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Faerzress Spell",
+       "nombre": "Conjuro de Faerzress",
        "t": "gratis",
        "texto": "Cuando criaturas fallan una salvación contra tu conjuro, puedes gastar 1 Punto de Hechicería para impregnar con faerzress a un objetivo que falló. Durante 1 minuto: no puede teletransportarse, no puede lanzar conjuros de Adivinación y tiene desventaja en salvaciones contra Adivinación.",
        "n": 14,
@@ -6558,7 +6558,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Faerzress Step",
+       "nombre": "Paso de Faerzress",
        "t": "pasiva",
        "texto": "Siempre tienes Teletransportar preparado y puedes lanzarlo una vez sin espacio de conjuro por descanso largo. Además, al tirar en la tabla de resultados de teletransportación, eliges el resultado que quieras de los disponibles en tu nivel de familiaridad.",
        "n": 14,
@@ -6567,7 +6567,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Faerzress Form",
+       "nombre": "Forma de Faerzress",
        "t": "pasiva",
        "texto": "Al usar tu Hechicería Innata, te vuelves pura energía faerzress. Conservas tu forma, recuerdos, habla y equipo. Ganas inmunidad a las condiciones Agarrado, Paralizado, Petrificado, Envenenado, Derribado y Apresado, y resistencia a todo daño menos fuerza y psíquico. Ganas velocidad de vuelo igual a tu velocidad y flotas. Puedes moverte por criaturas y objetos (como terreno difícil), pero recibes 1d10 de daño de fuerza si terminas el turno dentro de un objeto. Termina tras 1 minuto, al morir o si lo descartas. Un uso por descanso largo o gastando 7 Puntos de Hechicería.",
        "n": 18,
@@ -6578,11 +6578,11 @@
      ]
     },
     "ancestral-sorcery": {
-     "n": "Ancestral Sorcery",
+     "n": "Hechicería Ancestral",
      "rasgos": [
       {
        "n": 3,
-       "nombre": "Conjuros de Ancestral Sorcery",
+       "nombre": "Conjuros de Hechicería Ancestral",
        "t": "pasiva",
        "texto": "A los niveles 3, 5, 7 y 9 amplías tu lista de conjuros preparados con los conjuros de esta subclase.",
        "manual": true,
@@ -6591,7 +6591,7 @@
       },
       {
        "n": 3,
-       "nombre": "Ancestor's Lore",
+       "nombre": "Saber del Ancestro",
        "t": "pasiva",
        "texto": "Cuando haces una prueba de Inteligencia, obtienes un bonificador a la prueba igual a tu modificador de Carisma (mínimo de +1). También ganas competencia en una de estas habilidades a tu elección: Arcanos, Historia, Investigación, Naturaleza o Religión.",
        "manual": true,
@@ -6600,7 +6600,7 @@
       },
       {
        "n": 3,
-       "nombre": "Visage of the Ancestor",
+       "nombre": "Semblante del Ancestro",
        "t": "pasiva",
        "texto": "Eliges la forma de tu ancestro, ya sea su apariencia en vida o una criatura simbólica. Mientras tu rasgo Hechicería Innata está activo, esta forma aparece en una neblina espectral a tu alrededor y tienes Ventaja en cualquier prueba de característica que hagas como parte de la acción de Influenciar.",
        "manual": true,
@@ -6609,7 +6609,7 @@
       },
       {
        "n": 6,
-       "nombre": "Superior Spell Disruption",
+       "nombre": "Disrupción de Conjuros Superior",
        "t": "pasiva",
        "texto": "Siempre tienes preparados Contraconjuro y Disipar magia. Mientras tu rasgo Hechicería Innata está activo, puedes lanzar cada conjuro sin gastar un espacio de conjuro. Si lanzas Contraconjuro de esta manera, el objetivo tiene Desventaja en su tirada de salvación de Constitución. Si lanzas Disipar magia de esta manera, tienes Ventaja en tus pruebas de característica para terminar conjuros activos. Una vez que lanzas cualquiera de los conjuros sin espacio, debes terminar un Descanso Largo antes de poder volver a lanzarlo de esta forma.",
        "manual": true,
@@ -6618,7 +6618,7 @@
       },
       {
        "n": 14,
-       "nombre": "Steady Spellcaster",
+       "nombre": "Lanzador Firme",
        "t": "pasiva",
        "texto": "Recibir daño no puede romper tu Concentración en conjuros de Hechicero.",
        "manual": true,
@@ -6627,7 +6627,7 @@
       },
       {
        "n": 14,
-       "nombre": "Ancestral Majesty",
+       "nombre": "Majestad Ancestral",
        "t": "pasiva",
        "texto": "Mientras tu rasgo Hechicería Innata está activo, estás rodeado por un aura mágica en una Emanación de 5 pies. Siempre que una criatura que puedas ver entre a la Emanación o termine su turno allí, puedes obligarla a hacer una tirada de salvación de Carisma. Si falla, el objetivo sufre la condición de Derribado o Asustado hasta el final de tu próximo turno, a tu elección. Una criatura hace esta salvación solo una vez por turno.",
        "manual": true,
@@ -6636,7 +6636,7 @@
       },
       {
        "n": 18,
-       "nombre": "Ancestor's Ward",
+       "nombre": "Custodia del Ancestro",
        "t": "pasiva",
        "texto": "Mientras tu rasgo Hechicería Innata está activo, tienes Ventaja en tiradas de salvación contra conjuros. Una vez durante cada uso de Hechicería Innata, cuando fallas una tirada de salvación contra un conjuro, puedes elegir tener éxito en su lugar.",
        "manual": true,
@@ -7434,10 +7434,10 @@
      ]
     },
     "imaskarcanist": {
-     "n": "Imaskarcanist",
+     "n": "Imaskarcanista",
      "rasgos": [
       {
-       "nombre": "Unlight Adept",
+       "nombre": "Adepto de Unlight",
        "t": "pasiva",
        "texto": "Cuando lanzas un conjuro que inflige daño de ácido, frío, fuego, relámpago o trueno, puedes cambiar ese tipo de daño a radiante. Además, la luz tenue creada por tus conjuros es luz brillante en su lugar.",
        "n": 3,
@@ -7446,7 +7446,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Unlight Invigoration",
+       "nombre": "Vigorización de Unlight",
        "t": "adicional",
        "texto": "Como acción adicional, eliges a una criatura voluntaria a menos de 30 pies y tiras uno o dos de tus Dados de Golpe, los cuales se gastan. El objetivo obtiene puntos de golpe temporales iguales al total obtenido más tu modificador de Inteligencia. Mientras tenga estos puntos, tiene ventaja en pruebas de Fuerza y emite luz brillante en un radio de 10 pies.",
        "n": 3,
@@ -7455,7 +7455,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Unlight Restoration",
+       "nombre": "Restauración de Unlight",
        "t": "adicional",
        "texto": "Como acción adicional, eliges a una criatura a menos de 30 pies de ti y tiras uno o dos de tus Dados de Golpe, que se gastan. El objetivo recupera puntos de golpe iguales al total y emite luz brillante en un radio de 10 pies hasta el final de su próximo turno. Si gastaste dos dados, puedes elegir no curar puntos de golpe y en su lugar terminar una de las siguientes condiciones en el objetivo: Cegado, Sordo, Paralizado o Envenenado.",
        "n": 6,
@@ -7464,7 +7464,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Secrets of Deep Imaskar",
+       "nombre": "Secretos del Imaskar Profundo",
        "t": "accion",
        "texto": "Puedes sintonizarte con un objeto mágico como acción de Magia (una vez por descanso largo). Tus conjuros ignoran la resistencia al daño radiante y tú obtienes resistencia a ese daño. Siempre tienes Glifo custodio preparado y puedes lanzarlo una vez sin espacio de conjuro al nivel de tu espacio más alto de mago, sin componentes materiales (recuperas el uso tras un descanso largo); si lo haces, cualquier glifo previo creado así se rompe.",
        "n": 10,
@@ -7473,7 +7473,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Doom of Unlight",
+       "nombre": "Perdición de Unlight",
        "t": "reaccion",
        "texto": "Cuando una criatura recibe daño radiante de tu conjuro, puedes usar tu reacción para maldecirla. Hace una salvación de Constitución contra tu CD de conjuros; si falla, emite luz brillante a 20 pies, los ataques en su contra tienen ventaja, recibe daño radiante igual a tu nivel al inicio de sus turnos y tiene ventaja en Fuerza y ataques cuerpo a cuerpo. Puede repetir la salvación si impacta cuerpo a cuerpo a otra criatura. Si cae a 0 puntos de golpe, explota: tiras d8s iguales a la mitad de tu nivel y las criaturas a 10 pies reciben ese daño radiante. Un uso por descanso largo o gastando un espacio de nivel 6+.",
        "n": 14,
@@ -8000,10 +8000,10 @@
      ]
     },
     "tattooed-warrior": {
-     "n": "Tattooed Warrior",
+     "n": "Guerrero Tatuado",
      "rasgos": [
       {
-       "nombre": "Magic Tattoos",
+       "nombre": "Tatuajes Mágicos",
        "t": "pasiva",
        "texto": "Obtienes los tatuajes mágicos descritos en otros rasgos de esta subclase. Los tatuajes aparecen en tu cuerpo donde desees. El daño o las lesiones no merman el funcionamiento de tus tatuajes mágicos. Un tatuaje mágico puede verse como una marca, escarificación, una marca de nacimiento, patrones de escamas o cualquier otra alteración cosmética. Si el efecto de un tatuaje requiere una tirada de salvación, la CD es igual a 8 más tu modificador de Sabiduría más tu bonificador por competencia. Tu aptitud mágica para los conjuros otorgados por un tatuaje es Sabiduría. Cada vez que terminas un descanso largo, puedes remodelar uno de tus tatuajes mágicos, cambiando la opción que elegiste de una lista a otra opción de la misma lista.",
        "n": 3,
@@ -8012,7 +8012,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Beast Tattoos",
+       "nombre": "Tatuajes de Bestia",
        "t": "pasiva",
        "texto": "Obtienes dos tatuajes de animales. Eliges dos tatuajes de las siguientes opciones. Bat: Conoces el truco Luces danzantes. También obtienes sentido ciego con un alcance de 10 pies. Butterfly: Conoces el truco Luz. Cuando haces un salto de altura, puedes usar tu modificador de Destreza en lugar de tu modificador de Fuerza para determinar qué tan alto puedes saltar. Crane: Conoces el truco Orientación. Cuando fallas a una criatura con un ataque otorgado por tu Ráfaga de golpes, tienes ventaja en tu próxima tirada de ataque contra esa criatura antes del final de tu siguiente turno. Horse: Conoces el truco Mensaje. Cuando gastas 1 Punto de Enfoque para usar Paso del viento, tu velocidad aumenta en 10 pies hasta el inicio de tu siguiente turno. Tortoise: Conoces el truco Perdonar la vida. Cuando gastas 1 Punto de Enfoque para usar Defensa paciente, tienes un bonificador de +1 a la CA hasta el inicio de tu siguiente turno.",
        "n": 3,
@@ -8021,7 +8021,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Celestial Tattoo",
+       "nombre": "Tatuaje Celestial",
        "t": "pasiva",
        "texto": "Obtienes un tatuaje mágico adicional que representa un fenómeno celestial. Elige un tatuaje de las siguientes opciones. Comet: Cuando tomas la acción de Buscar, puedes gastar 1 Punto de Enfoque para tirar tu dado de Artes Marciales y sumar el número sacado a la prueba de Sabiduría. Eclipse: Cuando tomas la acción de Esconderse, puedes gastar 1 Punto de Enfoque para tirar tu dado de Artes Marciales y sumar el número sacado a la prueba de Destreza (Sigilo). Sunburst: Cuando tomas la acción de Estudiar, puedes gastar 1 Punto de Enfoque para tirar tu dado de Artes Marciales y sumar el número sacado a la prueba de Inteligencia.",
        "n": 6,
@@ -8030,7 +8030,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Nature Tattoo",
+       "nombre": "Tatuaje de la Naturaleza",
        "t": "pasiva",
        "texto": "Obtienes un tatuaje mágico adicional que representa un rasgo natural. Elige un tatuaje de las siguientes opciones. Sea Storm: Obtienes resistencia a uno de los siguientes tipos de daño de tu elección: frío, relámpago o trueno. Cada vez que terminas un descanso corto o largo, o usas tu rasgo Metabolismo asombroso, puedes cambiar esta elección. Volcano: Obtienes resistencia a uno de los siguientes tipos de daño de tu elección: ácido, fuego o veneno. Cada vez que terminas un descanso corto o largo, o usas tu rasgo Metabolismo asombroso, puedes cambiar esta elección.",
        "n": 11,
@@ -8039,7 +8039,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Monster Tattoo",
+       "nombre": "Tatuaje de Monstruo",
        "t": "pasiva",
        "texto": "Obtienes un tatuaje mágico que representa a una criatura poderosa. Elige un tatuaje de las siguientes opciones. Beholder: Al inicio de tu turno, puedes gastar 1 Punto de Enfoque para obtener una velocidad de vuelo igual a tu velocidad durante 10 minutos. Mientras tengas esta velocidad de vuelo, puedes flotar. Además, como acción mágica, puedes gastar 1 Punto de Enfoque para disparar cuatro rayos desde tus ojos. Puedes dispararlos a un objetivo que puedas ver a no más de 120 pies o a varios. Haz un ataque de conjuro a distancia por cada rayo, usando Sabiduría como tu aptitud mágica. Si impacta, el ataque inflige daño de fuerza igual a una tirada de tu dado de Artes Marciales más tu modificador de Sabiduría. Chromatic Dragon: Cuando tomas la acción de Atacar en tu turno, puedes gastar 1 Punto de Enfoque para reemplazar uno de tus ataques con una exhalación de energía mágica en un cono de 30 pies. Elige un tipo de daño: ácido, frío, fuego, relámpago o veneno. Cada criatura en esa área hace una tirada de salvación de Destreza. Si falla la salvación, una criatura recibe daño del tipo elegido igual a dos tiradas de tu dado de Artes Marciales más tu modificador de Sabiduría. Si tiene éxito en la salvación, una criatura recibe solo la mitad de ese daño. Displacer Beast: Cuando gastas un Punto de Enfoque para usar Ráfaga de golpes o Paso del viento, puedes gastar 1 Punto de Enfoque para lanzar el conjuro Reflejos como parte de esa acción adicional. Troll: Al inicio de cada uno de tus turnos, recuperas puntos de golpe iguales a 5 más tu modificador de Sabiduría si estás malherido y tienes al menos 1 punto de golpe. Cualquier parte del cuerpo cercenada vuelve a crecer después de que terminas un descanso corto o largo.",
        "n": 17,
@@ -8050,10 +8050,10 @@
      ]
     },
     "warrior-of-venom": {
-     "n": "Warrior of Venom",
+     "n": "Guerrero del Veneno",
      "rasgos": [
       {
-       "nombre": "Potent Arsenal",
+       "nombre": "Arsenal Potente",
        "t": "pasiva",
        "texto": "Obtienes un Kit de envenenador (Poisoner's Kit) y tienes competencia con él. Puedes crear un Veneno Básico durante 1 día (8 horas de trabajo). Además, cada vez que infliges daño de veneno con un rasgo de Monje o un arma de Monje, puedes cambiar ese tipo de daño a daño de ácido.",
        "n": 3,
@@ -8062,7 +8062,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Envenom Weapon",
+       "nombre": "Envenenar Arma",
        "t": "gratis",
        "texto": "Al inicio de tu turno, puedes gastar 1 Punto de Concentración para aplicar una toxina producida por tu sangre a un arma de Monje que sostengas. Una criatura que reciba daño de esa arma queda sometida a uno de los siguientes efectos de toxina (eliges al aplicar la toxina). Slowing Toxin reduce su Velocidad a la mitad, evita que tome Reacciones, y solo puede tomar una acción o una Acción adicional en su turno (no ambas) hasta el inicio de tu próximo turno. Venom inflige daño de veneno al objetivo igual a dos tiradas de tu dado de Artes Marciales. La toxina retiene su potencia durante 1 minuto o hasta que una criatura reciba daño del arma.",
        "n": 3,
@@ -8071,7 +8071,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Toxic Touch",
+       "nombre": "Toque Tóxico",
        "t": "accion",
        "texto": "Como Acción mágica, puedes gastar 1 Punto de Concentración para aplicar una potente toxina a una criatura que toques. El objetivo hace una tirada de salvación de Constitución; si falla, tiene la condición Envenenado durante 1 minuto. Mientras esté Envenenado, se ve afectado por un efecto de tu elección. Intoxicant hace que tenga la condición Hechizado por la duración o hasta que tú o tus aliados le infrinjáis daño. Sedative lo hace caer dormido con la condición Inconsciente (otra criatura puede usar una acción para sacudirlo y despertarlo). Truth Serum impide que comunique una mentira a sabiendas por la duración.",
        "n": 6,
@@ -8080,16 +8080,16 @@
        "reset": "largo"
       },
       {
-       "nombre": "Toxin Refiner",
+       "nombre": "Refinador de Toxinas",
        "t": "pasiva",
-       "texto": "Tu cuerpo puede filtrar el veneno. Ganas Inmunidad al daño de veneno. Cada vez que seas sometido a daño de veneno, tus opciones de Envenom Weapon infligen cada una daño de veneno adicional igual a una tirada de tu dado de Artes Marciales, y no puedes volver a ganar este beneficio hasta el final de tu próximo turno. Además, cada vez que ingieras un veneno, recuperas una cantidad de Puntos de Golpe igual a una tirada de tu dado de Artes Marciales.",
+       "texto": "Tu cuerpo puede filtrar el veneno. Ganas Inmunidad al daño de veneno. Cada vez que seas sometido a daño de veneno, tus opciones de Envenenar Arma infligen cada una daño de veneno adicional igual a una tirada de tu dado de Artes Marciales, y no puedes volver a ganar este beneficio hasta el final de tu próximo turno. Además, cada vez que ingieras un veneno, recuperas una cantidad de Puntos de Golpe igual a una tirada de tu dado de Artes Marciales.",
        "n": 11,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Toxic Blood",
+       "nombre": "Sangre Tóxica",
        "t": "pasiva",
        "texto": "Cada vez que una criatura te impacte con una tirada de ataque cuerpo a cuerpo, el atacante recibe 1d6 de daño de veneno. Si estás Malherido (Bloodied), el atacante recibe en su lugar daño de veneno igual a una tirada de tu dado de Artes Marciales.",
        "n": 11,
@@ -8098,7 +8098,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Hallucinogenic Breath",
+       "nombre": "Aliento Alucinógeno",
        "t": "accion",
        "texto": "Cuando tomas la acción de Atacar en tu turno, puedes gastar 2 Puntos de Concentración y reemplazar uno de tus ataques con una exhalación de vapores alucinógenos hacia una criatura que puedas ver a 30 pies. El objetivo hace una tirada de salvación de Constitución. Si falla, recibe daño de veneno igual a tres tiradas de tu dado de Artes Marciales y tiene la condición Asustado durante 1 minuto o hasta que reciba daño. Mientras está Asustado, el objetivo usa la acción Correr (Dash) y se aleja de ti por la ruta más segura en cada uno de sus turnos a menos que no haya dónde moverse. En una salvación exitosa, una criatura solo recibe la mitad del daño.",
        "n": 17,
@@ -8651,10 +8651,10 @@
      ]
     },
     "oath-of-the-spellguard": {
-     "n": "Oath of the Spellguard",
+     "n": "Juramento del Guardián de Conjuros",
      "rasgos": [
       {
-       "nombre": "Conjuros de Oath of the Spellguard",
+       "nombre": "Conjuros de Juramento del Guardián de Conjuros",
        "t": "pasiva",
        "texto": "La magia de tu juramento asegura que siempre tengas ciertos conjuros preparados. Cuando alcanzas los niveles de Paladín especificados, siempre tienes preparados los conjuros listados: Detectar magia y Escudo (nivel 3), Ver lo invisible y Silencio (nivel 5), Contrahechizo y Disipar magia (nivel 9), Libertad de movimiento y Esfera elástica de Otiluke (nivel 13), Círculo de poder y Santificar (nivel 17).",
        "n": 3,
@@ -8663,7 +8663,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Guardian Bond",
+       "nombre": "Vínculo de Guardián",
        "t": "accion",
        "texto": "Como Acción mágica, puedes gastar un uso de tu Canalizar Divinidad para forjar un vínculo divino con una criatura voluntaria a 5 pies de ti. El vínculo dura 1 hora o hasta que tengas la condición Inconsciente. Durante esta duración, mientras la criatura vinculada esté a tu alcance y sea impactada por una tirada de ataque, puedes usar una Reacción para añadir tu modificador de Carisma (mínimo de +1) a la CA de esa criatura, lo que podría hacer que el ataque falle. Puedes terminar tu vínculo divino en cualquier momento (no requiere acción). Si ya tienes un vínculo divino cuando forjas uno nuevo, el vínculo anterior termina.",
        "n": 3,
@@ -8672,7 +8672,7 @@
        "reset": "corto"
       },
       {
-       "nombre": "Spellguard Strike",
+       "nombre": "Golpe del Guardián de Conjuros",
        "t": "reaccion",
        "texto": "Cuando ves a una criatura a tu alcance lanzar un conjuro con componentes verbales, somáticos o materiales, puedes usar una Reacción para hacer un ataque cuerpo a cuerpo con un arma o un Ataque Desarmado contra esa criatura.",
        "n": 3,
@@ -8681,7 +8681,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Aura of Concentration",
+       "nombre": "Aura de Concentración",
        "t": "pasiva",
        "texto": "Tu aura de protección fomenta la concentración mental. Tú y tus aliados tenéis Ventaja en las tiradas de salvación de Constitución para mantener la Concentración mientras estéis en tu Aura de Protección.",
        "n": 7,
@@ -8690,18 +8690,18 @@
        "reset": "largo"
       },
       {
-       "nombre": "Spell-Breaking Blade",
+       "nombre": "Hoja Rompe-Conjuros",
        "t": "pasiva",
-       "texto": "Inmediatamente después de impactar a una criatura con tu Spellguard Strike, puedes lanzar Contrahechizo como parte de la misma Reacción. Cuando lanzas Contrahechizo con un espacio de conjuro, ese espacio no se gasta si el conjuro falla en detener un conjuro.",
+       "texto": "Inmediatamente después de impactar a una criatura con tu Golpe del Guardián de Conjuros, puedes lanzar Contrahechizo como parte de la misma Reacción. Cuando lanzas Contrahechizo con un espacio de conjuro, ese espacio no se gasta si el conjuro falla en detener un conjuro.",
        "n": 15,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Eternal Spellguard",
+       "nombre": "Guardián de Conjuros Eterno",
        "t": "adicional",
-       "texto": "Como Acción adicional, puedes potenciar tu Aura de Protección, otorgando los siguientes beneficios durante 1 minuto o hasta que los termines (no requiere acción). Bodyguard: Mientras el objetivo de tu Guardian Bond esté en el aura, esa criatura tiene Resistencia a todo el daño. Protection from Magic: Tú y tus aliados en el aura tenéis Ventaja en las tiradas de salvación contra conjuros. Spell Ward: Las tiradas de ataque de conjuro contra ti y tus aliados en el aura tienen Desventaja. Una vez que usas este rasgo, no puedes volver a usarlo hasta que termines un Descanso Largo, a menos que restaures su uso gastando un espacio de conjuro de nivel 5 (no requiere acción).",
+       "texto": "Como Acción adicional, puedes potenciar tu Aura de Protección, otorgando los siguientes beneficios durante 1 minuto o hasta que los termines (no requiere acción). Bodyguard: Mientras el objetivo de tu Vínculo de Guardián esté en el aura, esa criatura tiene Resistencia a todo el daño. Protection from Magic: Tú y tus aliados en el aura tenéis Ventaja en las tiradas de salvación contra conjuros. Spell Ward: Las tiradas de ataque de conjuro contra ti y tus aliados en el aura tienen Desventaja. Una vez que usas este rasgo, no puedes volver a usarlo hasta que termines un Descanso Largo, a menos que restaures su uso gastando un espacio de conjuro de nivel 5 (no requiere acción).",
        "n": 20,
        "manual": true,
        "usos": 1,
@@ -9397,10 +9397,10 @@
      ]
     },
     "magic-stealer": {
-     "n": "Magic Stealer",
+     "n": "Ladrón de Magia",
      "rasgos": [
       {
-       "nombre": "Drain Magic",
+       "nombre": "Drenar Magia",
        "t": "accion",
        "texto": "Como Acción mágica, puedes tocar a una criatura voluntaria y terminar un conjuro activo de nivel 1 o 2 en ella; la criatura recupera inmediatamente un espacio de conjuro gastado de nivel 2 o inferior (a elección del objetivo). Una vez que usas este rasgo, no puedes volver a hacerlo hasta que termines un Descanso Corto o Largo.",
        "n": 3,
@@ -9409,7 +9409,7 @@
        "reset": "corto"
       },
       {
-       "nombre": "Empower Sneak Attack",
+       "nombre": "Potenciar Ataque Furtivo",
        "t": "reaccion",
        "texto": "Inmediatamente después de que una criatura que puedas ver a 30 pies de ti lance un conjuro de nivel 1 o superior, puedes usar una Reacción para absorber energía mágica del conjuro. Cuando lo haces, hasta el final de tu próximo turno, la próxima vez que impactes con tu Ataque Furtivo (Sneak Attack) infliges daño de fuerza adicional. Para determinar el daño adicional, tira una cantidad de d6s igual al nivel del conjuro y súmalos. Puedes usar esta Reacción una cantidad de veces igual a tu modificador de Inteligencia (mínimo una vez), y recuperas todos los usos gastados cuando terminas un Descanso Largo.",
        "n": 3,
@@ -9418,7 +9418,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Magical Sabotage",
+       "nombre": "Sabotaje Mágico",
        "t": "pasiva",
        "texto": "Obtienes las siguientes opciones de Golpe Astuto (Cunning Strike). Spell Susceptibility (Coste: 2d6): El objetivo tiene Desventaja en la próxima tirada de salvación que haga contra un conjuro hasta el inicio de tu próximo turno. Disrupt Spell (Coste: 3d6): La agudeza mágica del objetivo se interrumpe hasta el inicio de tu próximo turno. Cada vez que el objetivo lance un conjuro durante ese tiempo, debe superar una tirada de salvación de Inteligencia o el conjuro se disipa sin efecto, y la acción, Acción adicional o Reacción usada para lanzarlo se desperdicia. Si ese conjuro fue lanzado con un espacio de conjuro, el espacio no se gasta. Steal Resistance (Coste: 2d6): Elige un tipo de daño. Si el objetivo tiene Resistencia a ese tipo de daño, hasta el inicio de tu próximo turno, el objetivo pierde esa Resistencia y tú ganas Resistencia a ese tipo de daño.",
        "n": 9,
@@ -9427,16 +9427,16 @@
        "reset": "largo"
       },
       {
-       "nombre": "Improved Drain Magic",
+       "nombre": "Drenar Magia Mejorado",
        "t": "pasiva",
-       "texto": "Ahora puedes usar Drain Magic como Acción adicional. Además, cuando usas Drain Magic, puedes terminar un conjuro activo de nivel 1, nivel 2 o nivel 3 en el objetivo, y el objetivo recupera un espacio de conjuro gastado de nivel 3 o inferior (a elección del objetivo).",
+       "texto": "Ahora puedes usar Drenar Magia como Acción adicional. Además, cuando usas Drenar Magia, puedes terminar un conjuro activo de nivel 1, nivel 2 o nivel 3 en el objetivo, y el objetivo recupera un espacio de conjuro gastado de nivel 3 o inferior (a elección del objetivo).",
        "n": 13,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Occult Shroud",
+       "nombre": "Sudario Oculto",
        "t": "pasiva",
        "texto": "Cada vez que terminas un Descanso Largo, puedes lanzar el conjuro Indetectabilidad (Nondetection), usando Inteligencia como tu aptitud mágica. Cuando lo haces, solo puedes tenerte a ti mismo como objetivo, y la duración aumenta a 24 horas.",
        "n": 13,
@@ -9445,9 +9445,9 @@
        "reset": "largo"
       },
       {
-       "nombre": "Eldritch Implosion",
+       "nombre": "Implosión Sobrenatural",
        "t": "pasiva",
-       "texto": "Cuando usas Empower Sneak Attack, puedes obligar al objetivo a hacer una tirada de salvación de Constitución (CD 8 + tu modificador de Destreza + tu Bonificador por Competencia). Si falla la salvación, el conjuro se disipa sin efecto, y el objetivo tiene la condición Aturdido hasta el inicio de su próximo turno.",
+       "texto": "Cuando usas Potenciar Ataque Furtivo, puedes obligar al objetivo a hacer una tirada de salvación de Constitución (CD 8 + tu modificador de Destreza + tu Bonificador por Competencia). Si falla la salvación, el conjuro se disipa sin efecto, y el objetivo tiene la condición Aturdido hasta el inicio de su próximo turno.",
        "n": 17,
        "manual": true,
        "usos": 0,
@@ -9456,10 +9456,10 @@
      ]
     },
     "house-agent": {
-     "n": "House Agent",
+     "n": "Agente de Casa",
      "rasgos": [
       {
-       "nombre": "House Insignia",
+       "nombre": "Insignia de Casa",
        "t": "pasiva",
        "texto": "Obtienes una ficha mágica que te marca como agente de tu patrocinador y te permite lanzar los conjuros de este arquetipo usando Carisma como aptitud de conjuración. Si la pierdes, tu casa te entrega una nueva al terminar un descanso largo.",
        "n": 3,
@@ -9468,16 +9468,16 @@
        "reset": "largo"
       },
       {
-       "nombre": "Conjuros de House Agent",
+       "nombre": "Conjuros de Agente de Casa",
        "t": "pasiva",
-       "texto": "A través de tu House Insignia, aprendes el truco Amistad y el conjuro Encontrar familiar (lanzable solo como ritual; tu patrocinador da el material y debe ser forma de Araña). A niveles 3, 5 y 9 aprendes conjuros adicionales; puedes lanzar cada uno de estos conjuros usando tu insignia una vez por descanso largo.",
+       "texto": "A través de tu Insignia de Casa, aprendes el truco Amistad y el conjuro Encontrar familiar (lanzable solo como ritual; tu patrocinador da el material y debe ser forma de Araña). A niveles 3, 5 y 9 aprendes conjuros adicionales; puedes lanzar cada uno de estos conjuros usando tu insignia una vez por descanso largo.",
        "n": 3,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Charming Presence",
+       "nombre": "Presencia Encantadora",
        "t": "adicional",
        "texto": "Puedes realizar la acción de Influenciar como acción adicional. Además, eliges obtener competencia en una de las siguientes habilidades: Engaño, Intimidación, Interpretación o Persuasión.",
        "n": 3,
@@ -9486,7 +9486,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Backstab",
+       "nombre": "Puñalada Trapera",
        "t": "pasiva",
        "texto": "Tienes ventaja en las tiradas de ataque contra criaturas a menos de 5 pies de ti que sean amistosas hacia ti o tengan la condición Hechizado. Añades \"Stunning Betrayal\" a tu Golpe Astuto (Coste: 4d6): si tu objetivo era amistoso hacia ti o estaba Hechizado al impactarlo, obtiene la condición Aturdido hasta el inicio de tu próximo turno.",
        "n": 9,
@@ -9495,7 +9495,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Silver Tongue",
+       "nombre": "Lengua de Plata",
        "t": "pasiva",
        "texto": "La actitud hostil de una criatura no impone desventaja en tus pruebas de Carisma para influenciar a esa criatura.",
        "n": 13,
@@ -9504,7 +9504,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Infiltration Partner",
+       "nombre": "Compañero de Infiltración",
        "t": "pasiva",
        "texto": "El familiar que obtienes mediante Encontrar familiar obtiene visión en la oscuridad con un alcance de 120 pies y visión verdadera con un alcance de 30 pies. Además, cuando lanzas el conjuro o terminas un descanso corto o largo mientras tienes un familiar, puedes otorgarle puntos de golpe temporales iguales a tu nivel de pícaro.",
        "n": 13,
@@ -9513,7 +9513,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Subtle Manipulator",
+       "nombre": "Manipulador Sutil",
        "t": "adicional",
        "texto": "Añades \"Confound\" a tu Golpe Astuto (Coste: 5d6): el objetivo hace una salvación de Sabiduría contra tu CD de conjuros o queda Hechizado por 1 minuto (puede repetir la salvación cada vez que reciba daño). Además, puedes lanzar Amistad como acción adicional, y el objetivo ya no supera la salvación automáticamente si no es humanoide o si luchas contra él. Finalmente, cuando un conjuro tuyo que otorga la condición Hechizado termina, el objetivo no sabe que lo hechizaste.",
        "n": 17,
@@ -10473,64 +10473,64 @@
    ],
    "recursosTabla": [
     {
-     "psionic_energy_dice": 4
+     "dados_de_energia_psionica": 4
     },
     {
-     "psionic_energy_dice": 4
+     "dados_de_energia_psionica": 4
     },
     {
-     "psionic_energy_dice": 4
+     "dados_de_energia_psionica": 4
     },
     {
-     "psionic_energy_dice": 4
+     "dados_de_energia_psionica": 4
     },
     {
-     "psionic_energy_dice": 6
+     "dados_de_energia_psionica": 6
     },
     {
-     "psionic_energy_dice": 6
+     "dados_de_energia_psionica": 6
     },
     {
-     "psionic_energy_dice": 6
+     "dados_de_energia_psionica": 6
     },
     {
-     "psionic_energy_dice": 6
+     "dados_de_energia_psionica": 6
     },
     {
-     "psionic_energy_dice": 8
+     "dados_de_energia_psionica": 8
     },
     {
-     "psionic_energy_dice": 8
+     "dados_de_energia_psionica": 8
     },
     {
-     "psionic_energy_dice": 8
+     "dados_de_energia_psionica": 8
     },
     {
-     "psionic_energy_dice": 8
+     "dados_de_energia_psionica": 8
     },
     {
-     "psionic_energy_dice": 10
+     "dados_de_energia_psionica": 10
     },
     {
-     "psionic_energy_dice": 10
+     "dados_de_energia_psionica": 10
     },
     {
-     "psionic_energy_dice": 10
+     "dados_de_energia_psionica": 10
     },
     {
-     "psionic_energy_dice": 10
+     "dados_de_energia_psionica": 10
     },
     {
-     "psionic_energy_dice": 12
+     "dados_de_energia_psionica": 12
     },
     {
-     "psionic_energy_dice": 12
+     "dados_de_energia_psionica": 12
     },
     {
-     "psionic_energy_dice": 12
+     "dados_de_energia_psionica": 12
     },
     {
-     "psionic_energy_dice": 12
+     "dados_de_energia_psionica": 12
     }
    ],
    "asi": [
@@ -10546,34 +10546,34 @@
    "hasta": 0,
    "rasgos": [
     {
-     "nombre": "Psionic Power",
+     "nombre": "Poder Psiónico",
      "t": "adicional",
-     "texto": "Albergas un manantial de energía psiónica dentro de ti. Esta energía está representada por tus Psionic Energy Dice. Tu nivel de Psion determina el tamaño del dado y la cantidad de Psionic Energy Dice que tienes, como se muestra en la columna Energy Dice de la tabla de características del Psion. Tus Psionic Energy Dice se usan para mejorar o alimentar ciertos rasgos de Psion. Comienzas con dos de esos rasgos: Telekinetic Propel y Telepathic Connection. Algunos de tus poderes gastan los Psionic Energy Dice, como se especifica en la descripción de cada poder, y no puedes usar un poder si este requiere que gastes un dado cuando todos tus Psionic Energy Dice están gastados. Recuperas un Psionic Energy Die gastado cuando terminas un descanso corto, y recuperas todos ellos cuando terminas un descanso largo. Algunos rasgos que usan Psionic Energy Dice requieren que tu objetivo haga una tirada de salvación. La CD de la salvación equivale a la CD de salvación de conjuros de tu rasgo Spellcasting. Telekinetic Propel. Como acción adicional, eliges una criatura Grande o más pequeña que no seas tú y que puedas ver a 30 pies o menos de ti. Al hacerlo, el objetivo debe tener éxito en una tirada de salvación de Fuerza o ser movido 5 pies en línea recta hacia ti o alejándose de ti. Alternativamente, puedes tirar un Psionic Energy Die cuando tomas esta acción adicional, y la distancia movida es igual a 5 veces el número obtenido. El dado se gasta únicamente si el objetivo falla la tirada de salvación. Telepathic Connection. Tienes telepatía con un alcance de 30 pies. Como acción adicional, puedes tirar un Psionic Energy Die. Durante la siguiente hora, el alcance de tu telepatía aumenta un número de pies igual a 10 veces el número obtenido. La primera vez que usas esta acción adicional después de cada descanso largo, no gastas el Psionic Energy Die. Todas las demás veces que usas este rasgo, gastas el dado.",
+     "texto": "Albergas un manantial de energía psiónica dentro de ti. Esta energía está representada por tus Dados de Energía Psiónica. Tu nivel de Psion determina el tamaño del dado y la cantidad de Dados de Energía Psiónica que tienes, como se muestra en la columna Energy Dice de la tabla de características del Psion. Tus Dados de Energía Psiónica se usan para mejorar o alimentar ciertos rasgos de Psion. Comienzas con dos de esos rasgos: Telekinetic Propel y Telepathic Connection. Algunos de tus poderes gastan los Dados de Energía Psiónica, como se especifica en la descripción de cada poder, y no puedes usar un poder si este requiere que gastes un dado cuando todos tus Dados de Energía Psiónica están gastados. Recuperas un Dado de Energía Psiónica gastado cuando terminas un descanso corto, y recuperas todos ellos cuando terminas un descanso largo. Algunos rasgos que usan Dados de Energía Psiónica requieren que tu objetivo haga una tirada de salvación. La CD de la salvación equivale a la CD de salvación de conjuros de tu rasgo Lanzamiento de Conjuros. Telekinetic Propel. Como acción adicional, eliges una criatura Grande o más pequeña que no seas tú y que puedas ver a 30 pies o menos de ti. Al hacerlo, el objetivo debe tener éxito en una tirada de salvación de Fuerza o ser movido 5 pies en línea recta hacia ti o alejándose de ti. Alternativamente, puedes tirar un Dado de Energía Psiónica cuando tomas esta acción adicional, y la distancia movida es igual a 5 veces el número obtenido. El dado se gasta únicamente si el objetivo falla la tirada de salvación. Telepathic Connection. Tienes telepatía con un alcance de 30 pies. Como acción adicional, puedes tirar un Dado de Energía Psiónica. Durante la siguiente hora, el alcance de tu telepatía aumenta un número de pies igual a 10 veces el número obtenido. La primera vez que usas esta acción adicional después de cada descanso largo, no gastas el Dado de Energía Psiónica. Todas las demás veces que usas este rasgo, gastas el dado.",
      "n": 1,
      "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
-     "nombre": "Psionic Energy Dice",
+     "nombre": "Dados de Energía Psiónica",
      "t": "pasiva",
-     "texto": "Tienes Psionic Energy Dice según tu nivel (tabla del Psion). Con cada descanso largo recuperas todos; al terminar un descanso de una hora o menos (corto) recuperas uno.",
+     "texto": "Tienes Dados de Energía Psiónica según tu nivel (tabla del Psion). Con cada descanso largo recuperas todos; al terminar un descanso de una hora o menos (corto) recuperas uno.",
      "n": 1,
      "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
-     "nombre": "Spellcasting",
+     "nombre": "Lanzamiento de Conjuros",
      "t": "pasiva",
-     "texto": "Has aprendido cómo canalizar energía mágica utilizando el poder de tu mente. Cantrips. Conoces dos trucos de Psion a tu elección. Cada vez que ganas un nivel de Psion, puedes reemplazar uno de tus trucos de este rasgo con otro truco de Psion a tu elección. Cuando alcanzas los niveles de Psion 4 y 10, aprendes otro truco de Psion a tu elección. Spell Slots. Tienes espacios de conjuro para lanzar tus conjuros de nivel 1 y superior. Recuperas todos los espacios de conjuro gastados cuando terminas un descanso largo. Prepared Spells of Level 1+. Preparas la lista de conjuros de nivel 1 o superior que están disponibles para ser lanzados con este rasgo. Para empezar, eliges cuatro conjuros de Psion de nivel 1. El número de conjuros en tu lista aumenta conforme ganas niveles de Psion. Cada vez que ese número aumenta, eliges conjuros adicionales de Psion hasta que el número de conjuros en tu lista coincida con el número en la tabla. Los conjuros elegidos deben ser de un nivel para el cual tengas espacios de conjuro. Si otro rasgo de Psion te da conjuros que siempre tienes preparados, esos no cuentan contra el número de conjuros que puedes preparar con este rasgo, pero por lo demás cuentan como conjuros de Psion para ti. Changing Your Prepared Spells. Cada vez que ganas un nivel de Psion, puedes reemplazar un conjuro en tu lista por otro conjuro de Psion de un nivel elegible. Spellcasting Ability. La Inteligencia es tu aptitud mágica para tus conjuros de Psion. Psionic Spellcasting. Cuando lanzas un conjuro de Psion, ese conjuro no requiere un componente Verbal o Material, incluso si el conjuro incluye 'V' o 'M' en su entrada de 'Componentes', a excepción de componentes Materiales que son consumidos por el conjuro o que tienen un costo especificado en el conjuro.",
+     "texto": "Has aprendido cómo canalizar energía mágica utilizando el poder de tu mente. Cantrips. Conoces dos trucos de Psion a tu elección. Cada vez que ganas un nivel de Psion, puedes reemplazar uno de tus trucos de este rasgo con otro truco de Psion a tu elección. Cuando alcanzas los niveles de Psion 4 y 10, aprendes otro truco de Psion a tu elección. Spell Slots. Tienes espacios de conjuro para lanzar tus conjuros de nivel 1 y superior. Recuperas todos los espacios de conjuro gastados cuando terminas un descanso largo. Prepared Spells of Level 1+. Preparas la lista de conjuros de nivel 1 o superior que están disponibles para ser lanzados con este rasgo. Para empezar, eliges cuatro conjuros de Psion de nivel 1. El número de conjuros en tu lista aumenta conforme ganas niveles de Psion. Cada vez que ese número aumenta, eliges conjuros adicionales de Psion hasta que el número de conjuros en tu lista coincida con el número en la tabla. Los conjuros elegidos deben ser de un nivel para el cual tengas espacios de conjuro. Si otro rasgo de Psion te da conjuros que siempre tienes preparados, esos no cuentan contra el número de conjuros que puedes preparar con este rasgo, pero por lo demás cuentan como conjuros de Psion para ti. Changing Your Prepared Spells. Cada vez que ganas un nivel de Psion, puedes reemplazar un conjuro en tu lista por otro conjuro de Psion de un nivel elegible. Lanzamiento de Conjuros Ability. La Inteligencia es tu aptitud mágica para tus conjuros de Psion. Psionic Lanzamiento de Conjuros. Cuando lanzas un conjuro de Psion, ese conjuro no requiere un componente Verbal o Material, incluso si el conjuro incluye 'V' o 'M' en su entrada de 'Componentes', a excepción de componentes Materiales que son consumidos por el conjuro o que tienen un costo especificado en el conjuro.",
      "n": 1,
      "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
-     "nombre": "Subtle Telekinesis",
+     "nombre": "Telequinesis Sutil",
      "t": "pasiva",
      "texto": "Conoces el truco Mano de mago. Puedes lanzarlo sin componentes somáticos, y puedes hacer que la mano espectral sea Invisible cuando la lanzas.",
      "n": 1,
@@ -10582,25 +10582,25 @@
      "reset": "largo"
     },
     {
-     "nombre": "Psionic Discipline",
+     "nombre": "Disciplina Psiónica",
      "t": "pasiva",
-     "texto": "Aprendes técnicas psiónicas adicionales que se alimentan de tus Psionic Energy Dice. Obtienes dos disciplinas a tu elección. Solo puedes usar una Disciplina cada turno y solo una vez por turno, a menos que se indique lo contrario en alguna de esas opciones. Cada vez que ganas un nivel de Psion, puedes reemplazar una de tus opciones de Psionic Discipline por otra que no conozcas. Obtienes una opción adicional en los niveles de Psion 5, 10, 13 y 17.\n\nOpciones de Psionic Discipline:\nBiofeedback: Cuando lanzas un conjuro de Psion de la escuela de Nigromancia o Transmutación, puedes gastar un número de Psionic Energy Dice hasta tu modificador de Inteligencia, tirarlos y ganar un número de Puntos de Golpe Temporales igual al número total obtenido más tu modificador de Inteligencia (mínimo de uno).\nBolstering Precognition: Cuando lanzas un conjuro de Psion de la escuela de Abjuración o Adivinación, puedes gastar un Psionic Energy Die. Tira el dado y elige una criatura que puedas ver a 60 pies o menos (que puedes ser tú mismo). Hasta el final de tu próximo turno, la criatura gana una bonificación a la siguiente Prueba de d20 que haga igual al número obtenido.\nDestructive Thoughts: Cuando lanzas un conjuro de Psion de la escuela de Conjuración o Evocación que fuerza a una criatura que puedes ver a hacer una tirada de salvación contra el conjuro, puedes gastar un número de Psionic Energy Dice hasta tu modificador de Inteligencia, y tirarlos. La criatura recibe daño psíquico igual al número total obtenido más tu modificador de Inteligencia (mínimo de uno), independientemente del resultado de la tirada de salvación.\nDevilish Tongue: Cuando tomas la acción de Influencia, puedes tirar un Psionic Energy Die y sumar el número obtenido a la prueba de característica. Si esto causa que tengas éxito en la prueba de característica, el dado se gasta.\nExpanded Awareness: Cuando tomas la acción de Buscar, puedes tirar un Psionic Energy Die y sumar el número obtenido a la prueba de característica. Si esto causa que tengas éxito en la prueba de característica, el dado se gasta.\nId Insinuation: Cuando lanzas un conjuro de Psion de la escuela de Encantamiento o Ilusión que fuerza a una criatura a hacer una tirada de salvación, puedes gastar un Psionic Energy Dice y tirarlo. Un objetivo del conjuro que puedas ver resta la mitad del número obtenido (redondeando hacia arriba) de su tirada de salvación contra el conjuro.\nInerrant Aim: Cuando haces una tirada de ataque contra una criatura y fallas, puedes tirar un Psionic Energy Die y sumar el número obtenido a la tirada de ataque. Si esto causa que el ataque impacte, el dado se gasta.\nObservant Mind: Cuando tomas la acción de Estudiar, puedes tirar un Psionic Energy Die y sumar el número obtenido a la prueba de característica. Si esto causa que tengas éxito en la prueba de característica, el dado se gasta.\nPsionic Backlash: Inmediatamente después de que una criatura que puedes ver te impacta con una tirada de ataque, puedes tomar una reacción para gastar un Psionic Energy Die, tirarlo, y reducir el daño que recibes del ataque una cantidad igual a dos veces el número obtenido más tu modificador de Inteligencia (mínimo de dos). Además, puedes forzar al atacante a hacer una tirada de salvación de Sabiduría. En una salvación fallida, el objetivo recibe daño psíquico igual a la cantidad de daño que redujiste.\nPsionic Guards: Al inicio de tu turno, puedes gastar un Psionic Energy Die. Hasta el inicio de tu próximo turno, tienes Inmunidad a las condiciones Hechizado y Asustado y ventaja en las tiradas de salvación de Inteligencia. Si estás Hechizado o Asustado cuando usas esta disciplina, la condición termina en ti. Cuando usas Psionic Guards, también puedes usar una Psionic Discipline diferente este turno.\nSharpened Mind: Al inicio de tu turno, puedes gastar un Psionic Energy Die para afilar tu psiónica destructiva. Tira el dado y registra el número obtenido. Ganas los siguientes beneficios por 1 minuto o hasta que tengas la condición de Incapacitado: Bypassing Psionics. El daño de tus ataques con armas, conjuros de Psion y rasgos de Psion ignora la resistencia al daño psíquico. Attack Mode. Una vez por turno, cuando infliges daño psíquico a una o más criaturas, puedes reemplazar el número obtenido en uno de los dados de daño por el número registrado cuando activaste esta Psionic Discipline. Cuando usas Sharpened Mind, también puedes usar una Psionic Discipline diferente este turno.",
+     "texto": "Aprendes técnicas psiónicas adicionales que se alimentan de tus Dados de Energía Psiónica. Obtienes dos disciplinas a tu elección. Solo puedes usar una Disciplina cada turno y solo una vez por turno, a menos que se indique lo contrario en alguna de esas opciones. Cada vez que ganas un nivel de Psion, puedes reemplazar una de tus opciones de Disciplina Psiónica por otra que no conozcas. Obtienes una opción adicional en los niveles de Psion 5, 10, 13 y 17.\n\nOpciones de Disciplina Psiónica:\nBiorretroalimentación: Cuando lanzas un conjuro de Psion de la escuela de Nigromancia o Transmutación, puedes gastar un número de Dados de Energía Psiónica hasta tu modificador de Inteligencia, tirarlos y ganar un número de Puntos de Golpe Temporales igual al número total obtenido más tu modificador de Inteligencia (mínimo de uno).\nPrecognición Fortalecedora: Cuando lanzas un conjuro de Psion de la escuela de Abjuración o Adivinación, puedes gastar un Dado de Energía Psiónica. Tira el dado y elige una criatura que puedas ver a 60 pies o menos (que puedes ser tú mismo). Hasta el final de tu próximo turno, la criatura gana una bonificación a la siguiente Prueba de d20 que haga igual al número obtenido.\nPensamientos Destructivos: Cuando lanzas un conjuro de Psion de la escuela de Conjuración o Evocación que fuerza a una criatura que puedes ver a hacer una tirada de salvación contra el conjuro, puedes gastar un número de Dados de Energía Psiónica hasta tu modificador de Inteligencia, y tirarlos. La criatura recibe daño psíquico igual al número total obtenido más tu modificador de Inteligencia (mínimo de uno), independientemente del resultado de la tirada de salvación.\nLengua Diabólica: Cuando tomas la acción de Influencia, puedes tirar un Dado de Energía Psiónica y sumar el número obtenido a la prueba de característica. Si esto causa que tengas éxito en la prueba de característica, el dado se gasta.\nConciencia Expandida: Cuando tomas la acción de Buscar, puedes tirar un Dado de Energía Psiónica y sumar el número obtenido a la prueba de característica. Si esto causa que tengas éxito en la prueba de característica, el dado se gasta.\nInsinuación del Ello: Cuando lanzas un conjuro de Psion de la escuela de Encantamiento o Ilusión que fuerza a una criatura a hacer una tirada de salvación, puedes gastar un Dados de Energía Psiónica y tirarlo. Un objetivo del conjuro que puedas ver resta la mitad del número obtenido (redondeando hacia arriba) de su tirada de salvación contra el conjuro.\nPuntería Infalible: Cuando haces una tirada de ataque contra una criatura y fallas, puedes tirar un Dado de Energía Psiónica y sumar el número obtenido a la tirada de ataque. Si esto causa que el ataque impacte, el dado se gasta.\nMente Observadora: Cuando tomas la acción de Estudiar, puedes tirar un Dado de Energía Psiónica y sumar el número obtenido a la prueba de característica. Si esto causa que tengas éxito en la prueba de característica, el dado se gasta.\nContragolpe Psiónico: Inmediatamente después de que una criatura que puedes ver te impacta con una tirada de ataque, puedes tomar una reacción para gastar un Dado de Energía Psiónica, tirarlo, y reducir el daño que recibes del ataque una cantidad igual a dos veces el número obtenido más tu modificador de Inteligencia (mínimo de dos). Además, puedes forzar al atacante a hacer una tirada de salvación de Sabiduría. En una salvación fallida, el objetivo recibe daño psíquico igual a la cantidad de daño que redujiste.\nGuardas Psiónicas: Al inicio de tu turno, puedes gastar un Dado de Energía Psiónica. Hasta el inicio de tu próximo turno, tienes Inmunidad a las condiciones Hechizado y Asustado y ventaja en las tiradas de salvación de Inteligencia. Si estás Hechizado o Asustado cuando usas esta disciplina, la condición termina en ti. Cuando usas Guardas Psiónicas, también puedes usar una Disciplina Psiónica diferente este turno.\nMente Aguzada: Al inicio de tu turno, puedes gastar un Dado de Energía Psiónica para afilar tu psiónica destructiva. Tira el dado y registra el número obtenido. Ganas los siguientes beneficios por 1 minuto o hasta que tengas la condición de Incapacitado: Bypassing Psionics. El daño de tus ataques con armas, conjuros de Psion y rasgos de Psion ignora la resistencia al daño psíquico. Attack Mode. Una vez por turno, cuando infliges daño psíquico a una o más criaturas, puedes reemplazar el número obtenido en uno de los dados de daño por el número registrado cuando activaste esta Disciplina Psiónica. Cuando usas Mente Aguzada, también puedes usar una Disciplina Psiónica diferente este turno.",
      "n": 2,
      "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
-     "nombre": "Psion Subclass",
+     "nombre": "Subclase de Psion",
      "t": "pasiva",
-     "texto": "Obtienes una subclase de Psion a tu elección. Las subclases Metamorph, Psykinetic y Telepath se detallan en la descripción de la clase. Una subclase es una especialización que te otorga rasgos en ciertos niveles de Psion. Por el resto de tu carrera, ganas cada uno de los rasgos de tu subclase que sean de tu nivel de Psion o menor.",
+     "texto": "Obtienes una subclase de Psion a tu elección. Las subclases Metamorfo, Psicoquinético y Telépata se detallan en la descripción de la clase. Una subclase es una especialización que te otorga rasgos en ciertos niveles de Psion. Por el resto de tu carrera, ganas cada uno de los rasgos de tu subclase que sean de tu nivel de Psion o menor.",
      "n": 3,
      "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
-     "nombre": "Ability Score Improvement",
+     "nombre": "Mejora de Característica",
      "t": "pasiva",
      "texto": "Ganas la dote de Mejora de Puntuación de Característica u otra dote de tu elección para la cual cumplas los requisitos. Ganas este rasgo de nuevo en los niveles de Psion 8, 12 y 16.",
      "n": 4,
@@ -10609,34 +10609,34 @@
      "reset": "largo"
     },
     {
-     "nombre": "Psionic Restoration",
+     "nombre": "Restauración Psiónica",
      "t": "fuera",
-     "texto": "Puedes realizar una meditación que enfoca la mente durante 1 minuto. Al final de la misma, recuperas tus Psionic Energy Dice gastados. Una vez que usas este rasgo, no puedes volver a hacerlo hasta que termines un descanso largo.",
+     "texto": "Puedes realizar una meditación que enfoca la mente durante 1 minuto. Al final de la misma, recuperas tus Dados de Energía Psiónica gastados. Una vez que usas este rasgo, no puedes volver a hacerlo hasta que termines un descanso largo.",
      "n": 5,
      "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
-     "nombre": "Psionic Surge",
+     "nombre": "Oleada Psiónica",
      "t": "gratis",
-     "texto": "Puedes forzar tus poderes psiónicos utilizando tu fuerza vital. Después de tirar uno o más Psionic Energy Dice, puedes gastar uno de tus Dados de Golpe y tratar cualquier resultado de 1, 2 o 3 en esos Psionic Energy Dice como si fuera un 4.",
+     "texto": "Puedes forzar tus poderes psiónicos utilizando tu fuerza vital. Después de tirar uno o más Dados de Energía Psiónica, puedes gastar uno de tus Dados de Golpe y tratar cualquier resultado de 1, 2 o 3 en esos Dados de Energía Psiónica como si fuera un 4.",
      "n": 7,
      "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
-     "nombre": "Psionic Reserves",
+     "nombre": "Reservas Psiónicas",
      "t": "pasiva",
-     "texto": "Cuando tiras Iniciativa, recuperas usos gastados de tus Psionic Energy Dice hasta que tengas cuatro en caso de tener menos que eso.",
+     "texto": "Cuando tiras Iniciativa, recuperas usos gastados de tus Dados de Energía Psiónica hasta que tengas cuatro en caso de tener menos que eso.",
      "n": 18,
      "manual": true,
      "usos": 0,
      "reset": "largo"
     },
     {
-     "nombre": "Epic Boon",
+     "nombre": "Don Épico",
      "t": "pasiva",
      "texto": "Ganas una dote de Don épico u otra dote de tu elección para la que cumplas los requisitos.",
      "n": 19,
@@ -10645,9 +10645,9 @@
      "reset": "largo"
     },
     {
-     "nombre": "Enkindled Life Force",
+     "nombre": "Fuerza Vital Encendida",
      "t": "gratis",
-     "texto": "Quemas tu fuerza vital para lograr psiónica superior. Una vez por turno, cuando tiras uno o más Psionic Energy Dice para un rasgo de Psion o una Psionic Discipline, puedes gastar uno o dos de tus Dados de Golpe. Por cada Dado de Golpe gastado, tiras un Psionic Energy Die adicional y sumas los números obtenidos al total. Esta tirada no gasta el Psionic Energy Die.",
+     "texto": "Quemas tu fuerza vital para lograr psiónica superior. Una vez por turno, cuando tiras uno o más Dados de Energía Psiónica para un rasgo de Psion o una Disciplina Psiónica, puedes gastar uno o dos de tus Dados de Golpe. Por cada Dado de Golpe gastado, tiras un Dado de Energía Psiónica adicional y sumas los números obtenidos al total. Esta tirada no gasta el Dado de Energía Psiónica.",
      "n": 20,
      "manual": true,
      "usos": 0,
@@ -10656,28 +10656,28 @@
    ],
    "subclases": {
     "metamorph": {
-     "n": "Metamorph",
+     "n": "Metamorfo",
      "rasgos": [
       {
-       "nombre": "Conjuros de Metamorph",
+       "nombre": "Conjuros de Metamorfo",
        "t": "pasiva",
-       "texto": "Cuando alcanzas un nivel de Psion especificado en la tabla de Metamorph Spells, de ahí en adelante siempre tienes los conjuros listados preparados: Alterar el propio aspecto, Curar heridas, Infligir heridas y Restablecimiento menor (Nivel 3); Aura de vitalidad y Acelerar (Nivel 5); Polimorfar y Piel pétrea (Nivel 7); Contagio y Curar heridas en masa (Nivel 9).",
+       "texto": "Cuando alcanzas un nivel de Psion especificado en la tabla de Metamorfo Spells, de ahí en adelante siempre tienes los conjuros listados preparados: Alterar el propio aspecto, Curar heridas, Infligir heridas y Restablecimiento menor (Nivel 3); Aura de vitalidad y Acelerar (Nivel 5); Polimorfar y Piel pétrea (Nivel 7); Contagio y Curar heridas en masa (Nivel 9).",
        "n": 3,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Mutable Form",
+       "nombre": "Forma Mutable",
        "t": "adicional",
-       "texto": "Como acción adicional, puedes gastar un Psionic Energy Die para estirar psiónicamente tus extremidades durante 1 minuto. Tira el Psionic Energy Die gastado y gana una cantidad de Puntos de Golpe Temporales igual al número obtenido más tu modificador de Inteligencia (mínimo de 1 Punto de Golpe Temporal). Además, ganas los siguientes beneficios mientras este rasgo está activo: Alcance. Tu alcance aumenta en 5 pies. Velocidad. Tu Velocidad aumenta en 5 pies. Toque. Cuando lanzas un conjuro que tiene un alcance de Toque y un tiempo de lanzamiento de una acción, puedes hacer que el alcance del conjuro sea de 10 pies.",
+       "texto": "Como acción adicional, puedes gastar un Dado de Energía Psiónica para estirar psiónicamente tus extremidades durante 1 minuto. Tira el Dado de Energía Psiónica gastado y gana una cantidad de Puntos de Golpe Temporales igual al número obtenido más tu modificador de Inteligencia (mínimo de 1 Punto de Golpe Temporal). Además, ganas los siguientes beneficios mientras este rasgo está activo: Alcance. Tu alcance aumenta en 5 pies. Velocidad. Tu Velocidad aumenta en 5 pies. Toque. Cuando lanzas un conjuro que tiene un alcance de Toque y un tiempo de lanzamiento de una acción, puedes hacer que el alcance del conjuro sea de 10 pies.",
        "n": 3,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Organic Weapons",
+       "nombre": "Armas Orgánicas",
        "t": "accion",
        "texto": "Puedes dar forma a tus extremidades como armas. Como acción mágica, puedes reformar tu mano libre en una de las siguientes armas orgánicas: Bone Blade, Flesh Maul o Viscera Launcher. Cuando tomas la acción de Atacar, puedes usar este rasgo antes de hacer la tirada de ataque. Tu extremidad retiene la forma del arma orgánica hasta que tomas una acción mágica para cambiarla a otra arma orgánica, hasta que tienes la condición de Inconsciente, o hasta que regresas la extremidad a su forma anterior (no requiere acción). Siempre que ataques con el arma, puedes usar tu modificador de Inteligencia para las tiradas de ataque y daño en lugar de usar Fuerza o Destreza. Bone Blade. Una hoja hecha de hueso brota de tu antebrazo o se extiende desde tu mano. La hoja cuenta como un arma cuerpo a cuerpo simple con la propiedad Sutil, y causa 1d8 de daño perforante en un impacto. Tienes ventaja en la tirada de ataque que haces con la hoja si al menos uno de tus aliados está a 5 pies o menos del objetivo y el aliado no tiene la condición de Incapacitado. Flesh Maul. Tu puño y antebrazo se fusionan en una masa endurecida de carne y hueso. El mazo cuenta como un arma cuerpo a cuerpo simple y causa 1d10 de daño contundente en un impacto. Una criatura golpeada por el mazo tiene desventaja en la siguiente tirada de salvación de Fuerza o Constitución que haga antes del comienzo de su próximo turno. Viscera Launcher. Tu mano y antebrazo se transforman en una ballesta hecha de músculo y tendón que dispara virotes de bilis. El lanzador cuenta como un arma a distancia simple con un alcance normal de 30 pies y un alcance largo de 90 pies, y causa 1d6 de daño de ácido en un impacto. Una vez en cada uno de tus turnos cuando impactas a una criatura con una tirada de ataque usando el lanzador, puedes infligir 1d6 extra de daño de ácido al objetivo.",
        "n": 3,
@@ -10686,7 +10686,7 @@
        "reset": "largo"
       },
       {
-       "nombre": "Extra Attack",
+       "nombre": "Ataque Extra",
        "t": "pasiva",
        "texto": "Puedes atacar dos veces en lugar de una siempre que tomes la acción de Atacar en tu turno. Además, puedes lanzar uno de tus trucos de Psion que tenga un tiempo de lanzamiento de una acción en lugar de uno de esos ataques.",
        "n": 6,
@@ -10695,27 +10695,27 @@
        "reset": "largo"
       },
       {
-       "nombre": "Flesh Weaver",
+       "nombre": "Tejedor de Carne",
        "t": "gratis",
-       "texto": "Cuando usas Mutable Form, puedes gastar un Psionic Energy Die adicional para ganar los siguientes beneficios mientras el rasgo está activo: Organic Defense. Ganas un bonificador de +2 a la CA. Empowered Healing. Cuando lanzas un conjuro con un espacio de conjuro que restaura Puntos de Golpe a una o más criaturas, puedes gastar un Psionic Energy Die, tirarlo, y sumar el número obtenido a la cantidad de Puntos de Golpe recuperados.",
+       "texto": "Cuando usas Forma Mutable, puedes gastar un Dado de Energía Psiónica adicional para ganar los siguientes beneficios mientras el rasgo está activo: Organic Defense. Ganas un bonificador de +2 a la CA. Empowered Healing. Cuando lanzas un conjuro con un espacio de conjuro que restaura Puntos de Golpe a una o más criaturas, puedes gastar un Dado de Energía Psiónica, tirarlo, y sumar el número obtenido a la cantidad de Puntos de Golpe recuperados.",
        "n": 6,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Improved Mutable Form",
+       "nombre": "Forma Mutable Mejorada",
        "t": "pasiva",
-       "texto": "Cuando usas Mutable Form, la duración aumenta a 10 minutos y ganas uno de los siguientes beneficios de tu elección, cuyos efectos duran hasta que Mutable Form termine: Stony Epidermis. Tienes ventaja en las tiradas de salvación de Constitución para mantener la concentración. Además, elige uno de los siguientes tipos de daño: ácido, contundente, frío, fuego, relámpago, perforante, veneno, cortante o trueno. Ganas resistencia al tipo de daño elegido. Superior Stride. Mientras no llevas puesta armadura, puedes tomar la acción de Correr como acción adicional, y tienes una Velocidad de Escalada y una Velocidad de Nado iguales a tu Velocidad. Unnatural Flexibility. Ganas un bonificador de +1 a la CA, y tu cuerpo, junto con cualquier equipo que lleves puesto o cargado, se vuelve maleable. Puedes moverte a través de cualquier espacio tan estrecho como 1 pulgada, y puedes gastar 5 pies de movimiento para escapar de ataduras no mágicas o terminar la condición de Agarrado.",
+       "texto": "Cuando usas Forma Mutable, la duración aumenta a 10 minutos y ganas uno de los siguientes beneficios de tu elección, cuyos efectos duran hasta que Forma Mutable termine: Stony Epidermis. Tienes ventaja en las tiradas de salvación de Constitución para mantener la concentración. Además, elige uno de los siguientes tipos de daño: ácido, contundente, frío, fuego, relámpago, perforante, veneno, cortante o trueno. Ganas resistencia al tipo de daño elegido. Superior Stride. Mientras no llevas puesta armadura, puedes tomar la acción de Correr como acción adicional, y tienes una Velocidad de Escalada y una Velocidad de Nado iguales a tu Velocidad. Unnatural Flexibility. Ganas un bonificador de +1 a la CA, y tu cuerpo, junto con cualquier equipo que lleves puesto o cargado, se vuelve maleable. Puedes moverte a través de cualquier espacio tan estrecho como 1 pulgada, y puedes gastar 5 pies de movimiento para escapar de ataduras no mágicas o terminar la condición de Agarrado.",
        "n": 10,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Life-Bending Weapons",
+       "nombre": "Armas Dobladoras de Vida",
        "t": "pasiva",
-       "texto": "Tu arma queda envuelta en energía negativa, e irradias energía psiónica curativa de vida. Cuando impactas a un objetivo con una tirada de ataque usando tu Organic Weapon, tira un Psionic Energy Die. El objetivo recibe daño necrótico extra igual al número obtenido. Esta tirada no gasta el dado. Alternativamente, cuando impactas a una criatura con tu Organic Weapon, puedes decidir gastar un Psionic Energy Die y tirarlo. El objetivo recibe daño necrótico extra igual a la tirada, y cada criatura de tu elección en una Emanación de 30 pies originada en ti recupera Puntos de Golpe iguales al número obtenido más tu modificador de Inteligencia. Una vez que usas este rasgo, no puedes hacerlo de nuevo hasta el inicio de tu próximo turno.",
+       "texto": "Tu arma queda envuelta en energía negativa, e irradias energía psiónica curativa de vida. Cuando impactas a un objetivo con una tirada de ataque usando tu Organic Weapon, tira un Dado de Energía Psiónica. El objetivo recibe daño necrótico extra igual al número obtenido. Esta tirada no gasta el dado. Alternativamente, cuando impactas a una criatura con tu Organic Weapon, puedes decidir gastar un Dado de Energía Psiónica y tirarlo. El objetivo recibe daño necrótico extra igual a la tirada, y cada criatura de tu elección en una Emanación de 30 pies originada en ti recupera Puntos de Golpe iguales al número obtenido más tu modificador de Inteligencia. Una vez que usas este rasgo, no puedes hacerlo de nuevo hasta el inicio de tu próximo turno.",
        "n": 14,
        "manual": true,
        "usos": 0,
@@ -10724,19 +10724,19 @@
      ]
     },
     "psykinetic": {
-     "n": "Psykinetic",
+     "n": "Psicoquinético",
      "rasgos": [
       {
-       "nombre": "Conjuros de Psykinetic",
+       "nombre": "Conjuros de Psicoquinético",
        "t": "pasiva",
-       "texto": "Cuando alcanzas un nivel de Psion especificado en la tabla de Psykinetic Spells, de ahí en adelante siempre tienes los conjuros listados preparados: Nube de dagas, Levitar, Escudo y Onda atronadora (Nivel 3); Lentitud y Telekinetic Crush (Nivel 5); Esfera elástica de Otiluke y Dar forma a la piedra (Nivel 7); Telequinesis y Muro de fuerza (Nivel 9).",
+       "texto": "Cuando alcanzas un nivel de Psion especificado en la tabla de Psicoquinético Spells, de ahí en adelante siempre tienes los conjuros listados preparados: Nube de dagas, Levitar, Escudo y Onda atronadora (Nivel 3); Lentitud y Telekinetic Crush (Nivel 5); Esfera elástica de Otiluke y Dar forma a la piedra (Nivel 7); Telequinesis y Muro de fuerza (Nivel 9).",
        "n": 3,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Stronger Telekinesis",
+       "nombre": "Telequinesis Más Fuerte",
        "t": "pasiva",
        "texto": "Cuando lanzas Mano de mago, su alcance aumenta en 30 pies cuando lo lanzas, y la mano puede cargar hasta 20 libras.",
        "n": 3,
@@ -10745,45 +10745,45 @@
        "reset": "largo"
       },
       {
-       "nombre": "Telekinetic Techniques",
+       "nombre": "Técnicas Telequinéticas",
        "t": "pasiva",
-       "texto": "Cuando usas Telekinetic Propel, puedes tirar 1d4 y usar el número obtenido en lugar de gastar un Psionic Energy Die. Además, cuando un objetivo falla la tirada de salvación contra tu Telekinetic Propel, puedes imponerle uno de los siguientes efectos a ese objetivo: Boost. La Velocidad del objetivo aumenta en 10 pies hasta el inicio de tu próximo turno. Disorient. El objetivo no puede hacer Ataques de Oportunidad hasta el inicio de su próximo turno. Telekinetic Bolt. El objetivo recibe daño de fuerza igual al número obtenido en el Psionic Energy Die.",
+       "texto": "Cuando usas Telekinetic Propel, puedes tirar 1d4 y usar el número obtenido en lugar de gastar un Dado de Energía Psiónica. Además, cuando un objetivo falla la tirada de salvación contra tu Telekinetic Propel, puedes imponerle uno de los siguientes efectos a ese objetivo: Boost. La Velocidad del objetivo aumenta en 10 pies hasta el inicio de tu próximo turno. Disorient. El objetivo no puede hacer Ataques de Oportunidad hasta el inicio de su próximo turno. Telekinetic Bolt. El objetivo recibe daño de fuerza igual al número obtenido en el Dado de Energía Psiónica.",
        "n": 3,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Destructive Trance",
+       "nombre": "Trance Destructivo",
        "t": "gratis",
-       "texto": "Al inicio de tu turno, puedes gastar un Psionic Energy Die para entrar en un estado destructivo. Durante los próximos 10 minutos, ganas una Velocidad de Vuelo de 20 pies y puedes flotar, y cuando lanzas un conjuro de Psion que gasta un espacio de conjuro, puedes tirar tu Psionic Energy Die y sumar el número obtenido a una tirada de daño de ese conjuro. Esta tirada no gasta el Psionic Energy Die.",
+       "texto": "Al inicio de tu turno, puedes gastar un Dado de Energía Psiónica para entrar en un estado destructivo. Durante los próximos 10 minutos, ganas una Velocidad de Vuelo de 20 pies y puedes flotar, y cuando lanzas un conjuro de Psion que gasta un espacio de conjuro, puedes tirar tu Dado de Energía Psiónica y sumar el número obtenido a una tirada de daño de ese conjuro. Esta tirada no gasta el Dado de Energía Psiónica.",
        "n": 6,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Rebounding Field",
+       "nombre": "Campo Rebotante",
        "t": "reaccion",
-       "texto": "Cuando lanzas Escudo en respuesta a ser impactado por una tirada de ataque y haces que el ataque desencadenante falle, puedes gastar un Psionic Energy Die para lanzar la fuerza de vuelta al atacante. El atacante hace una tirada de salvación de Destreza. Tira un Psionic Energy Die. En una salvación fallida, el atacante recibe daño de fuerza igual a la cantidad obtenida más tu modificador de Inteligencia. En una salvación exitosa, el atacante recibe solo la mitad de ese daño. Independientemente de si el objetivo falla o tiene éxito en la tirada de salvación, tú ganas Puntos de Golpe Temporales iguales a la cantidad de daño infligido.",
+       "texto": "Cuando lanzas Escudo en respuesta a ser impactado por una tirada de ataque y haces que el ataque desencadenante falle, puedes gastar un Dado de Energía Psiónica para lanzar la fuerza de vuelta al atacante. El atacante hace una tirada de salvación de Destreza. Tira un Dado de Energía Psiónica. En una salvación fallida, el atacante recibe daño de fuerza igual a la cantidad obtenida más tu modificador de Inteligencia. En una salvación exitosa, el atacante recibe solo la mitad de ese daño. Independientemente de si el objetivo falla o tiene éxito en la tirada de salvación, tú ganas Puntos de Golpe Temporales iguales a la cantidad de daño infligido.",
        "n": 6,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Enhanced Telekinetic Crush",
+       "nombre": "Aplastamiento Telequinético Mejorado",
        "t": "gratis",
-       "texto": "Cuando lanzas Telekinetic Crush, puedes gastar un Psionic Energy Die para modificar el conjuro de forma que, ya sea que una criatura falle o tenga éxito en la tirada de salvación contra el conjuro, su Velocidad se reduce a la mitad hasta el inicio de tu próximo turno. Además, puedes tirar el Psionic Energy Die gastado y sumar el número obtenido a una tirada de daño del conjuro.",
+       "texto": "Cuando lanzas Telekinetic Crush, puedes gastar un Dado de Energía Psiónica para modificar el conjuro de forma que, ya sea que una criatura falle o tenga éxito en la tirada de salvación contra el conjuro, su Velocidad se reduce a la mitad hasta el inicio de tu próximo turno. Además, puedes tirar el Dado de Energía Psiónica gastado y sumar el número obtenido a una tirada de daño del conjuro.",
        "n": 10,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Heightened Telekinesis",
+       "nombre": "Telequinesis Intensificada",
        "t": "pasiva",
-       "texto": "Puedes lanzar Telequinesis sin gastar un espacio de conjuro gastando en su lugar cuatro Psionic Energy Dice. Cuando lanzas Telequinesis sin gastar un espacio de conjuro usando este rasgo, puedes modificar el conjuro para que no requiera Concentración. Si lo haces, la duración del conjuro se convierte en 1 minuto para ese lanzamiento, y puedes hacer objetivo a criaturas y objetos Gargantuescos.",
+       "texto": "Puedes lanzar Telequinesis sin gastar un espacio de conjuro gastando en su lugar cuatro Dados de Energía Psiónica. Cuando lanzas Telequinesis sin gastar un espacio de conjuro usando este rasgo, puedes modificar el conjuro para que no requiera Concentración. Si lo haces, la duración del conjuro se convierte en 1 minuto para ese lanzamiento, y puedes hacer objetivo a criaturas y objetos Gargantuescos.",
        "n": 14,
        "manual": true,
        "usos": 0,
@@ -10792,46 +10792,46 @@
      ]
     },
     "telepath": {
-     "n": "Telepath",
+     "n": "Telépata",
      "rasgos": [
       {
-       "nombre": "Mind Infiltrator",
+       "nombre": "Infiltrador Mental",
        "t": "pasiva",
-       "texto": "Cuando lanzas Detectar pensamientos, puedes gastar un Psionic Energy Die para modificar el conjuro de manera que no requiera componentes de conjuro o Concentración. Además, cuando usas el efecto de Leer Pensamientos del conjuro, el objetivo no sabe que estás sondeando su mente si falla la tirada de salvación de Sabiduría.",
+       "texto": "Cuando lanzas Detectar pensamientos, puedes gastar un Dado de Energía Psiónica para modificar el conjuro de manera que no requiera componentes de conjuro o Concentración. Además, cuando usas el efecto de Leer Pensamientos del conjuro, el objetivo no sabe que estás sondeando su mente si falla la tirada de salvación de Sabiduría.",
        "n": 3,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Conjuros de Telepath",
+       "nombre": "Conjuros de Telépata",
        "t": "pasiva",
-       "texto": "Cuando alcanzas un nivel de Psion especificado en la tabla de Telepath Spells, de ahí en adelante siempre tienes los conjuros listados preparados: Perdición, Orden imperiosa, Detectar pensamientos y Mind Spike (Nivel 3); Contrahechizo y Lentitud (Nivel 5); Compulsión y Confusión (Nivel 7); Modificar memoria y Yolande's Regal Presence (Nivel 9).",
+       "texto": "Cuando alcanzas un nivel de Psion especificado en la tabla de Telépata Spells, de ahí en adelante siempre tienes los conjuros listados preparados: Perdición, Orden imperiosa, Detectar pensamientos y Mind Spike (Nivel 3); Contrahechizo y Lentitud (Nivel 5); Compulsión y Confusión (Nivel 7); Modificar memoria y Yolande's Regal Presence (Nivel 9).",
        "n": 3,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Telepathic Distraction",
+       "nombre": "Distracción Telepática",
        "t": "reaccion",
-       "texto": "Cuando una criatura que puedes ver dentro del alcance de tu telepatía impacta con una tirada de ataque, puedes tomar una reacción para tirar un Psionic Energy Die y restar el número obtenido de la tirada de ataque, causando potencialmente que el ataque falle. El dado se gasta únicamente si el objetivo falla el ataque.",
+       "texto": "Cuando una criatura que puedes ver dentro del alcance de tu telepatía impacta con una tirada de ataque, puedes tomar una reacción para tirar un Dado de Energía Psiónica y restar el número obtenido de la tirada de ataque, causando potencialmente que el ataque falle. El dado se gasta únicamente si el objetivo falla el ataque.",
        "n": 3,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Bulwark Mind",
+       "nombre": "Mente Baluarte",
        "t": "gratis",
-       "texto": "Al inicio de tu turno, puedes gastar un Psionic Energy Die para fortalecer tu mente y entrar en un estado fortificado. Durante los próximos 10 minutos, tienes resistencia al daño psíquico; y siempre que hagas una tirada de salvación de Inteligencia, Sabiduría o Carisma, añades una tirada de tu Psionic Energy Die a la salvación. Tirar el Psionic Energy Die no lo gasta. No puedes usar este beneficio si tienes la condición de Incapacitado.",
+       "texto": "Al inicio de tu turno, puedes gastar un Dado de Energía Psiónica para fortalecer tu mente y entrar en un estado fortificado. Durante los próximos 10 minutos, tienes resistencia al daño psíquico; y siempre que hagas una tirada de salvación de Inteligencia, Sabiduría o Carisma, añades una tirada de tu Dado de Energía Psiónica a la salvación. Tirar el Dado de Energía Psiónica no lo gasta. No puedes usar este beneficio si tienes la condición de Incapacitado.",
        "n": 6,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Potent Thoughts",
+       "nombre": "Pensamientos Potentes",
        "t": "pasiva",
        "texto": "Tienes telepatía con un alcance de 60 pies. Además, sumas tu modificador de Inteligencia al daño que infliges con cualquier truco de Psion.",
        "n": 6,
@@ -10840,18 +10840,18 @@
        "reset": "largo"
       },
       {
-       "nombre": "Telepathic Bolstering",
+       "nombre": "Fortalecimiento Telepático",
        "t": "reaccion",
-       "texto": "Cuando tú o una criatura que puedes ver dentro del alcance de tu telepatía falla una prueba de característica o falla con una tirada de ataque, puedes tomar una reacción para gastar un Psionic Energy Die. Tira el dado y suma el número obtenido al d20, pudiendo potencialmente convertir una prueba fallida en un éxito o un fallo en un impacto. El Psionic Energy Die solo se gasta si la prueba tiene éxito o si el ataque impacta.",
+       "texto": "Cuando tú o una criatura que puedes ver dentro del alcance de tu telepatía falla una prueba de característica o falla con una tirada de ataque, puedes tomar una reacción para gastar un Dado de Energía Psiónica. Tira el dado y suma el número obtenido al d20, pudiendo potencialmente convertir una prueba fallida en un éxito o un fallo en un impacto. El Dado de Energía Psiónica solo se gasta si la prueba tiene éxito o si el ataque impacta.",
        "n": 10,
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
-       "nombre": "Scramble Minds",
+       "nombre": "Revolver Mentes",
        "t": "pasiva",
-       "texto": "Puedes lanzar Confusión sin gastar un espacio de conjuro gastando en su lugar cuatro Psionic Energy Dice. Cuando lanzas Confusión sin un espacio de conjuro usando este rasgo, puedes modificar el conjuro para que el radio de la Esfera del conjuro se convierta en 30 pies y puedes elegir a una criatura que puedas ver en el área del conjuro para que tenga éxito automáticamente en su tirada de salvación contra el conjuro. Además, cuando una criatura bajo el efecto del conjuro comienza su turno, tú eliges su comportamiento de la tabla para ese turno en lugar de que la criatura tire para determinar su comportamiento.",
+       "texto": "Puedes lanzar Confusión sin gastar un espacio de conjuro gastando en su lugar cuatro Dados de Energía Psiónica. Cuando lanzas Confusión sin un espacio de conjuro usando este rasgo, puedes modificar el conjuro para que el radio de la Esfera del conjuro se convierta en 30 pies y puedes elegir a una criatura que puedas ver en el área del conjuro para que tenga éxito automáticamente en su tirada de salvación contra el conjuro. Además, cuando una criatura bajo el efecto del conjuro comienza su turno, tú eliges su comportamiento de la tabla para ese turno en lugar de que la criatura tire para determinar su comportamiento.",
        "n": 14,
        "manual": true,
        "usos": 0,
@@ -10860,11 +10860,11 @@
      ]
     },
     "psi-warper": {
-     "n": "Psi Warper",
+     "n": "Deformador Psi",
      "rasgos": [
       {
        "n": 3,
-       "nombre": "Conjuros de Psi Warper",
+       "nombre": "Conjuros de Deformador Psi",
        "t": "pasiva",
        "texto": "A los niveles 3, 5, 7 y 9 amplías tu lista de conjuros preparados con los conjuros de esta subclase.",
        "manual": true,
@@ -10873,16 +10873,16 @@
       },
       {
        "n": 3,
-       "nombre": "Teleportation",
+       "nombre": "Teletransportación",
        "t": "pasiva",
-       "texto": "Puedes lanzar Paso brumoso sin gastar un espacio de conjuro, y debes terminar un Descanso Largo antes de poder lanzarlo de esta manera de nuevo. También puedes recuperar su uso gastando un Psionic Energy Die (sin requerir acción).",
+       "texto": "Puedes lanzar Paso brumoso sin gastar un espacio de conjuro, y debes terminar un Descanso Largo antes de poder lanzarlo de esta manera de nuevo. También puedes recuperar su uso gastando un Dado de Energía Psiónica (sin requerir acción).",
        "manual": true,
        "usos": 1,
        "reset": "largo"
       },
       {
        "n": 3,
-       "nombre": "Warp Propel",
+       "nombre": "Propulsión Deformante",
        "t": "pasiva",
        "texto": "Cuando un objetivo falla su tirada de salvación contra tu Telekinetic Propel, en lugar de empujarlo, puedes teletransportarlo a un espacio desocupado que puedas ver a 30 pies o menos de ti que esté en posición horizontal respecto a ti.",
        "manual": true,
@@ -10891,27 +10891,27 @@
       },
       {
        "n": 6,
-       "nombre": "Warp Space",
+       "nombre": "Deformar el Espacio",
        "t": "pasiva",
-       "texto": "Cuando lanzas Hacer añicos, puedes gastar un Psionic Energy Die para modificar el conjuro y que el radio de su Esfera pase a ser de 20 pies. Además, las criaturas que fallan la tirada de salvación contra el conjuro son atraídas en línea recta hacia el centro de la Esfera y terminan en el espacio desocupado más cercano al centro.",
+       "texto": "Cuando lanzas Hacer añicos, puedes gastar un Dado de Energía Psiónica para modificar el conjuro y que el radio de su Esfera pase a ser de 20 pies. Además, las criaturas que fallan la tirada de salvación contra el conjuro son atraídas en línea recta hacia el centro de la Esfera y terminan en el espacio desocupado más cercano al centro.",
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "n": 10,
-       "nombre": "Duplicitous Target",
+       "nombre": "Blanco Falaz",
        "t": "reaccion",
-       "texto": "Cuando una criatura que puedes ver hace una tirada de ataque contra ti, puedes usar una Reacción para gastar un Psionic Energy Die y elegir a una criatura voluntaria que puedas ver a 30 pies o menos de ti que no tenga la condición de Incapacitado. Tú y la criatura voluntaria se teletransportan, intercambiando lugares. La criatura se convierte entonces en el objetivo de la tirada de ataque.",
+       "texto": "Cuando una criatura que puedes ver hace una tirada de ataque contra ti, puedes usar una Reacción para gastar un Dado de Energía Psiónica y elegir a una criatura voluntaria que puedas ver a 30 pies o menos de ti que no tenga la condición de Incapacitado. Tú y la criatura voluntaria se teletransportan, intercambiando lugares. La criatura se convierte entonces en el objetivo de la tirada de ataque.",
        "manual": true,
        "usos": 0,
        "reset": "largo"
       },
       {
        "n": 14,
-       "nombre": "Mass Teleportation",
+       "nombre": "Teletransportación Masiva",
        "t": "accion",
-       "texto": "Como acción Mágica, gastas cuatro Psionic Energy Dice y eliges criaturas Enormes o más pequeñas a 30 pies o menos de ti, hasta un número de criaturas igual a tu modificador de Inteligencia (mínimo una criatura). Cada criatura elegida es teletransportada a un espacio desocupado que puedas ver a 150 pies o menos de ti. Una criatura involuntaria que supere una tirada de salvación de Sabiduría contra tu CD de salvación de conjuros no se ve afectada.",
+       "texto": "Como acción Mágica, gastas cuatro Dados de Energía Psiónica y eliges criaturas Enormes o más pequeñas a 30 pies o menos de ti, hasta un número de criaturas igual a tu modificador de Inteligencia (mínimo una criatura). Cada criatura elegida es teletransportada a un espacio desocupado que puedas ver a 150 pies o menos de ti. Una criatura involuntaria que supere una tirada de salvación de Sabiduría contra tu CD de salvación de conjuros no se ve afectada.",
        "manual": true,
        "usos": 0,
        "reset": "largo"
@@ -14139,7 +14139,7 @@
    "habsNota": "Curiosidad Kender"
   },
   "lib:deep-imaskari": {
-   "n": "Deep Imaskari",
+   "n": "Imaskari de las Profundidades",
    "lib": true,
    "src": "Unearthed Arcana Underdark Options 2 (2026)",
    "r": "De tu biblioteca",
@@ -14157,7 +14157,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Photoresistant",
+     "nombre": "Fotorresistente",
      "t": "pasiva",
      "texto": "Tienes resistencia al daño radiante.",
      "manual": true,
@@ -14165,7 +14165,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Resourceful",
+     "nombre": "Ingenioso",
      "t": "pasiva",
      "texto": "Ganas Inspiración Heroica siempre que terminas un descanso largo.",
      "manual": true,
@@ -14173,7 +14173,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Unluminescent",
+     "nombre": "Inluminiscente",
      "t": "accion",
      "texto": "Como acción, puedes hacer que los cristales de tu cuerpo emitan luz brillante en un radio de 5 pies. El efecto dura hasta que uses una acción para detenerlo, mueras o tengas la condición Inconsciente.",
      "manual": true,
@@ -14181,7 +14181,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Aura of Unlight",
+     "nombre": "Aura de Unlight",
      "t": "adicional",
      "texto": "Al nivel 3, puedes usar una acción adicional para crear un aura que emite luz brillante en una Emanación de 10 pies durante 1 minuto o hasta que la termines (sin requerir acción). Al crearla, eliges una de las siguientes opciones y no puedes volver a usar este rasgo hasta terminar un descanso largo: Abjuring Unlight: Tus aliados y tú en el aura ganan un bonificador a la CA igual a la mitad de tu Bonificador por Competencia (redondeando hacia abajo). Brilliant Unlight: Los enemigos que empiecen su turno en la Emanación deben superar una tirada de salvación de Constitución (CD 8 + tu modificador de Carisma + tu Bonificador por Competencia) o sufrirán la condición Cegado hasta el final de tu siguiente turno. Corrupting Unlight: Puedes cambiar el daño de tus ataques o conjuros a daño radiante; además, puedes gastar uno de tus Dados de Golpe no usados y sumarlo como daño radiante adicional.",
      "manual": true,
@@ -14210,7 +14210,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Arachnid Build",
+     "nombre": "Complexión de Arácnido",
      "t": "pasiva",
      "texto": "Cuentas como una categoría de tamaño superior para determinar tu capacidad de carga.",
      "manual": true,
@@ -14218,7 +14218,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Darkvision",
+     "nombre": "Visión en la Oscuridad",
      "t": "pasiva",
      "texto": "Tienes visión en la oscuridad con un alcance de 120 pies.",
      "manual": true,
@@ -14226,7 +14226,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Spells of the Spider Queen",
+     "nombre": "Conjuros de la Reina Araña",
      "t": "pasiva",
      "texto": "Conoces el truco Luces danzantes. Al nivel 3 siempre tienes preparado el conjuro Fuego feérico, y al nivel 5 el conjuro Telaraña. Puedes lanzar cada uno de estos conjuros una vez sin gastar espacio de conjuro (recuperas este uso al terminar un descanso largo), o usando los espacios de conjuro correspondientes. Tu aptitud mágica para estos conjuros es Inteligencia, Sabiduría o Carisma (lo eliges al seleccionar esta especie).",
      "manual": true,
@@ -14234,7 +14234,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Spider Climb",
+     "nombre": "Trepar como Araña",
      "t": "pasiva",
      "texto": "Tienes una velocidad de escalada igual a tu velocidad. A partir del nivel 3, puedes moverte hacia arriba, hacia abajo y a través de superficies verticales y a lo largo de techos dejando tus manos libres.",
      "manual": true,
@@ -14242,7 +14242,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Web Walker",
+     "nombre": "Caminante de Telarañas",
      "t": "pasiva",
      "texto": "Ignoras las restricciones de movimiento causadas por telarañas. Además, conoces la ubicación exacta de cualquier otra criatura que esté en contacto con la misma telaraña que tú.",
      "manual": true,
@@ -14270,7 +14270,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Darkvision",
+     "nombre": "Visión en la Oscuridad",
      "t": "pasiva",
      "texto": "Tienes visión en la oscuridad con un alcance de 120 pies.",
      "manual": true,
@@ -14278,7 +14278,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Psionic Aptitude",
+     "nombre": "Aptitud Psiónica",
      "t": "pasiva",
      "texto": "Conoces el truco Mano de Mago y puedes hacer que la mano espectral sea Invisible. Al nivel 3 tienes preparado el conjuro Orden imperiosa, y al nivel 5 el conjuro Levitar. Puedes lanzar cada uno una vez sin gastar espacio de conjuro (recuperas el uso tras un descanso largo) o gastando los espacios de conjuro adecuados. Eliges Inteligencia, Sabiduría o Carisma como tu aptitud mágica para ellos.",
      "manual": true,
@@ -14286,7 +14286,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Sharpened Mind",
+     "nombre": "Mente Aguzada",
      "t": "pasiva",
      "texto": "Tienes resistencia al daño psíquico. También tienes ventaja en las tiradas de salvación que hagas para evitar o terminar la condición Hechizado en ti.",
      "manual": true,
@@ -14294,7 +14294,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Telepathy",
+     "nombre": "Telepatía",
      "t": "pasiva",
      "texto": "Tienes telepatía con un alcance de 30 pies.",
      "manual": true,
@@ -14322,7 +14322,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Amphibious",
+     "nombre": "Anfibio",
      "t": "pasiva",
      "texto": "Puedes respirar tanto aire como agua. Además, tienes una velocidad de nado igual a tu velocidad.",
      "manual": true,
@@ -14330,7 +14330,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Slippery",
+     "nombre": "Resbaladizo",
      "t": "pasiva",
      "texto": "Tienes ventaja en las tiradas de salvación para evitar o terminar las condiciones Agarrado y Apresado.",
      "manual": true,
@@ -14338,9 +14338,9 @@
      "reset": "largo"
     },
     {
-     "nombre": "Deific Manifestation",
+     "nombre": "Manifestación Divina",
      "t": "pasiva",
-     "texto": "Siempre tienes preparado el conjuro Encontrar familiar y puedes lanzarlo sin componentes materiales. Puedes lanzarlo una vez sin gastar espacio de conjuro, recuperando este uso al finalizar un descanso largo. La criatura es de tipo Celestial y puedes elegir su forma entre las opciones normales o dos especiales: Homúnculo o Myconid Sprout (PROPUESTA: Brote micónido). Además, eliges una segunda forma de las opciones disponibles y tu familiar adquiere una acción, reacción o rasgo de esa segunda forma.",
+     "texto": "Siempre tienes preparado el conjuro Encontrar familiar y puedes lanzarlo sin componentes materiales. Puedes lanzarlo una vez sin gastar espacio de conjuro, recuperando este uso al finalizar un descanso largo. La criatura es de tipo Celestial y puedes elegir su forma entre las opciones normales o dos especiales: Homúnculo o Myconido Sprout (PROPUESTA: Brote micónido). Además, eliges una segunda forma de las opciones disponibles y tu familiar adquiere una acción, reacción o rasgo de esa segunda forma.",
      "manual": true,
      "usos": 0,
      "reset": "largo"
@@ -14348,7 +14348,7 @@
    ]
   },
   "lib:myconid": {
-   "n": "Myconid",
+   "n": "Myconido",
    "lib": true,
    "src": "Unearthed Arcana Underdark Options 2 (2026)",
    "r": "De tu biblioteca",
@@ -14366,7 +14366,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Darkvision",
+     "nombre": "Visión en la Oscuridad",
      "t": "pasiva",
      "texto": "Tienes visión en la oscuridad con un alcance de 120 pies.",
      "manual": true,
@@ -14374,7 +14374,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Telepathy",
+     "nombre": "Telepatía",
      "t": "pasiva",
      "texto": "Tienes telepatía con un alcance de 30 pies.",
      "manual": true,
@@ -14382,7 +14382,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Rapport Spores",
+     "nombre": "Esporas de Empatía",
      "t": "accion",
      "texto": "Como acción, expulsas esporas en una Emanación de 30 pies originada en ti. Las criaturas en el área con una Inteligencia de 2 o más que no sean Constructos, Elementales o Muertos Vivientes, ganan telepatía con un alcance de 30 pies durante 1 hora. Una vez que uses este rasgo, no puedes volver a hacerlo hasta que termines un descanso largo.",
      "manual": true,
@@ -14390,7 +14390,7 @@
      "reset": "largo"
     },
     {
-     "nombre": "Skill Meld",
+     "nombre": "Fusión de Habilidades",
      "t": "fuera",
      "texto": "Al terminar un descanso largo, puedes realizar un ritual de fusión para compartir conocimientos con hasta seis aliados en un radio de 30 pies (incluyéndote). Eliges una competencia en una habilidad que posea al menos uno de los participantes. Todas las criaturas elegidas obtienen competencia en esa habilidad hasta que terminen su próximo descanso largo.",
      "manual": true,
@@ -16623,161 +16623,161 @@
    "nivelMin": 19
   },
   "lib:atoners-grace": {
-   "n": "Atoner's Grace",
+   "n": "Gracia del Penitente",
    "t": "pasiva",
    "texto": "Obtienes los siguientes beneficios:\n- Disarming Mien: La actitud hostil de una criatura no te impone desventaja en tus pruebas de Carisma (Persuasión) para influenciar a esa criatura.\n- Parley: Cuando realizas la acción de Destrabarse o Influenciar, cada criatura de tu elección a 5 pies de ti tiene ventaja en la próxima prueba de característica o tirada de salvación que haga antes del inicio de tu próximo turno.",
    "cat": "Origen (Playtest)",
    "nivelMin": 1
   },
   "lib:raised-by-cultists": {
-   "n": "Raised by Cultists",
+   "n": "Criado por Cultistas",
    "t": "reaccion",
    "texto": "Obtienes los siguientes beneficios:\n- Bloody Revelation: Cuando obtienes la condición de Ensangrentado, puedes usar una reacción para obtener Inspiración Heroica.\n- Communal Caster: Cuando un aliado a 5 pies de ti hace una tirada de salvación de Constitución para mantener la concentración, puedes usar una reacción para darle ventaja en la salvación.",
    "cat": "Origen (Playtest)",
    "nivelMin": 1
   },
   "lib:trapper": {
-   "n": "Trapper",
+   "n": "Trampero",
    "t": "adicional",
    "texto": "Obtienes los siguientes beneficios:\n- Eye for Detail: Tienes ventaja en cualquier prueba de Inteligencia (Investigación) que hagas como parte de la acción de Estudiar.\n- Swift Tracker: No tienes desventaja en las pruebas de Sabiduría (Percepción o Supervivencia) mientras viajas a un ritmo Rápido, y tienes ventaja en dichas pruebas mientras viajas a un ritmo Normal.\n- Trap Expert: Puedes usar una acción adicional, en lugar de la acción de Utilizar, para colocar una trampa de caza. Cuando colocas una trampa de caza, añades tu bonificador por competencia a la CD de la tirada de salvación para evitar la trampa y a la CD de la prueba para escapar de ella.",
    "cat": "Origen (Playtest)",
    "nivelMin": 1
   },
   "lib:underhanded": {
-   "n": "Underhanded",
+   "n": "Solapado",
    "t": "reaccion",
    "texto": "Obtienes los siguientes beneficios:\n- Elusive: Inmediatamente después de tirar iniciativa, puedes moverte hasta 10 pies.\n- Fight Dirty: Cuando una criatura de un tamaño mayor al tuyo o más pequeña hace un ataque de oportunidad contra ti y falla, puedes usar una reacción para darle a esa criatura la condición de Derribado. Debes tener una mano libre para usar esta reacción.",
    "cat": "Origen (Playtest)",
    "nivelMin": 1
   },
   "lib:boon-of-the-bandit-king": {
-   "n": "Boon of the Bandit King",
+   "n": "Don del Rey Bandido",
    "t": "pasiva",
    "texto": "Obtienes los siguientes beneficios:\n- Aumento de Puntuación de Característica: Incrementa una puntuación de característica de tu elección en 1, hasta un máximo de 30.\n- Dastardly Charm: Tienes ventaja en las pruebas de Destreza (Juego de Manos) para robar un bolsillo. Cuando tienes éxito en dicha prueba, puedes hacer que el objetivo de tu robo se separe voluntariamente del objeto y tenga la condición de Hechizado durante 1 minuto o hasta que reciba daño. Una vez que usas este beneficio, no puedes volver a usarlo hasta que termines un descanso corto o largo.\n- Uncatchable: No provocas ataques de oportunidad cuando te mueves fuera del alcance de una criatura.",
    "cat": "Épica (Playtest)",
    "nivelMin": 19
   },
   "lib:boon-of-the-cleansed-heart": {
-   "n": "Boon of the Cleansed Heart",
+   "n": "Don del Corazón Purificado",
    "t": "pasiva",
    "texto": "Obtienes los siguientes beneficios:\n- Aumento de Puntuación de Característica: Incrementa una puntuación de característica de tu elección en 1, hasta un máximo de 30.\n- Cleanse Heart: Puedes lanzar el conjuro Disipar el bien y el mal sin gastar un espacio de conjuro. No puedes usar la función especial de Despido del conjuro cuando lo lanzas de esta manera.\n- Radiant Reflection: Tienes inmunidad al daño necrótico. Cuando vayas a ser sometido a daño necrótico y no tengas la condición de Incapacitado, puedes infligir 2d8 de daño radiante a cada criatura de tu elección dentro de una emanación de 10 pies originada en ti.",
    "cat": "Épica (Playtest)",
    "nivelMin": 19
   },
   "lib:boon-of-the-hunters-eye": {
-   "n": "Boon of the Hunter's Eye",
+   "n": "Don del Ojo del Cazador",
    "t": "pasiva",
    "texto": "Obtienes los siguientes beneficios:\n- Aumento de Puntuación de Característica: Incrementa una puntuación de característica de tu elección en 1, hasta un máximo de 30.\n- Quick Capture: Cuando infliges daño a una criatura con la intención de dejarla inconsciente en lugar de matarla, si el objetivo tiene 20 puntos de golpe o menos después de infligir el daño, el objetivo se reduce a 0 puntos de golpe en su lugar.\n- Studied Hunter: Cuando tiras iniciativa, puedes elegir a una criatura que puedas ver; sabes si esa criatura tiene alguna Inmunidad, Resistencia o Vulnerabilidad, y si tiene alguna, sabes cuáles son.",
    "cat": "Épica (Playtest)",
    "nivelMin": 19
   },
   "lib:boon-of-unwavering-devotion": {
-   "n": "Boon of Unwavering Devotion",
+   "n": "Don de la Devoción Inquebrantable",
    "t": "reaccion",
    "texto": "Obtienes los siguientes beneficios:\n- Aumento de Puntuación de Característica: Incrementa una puntuación de característica de tu elección en 1, hasta un máximo de 30.\n- Possession Immunity: Tienes éxito automáticamente en las tiradas de salvación para evitar o terminar una posesión.\n- See Through Illusions: Las ilusiones visuales te parecen transparentes, y tienes éxito automáticamente en las tiradas de salvación contra ellas.\n- Undeniable Confidence: Inmediatamente después de que una criatura que puedas ver tenga éxito en una tirada de salvación de Sabiduría contra un efecto que hayas creado, puedes usar una reacción para forzar a esa criatura a volver a tirar la salvación, y debe usar la nueva tirada. Una vez que usas este beneficio, no puedes volver a usarlo hasta que tires iniciativa o termines un descanso corto o largo.",
    "cat": "Épica (Playtest)",
    "nivelMin": 19
   },
   "lib:tadpole-host": {
-   "n": "Tadpole Host",
+   "n": "Anfitrión de Renacuajo",
    "t": "pasiva",
    "texto": "Comienzas una relación simbiótica con un renacuajo azotamentes en tu cuerpo. Obtienes los siguientes beneficios:\n- Aumento de Puntuación de Característica: Incrementa tu Inteligencia en 1, hasta un máximo de 20.\n- Mind Sliver: Aprendes el truco Mind Sliver. La Inteligencia es tu aptitud mágica para este conjuro.\n- Psionic Power: Tienes un número de Dados de Energía Psiónica igual a tu bonificador por competencia. Cuando tomas esta dote, tu Dado de Energía Psiónica es un d6. Este dado cambia cuando tomas otras dotes de la senda Path of Ceremorphosis. Las características de esta senda solo utilizan estos dados, y no puedes usarlas si ya los has gastado todos. Recuperas todos los dados gastados cuando terminas un descanso largo.\n- Psionic Overload: Siempre que inflijas daño psíquico, puedes gastar un Dado de Energía Psiónica para tirarlo e infligir daño psíquico adicional igual al número obtenido.",
    "cat": "Ceremorphosis (Playtest)",
    "nivelMin": 4
   },
   "lib:illithid-thrallmaker": {
-   "n": "Illithid Thrallmaker",
+   "n": "Esclavizador Illithid",
    "t": "pasiva",
    "texto": "Obtienes los siguientes beneficios:\n- Aumento de Puntuación de Característica: Incrementa tu Inteligencia o Carisma en 1, hasta un máximo de 20.\n- Psionic Energy Dice: Los Dados de Energía Psiónica de esta senda se convierten en d8s.\n- Telepathy: Tienes telepatía con un alcance de 10 pies. Si ya la tenías, tu alcance aumenta en 10 pies.\n- Persuasive Presence: Siempre tienes preparado el conjuro Hechizar persona, siendo Inteligencia tu aptitud mágica. Puedes lanzarlo sin gastar espacio de conjuro gastando un Dado de Energía Psiónica, o usando cualquier espacio que tengas. Cuando gastas el dado para lanzarlo, tíralo. Un objetivo resta la mitad del número obtenido (redondeando hacia arriba) de su tirada de salvación contra el conjuro.",
    "cat": "Ceremorphosis (Playtest)",
    "nivelMin": 4
   },
   "lib:tadpoles-safeguard": {
-   "n": "Tadpole's Safeguard",
+   "n": "Resguardo del Renacuajo",
    "t": "reaccion",
    "texto": "Obtienes los siguientes beneficios:\n- Aumento de Puntuación de Característica: Incrementa tu Constitución o Inteligencia en 1, hasta un máximo de 20.\n- Psionic Energy Dice: Los Dados de Energía Psiónica de esta senda se convierten en d8s.\n- Telepathy: Tienes telepatía con un alcance de 10 pies (o aumenta en 10 pies si ya tenías).\n- Warding Backlash: Siempre tienes preparado el conjuro Escudo, siendo Inteligencia tu aptitud mágica. Puedes lanzarlo gastando un Dado de Energía Psiónica (o usando un espacio de conjuro). Cuando gastas el dado y causas que el ataque desencadenante falle, tíralo. El atacante recibe daño psíquico igual al número obtenido.",
    "cat": "Ceremorphosis (Playtest)",
    "nivelMin": 4
   },
   "lib:ulitharids-might": {
-   "n": "Ulitharid's Might",
+   "n": "Poder del Ulitharid",
    "t": "pasiva",
    "texto": "Obtienes los siguientes beneficios:\n- Aumento de Puntuación de Característica: Incrementa tu Fuerza, Destreza o Constitución en 1, hasta un máximo de 20.\n- Psionic Energy Dice: Los Dados de Energía Psiónica de esta senda se convierten en d8s.\n- Telepathy: Tienes telepatía con un alcance de 10 pies (o aumenta en 10 pies si ya tenías).\n- Extended Tentacles: Brotan dos largos tentáculos alrededor de tu boca que puedes usar para hacer un Ataque Desarmado. Cuando los usas, tu alcance aumenta en 5 pies.",
    "cat": "Ceremorphosis (Playtest)",
    "nivelMin": 4
   },
   "lib:full-ceremorphosis": {
-   "n": "Full Ceremorphosis",
+   "n": "Ceremorfosis Completa",
    "t": "accion",
    "texto": "Obtienes los siguientes beneficios:\n- Aumento de Puntuación de Característica: Incrementa tu Inteligencia en 1, hasta un máximo de 20.\n- Psionic Energy Dice: Tus Dados de Energía Psiónica se convierten en d10s (o d12s si ya eran d10s).\n- Aberration: Tu tipo de criatura es Aberración.\n- Illithid Specialization: Elige uno de los siguientes beneficios (puedes tomar esta dote varias veces eligiendo opciones distintas):\n  - Brain-Seeking Tentacles: Al impactar con un Ataque Desarmado como parte de la acción de Atacar, puedes usar tanto la opción de Daño como la de Agarrar. Puedes gastar un Dado de Energía Psiónica para que el objetivo reciba daño psíquico extra igual al número obtenido más tu modificador de Inteligencia, y el objetivo resta la mitad del número obtenido (hacia arriba) de su salvación contra el agarre. Si el objetivo cae a 0 puntos de golpe por esto, el dado no se gasta. 1/turno.\n  - Mind Flayer Spells: Siempre tienes preparados Detectar pensamientos, Levitar y Mind Blast (conjuro nuevo que, como acción en un cono de 60 pies, inflige 6d8 de daño psíquico y Aturdimiento con salvación fallida de Inteligencia). Inteligencia es tu aptitud mágica. Puedes lanzarlos sin espacio gastando un Dado de Energía Psiónica o usando espacios apropiados.",
    "cat": "Ceremorphosis (Playtest)",
    "nivelMin": 12
   },
   "lib:atmokinesis": {
-   "n": "Atmokinesis",
+   "n": "Atmoquinesis",
    "t": "pasiva",
    "texto": "Requisito: no tener otra dote Wild Talent.\nLightning Jolt. Una vez por turno, cuando lanzas un conjuro o impactas con una tirada de ataque y causas daño contundente, perforante, cortante o psíquico, puedes cambiar el tipo de daño a relámpago.\nPsionic Talent. Conoces el truco Agarre electrizante y siempre tienes preparado el conjuro Nube de niebla. Puedes lanzarlo una vez sin gastar un espacio de conjuro, recuperando este uso al terminar un descanso largo, o usando cualquier espacio de conjuro adecuado. Cuando alcanzas el nivel 3 de personaje, siempre tienes preparado Ráfaga de viento y puedes lanzarlo de la misma forma. Al lanzar estos conjuros no requieres componentes verbales ni materiales, y tu aptitud mágica para ellos es Inteligencia, Sabiduría o Carisma (eliges al seleccionar esta dote).",
    "cat": "Wild Talent (Playtest)",
    "nivelMin": 1
   },
   "lib:biokinesis": {
-   "n": "Biokinesis",
+   "n": "Bioquinesis",
    "t": "pasiva",
    "texto": "Requisito: no tener otra dote Wild Talent.\nBend Life Energy. Cuando un conjuro que lanzas restaura puntos de golpe a una criatura, puedes tirar 1d4 y añadir el resultado al total de puntos de golpe restaurados. Puedes usar este beneficio un número de veces igual a tu bonificador por competencia, y recuperas todos los usos al terminar un descanso largo.\nPsionic Talent. Conoces el truco Perdonar la vida y siempre tienes preparado el conjuro Palabra curadora. Al nivel 3 de personaje, también tienes preparado siempre Arcane Vigor (NUEVO). Puedes lanzar cada uno una vez sin gastar un espacio de conjuro (recuperas el uso tras un descanso largo) o utilizando los espacios de conjuro del nivel adecuado que poseas. Al lanzarlos, no requieren componentes verbales ni materiales, y eliges Inteligencia, Sabiduría o Carisma como tu aptitud mágica para ellos al seleccionar esta dote.",
    "cat": "Wild Talent (Playtest)",
    "nivelMin": 1
   },
   "lib:clairsentience": {
-   "n": "Clairsentience",
+   "n": "Clarisentencia",
    "t": "pasiva",
    "texto": "Requisito: no tener otra dote Wild Talent.\nMinor Foreknowledge. Cuando realizas la acción de Buscar, puedes otorgarte ventaja en cualquier prueba de característica realizada como parte de esa acción. Puedes usar este beneficio una cantidad de veces igual a tu bonificador por competencia, recuperando los usos gastados al finalizar un descanso largo.\nPsionic Talent. Conoces el truco Orientación y siempre tienes preparado el conjuro Detectar el bien y el mal. Al alcanzar el nivel 3 de personaje, siempre tienes preparado Ver lo invisible. Puedes lanzar cada uno una vez sin usar un espacio de conjuro, recuperando este uso tras un descanso largo, o utilizando espacios de conjuro de nivel adecuado. No requieren componentes verbales ni materiales, y tu aptitud mágica para estos conjuros es Inteligencia, Sabiduría o Carisma (eliges al seleccionar la dote).",
    "cat": "Wild Talent (Playtest)",
    "nivelMin": 1
   },
   "lib:cryokinesis": {
-   "n": "Cryokinesis",
+   "n": "Crioquinesis",
    "t": "pasiva",
    "texto": "Requisito: no tener otra dote Wild Talent.\nIce Manipulation. Una vez por turno, cuando lanzas un conjuro o impactas con una tirada de ataque y causas daño contundente, perforante, cortante o psíquico, puedes cambiar el tipo de daño a frío.\nPsionic Talent. Conoces el truco Rayo de escarcha y siempre tienes preparados los conjuros Armadura de Agathys y Cuchillo de hielo. Puedes lanzar cada uno de estos conjuros una vez sin gastar un espacio de conjuro, recuperando su uso al terminar un descanso largo, o empleando cualquier espacio de conjuro que tengas. Estos conjuros no requieren componentes verbales ni materiales, y eliges Inteligencia, Sabiduría o Carisma como tu aptitud mágica al obtener la dote.",
    "cat": "Wild Talent (Playtest)",
    "nivelMin": 1
   },
   "lib:empath": {
-   "n": "Empath",
+   "n": "Empata",
    "t": "pasiva",
    "texto": "Requisito: no tener otra dote Wild Talent.\nEmotional Sense. Cuando realizas la acción de Influenciar, puedes otorgarte ventaja en cualquier prueba de característica que hagas como parte de dicha acción. Puedes usar este beneficio un número de veces igual a tu bonificador por competencia, recuperando los usos gastados al terminar un descanso largo.\nPsionic Talent. Siempre tienes preparado el conjuro Hechizar persona, y al nivel 3 de personaje siempre tienes preparado Contener emociones. Puedes lanzar cada conjuro una vez sin espacio de conjuro (recuperando el uso tras un descanso largo) o empleando espacios de conjuro del nivel apropiado. Estos conjuros no requieren componentes verbales, y tu aptitud mágica para ellos es Inteligencia, Sabiduría o Carisma (eliges al adquirir esta dote).",
    "cat": "Wild Talent (Playtest)",
    "nivelMin": 1
   },
   "lib:flesh-morpher": {
-   "n": "Flesh Morpher",
+   "n": "Transformador de Carne",
    "t": "pasiva",
    "texto": "Requisito: no tener otra dote Wild Talent.\nFlexible Flesh. Cuando realizas una prueba de Destreza (Acrobacias o Juego de manos), ganas un bonificador igual a tu modificador por Inteligencia (mínimo de +1). Puedes usar este beneficio una cantidad de veces igual a tu bonificador por competencia, y recuperas todos los usos tras un descanso largo.\nPsionic Talent. Siempre tienes preparado el conjuro Zancada prodigiosa, y al alcanzar el nivel 3 de personaje siempre tienes preparado Alterar el propio aspecto. Puedes lanzar cada conjuro una vez sin usar un espacio de conjuro, recuperando el uso al finalizar un descanso largo, o utilizando espacios de conjuro adecuados. Estos conjuros no requieren componentes verbales, y tu aptitud mágica es Inteligencia, Sabiduría o Carisma (eliges al seleccionar la dote).",
    "cat": "Wild Talent (Playtest)",
    "nivelMin": 1
   },
   "lib:mind-whisperer": {
-   "n": "Mind Whisperer",
+   "n": "Susurrador Mental",
    "t": "accion",
    "texto": "Requisito: no tener otra dote Wild Talent.\nLimited Telepathy. Como acción mágica, eliges a una criatura que puedas ver a 120 pies o menos de ti para formar una conexión telepática durante 1 hora. Mientras estéis a 120 pies o menos el uno del otro, podéis comunicaros telepáticamente, debiendo usar mentalmente un idioma que el otro conozca para que podáis entenderos. Una vez que usas este beneficio, no puedes volver a hacerlo hasta terminar un descanso corto o largo.\nPsionic Talent. Conoces el truco Astilla mental y siempre tienes preparado Susurros discordantes. Puedes lanzarlo una vez sin gastar un espacio de conjuro (recuperas el uso al terminar un descanso largo) o empleando espacios de conjuro que poseas. No requieren componentes verbales ni materiales, y tu aptitud mágica es Inteligencia, Sabiduría o Carisma (eliges al obtener la dote).",
    "cat": "Wild Talent (Playtest)",
    "nivelMin": 1
   },
   "lib:psi-trickster": {
-   "n": "Psi Trickster",
+   "n": "Embaucador Psi",
    "t": "pasiva",
    "texto": "Requisito: no tener otra dote Wild Talent.\nCunning Mind. Cuando haces una prueba de Carisma (Engaño o Persuasión), obtienes un bonificador igual a tu modificador por Inteligencia (bonificador mínimo de +1). Puedes usar este beneficio un número de veces igual a tu bonificador por competencia, recuperando los usos gastados al terminar un descanso largo.\nPsionic Talent. Conoces el truco Ilusión menor y siempre tienes preparado el conjuro Disfrazarse. Puedes lanzarlo una vez sin gastar un espacio de conjuro, recuperando este uso al finalizar un descanso largo, o usando cualquier espacio de conjuro que tengas. Estos conjuros no requieren componentes verbales ni materiales, y eliges Inteligencia, Sabiduría o Carisma como tu aptitud mágica al seleccionar la dote.",
    "cat": "Wild Talent (Playtest)",
    "nivelMin": 1
   },
   "lib:psykineticist": {
-   "n": "Psykineticist",
+   "n": "Psicoquinetista",
    "t": "pasiva",
    "texto": "Requisito: no tener otra dote Wild Talent.\nPsi Boost. Cuando realizas la acción de Correr, puedes aumentar tu Velocidad en 10 pies hasta el inicio de tu próximo turno. Puedes usar esto un número de veces igual a tu bonificador por competencia, y recuperas todos los usos gastados al terminar un descanso largo.\nPsionic Talent. Conoces el truco Telekinetic Fling (NUEVO) y siempre tienes preparado el conjuro Onda atronadora. Puedes lanzarlo una vez sin espacio de conjuro, recuperando su uso al terminar un descanso largo, o empleando cualquier espacio de conjuro que poseas. Al lanzarlos, no requieren componentes verbales, y tu aptitud mágica es Inteligencia, Sabiduría o Carisma (eliges al tomar esta dote).",
    "cat": "Wild Talent (Playtest)",
    "nivelMin": 1
   },
   "lib:pyrokinesis": {
-   "n": "Pyrokinesis",
+   "n": "Piroquinesis",
    "t": "pasiva",
    "texto": "Requisito: no tener otra dote Wild Talent.\nFirestarter. Una vez por turno, cuando lanzas un conjuro o impactas con una tirada de ataque y causas daño contundente, perforante, cortante o psíquico, puedes cambiar el tipo de daño a fuego.\nPsionic Talent. Conoces el truco Producir llama y siempre tienes preparado el conjuro Manos ardientes. Al llegar al nivel 3 de personaje, también tienes preparado siempre Rayo abrasador. Puedes lanzar cada conjuro una vez sin usar un espacio de conjuro (recuperando el uso tras un descanso largo) o utilizando espacios de conjuro del nivel adecuado. Estos conjuros no requieren componentes verbales ni materiales, y tu aptitud mágica es Inteligencia, Sabiduría o Carisma (eliges al seleccionarla).",
    "cat": "Wild Talent (Playtest)",
