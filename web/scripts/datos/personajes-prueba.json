@@ -1,4 +1,130 @@
 {
   "correo": "1@1.com",
-  "personajes": []
+  "personajes": [
+    {
+      "clase": "barbaro",
+      "subclase": "path-of-unlight",
+      "nivel": 20
+    },
+    {
+      "clase": "barbaro",
+      "subclase": "path-of-lament",
+      "nivel": 20
+    },
+    {
+      "clase": "brujo",
+      "subclase": "sorcerer-king-patron",
+      "nivel": 20
+    },
+    {
+      "clase": "brujo",
+      "subclase": "primordial-patron",
+      "nivel": 20
+    },
+    {
+      "clase": "clerigo",
+      "subclase": "freedom-domain",
+      "nivel": 20
+    },
+    {
+      "clase": "clerigo",
+      "subclase": "pestilence-domain",
+      "nivel": 20
+    },
+    {
+      "clase": "druida",
+      "subclase": "circle-of-preservation",
+      "nivel": 20
+    },
+    {
+      "clase": "druida",
+      "subclase": "circle-of-the-titan",
+      "nivel": 20
+    },
+    {
+      "clase": "druida",
+      "subclase": "esporas-playtest",
+      "nivel": 20
+    },
+    {
+      "clase": "guerrero",
+      "subclase": "gladiator",
+      "nivel": 20
+    },
+    {
+      "clase": "guerrero",
+      "subclase": "hell-knight",
+      "nivel": 20
+    },
+    {
+      "clase": "hechicero",
+      "subclase": "defiled-sorcery",
+      "nivel": 20
+    },
+    {
+      "clase": "hechicero",
+      "subclase": "demonic-sorcery",
+      "nivel": 20
+    },
+    {
+      "clase": "hechicero",
+      "subclase": "faerzress-sorcery",
+      "nivel": 20
+    },
+    {
+      "clase": "hechicero",
+      "subclase": "ancestral-sorcery",
+      "nivel": 20
+    },
+    {
+      "clase": "mago",
+      "subclase": "imaskarcanist",
+      "nivel": 20
+    },
+    {
+      "clase": "monje",
+      "subclase": "tattooed-warrior",
+      "nivel": 20
+    },
+    {
+      "clase": "monje",
+      "subclase": "warrior-of-venom",
+      "nivel": 20
+    },
+    {
+      "clase": "paladin",
+      "subclase": "oath-of-the-spellguard",
+      "nivel": 20
+    },
+    {
+      "clase": "picaro",
+      "subclase": "magic-stealer",
+      "nivel": 20
+    },
+    {
+      "clase": "picaro",
+      "subclase": "house-agent",
+      "nivel": 20
+    },
+    {
+      "clase": "lib:psion",
+      "subclase": "metamorph",
+      "nivel": 20
+    },
+    {
+      "clase": "lib:psion",
+      "subclase": "psykinetic",
+      "nivel": 20
+    },
+    {
+      "clase": "lib:psion",
+      "subclase": "telepath",
+      "nivel": 20
+    },
+    {
+      "clase": "lib:psion",
+      "subclase": "psi-warper",
+      "nivel": 20
+    }
+  ]
 }
