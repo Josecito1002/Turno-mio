@@ -18,6 +18,7 @@
     "gemini:encargo-objetos": "tsx scripts/gemini/encargo-objetos.ts",
     "gemini:encargo-bestiario": "tsx scripts/gemini/encargo-bestiario.ts",
     "gemini:aplicar-bestiario": "tsx scripts/gemini/aplicar-bestiario.ts",
+    "gemini:playtest": "tsx scripts/gemini/playtest.ts",
     "gemini:revisar": "tsx scripts/gemini/revisar.ts",
     "prueba:crear": "tsx --env-file-if-exists=.env.local scripts/gemini/personajes-prueba.ts",
     "prueba:borrar": "tsx --env-file-if-exists=.env.local scripts/gemini/personajes-prueba.ts --borrar",
