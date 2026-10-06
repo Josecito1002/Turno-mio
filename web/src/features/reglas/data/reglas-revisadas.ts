@@ -1644,7 +1644,7 @@ export const REGLAS: any[] = [
     texto: () => 'Una reliquia a la vez, hasta el próximo descanso corto o largo: Dinamo Antediluviana (Bola de fuego o Relámpago), Máscara Mortuoria de Liche (Contrahechizo o Disipar magia) o Espiral Mortal (Animar a los muertos o Revivir; al lanzar Animar con ella, los muertos vivientes anteriores de la reliquia se deshacen). Sin espacio ni componentes.',
     conjuros: () => ['Bola de fuego', 'Relámpago', 'Contrahechizo', 'Disipar magia', 'Animar a los muertos', 'Revivir'].map(reliquia)},
   {de:/^anticuario$/, n:/^coleccion de objetos magicos$/, t:'pasiva',
-    texto: () => 'Al terminar un descanso largo produces un objeto mágico de la lista (los anteriores se desvanecen) y, si requiere sintonización, te sintonizas al producirlo. Elige cuál abajo.',
+    texto: () => 'Al terminar un descanso largo produces un objeto mágico de la lista (los anteriores se desvanecen) y, si requiere sintonización, te sintonizas al producirlo. Elige cuál con el botón Producir objeto.',
     eleccion: {id:'coleccion-objetos', titulo:'Objeto mágico que produces', opciones: [
       {key:'alfombra', nombre:'Alfombra voladora', desc:'Una alfombra que vuela con su carga; su velocidad depende del tamaño.'},
       {key:'capa', nombre:'Capa del murciélago', desc:'Ventaja en Sigilo y vuelo en luz tenue u oscuridad.'},
