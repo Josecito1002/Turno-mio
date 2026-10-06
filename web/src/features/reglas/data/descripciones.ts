@@ -1,6 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck -- datos portados tal cual de index.html
 import { DESCRIPCIONES_GENERADAS } from './generadas';
+import { DESC_CLASES_EXTRA, DESC_SUBCLASES_EXTRA } from './descripciones-extra';
 
 
 export const DESC_ESPECIES: Record<string, any> = {
@@ -241,6 +242,9 @@ export const DESC_SUBCLASES: Record<string, any> = {
 
 /* Las de los lotes hechos con Gemini (scripts/gemini/revisar.ts) reemplazan a las de arriba */
 Object.assign(DESC_SUBCLASES, DESCRIPCIONES_GENERADAS);
+/* Las del lote 40 (scripts/gemini/descripciones.ts) solo llenan lo que sigue sin descripción */
+for (const [k, d] of Object.entries(DESC_SUBCLASES_EXTRA)) if (!DESC_SUBCLASES[k]) DESC_SUBCLASES[k] = d;
+for (const [k, d] of Object.entries(DESC_CLASES_EXTRA)) if (!DESC_CLASES[k]) DESC_CLASES[k] = d;
 
 /* ============ Descripciones cortas de subrazas: linajes, legados, ascendencias (clave "especie:subraza", sin "lib:") ============ */
 export const DESC_SUBESPECIES: Record<string, string> = {
