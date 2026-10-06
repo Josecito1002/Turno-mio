@@ -76,6 +76,24 @@ const BASE: Record<string, ObjetoMagico> = {
     cargas: { max: 7, reset: 'largo', nota: 'Recupera 1d6 + 1 cargas al amanecer' },
     conjuros: [{ n: 'Bola de fuego', coste: '1 carga (+1 por cada nivel extra, hasta 3)', cd: 15 }],
     texto: 'Pide sintonización de un lanzador de conjuros. Tiene 7 cargas: gastas 1 para lanzar Bola de fuego (CD 15) a nivel 3, y hasta 2 más para subirlo de nivel. Recupera 1d6 + 1 cargas al amanecer; si gastas la última, tira 1d20: con un 1 se destruye.' },
+  /* Objetos de la Colección de Objetos Mágicos del Investigador Anticuario (textos propios; estadísticas por confirmar con el libro) */
+  'alfombra-voladora': { n: 'Alfombra Voladora', rareza: 'muy rara', tipo: 'maravilloso', t: 'accion',
+    texto: 'Una alfombra que vuela llevando a quien se suba, a la velocidad que le indicas con una acción. Cuanto más grande, más carga aguanta y más despacio va.' },
+  'capa-murcielago': { n: 'Capa del Murciélago', rareza: 'rara', tipo: 'maravilloso', sint: true,
+    texto: 'Mientras la llevas, tienes ventaja en las pruebas de Destreza (Sigilo). En luz tenue u oscuridad puedes agarrarla y volar a 40 pies, o colgarte del techo boca abajo.' },
+  'lengua-fuego': { n: 'Lengua de Fuego', rareza: 'rara', tipo: 'arma', sint: true, base: 'arma', bono: 0, danoExtra: '2d6 fuego', t: 'adicional',
+    texto: 'Con una acción adicional haces que el arma arda (o dejas de hacerlo). Mientras arde da luz y suma 2d6 de daño de fuego a cada impacto.' },
+  'fortaleza-instantanea': { n: 'Fortaleza Instantánea', rareza: 'legendaria', tipo: 'maravilloso', t: 'accion',
+    texto: 'Un cubito de metal. Con una acción lo plantas en el suelo y se despliega como una torre fortificada de piedra, con puerta, almenas y defensas; con otra acción vuelve a ser un cubo.' },
+  'anillo-regeneracion': { n: 'Anillo de Regeneración', rareza: 'muy rara', tipo: 'anillo', sint: true,
+    texto: 'Mientras lo llevas, recuperas 1d6 puntos de golpe cada 10 minutos si te queda al menos 1 PG, y los miembros cortados vuelven a crecer en un día.' },
+  'anillo-telequinesia': { n: 'Anillo de Telequinesia', rareza: 'muy rara', tipo: 'anillo', sint: true, t: 'accion',
+    texto: 'Mientras lo llevas, puedes lanzar Telequinesia a voluntad (CD de tu aptitud mágica), sin componentes y sin gastar espacio.' },
+  'hoja-solar': { n: 'Hoja Solar', rareza: 'rara', tipo: 'arma', sint: true, base: 'arma', bono: 2, t: 'adicional',
+    texto: 'Una empuñadura que, con una acción adicional, crea una hoja de luz radiante. Cuenta como espada larga con +2 al ataque y al daño; su daño es radiante y es especialmente dañina contra muertos vivientes. Ilumina como el sol cerca.' },
+  'varita-maravillas': { n: 'Varita de las Maravillas', rareza: 'rara', tipo: 'varita', sint: true, t: 'accion',
+    cargas: { max: 7, reset: 'largo', nota: 'Recupera 1d6 + 1 cargas al amanecer' },
+    texto: 'Tiene 7 cargas. Gastas 1 para apuntarla y que ocurra un efecto mágico al azar (tira en la tabla de la varita). Recupera 1d6 + 1 cargas al amanecer; si gastas la última, tira 1d20: con un 1 se deshace.' }
 };
 
 export const OBJETOS_MAGICOS: Record<string, ObjetoMagico> = { ...BASE, ...OBJETOS_MAGICOS_GENERADOS };

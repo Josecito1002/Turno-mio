@@ -186,7 +186,7 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
               <summary className="min-h-11 cursor-pointer list-none px-2 py-2 text-body-md text-on-surface"><b>{x.nombre}</b> <small className="text-outline">{x.nota}</small></summary>
               {x.texto && <p className="m-0 px-2 pb-2 text-body-sm text-on-surface-variant" dangerouslySetInnerHTML={{ __html: richT(x.texto) }} />}
             </details>
-          )) : <p className="m-0 text-body-sm text-outline">No tienes conjuros en tu grimorio que se lancen con una acción o una acción adicional.</p>}
+          )) : <p className="m-0 text-body-sm text-outline">Tu grimorio no tiene conjuros que se lancen con una acción o una acción adicional. Agrega conjuros a tu hoja en el paso Conjuros del editor.</p>}
         </div>
       )}
 
