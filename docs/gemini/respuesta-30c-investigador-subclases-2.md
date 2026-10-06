@@ -136,27 +136,5 @@ export const INVESTIGATOR_SUBCLASES: Record<string, { n: string; rasgos: any[] }
       }
     ]
   },
-  "occultist": {
-    n: "Occultist",
-    rasgos: [
-      {
-        nombre: "Magia de pacto",
-        t: "pasiva",
-        texto: "Aumentas tus habilidades investigativas con magia compleja.\n\n**Trucos.** Conoces dos trucos de Brujo a tu elección (*Descarga arcana* e *Ilusión menor* son recomendados). Siempre que ganas un nivel de Investigador, puedes reemplazar uno de tus trucos de este rasgo con otro truco de Brujo a tu elección. Cuando alcanzas el nivel 10 de Investigador, aprendes otro truco de Brujo a tu elección.\n\n**Espacios de conjuro.** Tienes espacios de conjuro para lanzar tus conjuros de Brujo de nivel 1 a 4. Todos tus espacios son del mismo nivel (ver tabla). Recuperas todos los espacios de conjuro de Magia de Pacto gastados cuando terminas un descanso corto o largo.\n\n**Conjuros preparados de nivel 1+.** Preparas la lista de conjuros de nivel 1+ disponibles para lanzar con este rasgo. Para empezar, elige dos conjuros de Brujo de nivel 1 (*Hechizar persona* y *Maleficio* son recomendados). El número de conjuros en tu lista aumenta a medida que ganas niveles de Investigador (ver tabla). Los conjuros elegidos deben ser de un nivel no superior al nivel de tus espacios.\n\n**Cambiar tus conjuros preparados.** Siempre que ganas un nivel de Investigador, puedes reemplazar un conjuro en tu lista con otro conjuro de Brujo de un nivel elegible.\n\n**Atributo para el lanzamiento de conjuros.** La Inteligencia es el atributo para el lanzamiento de tus conjuros de Brujo.\n\n**Foco para el lanzamiento de conjuros.** Puedes usar un Foco arcano como Foco para el lanzamiento de tus conjuros de Brujo.",
-        n: 3,
-        usos: 0,
-        reset: "ninguno"
-      },
-      {
-        nombre: "Amuletos",
-        t: "accion",
-        texto: "Puedes usar los siguientes amuletos:\n\n**Colgante de hierro frío.** Puedes lanzar *Detectar bien y mal* sin espacio de conjuro ni componentes.\n**Vial de niebla muerta.** Puedes lanzar *Nube de niebla* sin espacio de conjuro ni componentes.\n**Lente grabada.** Puedes lanzar *Identificar* sin espacio de conjuro ni componentes.",
-        n: 3,
-        usos: 0,
-        reset: "ninguno"
-      },
-      {
-        nombre: "Ruina arcana",
-        t: "adicional",
-        texto: "Puedes lanzar uno de tus trucos de Brujo como acción adicional. Puedes usar este rasgo un número de veces igual a tu modificador por Inteligencia (mínimo de una vez). Recuperas todos los usos gastados cuando terminas un descanso largo.",
-        n: 6,
+};
+```
