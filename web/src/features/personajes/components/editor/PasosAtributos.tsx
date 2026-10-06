@@ -13,7 +13,7 @@ import { kitClase, type VarianteKit } from '@/features/reglas/data/equipo-clases
 import { esDoteMejora, habilidadesDeClase } from '@/features/reglas/domain/restricciones';
 import { competenteArma, textoArmaduras, textoArmas } from '@/features/reglas/domain/competencias';
 import { mejoraDeDote } from '@/features/reglas/domain/mejora-dote';
-import { allDotes, getSubs } from '@/features/biblioteca/domain/biblioteca';
+import { allDotes, getLib, getSubs } from '@/features/biblioteca/domain/biblioteca';
 import { CLASES } from '@/features/reglas/data/clases';
 import { aplicarOrden, sugerenciaDe } from '../../domain/sugerencias-caracteristicas';
 import { useDados } from '@/features/dados/components/Bandeja';
@@ -110,8 +110,8 @@ function Sugerencias({ pj }: { pj: any }) {
     <>
       <Boton variante="fantasma" onClick={() => setAbierto(true)}>Sugerencias</Boton>
       <Dialogo abierto={abierto} onCerrar={() => setAbierto(false)} titulo="Sugerencias de características" ancho="lg"
-        descripcion={clase ? `Para ${CLASES[clase]?.n || clase}` : undefined}>
-        {!sug ? <p className="m-0">Elige primero tu clase en el paso Clase y aquí verás a qué darle prioridad.</p> : (
+        descripcion={clase ? `Para ${CLASES[clase]?.n || getLib().clases?.[clase]?.n || clase}` : undefined}>
+        {!sug ? <p className="m-0">{clase ? 'Esta clase todavía no tiene sugerencias.' : 'Elige primero tu clase en el paso Clase y aquí verás a qué darle prioridad.'}</p> : (
           <div className="space-y-3">
             <div role="group" aria-label="Subclase" className="flex flex-wrap gap-1.5">
               <button type="button" aria-pressed={!sub} onClick={() => setSub('')} className={chip(!sub)}>Estándar de la clase</button>

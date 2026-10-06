@@ -20,6 +20,18 @@ const BASE: Record<string, Sugerencia> = {
   monje: { orden: ['des', 'sab', 'con', 'fue', 'int', 'car'], nota: 'Destreza para atacar y la CA; Sabiduría para la CA y las técnicas de Enfoque; Constitución para aguantar.' },
   paladin: { orden: ['fue', 'car', 'con', 'sab', 'des', 'int'], nota: 'Fuerza para golpear; Carisma para auras y Castigos; Constitución para aguantar en primera línea.' },
   picaro: { orden: ['des', 'con', 'sab', 'int', 'car', 'fue'], nota: 'Destreza para atacar, esconderte y esquivar; Constitución para aguantar; Sabiduría para las salvaciones que más duelen.' },
+  // Clases de la biblioteca (criterio propio a partir de sus rasgos y salvaciones; las del playtest pueden cambiar)
+  'lib:arcanista': { orden: ['int', 'con', 'des', 'sab', 'fue', 'car'], nota: 'Inteligencia mueve tus conjuros e inventos; Constitución para aguantar y concentrarte; Destreza ayuda a tu CA.' },
+  'lib:cazador-sangre': { orden: ['int', 'des', 'con', 'sab', 'fue', 'car'], nota: 'Inteligencia fija la CD de tus hemomancias; Destreza para atacar y la CA; Constitución para aguantar el costo en sangre.' },
+  'lib:pugilista': { orden: ['fue', 'con', 'des', 'sab', 'car', 'int'], nota: 'Fuerza para tus golpes; Constitución para aguantar; Destreza ayuda a tu CA y a la iniciativa.' },
+  'lib:psion': { orden: ['int', 'con', 'des', 'sab', 'car', 'fue'], nota: 'Inteligencia es tu característica de conjuros y de tus poderes psiónicos; Constitución para aguantar y concentrarte.' },
+  'lib:investigator': { orden: ['int', 'des', 'con', 'sab', 'car', 'fue'], nota: 'Inteligencia mueve tus rituales y Amuletos; Destreza para atacar y esquivar; Constitución para aguantar.' },
+  'lib:gunslinger': { orden: ['des', 'con', 'sab', 'int', 'car', 'fue'], nota: 'Destreza fija tus disparos y la CD de tus maniobras; Constitución para aguantar; Sabiduría para las salvaciones mentales.' },
+  'lib:illrigger': { orden: ['car', 'con', 'fue', 'des', 'sab', 'int'], nota: 'Carisma fija la CD de tus interdicciones; Constitución para aguantar; Fuerza o Destreza según cómo pelees.' },
+  'lib:savant': { orden: ['int', 'des', 'con', 'sab', 'car', 'fue'], nota: 'Inteligencia fija la CD de tus rasgos y tu Dado de Intelecto; Destreza y Constitución te mantienen en pie.' },
+  'lib:warden': { orden: ['sab', 'fue', 'con', 'des', 'car', 'int'], nota: 'Sabiduría es tu característica de conjuros; Fuerza para pelear con armadura media; Constitución para aguantar.' },
+  'lib:warlord': { orden: ['car', 'sab', 'con', 'fue', 'des', 'int'], nota: 'Carisma y Sabiduría sostienen tus Hazañas Tácticas y a tus aliados; Constitución y Fuerza para pelear en primera línea.' },
+  'lib:craftsman': { orden: ['int', 'con', 'fue', 'des', 'sab', 'car'], nota: 'Inteligencia fija tus propiedades de Obra Maestra; Constitución para aguantar; Fuerza o Destreza según el arma que forjes.' },
 };
 
 /** Ajustes por subclase (se buscan por el nombre): solo donde el consejo de la clase cambia de verdad. */
