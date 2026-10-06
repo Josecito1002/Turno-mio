@@ -45,6 +45,8 @@ export type Uso = {
   equipar?: boolean;
   /** Cura en lugar de dañar */
   cura?: boolean;
+  /** Cantidad fija (una curación de 25 PG): ya viene escrita */
+  fijo?: number;
   /** Si hace daño o impone algo a otros */
   afecta: boolean;
   /** Lista de opciones que se pueden usar con este rasgo (los conjuros de Conjuro Apresurado) */
@@ -82,7 +84,7 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
   const area = !!uso.salv && AREA.test(uso.texto);
   const conds = condicionesEn(uso.texto);
   const [objetivos, setObjetivos] = useState<string[]>([]);
-  const [dano, setDano] = useState('');
+  const [dano, setDano] = useState(uso.fijo ? String(uso.fijo) : '');
   // Efectos que suman ataques solo si se cumplen: el jugador marca cuáles valen ahora
   const [marcadas, setMarcadas] = useState<string[]>([]);
   const [renuncia, setRenuncia] = useState(false);

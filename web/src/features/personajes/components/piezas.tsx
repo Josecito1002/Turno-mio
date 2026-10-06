@@ -66,11 +66,9 @@ function UsarRasgo({ e }: { e: any }) {
   const objeto = el?.opciones.find((o: any) => o.key === elegido);
   const quedan = e.recurso && apresurado ? (c.recursos.find((r: any) => r.id === e.recurso)?.max ?? 0) - Math.min(pj.used?.[e.recurso] || 0, c.recursos.find((r: any) => r.id === e.recurso)?.max ?? 0) : 1;
   const usar = () => {
-    if (coleccion && !objeto) { avisar('Elige qué objeto produces.', 'error'); return; }
-    if (apresurado && !sel) { avisar('Elige el conjuro que lanzas.', 'error'); return; }
-    if (apresurado && e.recurso && !gastarRecurso(e.recurso)) return;
-    if (coleccion) { if (!producirObjetoColeccion(elegido)) return; avisar(`Produces ${objeto.nombre}: ya está en tu inventario y sintonizado.`); }
-    else avisar(`Lanzas ${sel} con ${e.nombre}: gastaste un uso.`);
+    if (!objeto) { avisar('Elige qué objeto produces.', 'error'); return; }
+    if (!producirObjetoColeccion(elegido)) return;
+    avisar(`Produces ${objeto.nombre}: ya está en tu inventario y sintonizado.`);
     setAbierto(false);
   };
   return (
@@ -79,13 +77,26 @@ function UsarRasgo({ e }: { e: any }) {
       <Dialogo abierto={abierto} onCerrar={() => setAbierto(false)} titulo={e.nombre} descripcion={e.recurso && apresurado ? `Quedan ${quedan} usos` : undefined}>
         <div className="space-y-2">
           {apresurado && (conjuros.length ? <>
-            <p className="m-0 text-sm text-muted">Conjuros de tu grimorio que puedes lanzar así (toca uno para leerlo):</p>
-            {conjuros.map((x: any) => (
-              <details key={x.nombre} className={cx('rounded-lg', sel === x.nombre ? 'bg-ink text-bg' : 'bg-soft')}>
-                <summary className="min-h-11 cursor-pointer list-none px-3 py-2" onClick={() => setSel(x.nombre)}><b>{x.nombre}</b> <small className="text-muted">{+x.nivel > 0 ? `nivel ${x.nivel}` : 'truco'}</small></summary>
-                {x.desc && <p className="m-0 px-3 pb-2 text-sm opacity-80" dangerouslySetInnerHTML={{ __html: richT(String(x.desc)) }} />}
-              </details>
-            ))}
+            <p className="m-0 text-sm text-muted">Toca un conjuro para leerlo y lanzarlo. Cada lanzamiento gasta un uso ({quedan} {quedan === 1 ? 'disponible' : 'disponibles'}).</p>
+            {conjuros.map((x: any) => {
+              const d = datosConjuro(x, c), abierta = sel === x.nombre, primero = String(x.desc || '').trim().split(/\n\s*\n/)[0];
+              return (
+                <div key={x.nombre} className={cx('rounded-lg bg-soft', abierta && 'ring-1 ring-ink')}>
+                  <button type="button" aria-expanded={abierta} onClick={() => setSel(abierta ? '' : x.nombre)} className={cx('flex min-h-11 w-full cursor-pointer items-baseline justify-between gap-2 rounded-lg px-3 py-2 text-left', foco)}>
+                    <b>{x.nombre}</b><small className="text-muted">{+x.nivel > 0 ? `nivel ${x.nivel}` : 'truco'}</small>
+                  </button>
+                  {abierta && (
+                    <div className="flex items-start gap-3 px-3 pb-3">
+                      <div className="min-w-0 flex-1 text-sm text-muted">
+                        {d.meta && <p className="m-0">{d.meta}</p>}
+                        {primero && <p className="m-0 mt-1" dangerouslySetInnerHTML={{ __html: richT(primero) }} />}
+                      </div>
+                      {quedan > 0 ? <LanzarConjuro s={x} c={c} d={d} gastaRasgo={e.recurso} alLanzar={() => setAbierto(false)} /> : <small className="text-muted">Sin usos</small>}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </> : <p className="m-0 text-sm text-muted">Tu grimorio no tiene conjuros que se lancen con una acción o una acción adicional. Agrega conjuros a tu hoja en el paso Conjuros del editor.</p>)}
           {coleccion && (el ? el.opciones.map((o: any) => (
             <button key={o.key} type="button" aria-pressed={elegido === o.key} onClick={() => setVal('elecciones.coleccion-objetos', o.key)}
@@ -93,9 +104,7 @@ function UsarRasgo({ e }: { e: any }) {
               <b>{o.nombre}</b><span className="block text-sm opacity-80">{o.desc}</span>
             </button>
           )) : <p className="m-0 text-sm text-muted">Esta lista aparece al llegar al nivel 10 de Investigador.</p>)}
-          <Boton variante="primario" className="w-full" disabled={!quedan || (coleccion && !objeto) || (apresurado && !sel)} onClick={usar}>
-            {coleccion ? (objeto ? `Producir ${objeto.nombre}` : 'Elige un objeto') : (sel ? `Lanzar ${sel} (gasta un uso)` : 'Elige un conjuro')}
-          </Boton>
+          {coleccion && <Boton variante="primario" className="w-full" disabled={!objeto} onClick={usar}>{objeto ? `Producir ${objeto.nombre}` : 'Elige un objeto'}</Boton>}
         </div>
       </Dialogo>
     </div>
@@ -210,7 +219,7 @@ function DescripcionCorta({ desc }: { desc?: string }) {
 /** Lanzar un conjuro. El botón dice lo que tiras (+5 al ataque, CD 13 de DES o sus dados). Un truco se tira al momento;
     uno de nivel 1 o más pregunta con qué espacio (o con el uso del rasgo que lo da), lo gasta y tira ya subido de nivel.
     Los bonos de rasgos que aplican (Evocación Potenciada) se suman solos. */
-export function LanzarConjuro({ s, c, d, compacto }: { s: any; c: any; d: ReturnType<typeof datosConjuro>; compacto?: boolean }) {
+export function LanzarConjuro({ s, c, d, compacto, gastaRasgo, alLanzar }: { s: any; c: any; d: ReturnType<typeof datosConjuro>; compacto?: boolean; gastaRasgo?: string; alLanzar?: () => void }) {
   const tirar = useDados();
   const [abierto, setAbierto] = useState(false);
   const nv = +s.nivel || 0, bonos = bonosPara(c, s), bono = d.dexpr ? bonos.reduce((t: number, b: any) => t + (+b.valor || 0), 0) : 0;
@@ -226,7 +235,7 @@ export function LanzarConjuro({ s, c, d, compacto }: { s: any; c: any; d: Return
   const nivelMas = tipoCr === 'muerto' && c.entries.some((e: any) => /^siervos muertos vivientes$/.test(norm(e.nombre))) ? 1 : 0;
   const cuantas = (nivel: number) => tipoCr === 'muerto' ? 1 + 2 * Math.max(0, nivel + nivelMas - 3) : 1;
   const sinEspacio = tipoCr === 'familiar' && c.chain ? 'Sin espacio (Pacto de la Cadena)' : s.ritual ? 'Como ritual (10 minutos más, sin espacio)' : '';
-  if (!ataque && !s.salv && !d.dexpr && !nv) return null;
+  if (!ataque && !s.salv && !d.dexpr && !nv && !gastaRasgo) return null;
   const tirarCon = (nivel: number) => {
     const expr = dadosAlLanzar(d.dexpr, nv, nivel, s.desc, bono);
     const label = nv && nivel > nv ? `${s.nombre} (nivel ${nivel})` : s.nombre;
@@ -238,7 +247,11 @@ export function LanzarConjuro({ s, c, d, compacto }: { s: any; c: any; d: Return
   const gratis = () => { setAbierto(false); tirarCon(nv); };
   const conEspacio = (nivel: number) => { if (gastarEspacio(nivel)) { setAbierto(false); tirarCon(nivel); } };
   const conRasgo = () => { if (rasgo && gastarRecurso(rasgo.id)) { setAbierto(false); tirarCon(nv); } };
-  const lanzar = () => (nv && S.pj ? setAbierto(true) : tirarCon(nv));
+  // Con un rasgo que lo lanza sin espacio (Conjuro Apresurado): gasta un uso del rasgo y tira al nivel base, sin preguntar
+  const lanzar = () => {
+    if (gastaRasgo) { if (gastarRecurso(gastaRasgo)) { tirarCon(nv); alLanzar?.(); } return; }
+    if (nv && S.pj) setAbierto(true); else tirarCon(nv);
+  };
   // De dónde sale el número fijo del daño: la característica (si el conjuro la suma) y los bonos de rasgos
   function dmgMods(nivel: number) {
     const expr = dadosAlLanzar(d.dexpr, nv, nivel, s.desc, bono);
@@ -246,7 +259,7 @@ export function LanzarConjuro({ s, c, d, compacto }: { s: any; c: any; d: Return
   }
   const etiqueta = ataque ? `${sign(d.atk)} al ataque` : s.salv ? `CD ${d.cd ?? '?'} de ${s.salv}` : d.dexpr ? dadosAlLanzar(d.dexpr, nv, nv, '', bono) + (s.tipo ? ' ' + s.tipo : '') : '';
   const dano = (ataque || s.salv) && d.dexpr ? `${dadosAlLanzar(d.dexpr, nv, nv, '', bono)}${s.tipo ? ' ' + s.tipo : ''}` : '';
-  const dialogo = nv > 0 && (
+  const dialogo = nv > 0 && !gastaRasgo && (
         <Dialogo abierto={abierto} onCerrar={() => setAbierto(false)} titulo={`Lanzar ${s.nombre}`} descripcion="¿Con qué lo lanzas? Se gasta al elegirlo." abajo>
           {opcionesCr.length > 0 && (
             <label className="mb-3 flex flex-col gap-1 font-bold">
