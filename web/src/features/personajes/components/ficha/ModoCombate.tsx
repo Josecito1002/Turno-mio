@@ -220,10 +220,17 @@ function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any
     const n = golpesDeRasgo(c, e), golpes = n > 1 ? n : undefined;
     // Un ataque más (Golpe Repentino) también apunta a un objetivo
     const ataca = atk != null || !!golpes || /\b(?:un|otro) ataque (?:más|adicional|extra)\b|\bhacer (?:un|otro) ataque\b/i.test(String(e.texto || ''));
-    const efecto = EFECTOS_ALIADO[norm(e.nombre)], equipar = norm(e.nombre) === 'pacto del filo';
+    // Lo que el texto del rasgo dice que hace a otro (amuletos, rasgos de subclase…): bono a un aliado, curación, salvación o ataque de conjuro
+    const txt = String(typeof e.texto === 'function' ? '' : e.texto || '');
+    const amuEfecto = !atk && /^(una criatura|un aliado|una persona)\b[^.]*\b(gana|ganan|tiene|obtiene)\b/i.test(txt) && !/recupera/i.test(txt) ? { condicion: e.nombre, bono: txt } : undefined;
+    const amuCura = /recupera (\d+) (?:PG|puntos de golpe)/i.exec(txt);
+    const amuSalv = /salvaci[oó]n de (\w+) \(CD (\d+)\)/i.exec(txt);
+    const amuAtq = /ataque de conjuro[^(:]*\(([+-]\d+)\)/i.exec(txt);
+    const amuDano = (amuSalv || amuAtq) && !amuCura ? /(\d+d\d+(?:\s*\+\s*\d+)?)\s+(?:de da[ñn]o )?(?:de )?(?:ácido|contundente|cortante|perforante|fuego|fr[ií]o|fuerza|relámpago|necrótico|radiante|veneno|psíquico|trueno)/i.exec(txt) : null;
+    const efecto = EFECTOS_ALIADO[norm(e.nombre)] || amuEfecto, equipar = norm(e.nombre) === 'pacto del filo';
     // Conjuro Apresurado: se lanza como acción adicional un conjuro del grimorio que tarde una acción o una acción adicional
     const lista = norm(e.nombre) === 'conjuro apresurado' ? { titulo: 'Conjuros de tu grimorio que puedes lanzar así', items: (c.conjuros || []).filter((x: any) => ['accion', 'adicional'].includes(x.tiempo || 'accion') && !/ritual/i.test(x.nota || '')).sort((a: any, b: any) => +a.nivel - +b.nivel).map((x: any) => ({ nombre: x.nombre, nota: +x.nivel > 0 ? `nivel ${x.nivel}` : 'truco', texto: String(x.desc || '') })) } : undefined;
-    return { tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, ...(lista ? { lista } : {}), ...(efecto ? { efecto } : {}), ...(equipar ? { equipar } : {}), ...(golpes ? { golpes } : {}), ...(atk != null ? { atk, dexpr: e.roll[1] } : {}), afecta: ataca || !!efecto, ...(gasta ? { gasta } : {}) };
+    return { tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, ...(lista ? { lista } : {}), ...(efecto ? { efecto } : {}), ...(amuCura ? { cura: true, fijo: +amuCura[1] } : {}), ...(amuSalv ? { salv: amuSalv[1].toUpperCase(), cd: +amuSalv[2] } : {}), ...(amuAtq ? { atk: +amuAtq[1] } : {}), ...(amuDano && atk == null ? { dexpr: amuDano[1].replace(/\s/g, '') } : {}), ...(equipar ? { equipar } : {}), ...(golpes ? { golpes } : {}), ...(atk != null ? { atk, dexpr: e.roll[1] } : {}), afecta: ataca || !!efecto || !!amuCura || !!amuSalv || !!amuAtq, ...(gasta ? { gasta } : {}) };
   };
   const comoArma = (e: any) => ({ puno: /sin armas|golpe|pu[ñn]/i.test(`${e.nombre} ${e.texto}`), nombre: e.nombre, atk: +(/([+-]\d+)\s*$/.exec(e.roll[0])?.[1] ?? 0), expr: e.roll[1], dmg: String(e.roll[1]).replace(/\s/g, ''), notas: [] as string[] });
   const deConjuro = (s: any): Uso => {
