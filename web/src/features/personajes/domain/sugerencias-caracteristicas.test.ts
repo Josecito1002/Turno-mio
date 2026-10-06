@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import biblioteca from '../../../../../biblioteca-mi-turno.json';
 import { aplicarOrden, sugerenciaDe } from './sugerencias-caracteristicas';
 
 test('cada clase tiene sus seis características ordenadas', () => {
-  for (const c of ['artifice', 'barbaro', 'bardo', 'brujo', 'clerigo', 'druida', 'explorador', 'guerrero', 'hechicero', 'mago', 'monje', 'paladin', 'picaro']) {
+  for (const c of ['artifice', 'barbaro', 'bardo', 'brujo', 'clerigo', 'druida', 'explorador', 'guerrero', 'hechicero', 'mago', 'monje', 'paladin', 'picaro', ...Object.keys(biblioteca.clases).filter(k => k.startsWith('lib:'))]) {
     const s = sugerenciaDe(c)!;
     assert.equal(new Set(s.orden).size, 6, c);
   }
