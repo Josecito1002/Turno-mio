@@ -254,8 +254,8 @@ export function PasoClase({ pj, c }: { pj: any; c: any }) {
   const elegir = (k: string) => elegirClase(k);
   const lista = clasesParaElegir(pj.clase);
   const items = lista.map(([k, x]) => {
-    const sub = `d${x.dado}, ${x.lanz ? 'conjuros con ' + abInfo(x.lanz)[2] : 'sin conjuros'}`;
-    return { key: k, q: norm(x.n + ' ' + descClase(k)), node: <TarjetaTematica temas={temasDe(pj, k)} on={pj.clase === k} onClick={() => elegir(k)} titulo={x.n} sub={sub} fuente={fuenteClase(k)} /> };
+    const sub = descClase(k) || `d${x.dado}, ${x.lanz ? 'conjuros con ' + abInfo(x.lanz)[2] : 'sin conjuros'}`;
+    return { key: k, q: norm(x.n + ' ' + descClase(k)), node: <TarjetaTematica temas={temasDe(pj, k)} on={pj.clase === k} onClick={() => elegir(k)} titulo={x.n} sub={sub} clampSub fuente={fuenteClase(k)} /> };
   });
   const tarjetas = <Seccion titulo={C ? 'Cambiar de clase' : 'Elige tu clase'} descripcion={C ? 'Cambiar de clase borra las habilidades, pericias y maestrías que elegiste.' : undefined}><TarjetasBuscables que="clase" items={items} /></Seccion>;
   if (!C) return tarjetas;

@@ -11,6 +11,8 @@ import { pathToFileURL } from 'node:url';
 import { norm } from '../../src/shared/utils/texto';
 import { SKILLS } from '../../src/features/reglas/data/caracteristicas';
 
+/* Característica de lanzamiento de las clases que la tienen sin ser lanzadoras (la respuesta de Gemini no trae ese dato) */
+const AJUSTES_LANZ: Record<string, string> = { 'lib:investigator': 'int' };
 const CLASES: Record<string, { clave: string; src: string }> = {
   investigador: { clave: 'lib:investigator', src: 'Investigator (Mage Hand Press, 2024)' },
   gunslinger: { clave: 'lib:gunslinger', src: 'Gunslinger (playtest)' },
@@ -84,13 +86,16 @@ function clase(v: any, ruta: string, c: { clave: string; src: string }, nombreEx
   const armTxt = norm([].concat(v.arm || []).join(' ')), armaTxt = norm([].concat(v.armas || []).join(' '));
   const marcial = /marcial/.test(armaTxt);
   const rasgos = (v.rasgos || []).map((r: any) => rasgo(r, `${ruta} (clase)`, true));
-  const asi = rasgos.filter((r: any) => /mejora de caracteristica/.test(norm(r.nombre))).map((r: any) => r.n);
+  const asi = rasgos.filter((r: any) => /mejora de caracteristica|don epico/.test(norm(r.nombre))).map((r: any) => r.n);
+  // Maestría con armas: el texto dice con cuántos tipos de arma
+  const mae = rasgos.find((r: any) => /maestria en armas/.test(norm(r.nombre)));
+  const maestrias = mae ? (/\btres\b/i.test(mae.texto) ? 3 : /\bdos\b/i.test(mae.texto) ? 2 : 1) : 0;
   return {
     n: sinIngles(typeof v.n === 'string' ? v.n : typeof v.nombre === 'string' ? v.nombre : nombreExport || ruta), lib: true, src: c.src, dado, sv, habN: v.habN || 2, habs,
     arm: /todas/.test(armTxt) ? 'Todas las armaduras y escudos' : /pesad/.test(armTxt) ? 'Ligeras, medias, pesadas y escudos' : /media/.test(armTxt) ? 'Ligeras, medias y escudos' : /ligera/.test(armTxt) ? 'Ligeras' : 'Ninguna',
     armas: marcial ? 'Armas sencillas y marciales' : 'Armas sencillas',
-    w: { simple: 1, martial: marcial ? 1 : 0, light: 0, finesseLight: 0 }, lanz: v.lanz || null, caster: v.caster || null,
-    asi: asi.length ? asi : [4, 8, 12, 16, 19], estilo: 0, estilos: [], maestrias: 0, hasta: 0, rasgos,
+    w: { simple: 1, martial: marcial ? 1 : 0, light: 0, finesseLight: 0 }, lanz: v.lanz || AJUSTES_LANZ[c.clave] || null, caster: v.caster || null,
+    asi: asi.length ? asi : [4, 8, 12, 16, 19], estilo: 0, estilos: [], maestrias, hasta: 0, rasgos,
   };
 }
 

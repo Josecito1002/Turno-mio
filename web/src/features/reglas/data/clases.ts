@@ -137,4 +137,4 @@ export const CLASES: Record<string, any> = {
 };
 export const ASI_EXTRA: Record<string, any> = {guerrero:[6,14], picaro:[10]};
 export const asiLevels = clase => [4,8,12,16,19,...(ASI_EXTRA[clase] || [])].sort((a, b) => a - b);
-export const periciaN = (clase, l) => ({picaro: l>=6?4:2, bardo: l>=9?4:l>=2?2:0, explorador: l>=9?3:l>=2?1:0, mago: l>=2?1:0}[clase] || 0);
+export const periciaN = (clase, l) => ({picaro: l>=6?4:2, bardo: l>=9?4:l>=2?2:0, explorador: l>=9?3:l>=2?1:0, mago: l>=2?1:0, 'lib:investigator': l>=9?4:l>=2?2:0}[clase] || 0);

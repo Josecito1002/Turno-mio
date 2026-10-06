@@ -1511,3 +1511,13 @@ Versión usada: Psion Update (octubre de 2025), con el Psi Warper de The Psion (
 - Se dejan en inglés los nombres propios o de lore sin traducción conocida: Unlight, Faerzress, Imaskar, Illithidkin, Drider, Kuo-toa,
   y los conjuros Hallow y Blink. "Psion" también se conserva como nombre de la clase.
 - Las especies nuevas ya tienen descripción en la selección de especie.
+
+## Investigator (Mage Hand Press, 2024; lote 30), reglas aplicadas (2026-10-06)
+
+- Fuente: **Homebrew** (Investigator, de Mage Hand Press); no hay versión oficial de WotC, así que no aplica la regla de "versión más reciente".
+- Reglas de clase y de las 13 subclases en `reglas-revisadas.ts`: usos de Amuletos y Conjuro Apresurado, Golpe de Gracia, Enigma Arcano (selectores),
+  Amuletos Sagrados, y por subclase los usos, selectores (Tesis, Atar Cabos), CA del Exterminador, Bravuconería del Spy y los espacios de Magia de Pacto del Occultist.
+- La clase pasa a usar INT como característica de lanzamiento (`lanz`), tiene 2 maestrías con armas y su Don Épico del nivel 19 cuenta como mejora de característica.
+- Sin confirmar con el texto original: las tablas de usos (Amuletos y Conjuro Apresurado) vienen de la parte B de Gemini; la tabla de Magia de Pacto da 3 conjuros preparados
+  en el nivel 3 pero el texto dice "dos"; el máximo de la CA media del Exterminador (+2) se asumió; la subclase Infernum solo trae el rasgo del nivel 3 (el texto de Gemini estaba cortado);
+  "Piedad Rutinaria" habla de "Reliquias Sagradas" y se interpretó como los Amuletos Sagrados.

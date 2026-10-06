@@ -13,7 +13,8 @@ import { nuevoPj } from './modelo';
 import { pendientes, pendientesAlSubir } from './pendientes';
 import { usosDeRecurso } from './usos-recurso';
 import { ARMADURAS } from '@/features/reglas/data/equipo';
-import { CLASES } from '@/features/reglas/data/clases';
+import { CLASES, periciaN } from '@/features/reglas/data/clases';
+import bibliotecaMiTurno from '../../../../../biblioteca-mi-turno.json';
 import { EQUIPO_CLASES, kitClase } from '@/features/reglas/data/equipo-clases';
 import { ESPECIES_2025 } from '../../../../scripts/datos/especies-2025';
 import { BARBARO_2024 } from '../../../../scripts/datos/barbaro-2024';
@@ -1273,5 +1274,70 @@ describe('Subclases de playtest 2026: conjuros siempre preparados', () => {
     const c = pj('paladin', 9, 'lib:oath-of-the-spellguard');
     assert.match(entrada(c, 'Conjuros de Juramento del Guardián de Conjuros').texto, /Contrahechizo, Disipar magia/);
     assert.ok(c.siempre.has('contrahechizo'));
+  });
+});
+
+describe('Investigator (Mage Hand Press, lote 30)', () => {
+  const INV = (bibliotecaMiTurno as any).clases['lib:investigator'];
+  const inv = (nivel: number, sub = '', stats: Record<string, number> = {}, extra: Record<string, any> = {}) => {
+    setLib({ clases: { 'lib:investigator': INV } });
+    return pj('lib:investigator', nivel, sub ? 'lib:' + sub : '', stats, extra);
+  };
+  test('usos de Amuletos y de Conjuro Apresurado según el nivel, y el uso extra del Anticuario', () => {
+    for (const [nivel, usos] of [[3, 2], [5, 3], [9, 4], [13, 5], [17, 6]]) assert.equal(recurso(inv(nivel), 'Amuletos')?.max, usos, `Amuletos nivel ${nivel}`);
+    assert.equal(recurso(inv(3, 'antiquarian'), 'Amuletos')?.max, 3);
+    for (const [nivel, usos] of [[2, 3], [7, 6], [12, 8], [20, 10]]) assert.equal(recurso(inv(nivel), 'Conjuro Apresurado')?.max, usos, `Apresurado nivel ${nivel}`);
+  });
+  test('Golpe de Gracia: 1d8, 2d8 desde el 11 y 3d8 desde el 17; el mejorado hace la mitad sobre quien no está Maltrecho', () => {
+    assert.match(entrada(inv(2), 'Golpe de Gracia').texto, /1d8/);
+    assert.match(entrada(inv(11), 'Golpe de Gracia').texto, /2d8/);
+    assert.match(entrada(inv(17), 'Golpe de Gracia').texto, /3d8/);
+    assert.match(entrada(inv(11), 'Golpe de Gracia Mejorado').texto, /solo con 1d8/);
+    assert.match(entrada(inv(17), 'Golpe de Gracia Mejorado').texto, /solo con 2d8/);
+  });
+  test('Pericia: 2 habilidades desde el nivel 2 y 4 desde el 9', () => {
+    assert.equal(periciaN('lib:investigator', 1), 0);
+    assert.equal(periciaN('lib:investigator', 2), 2);
+    assert.equal(periciaN('lib:investigator', 9), 4);
+  });
+  test('Detective: Corazonada Asombrosa gasta tantos usos como el modificador de INT (mínimo 1) e Intuición Predictiva se vuelve ilimitada en el 14', () => {
+    assert.equal(recurso(inv(3, 'detective', { int: 16 }), 'Corazonada Asombrosa')?.max, 3);
+    assert.equal(recurso(inv(3, 'detective', { int: 8 }), 'Corazonada Asombrosa')?.max, 1);
+    assert.equal(recurso(inv(6, 'detective'), 'Intuición Predictiva')?.max, 1);
+    assert.equal(recurso(inv(14, 'detective'), 'Intuición Predictiva'), undefined);
+  });
+  test('Exterminador: con armadura media suma INT (hasta +2) en vez de DES a la CA', () => {
+    assert.equal(inv(3, 'exterminator', { des: 8, int: 18 }, { armadura: 'media' }).ac, 15 + 2);
+    assert.equal(inv(3, 'detective', { des: 8, int: 18 }, { armadura: 'media' }).ac, 15 - 1);
+  });
+  test('Spy: Bravuconería suma INT a Engaño y Persuasión', () => {
+    const base = inv(3, 'detective', { car: 10, int: 16 }), spy = inv(3, 'spy', { car: 10, int: 16 });
+    assert.equal(spy.skill.engano - base.skill.engano, 3);
+    assert.equal(spy.skill.persuasion - base.skill.persuasion, 3);
+  });
+  test('Teórico de la Conspiración: Atar Cabos da competencia y pericia en la habilidad elegida', () => {
+    const c = inv(10, 'conspiracy-theorist', { car: 10 }, { elecciones: { 'atar-cabos': 'persuasion' } });
+    assert.equal(c.skill.persuasion, 0 + c.pb * 2);
+    assert.ok(c.skillProf.persuasion && c.skillPer.persuasion);
+  });
+  test('Enigma Arcano: el conjuro elegido se lanza una vez sin espacio', () => {
+    const c = inv(13, '', {}, { elecciones: { 'enigma-7': 'teletransporte' } });
+    const s = c.conjurosRasgo.find((x: any) => x.nombre === 'Teletransporte');
+    assert.ok(s, 'sale en la hoja');
+    assert.equal(c.recursos.find((r: any) => r.id === s.recurso)?.max, 1);
+  });
+  test('Archivist: la tesis elegida suma sus conjuros según el nivel', () => {
+    const c = inv(5, 'archivist', {}, { elecciones: { 'tesis-archivista': 'mortis' } });
+    const nombres = c.conjurosRasgo.map((x: any) => x.nombre);
+    assert.ok(nombres.includes('Falsa vida') && nombres.includes('Hablar con los Muertos'));
+    assert.ok(!nombres.includes('Guarda contra la Muerte'));
+  });
+  test('Occultist: espacios de pacto de la tabla (2 de nivel 2 en el 7, 2 de nivel 3 en el 13)', () => {
+    assert.equal(recurso(inv(7, 'occultist'), 'Espacios de pacto (nivel 2)')?.max, 2);
+    assert.equal(recurso(inv(13, 'occultist'), 'Espacios de pacto (nivel 3)')?.max, 2);
+  });
+  test('Time Operative: 2 usos de Tiempo Prestado; Rebobinar según INT', () => {
+    assert.equal(recurso(inv(3, 'time-operative'), 'Tiempo prestado')?.max, 2);
+    assert.equal(recurso(inv(6, 'time-operative', { int: 16 }), 'Rebobinar')?.max, 3);
   });
 });

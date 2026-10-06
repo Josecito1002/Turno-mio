@@ -491,6 +491,7 @@ export function buildAvisos(c){
    opciones (entradas propias que salen del rasgo, con los mismos campos, `si(c)` para mostrarlas solo cuando aplican
    y `elegida: [id, key]` para ordenarlas de la última elegida a la primera),
    conjuros(c) (conjuros que da el rasgo: [{nombre, nivel?, desde?, usos?, reset?, nota?, ab?}]; salen en la hoja sin contar en el límite),
+   nivel (el nivel del rasgo al que aplica, cuando varios comparten nombre; p. ej. Enigma Arcano),
    eleccion {id, titulo, opciones: [{key, nombre, nivel?}], max?} (algo que el jugador elige dentro del rasgo, como el patrón
    de un pacto; con `max`, número o función de c, se eligen varias. Se guarda en pj.elecciones[id] y el paso Clase muestra el selector) */
 const valor = (x, c) => typeof x === 'function' ? x(c) : x;
@@ -512,7 +513,7 @@ export function aplicarReglas(c){
   };
   c.entries.forEach(e => {
     const n = norm(e.nombre), de = norm(e.de || e.src || '');
-    const R = REGLAS.find(r => r.n.test(n) && (!r.de || r.de.test(de)));
+    const R = REGLAS.find(r => r.n.test(n) && (!r.de || r.de.test(de)) && (!r.nivel || r.nivel === e.nivel));
     // Conjuros que dan los rasgos, aunque el rasgo no tenga regla propia (o tenga una generada)
     CONJUROS_RASGOS.filter(r => r.n.test(n) && (!r.de || r.de.test(de)) && !(R?.conjuros)).forEach(r => conjuros(r.conjuros, e.nombre));
     if (!R) { out.push(e); return; }
@@ -552,6 +553,7 @@ export function aplicarReglas(c){
       const t = valor(o.t, c);
       const x = {t, tAuto:t, nombre:o.nombre, texto:o.texto(c), textoF:o.texto, coste:valor(o.coste, c) || '', src:e.nombre, grupo:e.grupo, nivel:e.nivel, revisada:true, opcion:true, noSplit:true};
       if (o.usos) conUsos(x, o, 'rg-' + slug(o.nombre));
+      if (o.recurso) x.recurso = o.recurso;
       if (o.conjuros) conjuros(o.conjuros, o.nombre);
       x.rollF = o.roll;
       // Las opciones ligadas a una elección (`elegida: [id, key]`) salen de la última elegida a la primera
