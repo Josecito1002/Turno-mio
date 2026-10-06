@@ -45,7 +45,7 @@ const codigo = (s = '') => {
   const m = s.match(/```[a-zA-Z]*\n([\s\S]*?)```/);
   if (m) return m[1].trim();
   // Sin bloque de código: desde el primer "export const" hasta la última llave
-  const t = s.replace(/```[a-zA-Z]*/g, ''), i = t.indexOf('export const'), j = t.lastIndexOf('}');
+  const t = s.replace(/```[a-zA-Z]*/g, ''), i = t.indexOf('export const'), j = Math.max(t.lastIndexOf('}'), t.lastIndexOf(']'));
   return (i >= 0 && j > i ? t.slice(i, j + 1) : t).trim();
 };
 
@@ -54,7 +54,7 @@ async function cargar(ruta: string, id: string): Promise<Record<string, any>> {
   mkdirSync('.cache/gemini', { recursive: true });
   const tmp = resolve(`.cache/gemini/pt-${id}-${Date.now()}.ts`);
   writeFileSync(tmp, codigo(P.A));
-  try { return await import(pathToFileURL(tmp).href); } catch (e: any) { avisos.push(`${id}: la parte A no es TypeScript válido (${String(e.message).split('\n')[0]})`); return {}; }
+  try { return await import(pathToFileURL(tmp).href); } catch (e: any) { avisos.push(`${id}: la parte A no es TypeScript válido (${String(e.message).split('\n').slice(1, 2).join(' ').replace(/^.*scratch[^:]*:|^.*\.ts:/, 'línea ')})`); return {}; }
 }
 
 /* ---------- Normalizadores ---------- */

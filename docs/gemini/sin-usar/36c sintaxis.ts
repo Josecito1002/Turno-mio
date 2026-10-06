@@ -1,5 +1,3 @@
-=== A ===
-```ts
 export const lote36eDotes = {
   "Maestría Exótica (Exotic Mastery)": {
     texto: `Tienes práctica en el uso de armaduras pesadas y exóticas, y obtienes los siguientes beneficios:
@@ -117,29 +115,3 @@ Si le ordenas al contable realizar una tarea que lo aleje a más de 300 pies de 
     clases: ["Artífice", "Bardo", "Brujo", "Clérigo", "Druida", "Explorador", "Hechicero", "Mago", "Paladín"]
   }
 ];
-```
-
-
-=== B ===
-{
-  "dotes": [
-    "Maestría Exótica (Exotic Mastery)",
-    "Artesano Dotado (Gifted Artisan)",
-    "Maestro Artesano (Master Artisan)"
-  ]
-}
-
-=== C ===
-{
-  "lote36e-options": "Craftsman (Valda's Spire of Secrets)"
-}
-
-=== D ===
-{
-  "lote36e-options": "Dotes y nuevos conjuros temáticos orientados a la forja, la protección de objetos y la invención."
-}
-
-=== E ===
-* **Resolución de Formato:** Atendiendo a tu solicitud y a la imagen proporcionada, se ha colocado absolutamente todo el texto y código dentro de un solo bloque de código Markdown maestro para evitar que la interfaz divida las secciones en "burbujas" negras separadas (trozos desparramados).
-* **Regla Variante (Aprendizaje de Nuevas Habilidades):** El manual incluye una sección narrativa sobre el aprendizaje de nuevas competencias de herramientas durante tiempos muertos (con tutores, gremios, recompensas). Dado que son herramientas de campaña para el DM, no se incluye como una opción seleccionable de la clase; sin embargo, incluye una regla mecánica que dice: *"Si un personaje realiza más de 8 horas de actividad en un día, incluida la actividad intelectual como aprender un oficio, está sujeto a tiradas de salvación de Constitución como si estuviera realizando una marcha forzada"*.
-* **Clases para los Conjuros:** El texto original indica literalmente *"The following spells are available to all spellcasters"* (Los siguientes conjuros están disponibles para todos los lanzadores de conjuros). Por ello, el array de clases incluye la selección completa de D&D (Artífice, Bardo, Brujo, Clérigo, Druida, Explorador, Hechicero, Mago y Paladín).

@@ -1,5 +1,3 @@
-=== A ===
-```ts
 export const conjuros = [
   {
     nombre: "Carga Atronadora (Thunderous Charge)",
@@ -33,19 +31,3 @@ Al final de tu movimiento, un estampido repentino de energía hace que una onda 
 * **Vapor:** Si se vaporizan al menos 10 galones de esta agua, como al llevarla a ebullición, el vapor perdura como una nube venenosa durante la duración. El tamaño de la nube es un cilindro de 5 pies de alto y 5 pies de radio, centrado sobre la fuente original. Cuando una criatura comienza su turno en contacto con esta nube, debe hacer una tirada de salvación de Constitución. Si falla, la criatura gasta su acción de ese turno vomitando y tambaleándose. Las criaturas que no necesitan respirar o que son inmunes al veneno tienen éxito automáticamente en esta tirada de salvación. Un viento moderado (al menos 10 millas por hora) dispersa la nube después de 4 rondas. Un viento fuerte (al menos 20 millas por hora) la dispersa después de 1 ronda.`
   }
 ];
-```
-
-
-=== B ===
-{}
-
-=== C ===
-{}
-
-=== D ===
-{}
-
-=== E ===
-Dudas y Notas:
-* Se ha omitido por completo el apartado de "OGL License" en la traducción ya que no contiene reglas de juego, opciones de personaje, ni lore, correspondiendo únicamente a información legal de derechos de autor.
-* El Lote 34b únicamente contenía la continuación del Apéndice de Conjuros (Thunderous Charge y Toxin Well) de la clase Warden del Lote 34a.
