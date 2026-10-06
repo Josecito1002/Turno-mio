@@ -2,7 +2,7 @@
 'use client';
 import { Campo, Casilla as CasillaKit, Nota } from '@/shared/ui/kit';
 import { avisar } from '@/shared/ui/avisos';
-import { getSubs, getSubAltos, subNivel, descSubclase } from '@/features/biblioteca/domain/biblioteca';
+import { getSubs, getSubAltos, subNivel, descSubclaseLarga } from '@/features/biblioteca/domain/biblioteca';
 import { compute } from '../../domain/calculo';
 import { setVal } from '../../acciones';
 import { Entrada } from '../piezas';
@@ -129,7 +129,7 @@ export function InfoSubclase({ pj, sk, lvl, soloVer }: { pj: any; sk: string; lv
   const S = getSubs(pj, pj.clase).find((s: any) => s.key === sk);
   if (!S) return null;
   const { niveles, elecciones } = rasgosPorNivel(pj, sk);
-  const desc = descSubclase(sk);
+  const desc = descSubclaseLarga(sk);
   return (
     <section aria-labelledby="info-subclase" className="mt-4 rounded-2xl bg-soft p-4 ring-1 ring-rule/60">
       <h3 id="info-subclase" className="m-0 font-serif text-xl font-bold">{S.n}{soloVer && <span className="ml-2 text-sm font-normal text-muted">(vista previa)</span>}<EtiquetaFuente fuente={fuenteSubclase(S, pj.clase)} className="ml-2 align-middle font-sans" /></h3>

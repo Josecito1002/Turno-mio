@@ -34,7 +34,7 @@ export function Tarjeta({ on, onClick, img, imgArriba, titulo, sub, clampSub, fu
         on ? 'ring-[2.5px] ring-ink' : 'ring-rule')}>
       {img && <Imagen src={img} className={cx('mb-2 aspect-square w-full rounded-xl bg-soft object-cover', imgArriba && 'object-top')} />}
       <b className="flex items-center gap-1.5 font-serif text-[1.08rem] leading-tight">{on && <span aria-hidden="true">✓</span>}{titulo}</b>
-      {sub && <span className={cx('mt-0.5 text-sm text-muted', clampSub && 'line-clamp-3')}>{sub}</span>}
+      {sub && <span className={cx('mt-0.5 text-sm text-muted', clampSub && 'line-clamp-6')}>{sub}</span>}
       {fuente && <EtiquetaFuente fuente={fuente} className="mt-auto self-start pt-2" />}
     </button>
   );

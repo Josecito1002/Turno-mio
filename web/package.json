@@ -21,6 +21,8 @@
     "gemini:playtest": "tsx scripts/gemini/playtest.ts",
     "gemini:revisar": "tsx scripts/gemini/revisar.ts",
     "gemini:encargo-descripciones": "tsx scripts/gemini/descripciones.ts",
+    "gemini:encargo-descripciones-largas": "tsx scripts/gemini/descripciones.ts --largas",
+    "gemini:aplicar-descripciones-largas": "tsx scripts/gemini/descripciones.ts --largas --aplicar-respuesta",
     "gemini:aplicar-descripciones": "tsx scripts/gemini/descripciones.ts --aplicar-respuesta",
     "prueba:crear": "tsx --env-file-if-exists=.env.local scripts/gemini/personajes-prueba.ts",
     "prueba:borrar": "tsx --env-file-if-exists=.env.local scripts/gemini/personajes-prueba.ts --borrar",

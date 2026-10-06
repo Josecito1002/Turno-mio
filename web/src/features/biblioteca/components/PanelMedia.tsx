@@ -184,7 +184,7 @@ export function useAzar(n: number) {
     Con `sub` (la subraza elegida) el mismo cuadro muestra su nombre, su descripción, lo que da (`children`) y su imagen.
     `azar` son las claves de imágenes de respaldo (las de la especie, o las de la subraza elegida si no tiene imagen propia): se elige una al azar y queda fija.
     Con `soloAzar` (clases) no hay imagen propia de la clave: solo las de `azar`, del set de especie y clase. */
-export function PanelMedia({ k, n, d, fuente, sub, azar, soloAzar, children }: { k: string; n: string; d: string; fuente?: Fuente; sub?: Sub; azar?: string[]; soloAzar?: boolean; children?: React.ReactNode }) {
+export function PanelMedia({ k, n, d, fuente, sub, azar, soloAzar, largo, children }: { k: string; n: string; d: string; largo?: string; fuente?: Fuente; sub?: Sub; azar?: string[]; soloAzar?: boolean; children?: React.ReactNode }) {
   const LIB = getLib(), editando = S.crop && (S.crop.k === k || S.crop.k === sub?.k);
   const conImg = (azar || []).filter(x => LIB.img?.[x]);
   const i = useAzar(conImg.length);
@@ -197,7 +197,7 @@ export function PanelMedia({ k, n, d, fuente, sub, azar, soloAzar, children }: {
       {editando ? <Recorte nombre={S.crop.k === k ? n : sub!.n} /> : mostrada ? <Imagen className={cx('aspect-square w-full max-w-80 shrink-0 rounded-xl object-cover sm:w-60 md:w-72', retrato && 'object-top')} src={mostrada} alt={`Ilustración de ${sub ? sub.n : n}`} /> : null}
       <div className="min-w-56 flex-1">
         <h2 className="m-0 font-serif text-2xl font-bold">{n}{fuente && <EtiquetaFuente fuente={fuente} className="ml-2 align-middle" />}</h2>
-        {d ? <p className="mb-0 mt-1">{d}</p> : <p className="mb-0 mt-1 text-sm text-muted">Sin descripción todavía.</p>}
+        {(largo || d) ? <p className="mb-0 mt-1">{largo || d}</p> : <p className="mb-0 mt-1 text-sm text-muted">Sin descripción todavía.</p>}
         {sub && (
           <div className="mt-4 border-t border-rule pt-3">
             <h3 className="m-0 font-serif text-xl font-bold">{sub.n}</h3>
