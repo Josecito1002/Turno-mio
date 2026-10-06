@@ -330,12 +330,12 @@ const reliquia = nombre => ({nombre, ab:'int', recurso:'rg-reliquias-arcanas', c
 /* Enigma Arcano: un conjuro por nivel de conjuro (7, 8 y 9), lanzado una vez por descanso largo sin espacio */
 const ENIGMA = {7: ['Espejismo arcano', 'Desplazamiento entre planos', 'Invertir la gravedad', 'Recluir', 'Teletransporte'],
   8: ['Campo antimagia', 'Labia', 'Laberinto', 'Mente en blanco'], 9: ['Proyección astral', 'Portal', 'Asesino fantasmal']};
-const enigma = nv => ({de:/^investigator$/, n:/^enigma arcano$/, nivel: nv * 2 - 1, t:'pasiva',
+const enigma = nv => ({de:/^investigador$/, n:/^enigma arcano$/, nivel: nv * 2 - 1, t:'pasiva',
   eleccion: {id:`enigma-${nv}`, titulo:`Enigma Arcano: conjuro de nivel ${nv}`, opciones: ENIGMA[nv].map(s => ({key: norm(s), nombre: s}))},
   conjuros: c => { const k = elegido(c, `enigma-${nv}`), s = ENIGMA[nv].find(x => norm(x) === k); return s ? [{nombre: s, ab:'int', usos:1, reset:'largo', nota:'Enigma Arcano'}] : []; },
   texto: c => { const k = elegido(c, `enigma-${nv}`), s = ENIGMA[nv].find(x => norm(x) === k);
     return `Lanzas un conjuro de nivel ${nv} a tu elección sin gastar espacio, una vez por descanso largo: ${ENIGMA[nv].join(', ')}.${s ? ` Elegido: ${s}.` : ' Elígelo en el paso Clase.'}`; }});
-/* Tesis del Archivist: conjuros que se añaden gratis al grimorio (y cuentan como rituales), por nivel de Investigator */
+/* Tesis del Archivist: conjuros que se añaden gratis al grimorio (y cuentan como rituales), por nivel de Investigador */
 const TESIS = {
   corpus: ['Corpus', [[3, ['Alterar el propio aspecto', 'Salto']], [5, ['Forma gaseosa']], [7, ['Fabricar']], [9, ['Pasamuros']]]],
   mentis: ['Mentis', [[3, ['Hechizar persona', 'Zona de la verdad']], [5, ['Imagen mayor']], [7, ['Terreno alucinatorio']], [9, ['Ensueño']]]],
@@ -1612,19 +1612,19 @@ export const REGLAS: any[] = [
     texto: c => `Al inicio de tu turno puedes gastar 1 Punto de Enfoque para cargarte de energía elemental durante 10 minutos (acaba antes si quedas Incapacitado). Mientras dura, tus golpes sin armas alcanzan 10 pies más y, al acertar, pueden hacer daño de ácido, frío, fuego, rayo o trueno; si lo haces, el objetivo hace una salvación de FUE (CD ${c.dcFocus}) o lo mueves hasta 10 pies hacia ti o lejos de ti. El golpe elemental sale en Ataques. Además conoces el truco Elementalismo y lo lanzas con SAB.`},
 
   /* ---------- Investigator (Mage Hand Press, 2024; lote 30) ---------- */
-  {de:/^investigator$/, n:/^ritualista$/, t:'pasiva',
+  {de:/^investigador$/, n:/^ritualista$/, t:'pasiva',
     texto: c => `Tus conjuros viven en un grimorio (100 páginas, 3 libras) y solo los lanzas como ritual, leyendo de él, si tienen la etiqueta de Ritual. Empiezas con cuatro conjuros de nivel 1 de Investigator y, al subir de nivel, sumas dos más de nivel ${invTabla(INV_RITUAL, c)} o menos. Copiar un conjuro nuevo cuesta 2 horas y 50 po por nivel; copiar uno tuyo a otro libro, 1 hora y 10 po por nivel. Tu aptitud mágica es Inteligencia (CD ${invCD(c)}, ${sign(c.pb + c.m.int)} al ataque).`},
-  {de:/^investigator$/, n:/^pericia$/, t:'pasiva',
+  {de:/^investigador$/, n:/^pericia$/, t:'pasiva',
     texto: c => `Pericia (doble de tu bonificador de competencia) en ${c.lvl >= 9 ? 4 : 2} habilidades en las que ya seas competente; las eliges en el paso Habilidades.`},
-  {de:/^investigator$/, n:/^golpe de gracia$/, t:'gratis',
+  {de:/^investigador$/, n:/^golpe de gracia$/, t:'gratis',
     texto: c => `Una vez por turno, al dañar con un arma a una criatura Maltrecha, le haces ${invGolpe(c)}d8 de daño extra del mismo tipo que el del arma.`},
-  {de:/^investigator$/, n:/^golpe de gracia mejorado$/, t:'gratis',
+  {de:/^investigador$/, n:/^golpe de gracia mejorado$/, t:'gratis',
     texto: c => `Cuando haces la acción de Atacar en tu turno, puedes usar Golpe de Gracia sobre una criatura que no esté Maltrecha, pero solo con ${invGolpeMejorado(c)}d8 de daño extra. Sobre una Maltrecha haces ${invGolpe(c)}d8.`},
-  {de:/^investigator$/, n:/^conjuro apresurado$/, t:'adicional', usos: c => invTabla(INV_APRESURADO, c), reset:'corto1', coste:'1 vuelve con descanso corto, todos con uno largo',
+  {de:/^investigador$/, n:/^conjuro apresurado$/, t:'adicional', usos: c => invTabla(INV_APRESURADO, c), reset:'corto1', coste:'1 vuelve con descanso corto, todos con uno largo',
     texto: c => `Lanzas como acción adicional un conjuro de tu grimorio cuyo tiempo de lanzamiento sea una acción o una acción adicional, sin componentes materiales salvo los que cuesten 100 po o más. Tienes ${invTabla(INV_APRESURADO, c)} usos: recuperas uno con un descanso corto y todos con uno largo. Varios rasgos de subclase se recuperan gastando uno de estos usos.`},
-  {de:/^investigator$/, n:/^amuletos$/, t:'pasiva', usos: c => invTabla(INV_AMULETOS, c) + (esOrden(c, /anticuario/) ? 1 : 0), reset:'corto1', coste:'1 vuelve con descanso corto, todos con uno largo',
+  {de:/^investigador$/, n:/^amuletos$/, t:'pasiva', usos: c => invTabla(INV_AMULETOS, c) + (esOrden(c, /anticuario/) ? 1 : 0), reset:'corto1', coste:'1 vuelve con descanso corto, todos con uno largo',
     texto: c => `Tu subclase te da amuletos sobrenaturales y cada uno que activas gasta 1 uso de este rasgo. Tienes ${invTabla(INV_AMULETOS, c) + (esOrden(c, /anticuario/) ? 1 : 0)} usos: recuperas uno con un descanso corto y todos con uno largo. Las opciones están en el rasgo Amuletos de tu subclase.`},
-  {de:/^investigator$/, n:/^amuletos sagrados$/, t:'adicional',
+  {de:/^investigador$/, n:/^amuletos sagrados$/, t:'adicional',
     texto: c => `Llevas símbolos sagrados y objetos bendecidos aunque no seas devoto. Gastando 1 uso de Amuletos${esOrden(c, /inquisitor/) && c.lvl >= 10 ? ' (o uno de los 3 usos gratis de Piedad Rutinaria)' : ''} activas uno, todos como acción adicional.`,
     opciones: [
       opAmuleto('Amuleto de Protección', 'adicional', c => `Una criatura a 60 pies gana +${invMod(c)} a la CA y a las salvaciones hasta el inicio de tu próximo turno.`),
@@ -1639,7 +1639,7 @@ export const REGLAS: any[] = [
     texto: c => `Amuletos del Anticuario (1 uso cada uno): Punta de Flecha Odiosa (Rayo debilitador o Rayo abrasador), Prisma Deformado (Contorno borroso o Escudo) y Vendas de Dientes de Navaja (Curar heridas o Infligir heridas, sumando tu nivel, ${c.lvl}, a la curación o al daño). Salen en Conjuros, sin espacio ni componentes.`,
     conjuros: () => [amuleto('Rayo debilitador', 'Punta de Flecha Odiosa'), amuleto('Rayo abrasador', 'Punta de Flecha Odiosa'),
       amuleto('Contorno borroso', 'Prisma Deformado'), amuleto('Escudo', 'Prisma Deformado'),
-      amuleto('Curar heridas', 'Vendas de Dientes de Navaja: sumas tu nivel de Investigator a la curación'), amuleto('Infligir heridas', 'Vendas de Dientes de Navaja: sumas tu nivel de Investigator al daño')]},
+      amuleto('Curar heridas', 'Vendas de Dientes de Navaja: sumas tu nivel de Investigador a la curación'), amuleto('Infligir heridas', 'Vendas de Dientes de Navaja: sumas tu nivel de Investigador al daño')]},
   {de:/^anticuario$/, n:/^reliquias arcanas$/, t:'pasiva', usos:1, reset:'corto',
     texto: () => 'Una reliquia a la vez, hasta el próximo descanso corto o largo: Dinamo Antediluviana (Bola de fuego o Relámpago), Máscara Mortuoria de Liche (Contrahechizo o Disipar magia) o Espiral Mortal (Animar a los muertos o Revivir; al lanzar Animar con ella, los muertos vivientes anteriores de la reliquia se deshacen). Sin espacio ni componentes.',
     conjuros: () => ['Bola de fuego', 'Relámpago', 'Contrahechizo', 'Disipar magia', 'Animar a los muertos', 'Revivir'].map(reliquia)},
@@ -1701,7 +1701,7 @@ export const REGLAS: any[] = [
 
   /* Detective */
   {de:/^detective$/, n:/^corazonada asombrosa$/, t:'gratis', usos: c => invMod(c), reset:'largo',
-    texto: c => `Al hacer una prueba de Inteligencia o de Sabiduría (Perspicacia), sumas +${c.lvl} (tu nivel de Investigator). Usos: ${invMod(c)} (tu modificador de INT, mínimo 1).`},
+    texto: c => `Al hacer una prueba de Inteligencia o de Sabiduría (Perspicacia), sumas +${c.lvl} (tu nivel de Investigador). Usos: ${invMod(c)} (tu modificador de INT, mínimo 1).`},
   {de:/^detective$/, n:/^amuletos$/, t:'pasiva', recurso:'rg-amuletos',
     texto: () => 'Amuletos del Detective (1 uso cada uno): Periapto de Piedra de Niebla (Paso brumoso), Medallón de Cristal (Invisibilidad sobre ti, como acción adicional) y Llave de Esqueleto (Abrir, como acción adicional y en silencio). Salen en Conjuros, sin espacio ni componentes.',
     conjuros: () => [amuleto('Paso brumoso', 'Periapto de Piedra de Niebla'), amuleto('Invisibilidad', 'Medallón de Cristal: solo sobre ti', 'adicional'), amuleto('Abrir', 'Llave de Esqueleto: el lanzamiento es silencioso', 'adicional')]},
@@ -1787,7 +1787,7 @@ export const REGLAS: any[] = [
     conjuros: () => [amuleto('Disfrazarse', 'Gafas de Montura de Cuerno', 'adicional'), amuleto('Hechizar persona', 'Copa de Martini', 'adicional')],
     opciones: [opAmuleto('Polvo de Cristal', 'adicional', () => 'Lanzas la bolsa a un punto a 10 pies: una Esfera de 5 pies de polvo brillante dura hasta el inicio de tu próximo turno. Quien entre por primera vez en un turno o acabe su turno dentro queda Invisible hasta salir, atacar, dañar o lanzar un conjuro.')]},
   {de:/^spy$/, n:/^capa y espada$/, t:'gratis',
-    texto: c => `Al dañar en la primera ronda de combate, si el objetivo aún no ha actuado o tienes ventaja contra él, haces +${c.lvl} de daño de fuerza (tu nivel de Investigator).`},
+    texto: c => `Al dañar en la primera ronda de combate, si el objetivo aún no ha actuado o tienes ventaja contra él, haces +${c.lvl} de daño de fuerza (tu nivel de Investigador).`},
   {de:/^spy$/, n:/^doble de cuerpo$/, t:'accion', usos:1, reset:'corto',
     texto: c => `Con la acción mágica adoptas la apariencia de un Humanoide, o de un cadáver humanoide muerto hace 24 horas o menos, que toques (ropa, armadura y armas incluidas); si era un cadáver, él y las pruebas de su muerte quedan invisibles 8 horas. Para descubrirte, hay que usar la acción de Estudiar y superar una prueba de Inteligencia (Investigación) contra CD ${invCD(c)}. Se recupera con descanso corto o largo, o gastando un uso de Conjuro Apresurado (sin acción).`},
   {de:/^spy$/, n:/^locuaz$/, t:'accion', usos: () => 0,

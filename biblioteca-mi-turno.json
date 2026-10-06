@@ -10921,7 +10921,7 @@
    }
   },
   "lib:investigator": {
-   "n": "Investigator",
+   "n": "Investigador",
    "lib": true,
    "src": "Investigator (Mage Hand Press, 2024)",
    "dado": 8,
@@ -11785,7 +11785,7 @@
    }
   },
   "lib:gunslinger": {
-   "n": "Gunslinger",
+   "n": "Pistolero",
    "lib": true,
    "src": "Gunslinger (playtest)",
    "dado": 8,
@@ -13446,7 +13446,7 @@
      ]
     },
     "investigator": {
-     "n": "Investigator",
+     "n": "Investigador",
      "rasgos": [
       {
        "nombre": "Estudiante de la Verdad",
@@ -14872,7 +14872,7 @@
    }
   },
   "lib:craftsman": {
-   "n": "Craftsman",
+   "n": "Artesano",
    "lib": true,
    "src": "Craftsman (playtest)",
    "dado": 10,

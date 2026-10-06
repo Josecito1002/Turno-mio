@@ -11,9 +11,11 @@ import { SUBCLASES } from '../../src/features/reglas/data/subclases';
 import { CLASES } from '../../src/features/reglas/data/clases';
 
 const ESTILO = '../docs/gemini/estilo-y-glosario.txt';
-const ENCARGO = '../docs/gemini/lote-40-descripciones.txt';
-const RESPUESTA = '../docs/gemini/respuesta-40-descripciones.txt';
-const DESTINO = 'src/features/reglas/data/descripciones-extra.ts';
+// Con --largas: lote 41, descripciones largas (lo que se ve al elegir la clase o la subclase) de TODAS las clases y subclases
+const LARGAS = process.argv.includes('--largas');
+const ENCARGO = LARGAS ? '../docs/gemini/lote-41-descripciones-largas.txt' : '../docs/gemini/lote-40-descripciones.txt';
+const RESPUESTA = LARGAS ? '../docs/gemini/respuesta-41-descripciones-largas.txt' : '../docs/gemini/respuesta-40-descripciones.txt';
+const DESTINO = LARGAS ? 'src/features/reglas/data/descripciones-largas.ts' : 'src/features/reglas/data/descripciones-extra.ts';
 const biblioteca = JSON.parse(readFileSync('../biblioteca-mi-turno.json', 'utf8'));
 const corto = (s: string, n: number) => { const t = String(s || '').replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n).replace(/\s\S*$/, '') + '…' : t; };
 
@@ -29,13 +31,29 @@ function elementos(soloPendientes: boolean): Item[] {
   for (const s of SUBCLASES as any[]) if (falta(DESC_SUBCLASES, s.key) && !out.some(o => o.clave === s.key)) out.push({ tipo: 's', clave: s.key, nombre: s.n, de: s.clase, rasgos: [] });
   return out;
 }
-const pendientes = () => elementos(true);
+const pendientes = () => elementos(!LARGAS);
 
 function encargo() {
   const items = pendientes();
   const bloque = (i: Item) => `${i.clave} | ${i.nombre}${i.de ? ` (${i.tipo === 'c' ? 'fuente' : 'clase'}: ${i.de})` : ''}\n` +
+    (LARGAS ? `  corta: ${(i.tipo === 'c' ? DESC_CLASES : DESC_SUBCLASES)[i.clave] || ''}\n` : '') +
     i.rasgos.slice(0, i.tipo === 'c' ? 10 : 5).map((r: any) => `  - nivel ${r.n} ${r.nombre}: ${corto(r.texto, i.tipo === 'c' ? 60 : 110)}`).join('\n');
-  const txt = `TAREA: escribir la descripción corta de cada clase y subclase de la lista, para la app "Mi turno" (hojas de personaje de D&D 2024, en español).
+  const txt = LARGAS ? `TAREA: escribir la descripción larga de cada clase y subclase de la lista, para la app "Mi turno" (hojas de personaje de D&D 2024, en español). Se muestra al elegir la clase o la subclase, para decidir si te gusta.
+
+REGLAS
+1. De 250 a 400 caracteres, en uno o dos párrafos cortos sin saltos de línea: qué fantasía da, cómo se juega (qué gasta, cuándo brilla, qué papel cumple en el grupo) y qué la hace distinta. Empieza distinto de la descripción corta, sin repetirla.
+2. Estilo de Wizards of the Coast en español: directo, en presente, sin adornos ni publicidad; vocabulario del Manual del Jugador 2024 en español. Habla en tercera persona del plural ("Guerreros que...").
+3. Con palabras propias: no copies ni traduzcas literal el texto de los rasgos; resúmelo. No inventes datos que los rasgos no den.
+4. No inventes nombres en español. Si nombras un rasgo o un nombre propio sin traducción oficial, déjalo en inglés.
+5. Hay ${items.length} elementos. Responde TODOS, en este mismo chat y sin partirlos en varias respuestas ni en varios archivos.
+
+FORMATO DE LA RESPUESTA (texto plano, un elemento por línea, sin viñetas, sin negritas, sin nada antes ni después)
+clave | descripción larga
+
+${existsSync(ESTILO) ? readFileSync(ESTILO, 'utf8').trim() + '\n\n' : ''}LISTA (clave | nombre; debajo, la descripción corta y rasgos de ejemplo)
+
+${items.map(bloque).join('\n\n')}
+` : `TAREA: escribir la descripción corta de cada clase y subclase de la lista, para la app "Mi turno" (hojas de personaje de D&D 2024, en español).
 
 REGLAS
 1. Una sola frase de 80 a 140 caracteres que diga qué fantasía o estilo de juego da y qué hace de especial. Sin punto final si queda más limpio.
@@ -70,7 +88,7 @@ function aplicar(escribir: boolean) {
   const marcas = [...texto.matchAll(new RegExp(`(?:^|\\s)(${ordenadas.join('|')})\\s*\\|\\s*`, 'g'))];
   marcas.forEach((m, i) => {
     const k = m[1], d = texto.slice(m.index! + m[0].length, marcas[i + 1]?.index ?? texto.length).replace(/\*\*|\[cite[^\]]*\]/g, '').replace(/\s+/g, ' ').trim();
-    if (d.length < 40 || d.length > 220) avisos.push(`${k}: ${d.length} caracteres (ideal 80 a 140).`);
+    if (LARGAS ? d.length < 150 || d.length > 600 : d.length < 40 || d.length > 220) avisos.push(`${k}: ${d.length} caracteres (ideal ${LARGAS ? '250 a 400' : '80 a 140'}).`);
     if (/NO CONFIRMADO|PROPUESTA/i.test(d)) avisos.push(`${k}: trae una marca de duda.`);
     ok[k] = d.replace(/'/g, '’');
   });
@@ -80,7 +98,9 @@ function aplicar(escribir: boolean) {
   if (!escribir) { console.log('Con --aplicar se escriben en ' + DESTINO); return; }
   const cl = [...claves.values()].filter(i => i.tipo === 'c' && ok[i.clave]).map(i => `  '${i.clave}': '${ok[i.clave]}',`);
   const sb = [...claves.values()].filter(i => i.tipo === 's' && ok[i.clave]).map(i => `  '${i.clave}': '${ok[i.clave]}',`);
-  writeFileSync(DESTINO, `/* Descripciones cortas de clases y subclases (lote 40, scripts/gemini/descripciones.ts). Las de descripciones.ts tienen prioridad. */\n` +
+  writeFileSync(DESTINO, LARGAS
+    ? `/* Descripciones largas de clases y subclases (lote 41, scripts/gemini/descripciones.ts --largas). Salen al elegir la clase o la subclase. */\nexport const DESC_LARGAS_CLASES: Record<string, string> = {\n${cl.join('\n')}\n};\nexport const DESC_LARGAS_SUBCLASES: Record<string, string> = {\n${sb.join('\n')}\n};\n`
+    : `/* Descripciones cortas de clases y subclases (lote 40, scripts/gemini/descripciones.ts). Las de descripciones.ts tienen prioridad. */\n` +
     `export const DESC_CLASES_EXTRA: Record<string, string> = {\n${cl.join('\n')}\n};\nexport const DESC_SUBCLASES_EXTRA: Record<string, string> = {\n${sb.join('\n')}\n};\n`);
   console.log(`${DESTINO} escrito.`);
 }

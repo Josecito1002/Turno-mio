@@ -12,7 +12,7 @@ import { ARMAS } from '@/features/reglas/data/equipo';
 import { kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
 import { esDoteOrigen } from '@/features/reglas/domain/restricciones';
 import { fuenteClase, fuenteEspecie, fuenteSubclase, fuenteTrasfondo } from '@/features/reglas/data/fuentes';
-import { getLib, getSubs, getT, allDotes, descEspecie, descSubespecie, descClase, descSubclase, sinRepetidas, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
+import { getLib, getSubs, getT, allDotes, descEspecie, descSubespecie, descClase, descClaseLarga, descSubclase, sinRepetidas, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
 import { PanelMedia, useAzar } from '@/features/biblioteca/components/PanelMedia';
 import { PREFIJO_ORIGEN, imagenesDeEspecie, imagenesDeSubraza, imagenesOrigen, slugNombre } from '@/features/biblioteca/domain/imagenes-origen';
 import { Entrada } from '../piezas';
@@ -263,7 +263,7 @@ export function PasoClase({ pj, c }: { pj: any; c: any }) {
   const falta = faltaParaSubir(c);
   return (
     <>
-      <PanelMedia k={'c:' + pj.clase} n={C.n} d={descClase(pj.clase)} fuente={fuenteClase(pj.clase)} soloAzar
+      <PanelMedia k={'c:' + pj.clase} n={C.n} d={descClase(pj.clase)} largo={descClaseLarga(pj.clase)} fuente={fuenteClase(pj.clase)} soloAzar
         azar={(pj.subclase && temasDe(pj, pj.clase, pj.subclase).length ? temasDe(pj, pj.clase, pj.subclase) : temasDe(pj, pj.clase))} />
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
