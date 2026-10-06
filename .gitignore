@@ -1,2 +1,5 @@
 # Primera propuesta (Hasura), reemplazada por web/drizzle y web/scripts
 /db/
+
+# PDF de consulta (pesan mucho)
+/docs/gemini/fuentes/
