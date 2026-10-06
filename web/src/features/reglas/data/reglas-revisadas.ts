@@ -1624,7 +1624,7 @@ export const REGLAS: any[] = [
     texto: c => `Lanzas como acción adicional un conjuro de tu grimorio cuyo tiempo de lanzamiento sea una acción o una acción adicional, sin componentes materiales salvo los que cuesten 100 po o más. Tienes ${invTabla(INV_APRESURADO, c)} usos: recuperas uno con un descanso corto y todos con uno largo. Varios rasgos de subclase se recuperan gastando uno de estos usos.`},
   {de:/^investigador$/, n:/^amuletos$/, t:'pasiva', usos: c => invTabla(INV_AMULETOS, c) + (esOrden(c, /anticuario/) ? 1 : 0), reset:'corto1', coste:'1 vuelve con descanso corto, todos con uno largo',
     texto: c => `Tu subclase te da amuletos sobrenaturales y cada uno que activas gasta 1 uso de este rasgo. Tienes ${invTabla(INV_AMULETOS, c) + (esOrden(c, /anticuario/) ? 1 : 0)} usos: recuperas uno con un descanso corto y todos con uno largo. Las opciones están en el rasgo Amuletos de tu subclase.`},
-  {de:/^investigador$/, n:/^amuletos sagrados$/, t:'adicional',
+  {de:/^investigador$/, n:/^amuletos sagrados$/, t:'pasiva',
     texto: c => `Llevas símbolos sagrados y objetos bendecidos aunque no seas devoto. Gastando 1 uso de Amuletos${esOrden(c, /inquisitor/) && c.lvl >= 10 ? ' (o uno de los 3 usos gratis de Piedad Rutinaria)' : ''} activas uno, todos como acción adicional.`,
     opciones: [
       opAmuleto('Amuleto de Protección', 'adicional', c => `Una criatura a 60 pies gana +${invMod(c)} a la CA y a las salvaciones hasta el inicio de tu próximo turno.`),
