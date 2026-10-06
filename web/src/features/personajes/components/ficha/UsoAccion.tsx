@@ -47,6 +47,8 @@ export type Uso = {
   cura?: boolean;
   /** Si hace daño o impone algo a otros */
   afecta: boolean;
+  /** Lista de opciones que se pueden usar con este rasgo (los conjuros de Conjuro Apresurado) */
+  lista?: { titulo: string; items: { nombre: string; nota: string; texto?: string }[] };
   /** Recurso que gasta al usarlo (un uso del rasgo) */
   gasta?: string;
   /** Conjuro de nivel 1 o más: se paga con un espacio (o con el rasgo que lo da, o como ritual) */
@@ -175,6 +177,18 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
         ))}
         {uso.salv && <p className="m-0 mt-1 font-bold text-on-surface">Los objetivos tiran salvación de {uso.salv} contra CD {uso.cd}</p>}
       </div>
+
+      {uso.lista && (
+        <div className="grid gap-1 rounded-lg bg-surface-container-low p-3">
+          <span className="text-label-caps uppercase text-outline">{uso.lista.titulo}</span>
+          {uso.lista.items.length ? uso.lista.items.map(x => (
+            <details key={x.nombre} className="rounded bg-surface-container-lowest">
+              <summary className="min-h-11 cursor-pointer list-none px-2 py-2 text-body-md text-on-surface"><b>{x.nombre}</b> <small className="text-outline">{x.nota}</small></summary>
+              {x.texto && <p className="m-0 px-2 pb-2 text-body-sm text-on-surface-variant" dangerouslySetInnerHTML={{ __html: richT(x.texto) }} />}
+            </details>
+          )) : <p className="m-0 text-body-sm text-outline">No tienes conjuros en tu grimorio que se lancen con una acción o una acción adicional.</p>}
+        </div>
+      )}
 
       {uso.equipar && (
         <div className="grid gap-2 rounded-lg bg-surface-container-low p-3">

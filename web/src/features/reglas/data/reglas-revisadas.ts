@@ -1643,6 +1643,18 @@ export const REGLAS: any[] = [
   {de:/^anticuario$/, n:/^reliquias arcanas$/, t:'pasiva', usos:1, reset:'corto',
     texto: () => 'Una reliquia a la vez, hasta el próximo descanso corto o largo: Dinamo Antediluviana (Bola de fuego o Relámpago), Máscara Mortuoria de Liche (Contrahechizo o Disipar magia) o Espiral Mortal (Animar a los muertos o Revivir; al lanzar Animar con ella, los muertos vivientes anteriores de la reliquia se deshacen). Sin espacio ni componentes.',
     conjuros: () => ['Bola de fuego', 'Relámpago', 'Contrahechizo', 'Disipar magia', 'Animar a los muertos', 'Revivir'].map(reliquia)},
+  {de:/^anticuario$/, n:/^coleccion de objetos magicos$/, t:'pasiva',
+    texto: () => 'Al terminar un descanso largo produces un objeto mágico de la lista (los anteriores se desvanecen) y, si requiere sintonización, te sintonizas al producirlo. Elige cuál abajo.',
+    eleccion: {id:'coleccion-objetos', titulo:'Objeto mágico que produces', opciones: [
+      {key:'alfombra', nombre:'Alfombra voladora', desc:'Una alfombra que vuela con su carga; su velocidad depende del tamaño.'},
+      {key:'capa', nombre:'Capa del murciélago', desc:'Ventaja en Sigilo y vuelo en luz tenue u oscuridad.'},
+      {key:'lengua', nombre:'Lengua de fuego', desc:'Un arma que arde y suma daño de fuego al impactar.'},
+      {key:'guantes', nombre:'Guanteletes de fuerza de ogro', desc:'Tu Fuerza sube a 19 mientras los llevas.'},
+      {key:'fortaleza', nombre:'Fortaleza instantánea', desc:'Un cubo que se despliega como una torre fortificada.'},
+      {key:'regeneracion', nombre:'Anillo de regeneración', desc:'Recuperas Puntos de Golpe con el tiempo y regeneras miembros.'},
+      {key:'telequinesia', nombre:'Anillo de telequinesia', desc:'Lanzas Telequinesia a voluntad.'},
+      {key:'hoja', nombre:'Hoja solar', desc:'Una espada de luz radiante.'},
+      {key:'maravillas', nombre:'Varita de las maravillas', desc:'Una varita de efectos mágicos aleatorios.'}]}},
   {de:/^anticuario$/, n:/^tarro de almas$/, t:'pasiva', usos:5, reset:'largo', pool:true,
     texto: c => `Un tarro de almas siempre sintonizado contigo, con 5 cargas; cada amanecer recupera 1d4 + 1. Gastas cargas así: 1 para ganar ${c.lvl} PG temporales (acción adicional); 1 para recuperar un uso de Amuletos (acción adicional); 2 para quedar con 1 PG al caer a 0 sin morir en el acto (una vez por turno, sin acción); 3 para un ataque de conjuro cuerpo a cuerpo con la acción mágica que hace 8d8 necrótico y te cura lo mismo (si falla, no se gastan).`,
     opciones: [
