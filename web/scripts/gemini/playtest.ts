@@ -24,7 +24,7 @@ const CLASES: Record<string, { clave: string; src: string }> = {
   beastheart: { clave: 'lib:beastheart', src: 'Beastheart (Monstrous Companions, playtest)' },
 };
 const TIPOS_T = ['accion', 'adicional', 'reaccion', 'gratis', 'pasiva', 'fuera'];
-const SV: Record<string, string> = { fuerza: 'fue', destreza: 'des', constitucion: 'con', inteligencia: 'int', sabiduria: 'sab', carisma: 'car' };
+const SV: Record<string, string> = { fuerza: 'fue', destreza: 'des', constitucion: 'con', inteligencia: 'int', sabiduria: 'sab', carisma: 'car', strength: 'fue', dexterity: 'des', constitution: 'con', intelligence: 'int', wisdom: 'sab', charisma: 'car' };
 const HAB_SINONIMOS: Record<string, string> = { 'conocimiento arcano': 'Arcanos', arcano: 'Arcanos', 'manitas': 'Juego de Manos', 'juego de manos': 'Juego de Manos', 'trato animal': 'Trato con Animales' };
 const kebab = (s: string) => norm(s).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
