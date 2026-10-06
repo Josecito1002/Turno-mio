@@ -10,6 +10,7 @@ import { DESC_CLASES, DESC_SUBCLASES } from '../../src/features/reglas/data/desc
 import { SUBCLASES } from '../../src/features/reglas/data/subclases';
 import { CLASES } from '../../src/features/reglas/data/clases';
 
+const ESTILO = '../docs/gemini/estilo-y-glosario.txt';
 const ENCARGO = '../docs/gemini/lote-40-descripciones.txt';
 const RESPUESTA = '../docs/gemini/respuesta-40-descripciones.txt';
 const DESTINO = 'src/features/reglas/data/descripciones-extra.ts';
@@ -50,7 +51,7 @@ clave | descripción
 Ejemplo (inventado, no es de la lista):
 ejemplo | Tiradores que convierten cada disparo en un truco: puntería, recarga rápida y ases bajo la manga
 
-LISTA (clave | nombre; debajo, rasgos de ejemplo para entender de qué va)
+${existsSync(ESTILO) ? readFileSync(ESTILO, 'utf8').trim() + '\n\n' : ''}LISTA (clave | nombre; debajo, rasgos de ejemplo para entender de qué va)
 
 ${items.map(bloque).join('\n\n')}
 `;

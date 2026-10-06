@@ -14,6 +14,25 @@ clave | descripción
 Ejemplo (inventado, no es de la lista):
 ejemplo | Tiradores que convierten cada disparo en un truco: puntería, recarga rápida y ases bajo la manga
 
+ESTILO Y GLOSARIO (se incluye dentro de cada encargo; editar aquí y volver a generar)
+
+ESTILO (Wizards of the Coast, Manual del Jugador 2024 en español)
+- Directo y en presente. Frases cortas. Sin adornos, sin publicidad ni exclamaciones.
+- A quien juega se le habla de "tú" en los rasgos ("Puedes...", "Tienes..."). Las descripciones de clase o subclase van en tercera persona del plural ("Guerreros que...").
+- Términos de reglas con la mayúscula del Manual: acciones y condiciones en mayúscula inicial (Atacar, Correr, Destrabarse, Esconderse, Utilizar, Estudiar, Influir; Cegado, Asustado, Incapacitado, Maltrecho).
+- Con palabras propias: no copies ni traduzcas literal el libro.
+- No inventes nombres en español. Un nombre sin traducción oficial o evidente se deja en inglés.
+
+GLOSARIO (los términos que ya usa la app; usa exactamente estos)
+Bonus Action = acción adicional | Reaction = reacción | Magic action = acción de Magia | Action = acción
+Saving throw = tirada de salvación | Attack roll = tirada de ataque | Ability check = prueba de característica | Advantage / Disadvantage = ventaja / desventaja
+Hit Points = Puntos de Golpe (PG) | Temporary Hit Points = Puntos de Golpe temporales | Armor Class = Clase de Armadura (CA)
+Bloodied = Maltrecho | Proficiency Bonus = bonificador de competencia | Expertise = Pericia | Weapon Mastery = Maestría con armas
+Short Rest / Long Rest = descanso corto / descanso largo | Spell slot = espacio de conjuro | Cantrip = truco | Concentration = concentración
+Unarmed Strike = Ataque Desarmado | Disengage = Destrabarse | Utilize = Utilizar | Study = Estudiar | Influence = Influir
+Level = nivel | Subclass = subclase | Feature = rasgo | Trait = rasgo | Invocation = invocación
+(Si un término no está aquí y no estás seguro, déjalo en inglés y márcalo con [NO CONFIRMADO].)
+
 LISTA (clave | nombre; debajo, rasgos de ejemplo para entender de qué va)
 
 gunslinger | Gunslinger (fuente: Gunslinger (playtest))
