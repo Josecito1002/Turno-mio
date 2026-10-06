@@ -440,6 +440,22 @@ export function agregarMagico(k: string, def?: any, base?: string) {
   pj.magicos = [...(pj.magicos || []), m];
   savePj(); render(); avisar(`${d.n} agregado${d.sint ? '. Sintonízalo para que funcione' : ''}.`);
 }
+/** Colección de Objetos Mágicos (Anticuario): produce el objeto elegido en el inventario, sintonizado, y deja que el anterior se desvanezca.
+    Si es un arma, queda empuñada en la mano principal. */
+const COLECCION: Record<string, [string, string?]> = {
+  alfombra: ['alfombra-voladora'], capa: ['capa-murcielago'], lengua: ['lengua-fuego', 'espada_larga'], guantes: ['guanteletes-ogro'],
+  fortaleza: ['fortaleza-instantanea'], regeneracion: ['anillo-regeneracion'], telequinesia: ['anillo-telequinesia'],
+  hoja: ['hoja-solar', 'espada_larga'], maravillas: ['varita-maravillas'],
+};
+export function producirObjetoColeccion(opcion: string) {
+  const pj = S.pj, e = COLECCION[opcion]; if (!pj || !e) return false;
+  (pj.magicos || []).filter((m: any) => m.origen === 'coleccion').forEach((m: any) => quitarMagico(m.id));
+  agregarMagico(e[0], undefined, e[1]);
+  const m = pj.magicos[pj.magicos.length - 1]; if (!m || m.k !== e[0]) return false;
+  m.origen = 'coleccion'; m.sint = true;
+  if (m.arma) setMano('a', m.arma); else { savePj(); render(); }
+  return true;
+}
 export function quitarMagico(id: string) {
   const pj = S.pj, m = (pj.magicos || []).find((x: any) => x.id === id); if (!m) return;
   if (m.arma) { pj.armas = pj.armas.filter((a: any) => a[0] !== m.arma); delete pj.armasPropias?.[m.arma]; }
