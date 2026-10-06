@@ -64,15 +64,16 @@ function aplicar(escribir: boolean) {
   // Con la respuesta ya aplicada una vez, esas claves dejan de estar pendientes: se acepta cualquier clase o subclase conocida
   const claves = new Map(elementos(false).map(i => [i.clave, i]));
   const ok: Record<string, string> = {}, avisos: string[] = [];
-  for (const linea of readFileSync(RESPUESTA, 'utf8').split(/\r?\n/)) {
-    const m = linea.replace(/^[\s*\-•]+/, '').match(/^([\w:-]+)\s*\|\s*(.+)$/);
-    if (!m) continue;
-    const [, k, d0] = m; const d = d0.replace(/\*\*|\[cite[^\]]*\]/g, '').replace(/\s+/g, ' ').trim();
-    if (!claves.has(k)) { avisos.push(`${k}: no es una clase ni una subclase de la app; se ignora.`); continue; }
+  // Gemini a veces junta todo en una sola línea: se parte por cada "clave | " conocida
+  const texto = readFileSync(RESPUESTA, 'utf8').replace(/^\uFEFF/, '').replace(/\r?\n/g, ' ');
+  const ordenadas = [...claves.keys()].sort((x, y) => y.length - x.length).map(k => k.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'));
+  const marcas = [...texto.matchAll(new RegExp(`(?:^|\\s)(${ordenadas.join('|')})\\s*\\|\\s*`, 'g'))];
+  marcas.forEach((m, i) => {
+    const k = m[1], d = texto.slice(m.index! + m[0].length, marcas[i + 1]?.index ?? texto.length).replace(/\*\*|\[cite[^\]]*\]/g, '').replace(/\s+/g, ' ').trim();
     if (d.length < 40 || d.length > 220) avisos.push(`${k}: ${d.length} caracteres (ideal 80 a 140).`);
     if (/NO CONFIRMADO|PROPUESTA/i.test(d)) avisos.push(`${k}: trae una marca de duda.`);
     ok[k] = d.replace(/'/g, '’');
-  }
+  });
   const faltan = pendientes().map(i => i.clave).filter(k => !ok[k]);
   console.log(`${Object.keys(ok).length} descripciones leídas; pendientes de la lista: ${pendientes().length}.${faltan.length ? ' Faltan: ' + faltan.join(', ') : ''}`);
   avisos.forEach(a => console.log('  aviso · ' + a));
