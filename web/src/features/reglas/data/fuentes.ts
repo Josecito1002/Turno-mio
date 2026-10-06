@@ -29,6 +29,7 @@ const CLASES_LIB: Record<string, Fuente> = {
   'lib:cazador-sangre': dndb('Blood Hunter, de Matt Mercer (D&D Beyond)'),
   'lib:psion': playtest('Unearthed Arcana Psion Update (2025)'),
   'lib:pugilista': { tipo: 'homebrew', libro: 'The Pugilist Class, de Benjamin Huffman' },
+  'lib:investigator': { tipo: 'homebrew', libro: 'Investigator, de Mage Hand Press' },
 };
 export function fuenteClase(k: string): Fuente {
   return CLASES_LIB[k] || (CLASES[k] ? PHB : HOMEBREW);

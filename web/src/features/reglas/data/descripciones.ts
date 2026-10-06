@@ -87,6 +87,7 @@ export const DESC_CLASES: Record<string, any> = {
   'cazador-sangre':'Cazadores de monstruos que sacrifican su propia sangre para potenciar armas y maldiciones.',
   psion:'Lanzadores que usan la energía de su mente: dados de energía psiónica, telepatía, telequinesis y disciplinas.',
   pugilista:'Peleadores callejeros que confían en sus puños, su aguante y su descaro.',
+  investigator:'Cazadores de misterios y monstruos: rituales de grimorio, golpes a la debilidad del enemigo y amuletos que hacen magia.',
   arcanista:'Inventores arcanos que infunden magia en objetos y artefactos.',
 };
 
@@ -222,6 +223,20 @@ export const DESC_SUBCLASES: Record<string, any> = {
   'caballero-playtest':'Jinetes y protectores que marcan a sus enemigos y cierran el paso a quien ataque a sus aliados.',
   embriaguez:'Monjes de pasos tambaleantes que beben brebajes místicos para exhalar fuego, resistir la magia o curarse más.',
   rompejuramentos:'Paladines que rompieron su juramento y buscan poder a cualquier precio, con muertos vivientes y un aura de odio.',
+  // Investigator (Mage Hand Press, lote 30)
+  antiquarian:'Coleccionistas de reliquias y baratijas arcanas: siempre sacan el objeto justo para cada amenaza.',
+  archivist:'Eruditos que prefieren los libros a las baratijas: dominan los rituales de su grimorio y lo saben todo de la magia arcana.',
+  'conspiracy-theorist':'Paranoicos convencidos de que toda conspiración es real: reaccionan primero, se preparan para todo y desaparecen cuando hace falta.',
+  'containment-specialist':'Agentes que rastrean, aíslan y encierran artefactos y magia peligrosos, y borran los recuerdos de los testigos.',
+  detective:'Sabuesos de la deducción: leen a sus rivales, desentrañan crímenes y no se les escapa una mentira.',
+  exterminator:'Cazadores de monstruos con defensas preparadas y golpes sobrenaturales para acabar con aberraciones, muertos vivientes e infernales.',
+  infernum:'Detectives con un pacto infernal a cuestas: un familiar de los infiernos los vigila y los ayuda.',
+  inquisitor:'Exorcistas que protegen con armadura consagrada, golpean con luz o sombra divinas y condenan a quien se lo merece.',
+  'kid-sleuth':'Jóvenes detectives con un animal parlante, un bolso de trucos y la habilidad de meter a todo el equipo en líos y sacarlo de ellos.',
+  medium:'Videntes que guardan tiradas de premonición, hablan con los muertos y cruzan un pie al Plano Etéreo.',
+  occultist:'Investigadores de secretos oscuros que mezclan conjuros de Brujo, magia de pacto y artes ocultas.',
+  spy:'Agentes de infiltración, disfraz y golpes por sorpresa, expertos en sacar secretos sin que nadie se entere.',
+  'time-operative':'Agentes de otro tiempo que ganan acciones prestadas, rebobinan sus fallos y ven el pasado.',
 };
 
 /* Las de los lotes hechos con Gemini (scripts/gemini/revisar.ts) reemplazan a las de arriba */

@@ -8,6 +8,7 @@ import { REGLAS_GENERADAS } from './generadas';
 import { todosConjuros } from '@/features/biblioteca/domain/biblioteca';
 import { conjuroDeLaLista } from '../domain/restricciones';
 import { ESTILOS } from './estilos';
+import { SKILLS } from './caracteristicas';
 import { esEvocacion } from '@/features/personajes/domain/lanzar';
 const HABS_GUERRERO: string[] = CLASES.guerrero.habs;
 const NOMBRE_AB = {fue:'Fuerza', des:'Destreza', con:'Constitución', int:'Inteligencia', sab:'Sabiduría', car:'Carisma'};
@@ -308,6 +309,39 @@ export const lanzadorTercio = (ab, lista, trucos) => ({
   },
   texto: c => `Lanzas conjuros de la lista de ${NOMBRE_LISTA[lista]} con ${NOMBRE_AB[ab]} (CD ${c.dcSpell}, ${sign(c.atkSpell)} al ataque). Conoces ${trucos(c)} trucos y preparas ${PREPARADOS_TERCIO[c.lvl - 1]} conjuros de nivel 1 o más; tus espacios: ${espaciosTercio(c.lvl).map((n, i) => `${n} de nivel ${i + 1}`).join(', ')}. Los eliges en el paso Conjuros y cambias uno al subir de nivel.`,
 });
+
+/* ---------- Investigator (Mage Hand Press, 2024; lote 30): tablas de la clase, de la parte B de la respuesta de Gemini ---------- */
+const INV_RITUAL = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6];
+const INV_APRESURADO = [0, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 10];
+const INV_AMULETOS = [0, 0, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6];
+/* Magia de pacto del Occultist, desde el nivel 3: [trucos, conjuros preparados, espacios, nivel de los espacios] */
+const INV_PACTO = [null, null, [2, 3, 1, 1], [2, 4, 1, 1], [2, 4, 2, 1], [2, 4, 2, 1], [2, 5, 2, 2], [2, 6, 2, 2], [2, 6, 2, 2], [3, 7, 2, 2], [3, 7, 2, 2], [3, 8, 2, 2],
+  [3, 9, 2, 3], [3, 10, 2, 3], [3, 10, 2, 3], [3, 11, 2, 3], [3, 11, 2, 3], [3, 11, 2, 3], [3, 12, 2, 4], [3, 13, 2, 4]];
+const invTabla = (t, c) => t[Math.min(20, Math.max(1, c.lvl)) - 1];
+/* Golpe de Gracia: dados sobre una criatura Maltrecha, y los del Golpe de Gracia Mejorado sobre una que no lo está */
+export const invGolpe = c => c.lvl >= 17 ? 3 : c.lvl >= 11 ? 2 : 1;
+export const invGolpeMejorado = c => c.lvl >= 17 ? 2 : 1;
+const invMod = c => Math.max(1, c.m.int);
+const invCD = c => 8 + c.pb + c.m.int;
+/* Lo que se gasta de Amuletos: un conjuro sin espacio ni componentes, o una opción propia */
+const amuleto = (nombre, nota = '', tiempo = '') => ({nombre, ab:'int', recurso:'rg-amuletos', coste:'1 Amuleto', nota:`Amuleto: sin espacio ni componentes${nota ? '. ' + nota : ''}`, ...(tiempo ? {tiempo} : {})});
+const opAmuleto = (nombre, t, texto) => ({nombre, t, recurso:'rg-amuletos', coste:'1 Amuleto', texto});
+const reliquia = nombre => ({nombre, ab:'int', recurso:'rg-reliquias-arcanas', coste:'1 Reliquia', nota:'Reliquia Arcana: sin espacio ni componentes'});
+/* Enigma Arcano: un conjuro por nivel de conjuro (7, 8 y 9), lanzado una vez por descanso largo sin espacio */
+const ENIGMA = {7: ['Espejismo arcano', 'Desplazamiento entre planos', 'Invertir la gravedad', 'Recluir', 'Teletransporte'],
+  8: ['Campo antimagia', 'Labia', 'Laberinto', 'Mente en blanco'], 9: ['Proyección astral', 'Portal', 'Asesino fantasmal']};
+const enigma = nv => ({de:/^investigator$/, n:/^enigma arcano$/, nivel: nv * 2 - 1, t:'pasiva',
+  eleccion: {id:`enigma-${nv}`, titulo:`Enigma Arcano: conjuro de nivel ${nv}`, opciones: ENIGMA[nv].map(s => ({key: norm(s), nombre: s}))},
+  conjuros: c => { const k = elegido(c, `enigma-${nv}`), s = ENIGMA[nv].find(x => norm(x) === k); return s ? [{nombre: s, ab:'int', usos:1, reset:'largo', nota:'Enigma Arcano'}] : []; },
+  texto: c => { const k = elegido(c, `enigma-${nv}`), s = ENIGMA[nv].find(x => norm(x) === k);
+    return `Lanzas un conjuro de nivel ${nv} a tu elección sin gastar espacio, una vez por descanso largo: ${ENIGMA[nv].join(', ')}.${s ? ` Elegido: ${s}.` : ' Elígelo en el paso Clase.'}`; }});
+/* Tesis del Archivist: conjuros que se añaden gratis al grimorio (y cuentan como rituales), por nivel de Investigator */
+const TESIS = {
+  corpus: ['Corpus', [[3, ['Alterar el propio aspecto', 'Salto']], [5, ['Forma gaseosa']], [7, ['Fabricar']], [9, ['Pasamuros']]]],
+  mentis: ['Mentis', [[3, ['Hechizar persona', 'Zona de la verdad']], [5, ['Imagen mayor']], [7, ['Terreno alucinatorio']], [9, ['Ensueño']]]],
+  mortis: ['Mortis', [[3, ['Falsa vida', 'Dulce descanso']], [5, ['Hablar con los Muertos']], [7, ['Guarda contra la Muerte']], [9, ['Caparazón antivida']]]],
+  oculus: ['Oculus', [[3, ['Identificar', 'Detectar pensamientos']], [5, ['Recado']], [7, ['Localizar criatura']], [9, ['Escudriñar']]]],
+};
 
 export const REGLAS: any[] = [
   /* ---------- Pugilista (The Pugilist Class 2024, Benjamin Huffman) ----------
@@ -1576,6 +1610,199 @@ export const REGLAS: any[] = [
       notas:[`Con la Sintonía activa: alcance de 15 pies; eliges el tipo al acertar y el objetivo hace una salvación de FUE (CD ${c.dcFocus}) o lo mueves hasta 10 pies`,
         ...(c.lvl >= 17 ? [`Una vez por turno: +1d${c.md} del mismo tipo (Epítome Elemental)`] : [])]}],
     texto: c => `Al inicio de tu turno puedes gastar 1 Punto de Enfoque para cargarte de energía elemental durante 10 minutos (acaba antes si quedas Incapacitado). Mientras dura, tus golpes sin armas alcanzan 10 pies más y, al acertar, pueden hacer daño de ácido, frío, fuego, rayo o trueno; si lo haces, el objetivo hace una salvación de FUE (CD ${c.dcFocus}) o lo mueves hasta 10 pies hacia ti o lejos de ti. El golpe elemental sale en Ataques. Además conoces el truco Elementalismo y lo lanzas con SAB.`},
+
+  /* ---------- Investigator (Mage Hand Press, 2024; lote 30) ---------- */
+  {de:/^investigator$/, n:/^ritualista$/, t:'pasiva',
+    texto: c => `Tus conjuros viven en un grimorio (100 páginas, 3 libras) y solo los lanzas como ritual, leyendo de él, si tienen la etiqueta de Ritual. Empiezas con cuatro conjuros de nivel 1 de Investigator y, al subir de nivel, sumas dos más de nivel ${invTabla(INV_RITUAL, c)} o menos. Copiar un conjuro nuevo cuesta 2 horas y 50 po por nivel; copiar uno tuyo a otro libro, 1 hora y 10 po por nivel. Tu aptitud mágica es Inteligencia (CD ${invCD(c)}, ${sign(c.pb + c.m.int)} al ataque).`},
+  {de:/^investigator$/, n:/^pericia$/, t:'pasiva',
+    texto: c => `Pericia (doble de tu bonificador de competencia) en ${c.lvl >= 9 ? 4 : 2} habilidades en las que ya seas competente; las eliges en el paso Habilidades.`},
+  {de:/^investigator$/, n:/^golpe de gracia$/, t:'gratis',
+    texto: c => `Una vez por turno, al dañar con un arma a una criatura Maltrecha, le haces ${invGolpe(c)}d8 de daño extra del mismo tipo que el del arma.`},
+  {de:/^investigator$/, n:/^golpe de gracia mejorado$/, t:'gratis',
+    texto: c => `Cuando haces la acción de Atacar en tu turno, puedes usar Golpe de Gracia sobre una criatura que no esté Maltrecha, pero solo con ${invGolpeMejorado(c)}d8 de daño extra. Sobre una Maltrecha haces ${invGolpe(c)}d8.`},
+  {de:/^investigator$/, n:/^conjuro apresurado$/, t:'adicional', usos: c => invTabla(INV_APRESURADO, c), reset:'corto1', coste:'1 vuelve con descanso corto, todos con uno largo',
+    texto: c => `Lanzas como acción adicional un conjuro de tu grimorio cuyo tiempo de lanzamiento sea una acción o una acción adicional, sin componentes materiales salvo los que cuesten 100 po o más. Tienes ${invTabla(INV_APRESURADO, c)} usos: recuperas uno con un descanso corto y todos con uno largo. Varios rasgos de subclase se recuperan gastando uno de estos usos.`},
+  {de:/^investigator$/, n:/^amuletos$/, t:'pasiva', usos: c => invTabla(INV_AMULETOS, c) + (esOrden(c, /anticuario/) ? 1 : 0), reset:'corto1', coste:'1 vuelve con descanso corto, todos con uno largo',
+    texto: c => `Tu subclase te da amuletos sobrenaturales y cada uno que activas gasta 1 uso de este rasgo. Tienes ${invTabla(INV_AMULETOS, c) + (esOrden(c, /anticuario/) ? 1 : 0)} usos: recuperas uno con un descanso corto y todos con uno largo. Las opciones están en el rasgo Amuletos de tu subclase.`},
+  {de:/^investigator$/, n:/^amuletos sagrados$/, t:'adicional',
+    texto: c => `Llevas símbolos sagrados y objetos bendecidos aunque no seas devoto. Gastando 1 uso de Amuletos${esOrden(c, /inquisitor/) && c.lvl >= 10 ? ' (o uno de los 3 usos gratis de Piedad Rutinaria)' : ''} activas uno, todos como acción adicional.`,
+    opciones: [
+      opAmuleto('Amuleto de Protección', 'adicional', c => `Una criatura a 60 pies gana +${invMod(c)} a la CA y a las salvaciones hasta el inicio de tu próximo turno.`),
+      opAmuleto('Anj Restaurador', 'adicional', c => `Una criatura a 60 pies recupera ${c.lvl + c.m.int} PG (tu nivel + INT).`),
+      opAmuleto('Runa de Destierro', 'adicional', c => `Una criatura que veas a 60 pies hace una salvación de CAR (CD ${invCD(c)}); si falla, queda desterrada al Plano Etéreo, Incapacitada y con velocidad 0, hasta el inicio de tu próximo turno.`),
+    ]},
+  enigma(7), enigma(8), enigma(9),
+
+  /* Anticuario */
+  {de:/^anticuario$/, n:/^acumulador de artefactos$/, t:'pasiva', texto: () => 'Tienes 1 uso más de Amuletos (ya sumado a tu total).'},
+  {de:/^anticuario$/, n:/^amuletos$/, t:'pasiva', recurso:'rg-amuletos',
+    texto: c => `Amuletos del Anticuario (1 uso cada uno): Punta de Flecha Odiosa (Rayo debilitador o Rayo abrasador), Prisma Deformado (Contorno borroso o Escudo) y Vendas de Dientes de Navaja (Curar heridas o Infligir heridas, sumando tu nivel, ${c.lvl}, a la curación o al daño). Salen en Conjuros, sin espacio ni componentes.`,
+    conjuros: () => [amuleto('Rayo debilitador', 'Punta de Flecha Odiosa'), amuleto('Rayo abrasador', 'Punta de Flecha Odiosa'),
+      amuleto('Contorno borroso', 'Prisma Deformado'), amuleto('Escudo', 'Prisma Deformado'),
+      amuleto('Curar heridas', 'Vendas de Dientes de Navaja: sumas tu nivel de Investigator a la curación'), amuleto('Infligir heridas', 'Vendas de Dientes de Navaja: sumas tu nivel de Investigator al daño')]},
+  {de:/^anticuario$/, n:/^reliquias arcanas$/, t:'pasiva', usos:1, reset:'corto',
+    texto: () => 'Una reliquia a la vez, hasta el próximo descanso corto o largo: Dinamo Antediluviana (Bola de fuego o Relámpago), Máscara Mortuoria de Liche (Contrahechizo o Disipar magia) o Espiral Mortal (Animar a los muertos o Revivir; al lanzar Animar con ella, los muertos vivientes anteriores de la reliquia se deshacen). Sin espacio ni componentes.',
+    conjuros: () => ['Bola de fuego', 'Relámpago', 'Contrahechizo', 'Disipar magia', 'Animar a los muertos', 'Revivir'].map(reliquia)},
+  {de:/^anticuario$/, n:/^tarro de almas$/, t:'pasiva', usos:5, reset:'largo', pool:true,
+    texto: c => `Un tarro de almas siempre sintonizado contigo, con 5 cargas; cada amanecer recupera 1d4 + 1. Gastas cargas así: 1 para ganar ${c.lvl} PG temporales (acción adicional); 1 para recuperar un uso de Amuletos (acción adicional); 2 para quedar con 1 PG al caer a 0 sin morir en el acto (una vez por turno, sin acción); 3 para un ataque de conjuro cuerpo a cuerpo con la acción mágica que hace 8d8 necrótico y te cura lo mismo (si falla, no se gastan).`,
+    opciones: [
+      {nombre:'Tarro de Almas: PG temporales', t:'adicional', recurso:'rg-tarro-de-almas', coste:'1 carga', texto: c => `Ganas ${c.lvl} PG temporales.`},
+      {nombre:'Tarro de Almas: Recarga de Amuleto', t:'adicional', recurso:'rg-tarro-de-almas', coste:'1 carga', texto: () => 'Recuperas un uso gastado de Amuletos.'},
+      {nombre:'Tarro de Almas: Fortaleza de Muerto Viviente', t:'gratis', recurso:'rg-tarro-de-almas', coste:'2 cargas', texto: () => 'Al caer a 0 PG sin morir en el acto, te quedas con 1 PG. Una vez por turno.'},
+      {nombre:'Tarro de Almas: Toque Drenante', t:'accion', recurso:'rg-tarro-de-almas', coste:'3 cargas', texto: c => `Ataque de conjuro cuerpo a cuerpo (${sign(c.pb + c.m.int)}): si aciertas, 8d8 necrótico y recuperas esos PG. Si falla, no se gastan las cargas.`}]},
+
+  /* Archivista */
+  {de:/^archivista$/, n:/^amuletos$/, t:'pasiva', recurso:'rg-amuletos',
+    texto: () => 'Amuletos del Archivista (1 uso cada uno): Lentes de Aura (Detectar magia), Escritura Mnemotécnica (Memorizar) y Piedra de Lenguas (Entender idiomas). Salen en Conjuros, sin espacio ni componentes.',
+    conjuros: () => [amuleto('Detectar magia', 'Lentes de Aura'), amuleto('Memorizar', 'Escritura Mnemotécnica'), amuleto('Entender idiomas', 'Piedra de Lenguas')]},
+  {de:/^archivista$/, n:/^tesis$/, t:'pasiva',
+    eleccion: {id:'tesis-archivista', titulo:'Tesis', opciones: Object.entries(TESIS).map(([key, [n, lista]]) => ({key, nombre: n,
+      desc: `Conjuros gratis en tu grimorio, como rituales: ${lista.map(([nv, ss]) => `(nivel ${nv}) ${ss.join(', ')}`).join('; ')}.`}))},
+    conjuros: c => { const t = TESIS[elegido(c, 'tesis-archivista')]; return t ? t[1].flatMap(([nv, ss]) => ss.map(nombre => ({nombre, ab:'int', desde: nv, nota:`Tesis ${t[0]}: en tu grimorio, solo como ritual`}))) : []; },
+    texto: c => { const t = TESIS[elegido(c, 'tesis-archivista')];
+      return t ? `Tesis ${t[0]}: sumas gratis a tu grimorio, como rituales, ${t[1].filter(([nv]) => nv <= c.lvl).flatMap(([, ss]) => ss).join(', ')}. Puedes cambiar de tesis al subir de nivel.`
+        : 'Elige tu tesis en el paso Clase: Corpus, Mentis, Mortis u Oculus. Sus conjuros se suman gratis a tu grimorio como rituales y puedes cambiarla al subir de nivel.'; }},
+  {de:/^archivista$/, n:/^conjuro erudito$/, t:'gratis', usos:1, reset:'corto',
+    texto: () => 'Al lanzar un conjuro que obligue a salvar, das desventaja a un objetivo en esa salvación. Se recupera con descanso corto o largo, o gastando un uso de Conjuro Apresurado (sin acción).'},
+  {de:/^archivista$/, n:/^memoria eidetica$/, t:'pasiva', usos: () => 0,
+    texto: () => 'Recuerdo de Ritual: si ves u oyes lanzar un conjuro de Investigator, puedes copiarlo después a tu grimorio. Duplicación de Conjuro: al ver u oír un conjuro de nivel 5 o menos, lo fijas 1 minuto y puedes lanzarlo gastando un uso de Conjuro Apresurado, sin espacio (una vez por descanso largo).',
+    opciones: [{nombre:'Duplicación de Conjuro', t:'adicional', usos:1, reset:'largo', texto: () => 'Tras ver u oír un conjuro de nivel 5 o menos, lo lanzas en el siguiente minuto gastando un uso de Conjuro Apresurado, sin espacio de conjuro.'}]},
+
+  /* Teórico de la Conspiración */
+  {de:/^teorico de la conspiracion$/, n:/^amuletos$/, t:'pasiva', recurso:'rg-amuletos',
+    texto: c => `Amuletos del Teórico (1 uso cada uno): Amuleto Masónico, Moneda de Tres Caras y Metal Insondable (CD ${invCD(c)}).`,
+    opciones: [
+      opAmuleto('Amuleto Masónico', 'adicional', () => 'Lo pegas a un arma que empuñes y eliges un número del 10 al 19: durante 1 minuto, los ataques con esa arma son críticos al sacar ese número o un 20.'),
+      opAmuleto('Moneda de Tres Caras', 'gratis', () => 'Te das ventaja en una prueba de d20 antes de tirarla.'),
+      opAmuleto('Metal Insondable', 'adicional', c => `Lo muestras a una criatura a 5 pies: al inicio de cada uno de sus turnos durante 1 minuto sufre 2d6 radiante y hace una salvación de CON (CD ${invCD(c)}); si la supera, el efecto termina.`)]},
+  {de:/^teorico de la conspiracion$/, n:/^atar cabos$/, t:'pasiva', usos: () => 0,
+    eleccion: {id:'atar-cabos', titulo:'Atar Cabos', opciones: SKILLS.map(([n]) => ({key: norm(n), nombre: n, desc: 'Competencia, si no la tenías, y pericia.'}))},
+    efecto: c => { const k = elegido(c, 'atar-cabos'); if (!k || !(k in c.skill)) return;
+      if (!c.skillProf[k]) { c.skill[k] += c.pb; c.skillProf[k] = true; }
+      if (!c.skillPer[k]) { c.skill[k] += c.pb; c.skillPer[k] = true; } },
+    texto: c => { const k = elegido(c, 'atar-cabos'), s = SKILLS.find(([n]) => norm(n) === k);
+      return s ? `${s[0]}: competencia (si no la tenías) y pericia (ya sumado). Al terminar un descanso corto o largo puedes cambiar de habilidad.`
+        : 'Al terminar un descanso corto o largo eliges una habilidad: ganas competencia (si no la tenías) y pericia hasta que elijas otra. Elígela en el paso Clase.'; }},
+  {de:/^teorico de la conspiracion$/, n:/^fuera de la red$/, t:'pasiva',
+    texto: () => 'Plan de Escape: al recibir daño, usas tu reacción para quedar Invisible hasta el inicio de tu próximo turno. Indetectabilidad: lanzas Indetectable sobre ti sin gastar espacio.',
+    opciones: [{nombre:'Plan de Escape', t:'reaccion', texto: () => 'Al recibir daño, quedas Invisible hasta el inicio de tu próximo turno.'}],
+    conjuros: () => [{nombre:'Indetectable', ab:'int', nota:'Solo sobre ti, sin espacio (Fuera de la Red)'}]},
+
+  /* Especialista en Contención */
+  {de:/^especialista en contencion$/, n:/^historia de tapadera$/, t:'gratis', usos:1, reset:'corto'},
+  {de:/^especialista en contencion$/, n:/^amuletos$/, t:'pasiva', recurso:'rg-amuletos',
+    texto: () => 'Amuletos del Especialista (1 uso cada uno): Anticampana (Silencio), Bolsa Negra y Brújula de Cinabrio (Localizar objeto). Los conjuros salen en Conjuros, sin espacio ni componentes.',
+    conjuros: () => [amuleto('Silencio', 'Anticampana', 'adicional'), amuleto('Localizar objeto', 'Brújula de Cinabrio', 'adicional')],
+    opciones: [opAmuleto('Bolsa Negra', 'adicional', () => 'Durante 1 minuto, con la acción de Utilizar guardas o sacas un objeto de espacios extradimensionales protegidos por un Campo antimagia (hasta 12 objetos de 50 libras como máximo cada uno). Siempre sacas el que querías.')]},
+  {de:/^especialista en contencion$/, n:/^aqui no hay nada que ver$/, t:'accion', usos:1, reset:'largo',
+    texto: () => 'Con un destello cegador reescribes los recuerdos de hasta 3 criaturas dentro del alcance: lanzas Alterar los recuerdos como acción, sin espacio ni componentes, con el mismo recuerdo falso para todas. Una vez por descanso largo.',
+    conjuros: () => [{nombre:'Alterar los recuerdos', ab:'int', tiempo:'accion', recurso:'rg-aqui-no-hay-nada-que-ver', coste:'1 uso', nota:'Aquí no Hay Nada que Ver: sin espacio ni componentes, hasta 3 criaturas con el mismo recuerdo falso; gasta el uso del rasgo'}]},
+  {de:/^especialista en contencion$/, n:/^dimension de contencion$/, t:'accion', usos:1, reset:'largo'},
+
+  /* Detective */
+  {de:/^detective$/, n:/^corazonada asombrosa$/, t:'gratis', usos: c => invMod(c), reset:'largo',
+    texto: c => `Al hacer una prueba de Inteligencia o de Sabiduría (Perspicacia), sumas +${c.lvl} (tu nivel de Investigator). Usos: ${invMod(c)} (tu modificador de INT, mínimo 1).`},
+  {de:/^detective$/, n:/^amuletos$/, t:'pasiva', recurso:'rg-amuletos',
+    texto: () => 'Amuletos del Detective (1 uso cada uno): Periapto de Piedra de Niebla (Paso brumoso), Medallón de Cristal (Invisibilidad sobre ti, como acción adicional) y Llave de Esqueleto (Abrir, como acción adicional y en silencio). Salen en Conjuros, sin espacio ni componentes.',
+    conjuros: () => [amuleto('Paso brumoso', 'Periapto de Piedra de Niebla'), amuleto('Invisibilidad', 'Medallón de Cristal: solo sobre ti', 'adicional'), amuleto('Abrir', 'Llave de Esqueleto: el lanzamiento es silencioso', 'adicional')]},
+  {de:/^detective$/, n:/^intuicion predictiva$/, t:'adicional', usos: c => c.lvl >= 14 ? 0 : 1, reset:'corto',
+    texto: c => `Examinas a una criatura a 30 pies: hasta el inicio de tu próximo turno sumas 1d6 a tus ataques contra ella y ella resta 1d6 a los suyos contra ti.${c.lvl >= 14 ? ' Con Poder de Deducción puedes usarla sobre un mismo objetivo cuantas veces quieras.' : ' Una vez por objetivo hasta un descanso corto o largo.'}`},
+
+  /* Exterminador */
+  {de:/^exterminador$/, n:/^escudo plateado$/, t:'pasiva',
+    efecto: c => { if (c.armor?.cat === 'media') { const v = c.armor.base + Math.min(c.armor.max ?? 2, c.m.int) + (c.shield ? 2 : 0) + (c.tieneEstilo?.('defensa') ? 1 : 0); if (v > c.ac) c.ac = v; } },
+    texto: c => `Entrenamiento con armaduras medias y escudos. Con armadura media sumas tu INT en vez de tu DES a la CA (con el mismo máximo de +${c.armor?.max ?? 2}); ya se usa si es mayor.`},
+  {de:/^exterminador$/, n:/^amuletos$/, t:'pasiva', recurso:'rg-amuletos',
+    texto: () => 'Amuletos del Exterminador (1 uso cada uno, acción adicional): Piedra de Afilar Consagrada (Arma mágica), Escama de Dragón Dorada y Collar de Dientes de Mímico.',
+    conjuros: () => [amuleto('Arma mágica', 'Piedra de Afilar Consagrada', 'adicional')],
+    opciones: [
+      opAmuleto('Escama de Dragón Dorada', 'adicional', () => 'Eliges ácido, frío, fuego, fuerza, relámpago, veneno o trueno: tienes resistencia a ese daño durante 1 minuto.'),
+      opAmuleto('Collar de Dientes de Mímico', 'adicional', () => 'Tras impactar con un arma, haces 2d8 de daño de ácido extra a esa criatura.')]},
+  {de:/^exterminador$/, n:/^cazador de monstruos$/, t:'adicional', usos: c => invMod(c), reset:'corto',
+    texto: c => `Haces un ataque con arma o un Ataque Desarmado como acción adicional. Usos: ${invMod(c)} (tu modificador de INT, mínimo 1); los recuperas con descanso corto o largo.`},
+
+  /* Infernum (el texto de Gemini llega cortado: solo el rasgo de nivel 3) */
+  {de:/^infernum$/, n:/^familiar infernal$/, t:'pasiva',
+    texto: () => 'Sumas gratis Encontrar familiar a tu grimorio y lo lanzas con Conjuro Apresurado sin gastar el uso ni leer del libro. Solo puedes elegir como familiar un Diablillo, un Quasit o un Pseudodragón (que habla Común y es un Infernal).',
+    conjuros: () => [{nombre:'Encontrar familiar', ab:'int', nota:'Gratis en tu grimorio; con Conjuro Apresurado no gasta uso. Solo Diablillo, Quasit o Pseudodragón (Infernal que habla Común)'}]},
+
+  /* Inquisitor */
+  {de:/^inquisitor$/, n:/^doctrinas de exorcista$/, t:'pasiva',
+    texto: () => 'Armadura Consagrada: la sumas gratis a tu grimorio; al lanzarla, la base de tu Clase de Armadura pasa a ser 13 + DES. Dogma: en una prueba de Inteligencia (Religión), un 9 o menos en el d20 cuenta como 10.',
+    conjuros: () => [{nombre:'Armadura Consagrada', ab:'int', nota:'Gratis en tu grimorio (Doctrinas de Exorcista)'}]},
+  {de:/^inquisitor$/, n:/^amuletos$/, t:'pasiva', recurso:'rg-amuletos',
+    texto: () => 'Amuletos del Inquisitor (1 uso cada uno, acción adicional): Bálsamo de Alabastro (Restablecimiento menor), Cáliz Consagrado y Relicario de la Duda (Detectar pensamientos, solo emociones negativas).',
+    conjuros: () => [amuleto('Restablecimiento menor', 'Bálsamo de Alabastro', 'adicional'), amuleto('Detectar pensamientos', 'Relicario de la Duda: solo emociones negativas', 'adicional')],
+    opciones: [opAmuleto('Cáliz Consagrado', 'adicional', () => 'Encantas un recipiente que toques y produces un frasco de Agua bendita. Durante 1 hora puedes producir otro con una acción adicional, hasta 5 en total; desaparecen a la hora.')]},
+  {de:/^inquisitor$/, n:/^golpe divino$/, t:'gratis',
+    texto: () => 'Una vez en cada uno de tus turnos, al impactar con un arma, el objetivo sufre 1d8 de daño necrótico o radiante extra (tú eliges).'},
+  {de:/^inquisitor$/, n:/^piedad rutinaria$/, t:'pasiva', usos:3, reset:'largo',
+    texto: () => 'Usas tus Amuletos Sagrados 3 veces por descanso largo sin gastar usos de Amuletos.'},
+  {de:/^inquisitor$/, n:/^excomunion$/, t:'adicional', usos:1, reset:'largo',
+    texto: c => `Marcas con condena a una criatura que veas a 60 pies: salvación de SAB (CD ${invCD(c)}); si falla, durante 1 minuto sufre 6d6 radiante al inicio de sus turnos, no recupera PG y no puede tener ventaja en pruebas de d20. Repite la salvación al final de cada uno de sus turnos. Se recupera con descanso largo o gastando un uso de Conjuro Apresurado (sin acción).`},
+
+  /* Kid Sleuth */
+  {de:/^kid sleuth$/, n:/^companero animal$/, t:'pasiva',
+    texto: () => 'Tienes un compañero animal parlante: sumas gratis Encontrar familiar a tu grimorio y lo lanzas con Conjuro Apresurado sin gastar el uso ni leer del libro. Además de las formas normales, puede ser Cabra, Mastín o Comadreja; tiene INT 10, habla un idioma que conozcas y es competente en dos habilidades o herramientas que eliges al invocarlo.',
+    conjuros: () => [{nombre:'Encontrar familiar', ab:'int', nota:'Gratis en tu grimorio; con Conjuro Apresurado no gasta uso. Formas extra: Cabra, Mastín o Comadreja; sabe hablar, INT 10 y dos competencias a tu elección'}]},
+  {de:/^kid sleuth$/, n:/^amuletos$/, t:'pasiva', recurso:'rg-amuletos',
+    texto: c => `Amuletos del Kid Sleuth (1 uso cada uno, acción adicional): Bolsa de Trampas, Bocadito Delicioso (${invMod(c)} PG temporales y ventaja en el siguiente d20) y Lupa (Pista).`,
+    conjuros: () => [amuleto('Pista', 'Lupa: ves además el tipo de criatura de cada huella', 'adicional')],
+    opciones: [
+      opAmuleto('Bolsa de Trampas', 'adicional', c => `Produces y usas uno de estos objetos: rodamientos, abrojos, cadena, trampa de caza, esposas o aceite (solo para rociar un espacio); salvaciones con tu CD ${invCD(c)}. Durante 1 minuto puedes producir otros con acción adicional, hasta 5 en total; desaparecen a la hora.`),
+      opAmuleto('Bocadito Delicioso', 'adicional', c => `Produces un premio que dura 1 hora. Quien lo come con una acción adicional gana ${invMod(c)} PG temporales y ventaja en su siguiente prueba de d20 hasta el inicio de su siguiente turno.`)]},
+
+  /* Medium */
+  {de:/^medium$/, n:/^premonicion$/, t:'gratis', usos:2, reset:'largo',
+    texto: () => 'Al terminar un descanso largo tiras dos d20 y anotas los resultados. Una vez por turno, antes de una prueba de d20 tuya o de una criatura que veas, puedes cambiarla por una de esas tiradas. Cada una se usa una sola vez y las que sobren se pierden al descansar.'},
+  {de:/^medium$/, n:/^amuletos$/, t:'pasiva', recurso:'rg-amuletos',
+    texto: () => 'Amuletos del Medium (1 uso cada uno): Campana Mortuoria (Hablar con los Muertos, con una sola pregunta), Gafas Heptagonales (Ver invisibilidad) y Espejo Lúcido.',
+    conjuros: () => [amuleto('Hablar con los Muertos', 'Campana Mortuoria: solo una pregunta al cadáver'), amuleto('Ver invisibilidad', 'Gafas Heptagonales', 'adicional')],
+    opciones: [opAmuleto('Espejo Lúcido', 'adicional', () => 'Te desplazas en parte al Plano Etéreo durante 1 minuto o hasta que lo termines (sin acción): velocidad de vuelo 10 pies y atraviesas espacios ocupados como terreno difícil. Si acabas tu turno dentro de uno, te expulsan al último espacio libre donde estuviste.')]},
+  {de:/^medium$/, n:/^susurros del mas alla$/, t:'accion', usos:1, reset:'largo'},
+  {de:/^medium$/, n:/^tercer ojo$/, t:'adicional', usos:1, reset:'largo',
+    texto: () => 'Lanzas Visión veraz como acción adicional, sin espacio ni componentes; mientras dura, tienes ventaja en el primer ataque de cada uno de tus turnos. Una vez por descanso largo.',
+    conjuros: () => [{nombre:'Visión veraz', ab:'int', tiempo:'adicional', recurso:'rg-tercer-ojo', coste:'1 uso', nota:'Tercer Ojo: sin espacio ni componentes; ventaja en tu primer ataque de cada turno mientras dure; gasta el uso del rasgo'}]},
+
+  /* Occultist */
+  {de:/^occultist$/, n:/^magia de pacto$/, t:'pasiva',
+    efecto: c => { const p = INV_PACTO[c.lvl - 1]; if (!p) return; c.slots.push({nivel: p[3], n: p[2], reset:'corto', nombre:`Espacios de pacto (nivel ${p[3]})`}); c.listasExtra = [...new Set([...(c.listasExtra || []), 'brujo'])]; c.trucosReglas = p[0]; c.prepReglas = p[1]; },
+    texto: c => { const p = INV_PACTO[c.lvl - 1] || [2, 0, 0, 0];
+      return `Lanzas conjuros de Brujo con Inteligencia (CD ${invCD(c)}, ${sign(c.pb + c.m.int)} al ataque) y puedes usar un foco arcano. Conoces ${p[0]} trucos y preparas ${p[1]} conjuros de nivel 1 o más, de nivel ${p[3]} o menos; los cambias al subir de nivel. Tienes ${p[2]} espacio(s) de nivel ${p[3]} que se recuperan con descanso corto o largo.`; }},
+  {de:/^occultist$/, n:/^amuletos$/, t:'pasiva', recurso:'rg-amuletos',
+    texto: () => 'Amuletos del Occultist (1 uso cada uno): Colgante de Hierro Frío (Detectar el bien y el mal), Vial de Niebla Muerta (Niebla) y Lente Grabada (Identificar). Salen en Conjuros, sin espacio ni componentes.',
+    conjuros: () => [amuleto('Detectar el bien y el mal', 'Colgante de Hierro Frío'), amuleto('Niebla', 'Vial de Niebla Muerta'), amuleto('Identificar', 'Lente Grabada')]},
+  {de:/^occultist$/, n:/^ruina arcana$/, t:'adicional', usos: c => invMod(c), reset:'largo',
+    texto: c => `Lanzas uno de tus trucos de Brujo como acción adicional. Usos: ${invMod(c)} (tu modificador de INT, mínimo 1), hasta un descanso largo.`},
+  {de:/^occultist$/, n:/^maleficio$/, t:'adicional', usos:1, reset:'corto',
+    texto: () => 'Al usar Explotar Debilidad, lanzas Imponer maldición sobre el objetivo como acción adicional, sin espacio ni componentes. Cuando una criatura falla la salvación contra este conjuro, no puedes volver a usarlo hasta un descanso corto o largo (o gastando un uso de Conjuro Apresurado, sin acción).',
+    conjuros: () => [{nombre:'Imponer maldición', ab:'int', tiempo:'adicional', recurso:'rg-maleficio', coste:'1 uso', nota:'Maleficio: tras tu Explotar Debilidad, sin espacio ni componentes; si el objetivo falla la salvación no puedes repetirlo hasta un descanso corto o largo (o gastando un uso de Conjuro Apresurado)'}]},
+
+  /* Spy */
+  {de:/^spy$/, n:/^bravuconeria$/, t:'pasiva',
+    efecto: c => { c.skill.engano += invMod(c); c.skill.persuasion += invMod(c); },
+    texto: c => `Sumas +${invMod(c)} (tu INT, mínimo +1) a tus pruebas de Carisma (Engaño y Persuasión); ya sumado.`},
+  {de:/^spy$/, n:/^amuletos$/, t:'pasiva', recurso:'rg-amuletos',
+    texto: () => 'Amuletos del Spy (1 uso cada uno, acción adicional): Polvo de Cristal, Gafas de Montura de Cuerno (Disfrazarse) y Copa de Martini (Hechizar persona).',
+    conjuros: () => [amuleto('Disfrazarse', 'Gafas de Montura de Cuerno', 'adicional'), amuleto('Hechizar persona', 'Copa de Martini', 'adicional')],
+    opciones: [opAmuleto('Polvo de Cristal', 'adicional', () => 'Lanzas la bolsa a un punto a 10 pies: una Esfera de 5 pies de polvo brillante dura hasta el inicio de tu próximo turno. Quien entre por primera vez en un turno o acabe su turno dentro queda Invisible hasta salir, atacar, dañar o lanzar un conjuro.')]},
+  {de:/^spy$/, n:/^capa y espada$/, t:'gratis',
+    texto: c => `Al dañar en la primera ronda de combate, si el objetivo aún no ha actuado o tienes ventaja contra él, haces +${c.lvl} de daño de fuerza (tu nivel de Investigator).`},
+  {de:/^spy$/, n:/^doble de cuerpo$/, t:'accion', usos:1, reset:'corto',
+    texto: c => `Con la acción mágica adoptas la apariencia de un Humanoide, o de un cadáver humanoide muerto hace 24 horas o menos, que toques (ropa, armadura y armas incluidas); si era un cadáver, él y las pruebas de su muerte quedan invisibles 8 horas. Para descubrirte, hay que usar la acción de Estudiar y superar una prueba de Inteligencia (Investigación) contra CD ${invCD(c)}. Se recupera con descanso corto o largo, o gastando un uso de Conjuro Apresurado (sin acción).`},
+  {de:/^spy$/, n:/^locuaz$/, t:'accion', usos: () => 0,
+    texto: () => 'Lanzas Labia sin el componente material y, una vez por descanso largo, también sin gastar espacio. Mientras dura, la acción de Influir te cuesta solo una acción adicional.',
+    conjuros: () => [{nombre:'Labia', ab:'int', usos:1, reset:'largo', nota:'Locuaz: sin componente material; una vez sin espacio. Mientras dura, Influir como acción adicional'}]},
+
+  /* Time Operative */
+  {de:/^time operative$/, n:/^tiempo prestado$/, t:'adicional', usos:2, reset:'largo',
+    texto: () => 'Una vez en cada uno de tus turnos haces una acción adicional, solo para Atacar (un ataque), Correr, Destrabarte, Esconderte o Utilizar. Tienes 2 usos hasta un descanso largo; Robar Tiempo te devuelve uno al terminar un descanso corto o al dejar a un enemigo a 0 PG.'},
+  {de:/^time operative$/, n:/^amuletos$/, t:'pasiva', recurso:'rg-amuletos',
+    texto: () => 'Amuletos del Time Operative (1 uso cada uno): Tableta en Blanco, Emblema de Azogue (Zancada prodigiosa, acción adicional) y Esfera Ingrávida (Caída de pluma).',
+    conjuros: () => [amuleto('Zancada prodigiosa', 'Emblema de Azogue', 'adicional'), amuleto('Caída de pluma', 'Esfera Ingrávida')],
+    opciones: [opAmuleto('Tableta en Blanco', 'accion', () => 'Con la acción mágica, tocas a una criatura y terminas en ella una condición: Cegado, Ensordecido, Paralizado o Envenenado. No sirve con una que lleve más de 1 minuto.')]},
+  {de:/^time operative$/, n:/^rebobinar$/, t:'adicional', usos: c => invMod(c), reset:'largo',
+    texto: c => `Tras fallar una prueba de d20, usas una acción adicional para rebobinar el tiempo: repites la prueba y te quedas con la nueva tirada. Usos: ${invMod(c)} (tu modificador de INT, mínimo 1), hasta un descanso largo.`},
 
   /* Lo generado desde las respuestas de Gemini (scripts/gemini/revisar.ts); las de arriba tienen prioridad */
   ...REGLAS_GENERADAS,

@@ -125,6 +125,71 @@
       "clase": "lib:psion",
       "subclase": "psi-warper",
       "nivel": 20
+    },
+    {
+      "clase": "lib:investigator",
+      "subclase": "antiquarian",
+      "nivel": 20
+    },
+    {
+      "clase": "lib:investigator",
+      "subclase": "archivist",
+      "nivel": 20
+    },
+    {
+      "clase": "lib:investigator",
+      "subclase": "conspiracy-theorist",
+      "nivel": 20
+    },
+    {
+      "clase": "lib:investigator",
+      "subclase": "containment-specialist",
+      "nivel": 20
+    },
+    {
+      "clase": "lib:investigator",
+      "subclase": "detective",
+      "nivel": 20
+    },
+    {
+      "clase": "lib:investigator",
+      "subclase": "exterminator",
+      "nivel": 20
+    },
+    {
+      "clase": "lib:investigator",
+      "subclase": "infernum",
+      "nivel": 20
+    },
+    {
+      "clase": "lib:investigator",
+      "subclase": "inquisitor",
+      "nivel": 20
+    },
+    {
+      "clase": "lib:investigator",
+      "subclase": "kid-sleuth",
+      "nivel": 20
+    },
+    {
+      "clase": "lib:investigator",
+      "subclase": "medium",
+      "nivel": 20
+    },
+    {
+      "clase": "lib:investigator",
+      "subclase": "occultist",
+      "nivel": 20
+    },
+    {
+      "clase": "lib:investigator",
+      "subclase": "spy",
+      "nivel": 20
+    },
+    {
+      "clase": "lib:investigator",
+      "subclase": "time-operative",
+      "nivel": 20
     }
   ]
 }

@@ -10954,17 +10954,18 @@
     "light": 0,
     "finesseLight": 0
    },
-   "lanz": null,
+   "lanz": "int",
    "caster": null,
    "asi": [
     4,
     8,
     12,
-    16
+    16,
+    19
    ],
    "estilo": 0,
    "estilos": [],
-   "maestrias": 0,
+   "maestrias": 2,
    "hasta": 0,
    "rasgos": [
     {
