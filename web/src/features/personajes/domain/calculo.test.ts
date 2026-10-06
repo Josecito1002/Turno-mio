@@ -1332,6 +1332,11 @@ describe('Investigator (Mage Hand Press, lote 30)', () => {
     assert.ok(nombres.includes('Falsa vida') && nombres.includes('Hablar con los Muertos'));
     assert.ok(!nombres.includes('Guarda contra la Muerte'));
   });
+  test('Anticuario: la Colección de Objetos Mágicos (nivel 10) deja elegir el objeto', () => {
+    const el = (nivel: number) => (inv(nivel, 'antiquarian').elecciones || []).find((e: any) => e.id === 'coleccion-objetos');
+    assert.equal(el(9), undefined);
+    assert.ok(el(10)?.opciones.some((o: any) => o.nombre === 'Alfombra voladora'));
+  });
   test('Occultist: espacios de pacto de la tabla (2 de nivel 2 en el 7, 2 de nivel 3 en el 13)', () => {
     assert.equal(recurso(inv(7, 'occultist'), 'Espacios de pacto (nivel 2)')?.max, 2);
     assert.equal(recurso(inv(13, 'occultist'), 'Espacios de pacto (nivel 3)')?.max, 2);
