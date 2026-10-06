@@ -19,6 +19,7 @@ const CLASES: Record<string, { clave: string; src: string }> = {
   warden: { clave: 'lib:warden', src: 'Warden (playtest)' },
   warlord: { clave: 'lib:warlord', src: 'Warlord (playtest)' },
   craftsman: { clave: 'lib:craftsman', src: 'Craftsman (playtest)' },
+  beastheart: { clave: 'lib:beastheart', src: 'Beastheart (Monstrous Companions, playtest)' },
 };
 const TIPOS_T = ['accion', 'adicional', 'reaccion', 'gratis', 'pasiva', 'fuera'];
 const SV: Record<string, string> = { fuerza: 'fue', destreza: 'des', constitucion: 'con', inteligencia: 'int', sabiduria: 'sab', carisma: 'car' };
