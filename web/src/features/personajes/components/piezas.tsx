@@ -11,7 +11,7 @@ import { useState } from 'react';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { avisar } from '@/shared/ui/avisos';
 import { Herramienta, tieneHerramienta } from './ficha/Herramientas';
-import { agregarCriatura, descansar, fijarPool, gastarEspacio, gastarRecurso, moverPool, moverRasgo, tocarPip } from '../acciones';
+import { agregarCriatura, descansar, fijarPool, gastarEspacio, gastarRecurso, moverPool, moverRasgo, setVal, tocarPip } from '../acciones';
 import { bonosPara, dadosAlLanzar, espaciosPara, extrasAtaque } from '../domain/lanzar';
 import { desglose } from '../domain/calculo';
 
@@ -53,6 +53,53 @@ function RecursoInline({ id }: { id: string }) {
   );
 }
 
+/** Botón «Usar» de los rasgos que piden elegir algo al usarse: el conjuro de Conjuro Apresurado o el objeto de la Colección de Objetos Mágicos.
+    Elegir el objeto lo guarda como elección del personaje; usar gasta un uso del rasgo. */
+function UsarRasgo({ e }: { e: any }) {
+  const [abierto, setAbierto] = useState(false);
+  const c = S.c, pj = S.pj, k = norm(e.nombre);
+  const apresurado = k === 'conjuro apresurado', coleccion = k === 'coleccion de objetos magicos';
+  if (!c || !pj || !(apresurado || coleccion)) return null;
+  const conjuros = apresurado ? (c.conjuros || []).filter((x: any) => !x.recurso && ['accion', 'adicional'].includes(x.tiempo || 'accion')) : [];
+  const el = coleccion ? (c.elecciones || []).find((x: any) => x.id === 'coleccion-objetos') : null;
+  const elegido: string = pj.elecciones?.['coleccion-objetos'] || '';
+  const objeto = el?.opciones.find((o: any) => o.key === elegido);
+  const quedan = e.recurso ? (c.recursos.find((r: any) => r.id === e.recurso)?.max ?? 0) - Math.min(pj.used?.[e.recurso] || 0, c.recursos.find((r: any) => r.id === e.recurso)?.max ?? 0) : 1;
+  const usar = () => {
+    if (coleccion && !objeto) { avisar('Elige qué objeto produces.', 'error'); return; }
+    if (e.recurso && !gastarRecurso(e.recurso)) return;
+    avisar(coleccion ? `Produces: ${objeto.nombre}.` : `${e.nombre}: listo, gastaste un uso.`);
+    setAbierto(false);
+  };
+  return (
+    <div className="mt-2 flex">
+      <Boton variante="primario" tamano="sm" onClick={() => setAbierto(true)} className="print:hidden">{coleccion ? 'Producir objeto' : 'Usar'}</Boton>
+      <Dialogo abierto={abierto} onCerrar={() => setAbierto(false)} titulo={e.nombre} descripcion={e.recurso ? `Quedan ${quedan} usos` : undefined}>
+        <div className="space-y-2">
+          {apresurado && (conjuros.length ? <>
+            <p className="m-0 text-sm text-muted">Conjuros de tu grimorio que puedes lanzar así (toca uno para leerlo):</p>
+            {conjuros.map((x: any) => (
+              <details key={x.nombre} className="rounded-lg bg-soft">
+                <summary className="min-h-11 cursor-pointer list-none px-3 py-2"><b>{x.nombre}</b> <small className="text-muted">{+x.nivel > 0 ? `nivel ${x.nivel}` : 'truco'}</small></summary>
+                {x.desc && <p className="m-0 px-3 pb-2 text-sm text-muted" dangerouslySetInnerHTML={{ __html: richT(String(x.desc)) }} />}
+              </details>
+            ))}
+          </> : <p className="m-0 text-sm text-muted">No tienes conjuros en tu grimorio que se lancen con una acción o una acción adicional.</p>)}
+          {coleccion && (el ? el.opciones.map((o: any) => (
+            <button key={o.key} type="button" aria-pressed={elegido === o.key} onClick={() => setVal('elecciones.coleccion-objetos', o.key)}
+              className={cx('block w-full cursor-pointer rounded-lg px-3 py-2 text-left ring-1', foco, elegido === o.key ? 'bg-ink text-bg ring-ink' : 'bg-soft ring-rule hover:bg-rule/70')}>
+              <b>{o.nombre}</b><span className="block text-sm opacity-80">{o.desc}</span>
+            </button>
+          )) : <p className="m-0 text-sm text-muted">Esta lista aparece al llegar al nivel 10 de Investigador.</p>)}
+          <Boton variante="primario" className="w-full" disabled={!quedan || (coleccion && !objeto)} onClick={usar}>
+            {coleccion ? (objeto ? `Producir ${objeto.nombre}` : 'Elige un objeto') : 'Gastar un uso'}
+          </Boton>
+        </div>
+      </Dialogo>
+    </div>
+  );
+}
+
 /** Un rasgo, acción o dote en la hoja. */
 export function Entrada({ e }: { e: any }) {
   const body = e.raw ? richT(e.texto) : esc(e.texto);
@@ -80,6 +127,7 @@ export function Entrada({ e }: { e: any }) {
         {!e.roll && <Herramienta e={e} />}
       </div>
       {e.recurso && S.view === 'ficha' && <RecursoInline id={e.recurso} />}
+      {S.view === 'ficha' && <UsarRasgo e={e} />}
       <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
         <p className="m-0 text-xs text-muted">{e.src || ''}</p>
         {S.view === 'ficha' && !(S.combateMesa && !S.combateHoja) && e.grupo && e.grupo !== 'reglas' && <Mover e={e} />}
