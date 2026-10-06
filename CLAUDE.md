@@ -102,3 +102,32 @@ sale en el registro de la compilación, en las líneas `[despliegue]`.
 - En la PC, con `DATABASE_URL` en `web/.env.local`, también sirven `db:actualizar-clase` sin `--solo-archivo`,
   `prueba:crear` y `prueba:borrar`, que actúan al momento.
 - Los personajes de prueba tardan lo que tarde Vercel en publicar (un par de minutos): díselo al usuario.
+
+## Clases de playtest (lotes 30 a 37)
+
+Las respuestas de Gemini están en `docs/gemini/respuesta-NN-<clase>.md` (30a-e Investigator, 31 Gunslinger, 32 Illrigger,
+33 Savant, 34 Warden, 35 Warlord, 36 Craftsman, 37 Beastheart). `npm run gemini:playtest -- <clase>` las lee todas, limpia
+los textos (quita `[cite: n]`, `(PROPUESTA)`, negritas) e informa de los problemas; con `--aplicar` guarda la clase y sus
+conjuros en `biblioteca-mi-turno.json`. Claves: `investigador`, `gunslinger`, `illrigger`, `savant`, `warden`, `warlord`,
+`craftsman`, `beastheart`. Archivos descartados o repetidos: `docs/gemini/sin-usar/`. PDF de consulta (no están en git):
+`docs/gemini/fuentes/`.
+
+**Ya aplicados a la biblioteca** (clase y subclases como texto): Investigator, Gunslinger, Illrigger, Savant, Warden,
+Warlord, Craftsman. **Falta de cada una**, por clase y de una en una (empieza por Investigator), con Sonnet:
+1. **Reglas** en `src/features/reglas/data/reglas-revisadas.ts` (prioridad sobre lo generado) para lo que se gasta o se
+   calcula: usos y descansos, elecciones (selectores), daños y bonos por característica. Salen de la parte B de la
+   respuesta y de los avisos del script (por ejemplo usos "Modificador de Inteligencia" o "PB"). Las tablas de progresión
+   (`progresion`) van a `recursosTabla` de la clase.
+2. **Fuente** (`fuentes.ts`, etiqueta Homebrew o D&D Beyond según el caso) y **descripción** de cada subclase
+   (`descripciones.ts`): vienen en las partes C y D de la respuesta.
+3. Los **tipos de acción** que el script dejó como `pasiva` por no ser válidos (`varios`, `especial`).
+4. Dotes y opciones sueltas de cada respuesta (los exports que el script lista en "Para hacer a mano": opciones, objetos,
+   conjuros extra, dotes del Craftsman en 36c a 36e).
+5. Personajes de prueba para el usuario (`npm run prueba:pedir`) y qué revisar.
+
+**Beastheart (37): no aplicado.** Sus 15 compañeros (basilisco, bulette, huargo, mímico, etc.) son fichas de criatura, no
+subclases; las 5 subclases reales son los Bond (Ferocious, Hunter, Infernal, Primordial, Protector). Pregunta al usuario
+cómo quiere los compañeros (opciones de elección de la clase, o fichas aparte como el bestiario) antes de aplicarlo.
+Revisa también que el normalizador no cuente los compañeros como subclases.
+
+Para hacer pocas pruebas: solo para lo que el motor calcula, no para rasgos de texto.
