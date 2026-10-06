@@ -66,7 +66,7 @@ function rasgo(r: any, donde: string, soloClase = false) {
   const t = TIPOS_T.includes(r.t) ? r.t : 'pasiva';
   if (r.t && !TIPOS_T.includes(r.t)) avisos.push(`${donde} · ${nombre}: tipo "${r.t}" no válido; queda pasiva.`);
   const reset = /corto/i.test(r.reset || '') ? 'corto' : 'largo';
-  if (r.reset && !/^(largo|corto)$/i.test(r.reset) && !/ninguno|^$/i.test(r.reset)) avisos.push(`${donde} · ${nombre}: descanso "${r.reset}" no es corto ni largo.`);
+  if (r.reset && !/^(largo|corto)( o (largo|corto))?$/i.test(r.reset) && !/ninguno|^$/i.test(r.reset)) avisos.push(`${donde} · ${nombre}: descanso "${r.reset}" no es corto ni largo.`);
   const usos = typeof r.usos === 'number' ? r.usos : /^pb$/i.test(String(r.usos ?? '').trim()) ? 'pb' : /^\d+$/.test(String(r.usos ?? '').trim()) ? +r.usos : 0;
   if (r.usos && usos === 0 && !/^0*$/.test(String(r.usos))) avisos.push(`${donde} · ${nombre}: usos "${r.usos}" no es un número.`);
   const txt = limpio(texto);
@@ -77,7 +77,7 @@ function rasgo(r: any, donde: string, soloClase = false) {
   return { nombre, t, texto: txt, n: r.n, manual: true, usos, reset };
 }
 
-function clase(v: any, ruta: string, c: { clave: string; src: string }) {
+function clase(v: any, ruta: string, c: { clave: string; src: string }, nombreExport = '') {
   const dado = typeof v.dado === 'number' ? v.dado : +String(v.dado).replace(/\D*(\d+)$/, '$1');
   const sv = [].concat(typeof v.sv === 'string' ? v.sv.split(/,|\sy\s/).map((x: string) => x.trim()).filter(Boolean) : v.sv || []).map((x: string) => SV[norm(x)] || (['fue', 'des', 'con', 'int', 'sab', 'car'].includes(norm(x)) ? norm(x) : (avisos.push(`${ruta}: salvación "${x}" desconocida.`), '')));
   const habs = (v.habs || []).map((h: string) => HAB_SINONIMOS[norm(h)] || SKILLS.find(([n]) => norm(n) === norm(h))?.[0] || (avisos.push(`${ruta}: habilidad "${h}" no existe en la app.`), h));
@@ -86,7 +86,7 @@ function clase(v: any, ruta: string, c: { clave: string; src: string }) {
   const rasgos = (v.rasgos || []).map((r: any) => rasgo(r, `${ruta} (clase)`, true));
   const asi = rasgos.filter((r: any) => /mejora de caracteristica/.test(norm(r.nombre))).map((r: any) => r.n);
   return {
-    n: sinIngles(typeof v.n === 'string' ? v.n : typeof v.nombre === 'string' ? v.nombre : ruta), lib: true, src: c.src, dado, sv, habN: v.habN || 2, habs,
+    n: sinIngles(typeof v.n === 'string' ? v.n : typeof v.nombre === 'string' ? v.nombre : nombreExport || ruta), lib: true, src: c.src, dado, sv, habN: v.habN || 2, habs,
     arm: /todas/.test(armTxt) ? 'Todas las armaduras y escudos' : /pesad/.test(armTxt) ? 'Ligeras, medias, pesadas y escudos' : /media/.test(armTxt) ? 'Ligeras, medias y escudos' : /ligera/.test(armTxt) ? 'Ligeras' : 'Ninguna',
     armas: marcial ? 'Armas sencillas y marciales' : 'Armas sencillas',
     w: { simple: 1, martial: marcial ? 1 : 0, light: 0, finesseLight: 0 }, lanz: v.lanz || null, caster: v.caster || null,
@@ -127,7 +127,7 @@ async function main() {
     const mod = await cargar(`${dir}/${f}`, id);
     for (const [k, v] of Object.entries<any>(mod)) {
       if (!v || typeof v !== 'object') continue;
-      if (Array.isArray(v.rasgos) && 'dado' in v) { if (claseObj) avisos.push(`${id}: ${k} es una segunda definición de la clase; se usa la última.`); claseObj = clase(v, id, c); }
+      if (Array.isArray(v.rasgos) && 'dado' in v) { if (claseObj) avisos.push(`${id}: ${k} es una segunda definición de la clase; se usa la última.`); claseObj = clase(v, id, c, k.replace(/^./, (x: string) => x.toUpperCase())); }
       else if (Array.isArray(v.rasgos) && /reglas|propiedades|compatibilidad/i.test(`${k} ${v.n}`)) aMano.push(`${id}: ${k} son reglas generales (${v.rasgos.length} apartados), no una subclase; se aplica a mano.`);
       else if (Array.isArray(v.rasgos)) {
         // Gemini a veces pone en "n" un nivel; entonces el nombre sale del nombre de la variable (academyOfChivalry → Academy Of Chivalry)
