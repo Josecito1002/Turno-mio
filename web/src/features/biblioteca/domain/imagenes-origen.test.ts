@@ -29,6 +29,15 @@ describe('reconocerArchivo con los nombres del set de Drive', () => {
     assert.equal(r('tiefling-ctonico-druida-circulo-de-la-tierra-masculino.jpg')?.sub, 'ctonico');
     assert.equal(r('hobgoblin-paladin-juramento-de-devocion-femenino.jpg')?.subclase, 'devocion');
   });
+  test('género en medio, espacios en vez de guiones y "de" antes de la subraza', () => {
+    assert.deepEqual(r('aasimar-femenino-artesano-forgemasters-guild.jpg'), { especie: 'aasimar', sub: '', clase: 'lib:craftsman', subclase: 'lib:forgemasters-guild', genero: 'f' });
+    assert.deepEqual(r('cambion femenino illrigger shadowmaster.jpg'), { especie: 'lib:cambion', sub: '', clase: 'lib:illrigger', subclase: 'lib:shadowmaster', genero: 'f' });
+    assert.deepEqual(r('draconido de azul masculino pugilista el perro y el sabueso.jpg'), { especie: 'draconido', sub: 'azul', clase: 'lib:pugilista', subclase: 'lib:perro-sabueso', genero: 'm' });
+    assert.deepEqual(r('hombre lagarto femenino cazador de sangre orden del alma profana.jpg'), { especie: 'lib:hombre-lagarto', sub: '', clase: 'lib:cazador-sangre', subclase: 'lib:alma-profana', genero: 'f' });
+    assert.equal(r('draconido-de-plata-masculino-druida-circulo-de-las-esporas-playtest-2026.jpg')?.subclase, 'lib:esporas-playtest');
+    assert.equal(r('goliat-gigante-de-las-tormentas-femenino-bardo-colegio-de-la-luna.jpg')?.sub, 'tormenta');
+    assert.equal(r('autognomo-femenino-senor-de-la-guerra-academy-of-schemes.jpg')?.clase, 'lib:warlord');
+  });
   test('sin subclase o sin género también vale; sin nombre, no', () => {
     assert.deepEqual(r('draconido-oro-mago.jpg'), { especie: 'draconido', sub: 'oro', clase: 'mago', subclase: '', genero: '' });
     assert.equal(r('31.jpg'), null);
