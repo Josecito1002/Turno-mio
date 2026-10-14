@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { gql } from '@/shared/graphql/cliente';
+import { ErrorGraphQL, gql } from '@/shared/graphql/cliente';
 import { avisar } from '@/shared/ui/avisos';
 import { getLib, setLib, limpiarBestias } from '@/features/biblioteca/domain/biblioteca';
 import { filasALib } from '@/features/biblioteca/domain/mapeo';
@@ -70,7 +70,21 @@ async function cargarInvitado(): Promise<Carga> {
   };
 }
 
+/** Errores que suelen arreglarse solos: la base sin conexiones libres, un fallo del servidor o de la red. */
+const reintentable = (e: unknown) => !(e instanceof ErrorGraphQL) || !e.code || ['BASE_OCUPADA', 'INTERNAL_SERVER_ERROR'].includes(e.code);
+
+/** Carga todo al entrar. Si falla por algo pasajero, lo vuelve a intentar unas veces antes de mostrar el error. */
 export async function cargarTodo(comoInvitado = false): Promise<Carga> {
+  for (let i = 0; ; i++) {
+    try { return await cargarUnaVez(comoInvitado); }
+    catch (e) {
+      if (i >= 3 || !reintentable(e)) throw e;
+      await new Promise(r => setTimeout(r, 1000 * 2 ** i));
+    }
+  }
+}
+
+async function cargarUnaVez(comoInvitado: boolean): Promise<Carga> {
   if (comoInvitado) return cargarInvitado();
   invitado = false; // por si antes se usó como invitado en esta misma pestaña
   const d = await gql<RespuestaBiblioteca & { yo: Usuario | null; personajes: PersonajeServidor[] }>(
