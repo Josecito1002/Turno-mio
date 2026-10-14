@@ -67,7 +67,8 @@ export function SubirImagenesOrigen() {
     <Plegable titulo="Subir imágenes de especie y clase" nota={`${guardadas}`}>
       <div className="grid gap-2">
         <p className="m-0">Elige un .zip (como el que baja Google Drive) o varias imágenes a la vez. Cada nombre dice especie, subraza
-          (si tiene), clase, subclase y género, separados por guiones: <code>draconido-bronce-brujo-el-filo-maldito-femenino.jpg</code>.
+          (si tiene), clase, subclase y género, separados por guiones o espacios: <code>draconido-bronce-brujo-el-filo-maldito-femenino.jpg</code>. El género puede ir
+          al final o después de la especie.
           Al crear un personaje, cada clase y subclase muestra la de su especie. El género se guarda pero por ahora no cambia qué
           imagen se ve. Una imagen con el mismo nombre reemplaza a la anterior.</p>
         <label htmlFor={id} className={cx('inline-flex min-h-11 w-fit cursor-pointer items-center rounded-xl bg-surface px-3 text-sm font-bold ring-1 ring-inset ring-rule hover:bg-soft focus-within:outline-3 focus-within:outline-rea', e.activo && 'pointer-events-none opacity-60')}>

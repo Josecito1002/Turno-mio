@@ -38,7 +38,7 @@ export function catalogoActual(): Catalogo {
   return { especies, clases };
 }
 
-/** Nombres con que puede empezar un archivo → especie y subraza. "elfo-alto", "alto-elfo" y "elfo-drow" valen. */
+/** Nombres con que puede empezar un archivo → especie y subraza. "elfo-alto", "alto-elfo", "elfo-drow" y "draconido-de-azul" valen. */
 function origenes(cat: Catalogo) {
   const m = new Map<string, { especie: string; sub: string }>();
   const poner = (v: string, x: { especie: string; sub: string }) => { if (v && !m.has(v)) m.set(v, x); };
@@ -49,7 +49,7 @@ function origenes(cat: Catalogo) {
       const S = variantes(x.n, s), base = slugNombre(e.n, true).split('-');
       // Sin las palabras de la especie: "Alto Elfo" → "alto"
       const cortas = [...S].map(v => v.split('-').filter(w => !base.includes(w)).join('-')).filter(Boolean);
-      for (const sv of [...S, ...cortas]) { E.forEach(ev => poner(`${ev}-${sv}`, { especie: k, sub: s })); }
+      for (const sv of [...S, ...cortas]) { E.forEach(ev => { poner(`${ev}-${sv}`, { especie: k, sub: s }); poner(`${ev}-de-${sv}`, { especie: k, sub: s }); }); }
       S.forEach(v => poner(v, { especie: k, sub: s }));
     }
   }
@@ -58,14 +58,25 @@ function origenes(cat: Catalogo) {
 
 const GENEROS: Record<string, Genero> = { masculino: 'm', hombre: 'm', macho: 'm', femenino: 'f', mujer: 'f', hembra: 'f' };
 
-/** Reconoce "draconido-bronce-brujo-el-filo-maldito-femenino.jpg". La subclase y el género pueden faltar.
-    Devuelve null si no encuentra especie y clase. */
+/** Reconoce "draconido-bronce-brujo-el-filo-maldito-femenino.jpg". El género puede ir al final o en medio
+    ("aasimar-femenino-artesano-forgemasters-guild.jpg"), y las palabras pueden ir separadas por espacios en vez de guiones.
+    La subclase y el género pueden faltar. Devuelve null si no encuentra especie y clase. */
 export function reconocerArchivo(nombre: string, cat: Catalogo): Origen | null {
   const partes = slugNombre(nombre.replace(/\.[a-z0-9]+$/i, '')).split('-');
-  const genero = GENEROS[partes[partes.length - 1]] ?? '';
-  if (genero) partes.pop();
-  const resto = partes.join('-'), orig = origenes(cat);
-  let mejor: Origen | null = null, largo = -1;
+  const orig = origenes(cat);
+  // Se prueba quitando cada palabra de género (primero la última): "hombre-lagarto-femenino-..." no pierde el "hombre"
+  const posiciones = partes.map((p, i) => (GENEROS[p] ? i : -1)).filter(i => i >= 0).reverse();
+  for (const i of posiciones) {
+    const o = reconocerSinGenero([...partes.slice(0, i), ...partes.slice(i + 1)].join('-'), cat, orig);
+    if (o) return { ...o, genero: GENEROS[partes[i]] };
+  }
+  const o = reconocerSinGenero(partes.join('-'), cat, orig);
+  return o && { ...o, genero: '' };
+}
+
+/** "especie[-subraza]-clase[-subclase]", ya sin el género */
+function reconocerSinGenero(resto: string, cat: Catalogo, orig: ReturnType<typeof origenes>): Omit<Origen, 'genero'> | null {
+  let mejor: Omit<Origen, 'genero'> | null = null, largo = -1;
   for (const [ck, c] of cat.clases) {
     const finales: [string, string][] = [];
     for (const cv of variantes(c.n, ck)) {
@@ -75,7 +86,7 @@ export function reconocerArchivo(nombre: string, cat: Catalogo): Origen | null {
     for (const [fin, sub] of finales) {
       if (fin.length <= largo || !resto.endsWith(fin)) continue;
       const o = orig.get(resto.slice(0, -fin.length));
-      if (o) { mejor = { ...o, clase: ck, subclase: sub, genero }; largo = fin.length; }
+      if (o) { mejor = { ...o, clase: ck, subclase: sub }; largo = fin.length; }
     }
   }
   return mejor;
