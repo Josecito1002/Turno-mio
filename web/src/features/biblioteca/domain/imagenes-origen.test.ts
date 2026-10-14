@@ -3,7 +3,7 @@ import { test, describe, before } from 'node:test';
 import assert from 'node:assert/strict';
 import biblioteca from '../../../../../biblioteca-mi-turno.json';
 import { setLib } from './biblioteca';
-import { catalogoActual, claveOrigen, imagenDeClase, imagenesOrigen, imagenesParaElegir, reconocerArchivo, type Catalogo } from './imagenes-origen';
+import { catalogoActual, claveOrigen, imagenDeClase, imagenesOrigen, imagenesParaElegir, reconocerArchivo, subclasesMismoNombre, type Catalogo } from './imagenes-origen';
 
 let cat: Catalogo;
 before(() => { setLib(biblioteca as any); cat = catalogoActual(); });
@@ -65,6 +65,14 @@ describe('imagenDeClase: la imagen por defecto sigue primero a la especie', () =
   const img = { [claveOrigen({ especie: 'goliat', sub: '', clase: 'mago', subclase: 'evocador', genero: 'f' })]: '/g', [claveOrigen({ especie: 'humano', sub: '', clase: 'paladin', subclase: 'devocion', genero: 'm' })]: '/h' };
   test('un goliat paladín usa la del goliat (de otra clase) y no la del paladín humano', () => {
     assert.equal(imagenDeClase(img, { especie: 'goliat', clase: 'paladin', subclase: 'devocion' }), claveOrigen({ especie: 'goliat', sub: '', clase: 'mago', subclase: 'evocador', genero: 'f' }));
+  });
+  test('los dos Rompejuramentos (oficial y de prueba) comparten imagen', () => {
+    const subs = subclasesMismoNombre(null, 'paladin', 'lib:rompejuramentos');
+    assert.deepEqual(subs.sort(), ['lib:rompejuramentos', 'lib:rompejuramentos-dmg']);
+    const k = claveOrigen({ especie: 'humano', sub: '', clase: 'paladin', subclase: 'lib:rompejuramentos-dmg', genero: 'f' });
+    const img2 = { [k]: '/r', [claveOrigen({ especie: 'humano', sub: '', clase: 'paladin', subclase: 'devocion', genero: 'm' })]: '/d' };
+    assert.equal(imagenDeClase(img2, { especie: 'humano', clase: 'paladin', subclase: subs }, 'x'), k);
+    assert.equal(imagenDeClase(img2, { especie: 'elfo', clase: 'paladin', subclase: subs }, 'x'), k);
   });
   test('sin ninguna de su especie, cae a la de su clase', () => {
     assert.equal(imagenDeClase(img, { especie: 'elfo', clase: 'paladin', subclase: 'devocion' }), claveOrigen({ especie: 'humano', sub: '', clase: 'paladin', subclase: 'devocion', genero: 'm' }));

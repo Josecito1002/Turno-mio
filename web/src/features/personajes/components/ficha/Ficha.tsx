@@ -24,7 +24,7 @@ import { HojaImpresa } from './HojaImpresa';
 import { Imagen } from '@/shared/ui/imagen';
 import { getLib } from '@/features/biblioteca/domain/biblioteca';
 import { achicarImagen } from '@/features/biblioteca/components/PanelMedia';
-import { imagenDeClase, imagenesParaElegir, leerClaveOrigen } from '@/features/biblioteca/domain/imagenes-origen';
+import { imagenDeClase, imagenesParaElegir, leerClaveOrigen, subclasesMismoNombre } from '@/features/biblioteca/domain/imagenes-origen';
 
 /** Solo lectura: la hoja de un jugador vista desde la mesa del DM. Se ve todo, pero nada se puede cambiar ni gastar
     (las acciones de la hoja trabajan sobre el personaje abierto, que no es este). */
@@ -77,7 +77,7 @@ export function imagenPersonaje(c: any): { src: string; propia: boolean } {
   const LIB = getLib();
   // Una de la biblioteca que eligió el jugador (si ya no existe, vuelve la automática)
   if (pj.imagenClave && LIB.img?.[pj.imagenClave]) return { src: String(LIB.img[pj.imagenClave]), propia: true };
-  const k = imagenDeClase(LIB.img, { especie: pj.especie?.key, sub: pj.especie?.sub, clase: pj.clase, subclase: c.SD?.key || '' }, pj.id || '');
+  const k = imagenDeClase(LIB.img, { especie: pj.especie?.key, sub: pj.especie?.sub, clase: pj.clase, subclase: c.SD?.key ? subclasesMismoNombre(pj, pj.clase, c.SD.key) : '' }, pj.id || '');
   return { src: k ? String(LIB.img?.[k]) : '', propia: false };
 }
 
