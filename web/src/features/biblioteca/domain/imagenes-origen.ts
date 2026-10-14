@@ -92,6 +92,13 @@ function reconocerSinGenero(resto: string, cat: Catalogo, orig: ReturnType<typeo
   return mejor;
 }
 
+/** Las subclases de la clase con el mismo nombre que `sk` (p. ej. los dos Rompejuramentos, oficial y de prueba): una imagen
+    subida para una vale para todas. */
+export function subclasesMismoNombre(pj: unknown, clase: string, sk: string): string[] {
+  const subs = getSubs(pj, clase), n = slugNombre(subs.find(s => s.key === sk)?.n);
+  return n ? subs.filter(s => slugNombre(s.n) === n).map(s => s.key) : [sk];
+}
+
 /** Claves de imagen para una especie y clase (y subclase, si se da), una por subraza y subclase. Con subraza elegida, solo las de esa
     subraza (si no hay, ninguna); mientras no se elija, las de la especie con cualquier subraza. Sin subclase valen todas las de la clase;
     con varias claves (dos subclases con el mismo nombre), cualquiera. */
@@ -131,15 +138,16 @@ export const imagenesDeSubraza = (img: Record<string, unknown> | undefined, espe
 
 /** Imagen por defecto de un personaje: la de su especie con su clase y subclase; si no hay, la de su especie con otra clase;
     si tampoco, la de su clase y subclase con cualquier especie, y por último cualquiera de su clase. Siempre la misma para el mismo personaje (según `semilla`). */
-export function imagenDeClase(img: Record<string, unknown> | undefined, q: { especie?: string; sub?: string; clase: string; subclase?: string }, semilla = '') {
+export function imagenDeClase(img: Record<string, unknown> | undefined, q: { especie?: string; sub?: string; clase: string; subclase?: string | string[] }, semilla = '') {
   if (!img || !q.clase) return '';
+  const subs = q.subclase ? [q.subclase].flat().filter(Boolean) : [];
   const opciones = [
-    q.especie ? imagenesOrigen(img, { especie: q.especie, sub: q.sub, clase: q.clase, subclase: q.subclase || undefined }) : [],
+    q.especie ? imagenesOrigen(img, { especie: q.especie, sub: q.sub, clase: q.clase, subclase: subs.length ? subs : undefined }) : [],
     q.especie ? imagenesOrigen(img, { especie: q.especie, clase: q.clase }) : [],
     // Si no hay de esa clase, mejor un personaje de su misma especie (de otra clase) que uno de otra especie
     q.especie && q.sub ? unaPorCombinacion(img, o => o.especie === q.especie && o.sub === q.sub) : [],
     q.especie ? imagenesDeEspecie(img, q.especie) : [],
-    q.subclase ? unaPorCombinacion(img, o => o.clase === q.clase && o.subclase === q.subclase) : [],
+    subs.length ? unaPorCombinacion(img, o => o.clase === q.clase && subs.includes(o.subclase)) : [],
     unaPorCombinacion(img, o => o.clase === q.clase),
   ].find(l => l.length);
   if (!opciones) return '';

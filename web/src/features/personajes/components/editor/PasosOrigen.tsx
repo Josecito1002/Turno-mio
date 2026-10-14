@@ -14,7 +14,7 @@ import { esDoteOrigen } from '@/features/reglas/domain/restricciones';
 import { fuenteClase, fuenteEspecie, fuenteSubclase, fuenteTrasfondo } from '@/features/reglas/data/fuentes';
 import { getLib, getSubs, getT, allDotes, descEspecie, descSubespecie, descClase, descClaseLarga, descSubclase, sinRepetidas, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
 import { PanelMedia, useAzar } from '@/features/biblioteca/components/PanelMedia';
-import { PREFIJO_ORIGEN, imagenesDeEspecie, imagenesDeSubraza, imagenesOrigen, slugNombre } from '@/features/biblioteca/domain/imagenes-origen';
+import { PREFIJO_ORIGEN, imagenesDeEspecie, imagenesDeSubraza, imagenesOrigen, subclasesMismoNombre } from '@/features/biblioteca/domain/imagenes-origen';
 import { Entrada } from '../piezas';
 import { quitarEquipoTrasfondo, savePj, setVal, tomarEquipoTrasfondo } from '../../acciones';
 import { TarjetasBuscables, Tarjeta } from './Tarjetas';
@@ -174,11 +174,7 @@ export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
     Antes del nivel de subclase solo se pueden ver: tocar una tarjeta abre su vista previa sin elegirla. */
 /* Con especie elegida, las clases y subclases muestran las imágenes de esa especie con ellas (varias van rotando) */
 /** Claves de las subclases que se llaman igual que `sk` (hay repetidas, como el Rompejuramentos de dos libros) */
-const mismaSubclase = (pj: any, clase: string, sk: string) => {
-  const n = slugNombre(getSubs(pj, clase).find(s => s.key === sk)?.n);
-  return n ? getSubs(pj, clase).filter(s => slugNombre(s.n) === n).map(s => s.key) : [sk];
-};
-const temasDe = (pj: any, clase: string, subclase?: string) => imagenesOrigen(getLib().img, { especie: pj.especie?.key, sub: pj.especie?.sub, clase, subclase: subclase ? mismaSubclase(pj, clase, subclase) : undefined });
+const temasDe = (pj: any, clase: string, subclase?: string) => imagenesOrigen(getLib().img, { especie: pj.especie?.key, sub: pj.especie?.sub, clase, subclase: subclase ? subclasesMismoNombre(pj, clase, subclase) : undefined });
 function TarjetaTematica({ temas, img, ...rest }: { temas: string[]; img?: string; on: boolean; onClick: () => void; titulo: string; sub: string; clampSub?: boolean; fuente?: any }) {
   const i = useAzar(temas.length);
   return <Tarjeta {...rest} img={temas.length ? getLib().img![temas[i]] : img} imgArriba={temas.length > 0} />;
