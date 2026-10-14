@@ -4,13 +4,13 @@ import type { PgDatabase } from 'drizzle-orm/pg-core';
 import * as t from './tablas';
 import { libAFilas, TIPOS_EXTRA, TIPOS_MEDIA, type BibliotecaAnidada, type FilasBiblioteca } from '../domain/mapeo';
 import type { Biblioteca } from '../domain/biblioteca';
+import { urlImagen } from './imagenes';
 
 type Db = PgDatabase<any, any, any>;
 
 const trozos = <T,>(xs: T[], n = 400) => Array.from({ length: Math.ceil(xs.length / n) }, (_, i) => xs.slice(i * n, i * n + n));
 
-/** Dirección de una imagen de la biblioteca; `v` cambia con la imagen, así el navegador la guarda sin volver a pedirla. */
-export const urlImagen = (clave: string, v: string) => `/api/imagen?k=${encodeURIComponent(clave)}&v=${v.slice(0, 12)}`;
+export { urlImagen } from './imagenes';
 
 /* Las imágenes van aparte: la biblioteca solo trae su dirección (/api/imagen) y no trae las originales, que solo
    sirven para volver a recortar. Si no, la respuesta crece con cada imagen hasta pasar el límite del servidor. */

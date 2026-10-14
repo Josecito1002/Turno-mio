@@ -46,3 +46,6 @@ next-env.d.ts
 
 # datos oficiales descargados (scripts/gemini)
 /.cache/
+
+# imágenes de la biblioteca que copia la compilación (scripts/imagenes-estaticas.ts)
+/public/img/biblioteca/

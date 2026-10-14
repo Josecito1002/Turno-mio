@@ -5,6 +5,7 @@
       clases que el archivo les da y la base todavía no.
    3. Personajes de prueba: la cuenta de scripts/datos/personajes-prueba.json queda con exactamente esos.
    4. Borra las imágenes antiguas de clase y subclase (scripts/imagenes-antiguas.ts).
+   5. Copia las imágenes de la biblioteca a public/ para servirlas sin la base (scripts/imagenes-estaticas.ts).
    Así una sesión sin acceso a la base (Claude Code en la nube) solo tiene que subir los cambios.
    Si algo falla, lo dice en el registro de la compilación pero no la detiene.
    Uso local: npx tsx --env-file-if-exists=.env.local scripts/despliegue.ts --forzar [--ver] */
@@ -17,6 +18,7 @@ import { reemplazarClase, reemplazarEspecie } from '../src/features/biblioteca/s
 import { leerLista, sincronizarPrueba } from './gemini/personajes-prueba';
 import { BESTIAS_COLADAS } from '../src/features/reglas/data/especies';
 import { limpiarImagenesAntiguas } from './imagenes-antiguas';
+import { exportarImagenes } from './imagenes-estaticas';
 
 /* Forma comparable de una fila: sin id autogenerado ni campos vacíos, con las claves ordenadas */
 const canon = (o: any): any => Array.isArray(o) ? o.map(canon)
@@ -86,6 +88,8 @@ async function main() {
 
     const viejas = await limpiarImagenesAntiguas(db, !ver);
     if (viejas.length) console.log(`[despliegue] Imágenes antiguas de clase y subclase ${ver ? 'a borrar' : 'borradas'}: ${viejas.length} (${[...new Set(viejas.map(f => f.clave))].join(', ')}).`);
+
+    if (!ver) console.log(`[despliegue] Imágenes copiadas a public/ (sin pasar por la base): ${await exportarImagenes(db)}.`);
   } catch (e: any) {
     console.error('[despliegue] ERROR (la compilación sigue):', e?.message || e);
   } finally {
