@@ -22,6 +22,7 @@ import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/expor
 import { enemigosDe, leerSesion, type Encuentro } from '../domain/sesion';
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
 import { BloqueMonstruo, BuscadorEnemigo, VistaBestiario, monstruoDe, useCatalogo } from './Bestiario';
+import { SubirHomebrewery } from '@/features/homebrewery/components/SubirHomebrewery';
 
 const val = (id: string) => (document.getElementById(id) as HTMLInputElement | null)?.value || '';
 /** Cada acción trabaja sobre una copia fresca de la campaña, la guarda y redibuja. */
@@ -941,6 +942,7 @@ export function MesaVista({ importarHojas }: { importarHojas: () => void }) {
             <Boton variante="primario" onClick={crear}>Crear campaña</Boton>
           </div>
         </Seccion>
+        <SubirHomebrewery />
       </>
     );
   }
