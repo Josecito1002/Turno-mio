@@ -8,7 +8,11 @@ import { norm } from '@/shared/utils/texto';
 import type { Monstruo } from '@/features/reglas/data/bestiario';
 
 export type EnemigoEncuentro = { ref: string; nombre: string; cantidad: number };
-export type Encuentro = { id: string; nombre: string; notas?: string; enemigos: EnemigoEncuentro[] };
+/** Un enemigo que quedó vivo al terminar un combate de la sesión, con los PG que tenía. */
+export type Sobreviviente = { nombre: string; ca: number; pgMax: number; pg: number; bono: number; ref?: string };
+/** `vuelvenDe`: nombre del combate anterior cuyos sobrevivientes entran a este (lo elige el DM en la app; no viene en el
+    archivo). `sobrevivientes`: los que quedaron vivos la última vez que terminó este combate. */
+export type Encuentro = { id: string; nombre: string; notas?: string; enemigos: EnemigoEncuentro[]; vuelvenDe?: string; sobrevivientes?: Sobreviviente[] };
 export type Sesion = { nombre: string; notas?: string; encuentros: Encuentro[]; monstruos: Record<string, Monstruo>; sinDatos: string[] };
 
 export const claveMonstruo = (s: string) => norm(s).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'monstruo';
@@ -59,6 +63,8 @@ export function leerCsv(texto: string): Record<string, string>[] {
   return lineas.slice(1).map(l => { const v = partir(l); return Object.fromEntries(cab.map((h, i) => [h, v[i] ?? ''])); });
 }
 
+const texto1 = (v: unknown) => typeof v === 'string' ? v.trim() : '';
+
 /** Lee el archivo (JSON o CSV) y arma la sesión, buscando cada enemigo en el bestiario de la app y en el de la campaña. */
 export function leerSesion(texto: string, nombreArchivo: string, catalogo: Record<string, Monstruo>, propios: Record<string, Monstruo> = {}): Sesion {
   const nuevos: Record<string, Monstruo> = {}, sinDatos: string[] = [];
@@ -80,6 +86,7 @@ export function leerSesion(texto: string, nombreArchivo: string, catalogo: Recor
     for (const [k, m] of Object.entries<any>(d.monstruos || {})) nuevos[claveMonstruo(k)] = monstruoPropio(m);
     const encuentros = (d.combates || d.encuentros || []).map((c: any, i: number) => ({
       id: id(i), nombre: c.nombre || `Combate ${i + 1}`, ...(c.notas ? { notas: c.notas } : {}),
+      ...(texto1(c.vuelvenDe ?? c.vuelveDe ?? c.vuelven_de) ? { vuelvenDe: texto1(c.vuelvenDe ?? c.vuelveDe ?? c.vuelven_de) } : {}),
       enemigos: (c.enemigos || []).map((e: any) => {
         const nombre = e.monstruo || e.nombre || 'Enemigo';
         const datos = e.datos || (e.ca != null || e.pg != null ? { ca: e.ca, pg: e.pg, ini: e.iniciativa ?? e.ini, cr: e.cr } : null);
@@ -89,16 +96,17 @@ export function leerSesion(texto: string, nombreArchivo: string, catalogo: Recor
     return { nombre: d.sesion || d.nombre || base, notas: d.notas, encuentros, monstruos: nuevos, sinDatos };
   }
 
-  const filas = leerCsv(texto), porCombate = new Map<string, EnemigoEncuentro[]>(), notas = new Map<string, string>();
+  const filas = leerCsv(texto), porCombate = new Map<string, EnemigoEncuentro[]>(), notas = new Map<string, string>(), vuelven = new Map<string, string>();
   for (const f of filas) {
     const nombre = f.enemigo || f.monstruo || f.nombre; if (!nombre) continue;
     const combate = f.combate || f.encuentro || 'Combate 1';
+    if (f.vuelvende || f.vuelvede) vuelven.set(combate, f.vuelvende || f.vuelvede);
     const datos = f.ca || f.pg ? { ca: f.ca, pg: f.pg, ini: f.iniciativa, cr: f.cr || undefined, texto: f.notas || undefined } : null;
     if (!porCombate.has(combate)) porCombate.set(combate, []);
     porCombate.get(combate)!.push({ ref: resolver(nombre, datos), nombre: '', cantidad: Math.max(1, num(f.cantidad, 1)) });
     if (f.notas && !datos) notas.set(combate, [notas.get(combate), f.notas].filter(Boolean).join(' '));
   }
-  const encuentros = [...porCombate].map(([nombre, enemigos], i) => ({ id: id(i), nombre, ...(notas.get(nombre) ? { notas: notas.get(nombre) } : {}), enemigos }));
+  const encuentros = [...porCombate].map(([nombre, enemigos], i) => ({ id: id(i), nombre, ...(notas.get(nombre) ? { notas: notas.get(nombre) } : {}), ...(vuelven.get(nombre) ? { vuelvenDe: vuelven.get(nombre) } : {}), enemigos }));
   return { nombre: base, encuentros, monstruos: nuevos, sinDatos };
 }
 
@@ -112,4 +120,23 @@ export function enemigosDe(e: Encuentro, monstruo: (ref: string) => Monstruo | n
       out.push({ id: `${Date.now().toString(36)}-${j}-${i}`, nombre: x.cantidad > 1 ? `${n} ${i + 1}` : n, ca: m.ca, pgMax: m.pg, pg: m.pg, bono: m.ini, ref: x.ref });
   });
   return out;
+}
+
+/** Los enemigos vivos (no aliados) de un combate que termina, para que puedan volver en otro combate de la sesión. */
+export const sobrevivientesDe = (monstruos: any[]): Sobreviviente[] => (monstruos || []).filter(m => !m.aliado && m.pg > 0)
+  .map(m => ({ nombre: m.nombre, ca: m.ca, pgMax: m.pgMax, pg: m.pg, bono: m.bono, ...(m.ref ? { ref: m.ref } : {}) }));
+
+/** Los sobrevivientes del combate del que vuelve `e`, listos para el combate (con id nuevo y los PG que tenían). */
+export function regresanA(e: Encuentro, encuentros: Encuentro[]) {
+  const de = e.vuelvenDe && encuentros.find(x => x.id !== e.id && norm(x.nombre) === norm(e.vuelvenDe!));
+  return (de ? de.sobrevivientes || [] : []).map((m, i) => ({ ...m, id: `${Date.now().toString(36)}-v${i}` }));
+}
+
+/** Al volver a importar una sesión, los combates que se reemplazan conservan su vínculo y sus sobrevivientes. */
+export function conservarVinculos(nuevos: Encuentro[], viejos: Encuentro[]) {
+  return nuevos.map(e => {
+    const v = viejos.find(x => norm(x.nombre) === norm(e.nombre));
+    // El vínculo del archivo manda; si no trae, se conserva el que se eligió en la app
+    return v ? { ...e, ...(!e.vuelvenDe && v.vuelvenDe ? { vuelvenDe: v.vuelvenDe } : {}), ...(v.sobrevivientes ? { sobrevivientes: v.sobrevivientes } : {}) } : e;
+  });
 }
