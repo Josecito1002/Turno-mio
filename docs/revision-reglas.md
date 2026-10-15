@@ -287,7 +287,7 @@ Dudosos: 0. Con tipo claro: 0. Ya revisados: 59.
 
 ### Revisados
 
-- [x] **Pugilismo**: `pasiva`. dado 1d8, 1d10, 1d12 y 2d6 en el cálculo; 2024. <!-- pugilista|pugilismo -->
+- [x] **Pugilismo**: `pasiva`. dado 1d8, 1d10, 1d12 y 2d6 en el cálculo; 2024; las armas sencillas cuerpo a cuerpo también usan el dado (2026-10-15). <!-- pugilista|pugilismo -->
 - [x] **Mentón de Hierro**: `pasiva`. CA 12 + CON también con armadura ligera, en el cálculo; 2024. <!-- pugilista|menton de hierro -->
 - [x] **Ensangrentado pero Invicto** (nivel 2): `reaccion`. pasa del nivel 3 al 2; 2024. <!-- pugilista|ensangrentado pero invicto -->
 - [x] **Determinación (Moxie)** (nivel 2): `pasiva`. Moxie de 2024: 2 a 12 puntos; Prepárate, Uno-Dos y Pegar y Moverse aparte; 2024. <!-- pugilista|determinacion (moxie) -->

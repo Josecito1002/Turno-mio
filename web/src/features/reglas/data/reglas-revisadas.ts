@@ -348,6 +348,8 @@ export const REGLAS: any[] = [
      La biblioteca ya trae la versión 2024 (scripts/datos/pugilista-2024.ts). Arena Royale y Matones Sabuesos
      solo existen en la versión de 2014 (Patreon) y se revisan con ella. */
   {de:/^pugilista$/, n:/^pugilismo/, t:'pasiva', dado: dadoPug,
+    // Las armas de pugilista (sencillas cuerpo a cuerpo) también usan el dado, sin armadura o con ligera y sin escudo
+    efecto: c => { if ((!c.armor || c.armor.cat === 'ligera') && !c.shield) { c.dadoArmasSencillas = dadoPug(c); c.rehacerArmas = true; } },
     texto: c => `Sin armadura o con armadura ligera, sin escudo, y peleando sin armas o con armas de pugilista (sencillas cuerpo a cuerpo e improvisadas), tus golpes sin armas hacen ${dadoPug(c)} en vez de su daño normal (ya en Ataques). Sube a 1d10 en nivel 5, 1d12 en 11 y 2d6 en 17. Las armas improvisadas tienen para ti la maestría Aturdir.`,
     opciones: [
       {nombre:'Golpe sin armas extra (Pugilismo)', t:'adicional', roll: golpeU,

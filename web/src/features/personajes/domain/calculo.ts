@@ -201,7 +201,7 @@ export function aplicarTextos(c){
     let mejor = c.dadoReglas || null;
     // Los rasgos con regla revisada no se leen: si cambian el dado, lo dicen con `dado`
     if (!mejor) c.entries.filter(e => (e.grupo === 'clase' || e.grupo === 'sub') && !e.revisada).forEach(e => {
-      String(e.texto).split(/(?<=[.;])\s+/).forEach(s => { const ns = norm(s); if (/desarmad|sin armas/.test(ns)) { const d = s.match(/\d+d\d+/); if (d && (!mejor || avgDado(d[0]) > avgDado(mejor))) mejor = d[0]; } });
+      String(e.texto).split(/(?<=[.;])\s+/).forEach(s => { const ns = norm(s); if (/desarmad|sin armas/.test(ns)) { const d = s.match(/(?<!\+\s*)\b\d+d\d+/); if (d && (!mejor || avgDado(d[0]) > avgDado(mejor))) mejor = d[0]; } });
     });
     if (mejor) { dadoClase = mejor; const uMod = m.fue; c.unarmed = {atk: c.pb + uMod, expr: `${mejor}${modStr(uMod)}`, dmg: `${mejor}${fmtMod(uMod)} contundente`}; }
   }
@@ -300,6 +300,7 @@ export function weaponRow(a, c){
   const atk = m[ab] + (prof ? c.pb : 0) + arq + bono;
   let dado = w.d;
   if (monkW) { const [nn, dd] = w.d.split('d').map(Number); if (nn === 1 && c.md > dd) dado = `1d${c.md}`; }
+  if (c.dadoArmasSencillas && !w.dist && w.cat === 'sencilla' && avgDado(c.dadoArmasSencillas) > avgDado(dado)) dado = c.dadoArmasSencillas;
   const dmgMod = m[ab] + bono + duelo;
   // De dónde sale cada bono, para el texto pequeño de la bandeja
   const partesAtk = [[m[ab], ab.toUpperCase()], [prof ? c.pb : 0, 'competencia'], [arq, 'Arquería'], [bono, 'arma mágica']];

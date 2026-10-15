@@ -188,6 +188,13 @@ describe('Pugilista 2024', () => {
   test('dado de Pugilismo: 1d8, 1d10 en 5, 1d12 en 11 y 2d6 en 17', () => {
     assert.deepEqual([1, 5, 11, 17].map(n => pj(P, n).unarmed.expr), ['1d8+2', '1d10+2', '1d12+2', '2d6+2']);
   });
+  test('armas de pugilista: las sencillas cuerpo a cuerpo usan el dado de Pugilismo, no con escudo ni las marciales', () => {
+    const armas = { armas: [['garrote', 1], ['espada_larga', 1], ['arco_corto', 1]] };
+    const dado = (c: any, k: string) => c.armas.find((a: any) => a.k === k).dado;
+    const c = pj(P, 5, '', {}, armas);
+    assert.deepEqual(['garrote', 'espada_larga', 'arco_corto'].map(k => dado(c, k)), ['1d10', '1d8', '1d6']);
+    assert.equal(dado(pj(P, 5, '', {}, { ...armas, escudo: true }), 'garrote'), '1d4');
+  });
   test('Mentón de Hierro: CA 12 + CON sin armadura o con armadura ligera, no con escudo', () => {
     assert.equal(pj(P, 1, '', { des: 10, con: 16 }).ac, 15);
     assert.equal(pj(P, 1, '', { des: 10, con: 16 }, { armadura: 'cuero' }).ac, 15);
@@ -1080,6 +1087,9 @@ describe('Paladín 2024 (Lote 15)', () => {
     assert.match(fila(pal(11, '', armas), 'espada_larga').dmg, /1d8 radiante/);
     assert.doesNotMatch(fila(pal(11, '', armas), 'arco_largo').expr, /1d8$/);
     assert.doesNotMatch(fila(pal(10, '', armas), 'espada_larga').expr, /\+1d8$/);
+  });
+  test('Castigo Divino no se toma como dado del golpe sin armas', () => {
+    assert.equal(pal(4).unarmed.expr, '4');
   });
   test('Esplendor del Genio: CA 10 + DES + CAR sin armadura y la habilidad elegida', () => {
     const c = pal(3, 'lib:genios-nobles', { elecciones: { 'esplendor-genio': 'persuasion' } });
