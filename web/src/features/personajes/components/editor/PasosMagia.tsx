@@ -99,7 +99,9 @@ export function ListaConjuros({ pj, c }: { pj: any; c: any }) {
   const nq = norm(q);
   // La lista de la clase, más las que abra una regla (Secretos Mágicos del bardo: clérigo, druida y mago)
   const listas = [listaDeConjuros(pj.clase, c.C) || c.listaSub, ...(c.listasExtra || [])].filter(Boolean) as string[];
-  const visibles = listas.length ? todosConjuros().filter(s => listas.some(l => conjuroDeLaLista(s, l)) && (!+s.nivel || +s.nivel <= c.nivelMax)) : [];
+  // Y los trucos de otra lista que da un estilo de combate (Guerrero bendito: clérigo; Guerrero druídico: druida)
+  const trucosDe: string[] = c.listasTrucos || [];
+  const visibles = listas.length || trucosDe.length ? todosConjuros().filter(s => (listas.some(l => conjuroDeLaLista(s, l)) && (!+s.nivel || +s.nivel <= c.nivelMax)) || (!+s.nivel && trucosDe.some(l => conjuroDeLaLista(s, l)))) : [];
   const niveles = [...new Set<number>(visibles.map(s => +s.nivel || 0))].sort((x, y) => x - y);
   return (
     <>
@@ -214,7 +216,9 @@ export function PasoDetalles({ pj }: { pj: any }) {
     <div className="mt-2 grid gap-3">
       <div className="grid gap-3 sm:grid-cols-2">
         <Campo etiqueta="Nombre del personaje"><CampoTexto path="nombre" value={pj.nombre} autoComplete="off" /></Campo>
-        <Campo etiqueta="Jugador"><CampoTexto path="jugador" value={pj.jugador} autoComplete="off" /></Campo>
+        {S.usuario && S.usuario.rol !== 'invitado'
+          ? <Campo etiqueta="Jugador" ayuda="Es tu nombre de jugador; se cambia en el menú, en Cuenta."><input value={S.usuario.nombre} readOnly className={claseCampo} /></Campo>
+          : <Campo etiqueta="Jugador"><CampoTexto path="jugador" value={pj.jugador} autoComplete="off" /></Campo>}
       </div>
       <Campo etiqueta="Alineamiento" className="max-w-sm">
         <Selector path="alineamiento" value={pj.alineamiento}><option value="">Elige…</option>{ALIN_OPC.map(a => <option key={a} value={a}>{a}</option>)}</Selector>

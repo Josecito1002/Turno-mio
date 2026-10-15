@@ -534,10 +534,19 @@ describe('Brujo 2024 (Lote 7)', () => {
     assert.equal(c.vision, 120);
     assert.ok(entrada(c, 'Armadura de Sombras'));
   });
-  test('Pacto del Filo: armas cuerpo a cuerpo con CAR y competencia', () => {
-    const c = bru(1, '', { fue: 10 }, { armas: [['espada_larga', 1]], ...inv('pacto-filo') });
-    assert.equal(c.armas[0].atk, c.pb + 3);
-    assert.equal(c.armas[0].notas.includes('Sin competencia'), false);
+  test('Pacto del Filo: solo el arma de pacto elegida usa CAR y da competencia', () => {
+    const filo = (arma: string) => ({ armas: [['espada_larga', 1], ['daga', 1]], elecciones: { invocaciones: ['pacto-filo'], 'arma-pacto': arma } });
+    const c = bru(1, '', { fue: 10, des: 10 }, filo('espada_larga'));
+    const fila = (k: string) => c.armas.find((a: any) => a.k === k);
+    assert.equal(fila('espada_larga').atk, c.pb + 3);
+    assert.equal(fila('espada_larga').notas.includes('Sin competencia'), false);
+    assert.equal(fila('daga').atk, c.pb);
+    assert.ok(c.elecciones.some((e: any) => e.id === 'arma-pacto'));
+    // Sin elegir, ninguna usa CAR; conjurada (no está en el inventario), sale aparte en Ataques
+    assert.equal(bru(1, '', { fue: 10 }, filo('')).armas[0].atk, 0);
+    const conjurada = bru(1, '', { fue: 10 }, filo('gran_hacha')).naturales.find((a: any) => a.k === 'gran_hacha');
+    assert.equal(conjurada?.atk, 2 + 3);
+    assert.match(conjurada?.nombre, /arma de pacto/);
   });
   test('Pacto de la Cadena como invocación activa el familiar', () => {
     assert.ok(bru(1, '', {}, inv('pacto-cadena')).chain);
@@ -1087,6 +1096,12 @@ describe('Paladín 2024 (Lote 15)', () => {
     assert.match(fila(pal(11, '', armas), 'espada_larga').dmg, /1d8 radiante/);
     assert.doesNotMatch(fila(pal(11, '', armas), 'arco_largo').expr, /1d8$/);
     assert.doesNotMatch(fila(pal(10, '', armas), 'espada_larga').expr, /\+1d8$/);
+  });
+  test('Guerrero bendito: dos trucos de clérigo', () => {
+    assert.equal(pal(2).trucosMax, 0);
+    const c = pal(2, '', { estilo: 'bendito' });
+    assert.equal(c.trucosMax, 2);
+    assert.deepEqual(c.listasTrucos, ['clerigo']);
   });
   test('Castigo Divino no se toma como dado del golpe sin armas', () => {
     assert.equal(pal(4).unarmed.expr, '4');

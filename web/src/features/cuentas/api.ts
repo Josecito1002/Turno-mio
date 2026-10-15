@@ -13,3 +13,7 @@ export const restablecerContrasena = (id: string) =>
 
 export const cambiarContrasena = (actual: string, nueva: string) =>
   gql<{ cambiarContrasena: boolean }>(`mutation ($actual: String!, $nueva: String!) { cambiarContrasena(actual: $actual, nueva: $nueva) }`, { actual, nueva });
+
+/** Cambia el nombre de jugador propio; devuelve el nombre como quedó guardado. */
+export const cambiarNombre = (nombre: string) =>
+  gql<{ cambiarNombre: { nombre: string } }>(`mutation ($nombre: String!) { cambiarNombre(nombre: $nombre) { nombre } }`, { nombre }).then(d => d.cambiarNombre.nombre);

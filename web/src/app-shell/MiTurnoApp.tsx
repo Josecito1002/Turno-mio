@@ -23,6 +23,7 @@ import { BibliotecaVista } from '@/features/biblioteca/components/BibliotecaVist
 import { MesaVista } from '@/features/mesa/components/MesaVista';
 import { CuentasVista } from '@/features/cuentas/components/CuentasVista';
 import { CambiarContrasena } from '@/features/cuentas/components/CambiarContrasena';
+import { CambiarNombre } from '@/features/cuentas/components/CambiarNombre';
 import { CompartirPersonaje, HojaAjena } from '@/features/personajes/components/Compartir';
 import { abrirEnlace, duplicarPj, hojaParaDuplicar } from '@/features/personajes/acciones-compartir';
 import { cerrarSesion } from '@/features/cuentas/server/acciones';
@@ -152,7 +153,7 @@ function ItemMenu({ icono, children, onClick, peligro, activo, extra }: { icono:
 const ICONO_SECCION: Record<string, string> = { home: 'groups', lib: 'auto_stories', mesa: 'swords', mesaj: 'groups', cuentas: 'manage_accounts' };
 const TituloMenu = ({ children }: { children: ReactNode }) => <p className="m-0 px-3 pb-1 pt-4 text-label-caps uppercase tracking-wider text-outline">{children}</p>;
 
-function MenuCompleto({ invitado, onCerrar, onClave, onCompartir }: { invitado: boolean; onCerrar: () => void; onClave: () => void; onCompartir: () => void }) {
+function MenuCompleto({ invitado, onCerrar, onClave, onNombre, onCompartir }: { invitado: boolean; onCerrar: () => void; onClave: () => void; onNombre: () => void; onCompartir: () => void }) {
   const hacer = (f: () => void) => () => { onCerrar(); f(); };
   const pj = S.pj, enFicha = S.view === 'ficha' && pj, enEditor = S.view === 'editor' && pj;
   const c = pj && (enFicha || enEditor) ? compute(pj) : null;
@@ -227,6 +228,7 @@ function MenuCompleto({ invitado, onCerrar, onClave, onCompartir }: { invitado: 
             <p className="m-0 flex items-center gap-2 px-3 pb-2 text-body-sm text-on-surface-variant" title={S.usuario.email}>
               {S.usuario.nombre}<span className="rounded-full bg-surface-container-high px-2 py-0.5 text-label-caps uppercase text-on-surface">{rol}</span>
             </p>
+            <ItemMenu icono="badge" onClick={hacer(onNombre)}>Cambiar mi nombre de jugador</ItemMenu>
             <ItemMenu icono="key" onClick={hacer(onClave)}>Cambiar mi contraseña</ItemMenu>
             <button type="submit" aria-label={`Cerrar sesión (${S.usuario.nombre})`}
               className={cx('flex min-h-11 w-full cursor-pointer items-center gap-3 rounded px-3 text-left text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface', foco)}>
@@ -244,6 +246,7 @@ function BarraSuperior({ invitado }: { invitado: boolean }) {
   const tirar = useDados();
   const [menu, setMenu] = useState(false);
   const [clave, setClave] = useState(false);
+  const [nombre, setNombre] = useState(false);
   const [compartir, setCompartir] = useState(false);
   const pj = S.pj, conPj = !!pj && (S.view === 'ficha' || S.view === 'editor');
   const listo = !!S.usuario && !S.cargando;
@@ -319,8 +322,12 @@ function BarraSuperior({ invitado }: { invitado: boolean }) {
         </div>
       </div>
       <Cajon abierto={menu} onCerrar={() => setMenu(false)}>
-        {menu && <MenuCompleto invitado={invitado} onCerrar={() => setMenu(false)} onClave={() => setClave(true)} onCompartir={() => setCompartir(true)} />}
+        {menu && <MenuCompleto invitado={invitado} onCerrar={() => setMenu(false)} onClave={() => setClave(true)} onNombre={() => setNombre(true)} onCompartir={() => setCompartir(true)} />}
       </Cajon>
+      <Dialogo abierto={nombre} onCerrar={() => setNombre(false)} titulo="Cambiar mi nombre de jugador"
+        descripcion="Es el nombre que ven en las mesas y el que va en el campo Jugador de tus hojas.">
+        {nombre && <CambiarNombre alTerminar={() => setNombre(false)} />}
+      </Dialogo>
       <Dialogo abierto={clave} onCerrar={() => setClave(false)} titulo="Cambiar mi contraseña"
         descripcion="Si el administrador te dio una contraseña temporal, cámbiala aquí.">
         <CambiarContrasena alTerminar={() => setClave(false)} />
