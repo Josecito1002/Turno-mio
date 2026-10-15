@@ -9,9 +9,10 @@ Mesa del DM → la campaña → pestaña **Sesión → Importar info de sesión*
 - los enemigos que no están en el bestiario de la app (Manual de Monstruos 2025) se guardan en el bestiario de esa
   campaña con los datos que traiga el archivo;
 - si se vuelve a importar un combate con el mismo nombre, se reemplaza.
-- un combate con `vuelvenDe` (el nombre de otro combate de la sesión) queda vinculado solo: los enemigos que quedaron
-  vivos al terminar ese otro (o que el DM quitó vivos durante él) entran a este con los PG que tenían. También se puede
-  elegir o cambiar en la app, en la tarjeta del combate ("Enemigos que vuelven de otro combate").
+- un combate con `vuelvenDe` (la lista de otros combates de la sesión) queda vinculado solo: los enemigos que quedaron
+  vivos al terminar cada uno de esos combates (o que el DM quitó vivos durante él) entran a este con los PG que tenían.
+  Un enemigo que ya volvió en otro combate no entra dos veces. También se puede elegir o cambiar en la app, en la
+  tarjeta del combate ("Enemigos que vuelven de otro combate"), que muestra de qué combate viene cada uno.
 
 Al final de la sesión, **Exportar → Descargar datos completos** da el estado de la campaña y de las hojas para seguir
 con la siguiente.
@@ -39,7 +40,7 @@ la app, sin importar mayúsculas ni acentos. Si no aparece, se crea uno propio d
     },
     {
       "nombre": "Combate 2: La bruja del faro",
-      "vuelvenDe": "Combate 1: Emboscada en el muelle",
+      "vuelvenDe": ["Combate 1: Emboscada en el muelle"],
       "enemigos": [
         { "monstruo": "Bruja del faro", "ca": 15, "pg": 82, "iniciativa": 3, "cr": "5" }
       ]
@@ -63,8 +64,9 @@ la app, sin importar mayúsculas ni acentos. Si no aparece, se crea uno propio d
 }
 ```
 
-Campos de un combate en `combates`: `nombre`, `notas`, `enemigos` y, opcional, `vuelvenDe` (el nombre exacto de otro
-combate de la sesión cuyos enemigos vivos se suman a este; para los que huyen, desaparecen o no se encuentran).
+Campos de un combate en `combates`: `nombre`, `notas`, `enemigos` y, opcional, `vuelvenDe` (lista con el nombre exacto de
+otros combates de la sesión cuyos enemigos vivos se suman a este; para los que huyen, desaparecen o no se encuentran;
+p. ej. `"vuelvenDe": ["Laberinto de Tiris", "Huida del pueblo"]`. Un solo nombre sin lista también vale).
 
 Campos de un enemigo en `combates[].enemigos`: `monstruo` (nombre o clave, obligatorio), `cantidad` (1 si falta),
 `alias` (nombre a mostrar, p. ej. "Guardia del faro"), y para uno que no está en ningún bestiario sin bloque en
@@ -79,7 +81,8 @@ Campos de un bloque en `monstruos` (todos opcionales salvo `n`): `n`, `tam`, `ti
 ## CSV (para listas sencillas)
 
 Una fila por enemigo; separado por coma o punto y coma. Columnas: `combate`, `enemigo`, `cantidad`, `ca`, `pg`,
-`iniciativa`, `cr`, `notas` y, opcional, `vuelvenDe` (como en JSON; basta en una fila del combate). Las filas con el
+`iniciativa`, `cr`, `notas` y, opcional, `vuelvenDe` (como en JSON; varios combates se separan con `|`,
+p. ej. `Laberinto de Tiris | Huida del pueblo`, o se reparten en varias filas del mismo combate). Las filas con el
 mismo `combate` van juntas. `ca`, `pg` e `iniciativa` solo hacen falta
 para enemigos que no están en el bestiario de la app. El nombre del archivo es el nombre de la sesión.
 

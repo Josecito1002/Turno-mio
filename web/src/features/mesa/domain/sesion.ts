@@ -9,10 +9,18 @@ import type { Monstruo } from '@/features/reglas/data/bestiario';
 
 export type EnemigoEncuentro = { ref: string; nombre: string; cantidad: number };
 /** Un enemigo que quedó vivo al terminar un combate de la sesión, con los PG que tenía. */
-export type Sobreviviente = { nombre: string; ca: number; pgMax: number; pg: number; bono: number; ref?: string };
-/** `vuelvenDe`: nombre del combate anterior cuyos sobrevivientes entran a este (lo elige el DM en la app; no viene en el
-    archivo). `sobrevivientes`: los que quedaron vivos la última vez que terminó este combate. */
-export type Encuentro = { id: string; nombre: string; notas?: string; enemigos: EnemigoEncuentro[]; vuelvenDe?: string; sobrevivientes?: Sobreviviente[] };
+/** `volvioEn`: id del combate al que ya entró, para que no vuelva otra vez en otro. */
+export type Sobreviviente = { nombre: string; ca: number; pgMax: number; pg: number; bono: number; ref?: string; volvioEn?: string };
+/** `vuelvenDe`: nombres de los combates anteriores cuyos sobrevivientes entran a este (viene en el archivo o lo elige el
+    DM en la app; los datos viejos lo tienen como un solo nombre). `sobrevivientes`: los que quedaron vivos la última vez
+    que terminó este combate. */
+export type Encuentro = { id: string; nombre: string; notas?: string; enemigos: EnemigoEncuentro[]; vuelvenDe?: string | string[]; sobrevivientes?: Sobreviviente[] };
+
+/** Los nombres de los combates de los que vuelve `e`, sin repetir (acepta un nombre, una lista, o "A | B"). */
+export const origenesDe = (v: unknown): string[] => {
+  const lista = (Array.isArray(v) ? v : [v]).flatMap(x => typeof x === 'string' ? x.split('|') : []).map(x => x.trim()).filter(Boolean);
+  return lista.filter((x, i) => lista.findIndex(y => norm(y) === norm(x)) === i);
+};
 export type Sesion = { nombre: string; notas?: string; encuentros: Encuentro[]; monstruos: Record<string, Monstruo>; sinDatos: string[] };
 
 export const claveMonstruo = (s: string) => norm(s).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'monstruo';
@@ -63,7 +71,6 @@ export function leerCsv(texto: string): Record<string, string>[] {
   return lineas.slice(1).map(l => { const v = partir(l); return Object.fromEntries(cab.map((h, i) => [h, v[i] ?? ''])); });
 }
 
-const texto1 = (v: unknown) => typeof v === 'string' ? v.trim() : '';
 
 /** Lee el archivo (JSON o CSV) y arma la sesión, buscando cada enemigo en el bestiario de la app y en el de la campaña. */
 export function leerSesion(texto: string, nombreArchivo: string, catalogo: Record<string, Monstruo>, propios: Record<string, Monstruo> = {}): Sesion {
@@ -86,7 +93,7 @@ export function leerSesion(texto: string, nombreArchivo: string, catalogo: Recor
     for (const [k, m] of Object.entries<any>(d.monstruos || {})) nuevos[claveMonstruo(k)] = monstruoPropio(m);
     const encuentros = (d.combates || d.encuentros || []).map((c: any, i: number) => ({
       id: id(i), nombre: c.nombre || `Combate ${i + 1}`, ...(c.notas ? { notas: c.notas } : {}),
-      ...(texto1(c.vuelvenDe ?? c.vuelveDe ?? c.vuelven_de) ? { vuelvenDe: texto1(c.vuelvenDe ?? c.vuelveDe ?? c.vuelven_de) } : {}),
+      ...(origenesDe(c.vuelvenDe ?? c.vuelveDe ?? c.vuelven_de).length ? { vuelvenDe: origenesDe(c.vuelvenDe ?? c.vuelveDe ?? c.vuelven_de) } : {}),
       enemigos: (c.enemigos || []).map((e: any) => {
         const nombre = e.monstruo || e.nombre || 'Enemigo';
         const datos = e.datos || (e.ca != null || e.pg != null ? { ca: e.ca, pg: e.pg, ini: e.iniciativa ?? e.ini, cr: e.cr } : null);
@@ -96,17 +103,18 @@ export function leerSesion(texto: string, nombreArchivo: string, catalogo: Recor
     return { nombre: d.sesion || d.nombre || base, notas: d.notas, encuentros, monstruos: nuevos, sinDatos };
   }
 
-  const filas = leerCsv(texto), porCombate = new Map<string, EnemigoEncuentro[]>(), notas = new Map<string, string>(), vuelven = new Map<string, string>();
+  const filas = leerCsv(texto), porCombate = new Map<string, EnemigoEncuentro[]>(), notas = new Map<string, string>(), vuelven = new Map<string, string[]>();
   for (const f of filas) {
     const nombre = f.enemigo || f.monstruo || f.nombre; if (!nombre) continue;
     const combate = f.combate || f.encuentro || 'Combate 1';
-    if (f.vuelvende || f.vuelvede) vuelven.set(combate, f.vuelvende || f.vuelvede);
+    // Varias filas del combate pueden nombrar distintos combates, y una celda varios separados con |
+    if (f.vuelvende || f.vuelvede) vuelven.set(combate, origenesDe([...(vuelven.get(combate) || []), f.vuelvende || f.vuelvede]));
     const datos = f.ca || f.pg ? { ca: f.ca, pg: f.pg, ini: f.iniciativa, cr: f.cr || undefined, texto: f.notas || undefined } : null;
     if (!porCombate.has(combate)) porCombate.set(combate, []);
     porCombate.get(combate)!.push({ ref: resolver(nombre, datos), nombre: '', cantidad: Math.max(1, num(f.cantidad, 1)) });
     if (f.notas && !datos) notas.set(combate, [notas.get(combate), f.notas].filter(Boolean).join(' '));
   }
-  const encuentros = [...porCombate].map(([nombre, enemigos], i) => ({ id: id(i), nombre, ...(notas.get(nombre) ? { notas: notas.get(nombre) } : {}), ...(vuelven.get(nombre) ? { vuelvenDe: vuelven.get(nombre) } : {}), enemigos }));
+  const encuentros = [...porCombate].map(([nombre, enemigos], i) => ({ id: id(i), nombre, ...(notas.get(nombre) ? { notas: notas.get(nombre) } : {}), ...(vuelven.get(nombre)?.length ? { vuelvenDe: vuelven.get(nombre) } : {}), enemigos }));
   return { nombre: base, encuentros, monstruos: nuevos, sinDatos };
 }
 
@@ -126,10 +134,25 @@ export function enemigosDe(e: Encuentro, monstruo: (ref: string) => Monstruo | n
 export const sobrevivientesDe = (monstruos: any[]): Sobreviviente[] => (monstruos || []).filter(m => !m.aliado && m.pg > 0)
   .map(m => ({ nombre: m.nombre, ca: m.ca, pgMax: m.pgMax, pg: m.pg, bono: m.bono, ...(m.ref ? { ref: m.ref } : {}) }));
 
-/** Los sobrevivientes del combate del que vuelve `e`, listos para el combate (con id nuevo y los PG que tenían). */
+/** Los combates de la sesión de los que vuelve `e`, en el orden en que los nombra. */
+export const combatesOrigen = (e: Encuentro, encuentros: Encuentro[]) =>
+  origenesDe(e.vuelvenDe).map(n => encuentros.find(x => x.id !== e.id && norm(x.nombre) === norm(n))).filter(Boolean) as Encuentro[];
+
+/** Los sobrevivientes que pueden volver de un combate a `e`: no los que ya entraron a otro combate. */
+export const puedenVolver = (de: Encuentro, e: Encuentro) => (de.sobrevivientes || []).filter(m => !m.volvioEn || m.volvioEn === e.id);
+
+/** Los sobrevivientes de los combates de los que vuelve `e`, listos para el combate (con id nuevo, los PG que tenían y
+    de dónde vienen). */
 export function regresanA(e: Encuentro, encuentros: Encuentro[]) {
-  const de = e.vuelvenDe && encuentros.find(x => x.id !== e.id && norm(x.nombre) === norm(e.vuelvenDe!));
-  return (de ? de.sobrevivientes || [] : []).map((m, i) => ({ ...m, id: `${Date.now().toString(36)}-v${i}` }));
+  return combatesOrigen(e, encuentros).flatMap((de, j) => puedenVolver(de, e).map((m, i) => {
+    const { volvioEn: _v, ...resto } = m; void _v;
+    return { ...resto, id: `${Date.now().toString(36)}-v${j}-${i}`, vieneDe: de.nombre };
+  }));
+}
+
+/** Marca a los que entraron a `e` para que no vuelvan también en otro combate de la cadena. */
+export function marcarRegresados(e: Encuentro, encuentros: Encuentro[]) {
+  for (const de of combatesOrigen(e, encuentros)) for (const m of puedenVolver(de, e)) m.volvioEn = e.id;
 }
 
 /** Al volver a importar una sesión, los combates que se reemplazan conservan su vínculo y sus sobrevivientes. */

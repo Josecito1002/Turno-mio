@@ -1,6 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { conservarVinculos, enemigosDe, leerSesion, regresanA, sobrevivientesDe } from './sesion';
+import { conservarVinculos, enemigosDe, leerSesion, marcarRegresados, regresanA, sobrevivientesDe } from './sesion';
 import { BESTIARIO_GENERADO as CAT } from '@/features/reglas/data/generadas/bestiario';
 
 describe('Info sesión (Mesa del DM)', () => {
@@ -55,6 +55,19 @@ describe('Combates vinculados de la sesión', () => {
     const viejos = [base('Final', { vuelvenDe: 'Bosque', sobrevivientes: [] })];
     assert.equal(conservarVinculos([base('final')], viejos)[0].vuelvenDe, 'Bosque');
   });
+  test('un combate recibe de varios combates, y quien ya volvió no entra dos veces', () => {
+    const s1 = (nombre: string) => ({ nombre, ca: 12, pgMax: 20, pg: 8, bono: 0 });
+    const enc = [
+      base('Laberinto', { sobrevivientes: [s1('Tiris')] }),
+      base('Pueblo', { sobrevivientes: [s1('Oren'), s1('Maddock')] }),
+      base('Cueva', { vuelvenDe: 'Pueblo' }),
+      base('Final', { vuelvenDe: ['laberinto', 'Pueblo'] }),
+    ];
+    assert.deepEqual(regresanA(enc[3], enc).map(m => [m.nombre, m.vieneDe]), [['Tiris', 'Laberinto'], ['Oren', 'Pueblo'], ['Maddock', 'Pueblo']]);
+    marcarRegresados(enc[2], enc);
+    assert.deepEqual(regresanA(enc[3], enc).map(m => m.nombre), ['Tiris']);
+    assert.deepEqual(regresanA(enc[2], enc).map(m => m.nombre), ['Oren', 'Maddock']);
+  });
 });
 
 describe('Combates vinculados desde el archivo', () => {
@@ -63,9 +76,17 @@ describe('Combates vinculados desde el archivo', () => {
       { nombre: 'Bosque', enemigos: [{ monstruo: 'Goblin Warrior' }] },
       { nombre: 'Final', vuelvenDe: 'Bosque', enemigos: [{ monstruo: 'Goblin Boss' }] },
     ] }), 's.json', CAT);
-    assert.deepEqual(j.encuentros.map(e => e.vuelvenDe), [undefined, 'Bosque']);
+    assert.deepEqual(j.encuentros.map(e => e.vuelvenDe), [undefined, ['Bosque']]);
     const c = leerSesion('combate;enemigo;cantidad;vuelvenDe\nBosque;Goblin Warrior;2;\nFinal;Goblin Boss;1;Bosque\n', 's.csv', CAT);
-    assert.equal(c.encuentros.find(e => e.nombre === 'Final')?.vuelvenDe, 'Bosque');
+    assert.deepEqual(c.encuentros.find(e => e.nombre === 'Final')?.vuelvenDe, ['Bosque']);
+  });
+  test('JSON y CSV: "vuelvenDe" admite varios combates', () => {
+    const j = leerSesion(JSON.stringify({ combates: [
+      { nombre: 'Final', vuelvenDe: ['Bosque', 'Pueblo', 'bosque'], enemigos: [{ monstruo: 'Goblin Boss' }] },
+    ] }), 's.json', CAT);
+    assert.deepEqual(j.encuentros[0].vuelvenDe, ['Bosque', 'Pueblo']);
+    const c = leerSesion('combate;enemigo;cantidad;vuelvenDe\nFinal;Goblin Boss;1;Bosque | Pueblo\nFinal;Goblin Warrior;2;Cueva\n', 's.csv', CAT);
+    assert.deepEqual(c.encuentros[0].vuelvenDe, ['Bosque', 'Pueblo', 'Cueva']);
   });
   test('al reimportar, el vínculo del archivo manda sobre el elegido en la app', () => {
     const viejo = [{ id: 'x', nombre: 'Final', enemigos: [], vuelvenDe: 'Otro' }];
