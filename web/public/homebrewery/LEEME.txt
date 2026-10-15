@@ -1,3 +1,3 @@
 Tema V3 «5e PHB» de The Homebrewery (https://github.com/naturalcrit/homebrewery, licencia MIT), compilado, y sus
 tipografías (fonts/5e de Solbera y otros, CC BY-SA 4.0; fonts/Blank TeX Gyre Pagella, licencia GUST).
-La Mesa del DM los usa para medir las páginas de una guía antes de subirla a Homebrewery.
+Incluye los fondos y bordes del tema (assets/). La Mesa del DM los usa para maquetar las guías, sacar su PDF y subirlas.

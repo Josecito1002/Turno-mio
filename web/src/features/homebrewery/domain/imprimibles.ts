@@ -92,7 +92,7 @@ main { max-width: 19cm; margin: 0 auto; padding: 16px; }
 .doc { break-inside: avoid; page-break-inside: avoid; margin: 0 0 0.9cm; }
 .nombre { margin: 0 0 4px; font-family: MrEaves, Georgia, serif; font-size: 13px; letter-spacing: .04em; color: #6d6455; }
 .hoja { padding: 1.1cm 1.3cm; border: 1px dashed #8a7d68; font-size: 15px; line-height: 1.45;
-  background: #f4ead2 url('https://homebrewery.naturalcrit.com/assets/parchmentBackground.jpg') center / cover;
+  background: #f4ead2 url('${origen}/homebrewery/assets/parchmentBackground.jpg') center / cover;
   -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .hoja p { margin: 0 0 .55em; }
 .hoja p:last-child { margin-bottom: 0; }

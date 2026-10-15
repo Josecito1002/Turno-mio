@@ -7,6 +7,7 @@ import { paginar } from '../domain/paginar';
 import { extraerEntregables, paginaImprimibles } from '../domain/imprimibles';
 import { tituloDe } from '../domain/brew';
 import { crearMedidor } from '../client/medidor';
+import { paginaPdf, ventanaNueva } from '../client/pdf';
 
 type Guia = {
   archivo: string; texto: string; titulo: string;
@@ -40,11 +41,12 @@ function descargar(nombre: string, texto: string) {
 }
 
 function abrirImprimibles(g: Guia) {
-  const html = paginaImprimibles(g.titulo, extraerEntregables(g.texto), location.origin);
-  const url = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
-  if (!window.open(url, '_blank')) avisar('El navegador bloqueó la ventana nueva: permite las ventanas emergentes para esta página.', 'aviso');
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  const v = ventanaNueva();
+  if (!v) return avisar('El navegador bloqueó la ventana nueva: permite las ventanas emergentes para esta página.', 'aviso');
+  v.mostrar(paginaImprimibles(g.titulo, extraerEntregables(g.texto), location.origin));
 }
+
+const enlaceBoton = 'inline-flex min-h-11 items-center justify-center rounded-xl px-3 text-center text-sm font-bold ring-1 ring-inset ring-rule hover:bg-soft sm:min-h-9';
 
 const nombreTxt = (archivo: string) => archivo.replace(/\.(md|txt|markdown)$/i, '') + '.homebrewery.txt';
 
@@ -109,15 +111,40 @@ export function SubirHomebrewery() {
     avisar(bien === lista.length ? `${bien} guía${bien === 1 ? '' : 's'} en Homebrewery.` : `Subidas ${bien} de ${lista.length}.`, bien === lista.length ? undefined : 'aviso');
   };
 
-  const soloMaquetar = async (i: number) => {
-    const lista = await maquetar(guias.map((g, j) => (j === i ? g : { ...g, lista: true })));
+  /** El texto ya maquetado de una guía (lo maqueta si hace falta). */
+  const brewDe = async (i: number) => {
+    const g = guias[i];
+    if (g.lista) return g.texto;
+    if (g.brew) return g.brew;
+    const lista = await maquetar(guias.map((x, j) => (j === i ? x : { ...x, lista: true })));
     setOcupado('');
-    const brew = lista[i].brew;
+    return lista[i].brew;
+  };
+
+  const pdf = async (i: number) => {
+    const v = ventanaNueva();
+    if (!v) return avisar('El navegador bloqueó la ventana nueva: permite las ventanas emergentes para esta página.', 'aviso');
+    try {
+      const brew = await brewDe(i);
+      if (!brew) { v.cerrar(); return; }
+      setOcupado(`Preparando el PDF de ${guias[i].titulo}…`);
+      v.mostrar(await paginaPdf(brew, guias[i].titulo));
+    } catch (e) {
+      console.error('[homebrewery] pdf', e);
+      v.cerrar();
+      avisar('No se pudo preparar el PDF.', 'aviso');
+    } finally {
+      setOcupado('');
+    }
+  };
+
+  const txt = async (i: number) => {
+    const brew = await brewDe(i);
     if (brew) descargar(nombreTxt(guias[i].archivo), brew);
   };
 
   return (
-    <Seccion titulo="Guías de sesión" descripcion="Elige la guía (.md) y la app la maqueta como un manual, la sube a homebrewery.naturalcrit.com y saca los documentos para entregar listos para imprimir. También acepta los .txt ya maquetados.">
+    <Seccion titulo="Guías de sesión" descripcion="Elige la guía (.md, o el .txt ya maquetado) y la app la maqueta como un manual: descárgala en PDF, imprime los documentos para entregar o súbela a homebrewery.naturalcrit.com.">
       <div className="grid gap-3">
         <Campo etiqueta="Guías (.md o .txt)" ayuda="Puedes elegir varias a la vez.">
           <input type="file" accept=".md,.markdown,.txt,text/plain,text/markdown" multiple className={claseCampo} disabled={!!ocupado}
@@ -126,17 +153,22 @@ export function SubirHomebrewery() {
         {guias.length > 0 && (
           <Lista etiqueta="Guías elegidas">
             {guias.map((g, i) => (
-              <Fila key={g.archivo}>
-                <span className="grid min-w-0 gap-1">
+              <Fila key={g.archivo} className="grid justify-stretch gap-2 py-3">
+                <span className="grid min-w-0 gap-0.5">
                   <b className="[overflow-wrap:anywhere]">{g.titulo}</b>
-                  {g.error && <Aviso tipo="error" titulo="No se pudo">{g.error}</Aviso>}
+                  <span className="text-sm text-muted">
+                    {g.lista ? 'Ya maquetada' : 'Guía en Markdown: se maqueta al usarla'}
+                    {g.entregables > 0 && ` · ${g.entregables} documento${g.entregables === 1 ? '' : 's'} para entregar`}
+                  </span>
                 </span>
-                <span className="flex flex-wrap items-center gap-2">
-                  {g.leer && <a className="font-bold underline" href={g.editar} target="_blank" rel="noreferrer">Editar</a>}
-                  {g.leer && <a className="font-bold underline" href={g.leer} target="_blank" rel="noreferrer">Leer</a>}
+                {g.error && <Aviso tipo="error" titulo="No se pudo">{g.error}</Aviso>}
+                <span className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+                  <Boton tamano="sm" disabled={!!ocupado} onClick={() => pdf(i)}>Descargar PDF</Boton>
+                  {g.entregables > 0 && <Boton tamano="sm" onClick={() => abrirImprimibles(g)}>Imprimibles</Boton>}
+                  {!g.lista && <Boton tamano="sm" disabled={!!ocupado} onClick={() => txt(i)}>Descargar .txt</Boton>}
+                  {g.leer && <a className={enlaceBoton} href={g.leer} target="_blank" rel="noreferrer">Leer en Homebrewery</a>}
+                  {g.editar && <a className={enlaceBoton} href={g.editar} target="_blank" rel="noreferrer">Editar en Homebrewery</a>}
                   {g.leer && <Boton tamano="sm" variante="fantasma" onClick={() => copiar(g.leer!)}>Copiar enlace</Boton>}
-                  {g.entregables > 0 && <Boton tamano="sm" variante="secundario" onClick={() => abrirImprimibles(g)}>Imprimibles ({g.entregables})</Boton>}
-                  {!g.lista && <Boton tamano="sm" variante="fantasma" disabled={!!ocupado} onClick={() => (g.brew ? descargar(nombreTxt(g.archivo), g.brew) : soloMaquetar(i))}>Descargar .txt</Boton>}
                 </span>
               </Fila>
             ))}
@@ -151,7 +183,7 @@ export function SubirHomebrewery() {
             {ocupado || (guias.length > 1 ? `Subir ${guias.length} guías a Homebrewery` : 'Subir a Homebrewery')}
           </Boton>
         </div>
-        {guias.some((g) => g.leer) && <Nota>Guarda los enlaces: cada subida crea una copia nueva y Homebrewery no la borra sola. «Editar» es solo para ti. Para el PDF, abre «Leer» y pulsa «Get PDF» arriba.</Nota>}
+        {guias.some((g) => g.leer) && <Nota>Guarda los enlaces: cada subida crea una copia nueva y Homebrewery no la borra sola. «Editar» es solo para ti.</Nota>}
       </div>
     </Seccion>
   );
