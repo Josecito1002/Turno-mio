@@ -159,6 +159,8 @@ export function compute(pj): any {
   c.passive = 10 + c.skill['percepcion']; // una regla pudo dar competencia en Percepción
   // Competencias que dan los rasgos (especie, subclase, dotes); si cambian las de armas, las filas de ataque se recalculan
   if (leerCompetencias(c) || c.rehacerArmas) c.armas = filasArmas(c);
+  // El arma de pacto conjurada que no está en el inventario sale igual en Ataques, siempre a mano
+  if (c.armaPacto && !(pj.armas || []).some(([k]) => k === c.armaPacto)) c.ataquesReglas.push({...weaponRow({k: c.armaPacto, q: 1, i: -1}, c), nombre: `${ARMAS[c.armaPacto].n} (arma de pacto)`});
   c.sinCompArmadura = !!c.armor && !c.compArm[c.armor.cat];
   c.sinCompEscudo = c.shield && !c.compArm.escudo;
   c.recursos = buildRecursos(c);
@@ -176,6 +178,9 @@ export function compute(pj): any {
   // Las clases de biblioteca no traen estos límites; una regla revisada puede darlos (c.trucosReglas, c.prepReglas)
   c.trucosMax = conLimite ? trucosN(pj.clase, lvl) : (c.trucosReglas ?? null);
   c.prepMax = conLimite ? prepN(pj.clase, lvl) : (c.prepReglas ?? null);
+  // Guerrero bendito (paladín) y Guerrero druídico (explorador): dos trucos de clérigo o de druida que cuentan como de la clase
+  c.listasTrucos = [...(estilo('bendito') ? ['clerigo'] : []), ...(estilo('druidico') ? ['druida'] : [])];
+  if (c.listasTrucos.length) c.trucosMax = (c.trucosMax || 0) + 2 * c.listasTrucos.length;
   c.trucosUsados = (pj.conjuros || []).filter(s => !+s.nivel && !c.esExtra(s)).length;
   c.prepUsados = (pj.conjuros || []).filter(s => +s.nivel > 0 && !c.esExtra(s)).length;
   aplicarTextos(c);
@@ -201,7 +206,7 @@ export function aplicarTextos(c){
     let mejor = c.dadoReglas || null;
     // Los rasgos con regla revisada no se leen: si cambian el dado, lo dicen con `dado`
     if (!mejor) c.entries.filter(e => (e.grupo === 'clase' || e.grupo === 'sub') && !e.revisada).forEach(e => {
-      String(e.texto).split(/(?<=[.;])\s+/).forEach(s => { const ns = norm(s); if (/desarmad|sin armas/.test(ns)) { const d = s.match(/\d+d\d+/); if (d && (!mejor || avgDado(d[0]) > avgDado(mejor))) mejor = d[0]; } });
+      String(e.texto).split(/(?<=[.;])\s+/).forEach(s => { const ns = norm(s); if (/desarmad|sin armas/.test(ns)) { const d = s.match(/(?<!\+\s*)\b\d+d\d+/); if (d && (!mejor || avgDado(d[0]) > avgDado(mejor))) mejor = d[0]; } });
     });
     if (mejor) { dadoClase = mejor; const uMod = m.fue; c.unarmed = {atk: c.pb + uMod, expr: `${mejor}${modStr(uMod)}`, dmg: `${mejor}${fmtMod(uMod)} contundente`}; }
   }
@@ -293,13 +298,14 @@ export function weaponRow(a, c){
   // Armas que pueden atacar con CAR (arma de pacto del Pacto del Filo, Guerrero Maleficio); `c.usaCar(w)` lo pone una regla
   const conCar = !!c.usaCar?.(w);
   if (conCar && m.car > m[ab]) ab = 'car';
-  const prof = competenteArma(c, a.k) || (c.pactoFilo && !w.dist);
+  const prof = competenteArma(c, a.k) || (!!c.armaPacto && a.k === c.armaPacto);
   // Bono de arma mágica (+1, +2, +3); no suma si su objeto pide sintonización y no la tiene
   const bono = c.armasInactivas?.has(a.k) ? 0 : +w.bono || 0;
   const arq = c.tieneEstilo('arqueria') && w.dist ? 2 : 0, duelo = c.tieneEstilo('duelo') && !w.dist && !w.p.includes('dos manos') ? 2 : 0;
   const atk = m[ab] + (prof ? c.pb : 0) + arq + bono;
   let dado = w.d;
   if (monkW) { const [nn, dd] = w.d.split('d').map(Number); if (nn === 1 && c.md > dd) dado = `1d${c.md}`; }
+  if (c.dadoArmasSencillas && !w.dist && w.cat === 'sencilla' && avgDado(c.dadoArmasSencillas) > avgDado(dado)) dado = c.dadoArmasSencillas;
   const dmgMod = m[ab] + bono + duelo;
   // De dónde sale cada bono, para el texto pequeño de la bandeja
   const partesAtk = [[m[ab], ab.toUpperCase()], [prof ? c.pb : 0, 'competencia'], [arq, 'Arquería'], [bono, 'arma mágica']];
@@ -312,7 +318,7 @@ export function weaponRow(a, c){
   if (!prof) notas.push('Sin competencia');
   if (w.danoExtra && !c.armasInactivas?.has(a.k)) notas.push(`Suma ${w.danoExtra} al daño`);
   if (c.armasInactivas?.has(a.k)) notas.push('Sin sintonizar: no suma su magia');
-  if (conCar) notas.push(c.pactoFilo && !w.dist ? 'Como arma de pacto usa CAR si es mayor' : 'Si es tu arma de Guerrero Maleficio, usa CAR si es mayor');
+  if (conCar) notas.push(a.k === c.armaPacto ? 'Arma de pacto: usa CAR si es mayor; su daño puede ser necrótico, psíquico o radiante' : 'Si es tu arma de Guerrero Maleficio, usa CAR si es mayor');
   let maestria = null;
   // Maestrías de la clase, más las que dan dotes como Maestro de Armas (c.maestriasExtra)
   if (w.ma && ((c.hasMastery && (pj.maestrias || []).includes(a.k)) || c.maestriasExtra?.has(a.k))) {

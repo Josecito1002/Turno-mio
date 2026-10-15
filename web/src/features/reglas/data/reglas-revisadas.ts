@@ -348,6 +348,8 @@ export const REGLAS: any[] = [
      La biblioteca ya trae la versión 2024 (scripts/datos/pugilista-2024.ts). Arena Royale y Matones Sabuesos
      solo existen en la versión de 2014 (Patreon) y se revisan con ella. */
   {de:/^pugilista$/, n:/^pugilismo/, t:'pasiva', dado: dadoPug,
+    // Las armas de pugilista (sencillas cuerpo a cuerpo) también usan el dado, sin armadura o con ligera y sin escudo
+    efecto: c => { if ((!c.armor || c.armor.cat === 'ligera') && !c.shield) { c.dadoArmasSencillas = dadoPug(c); c.rehacerArmas = true; } },
     texto: c => `Sin armadura o con armadura ligera, sin escudo, y peleando sin armas o con armas de pugilista (sencillas cuerpo a cuerpo e improvisadas), tus golpes sin armas hacen ${dadoPug(c)} en vez de su daño normal (ya en Ataques). Sube a 1d10 en nivel 5, 1d12 en 11 y 2d6 en 17. Las armas improvisadas tienen para ti la maestría Aturdir.`,
     opciones: [
       {nombre:'Golpe sin armas extra (Pugilismo)', t:'adicional', roll: golpeU,
@@ -948,14 +950,23 @@ export const REGLAS: any[] = [
   /* ---------- Brujo (Lote 7: Manual del Jugador 2024, No Muerto de Ravenloft: The Horrors Within 2026, Vestigio de Arcana Unleashed 2026) ----------
      Rasgos y textos en la biblioteca (scripts/datos/brujo-2024.ts); aquí los selectores, los números y lo que va al cálculo. */
   {de:/^brujo$/, n:/^invocaciones sobrenaturales/, t:'pasiva',
-    eleccion: {id:'invocaciones', titulo:'Invocaciones Sobrenaturales', max: c => INVOCACIONES[c.lvl - 1],
+    eleccion: [{id:'invocaciones', titulo:'Invocaciones Sobrenaturales', max: c => INVOCACIONES[c.lvl - 1],
       opciones: INVOC.map(i => ({key: i.key, nombre: i.n, nivel: i.nivel, requiere: i.req,
         ...(i.key === 'pacto-cadena' ? {desc: 'Acción. Lanzas Encontrar familiar como acción mágica sin gastar espacio, con formas especiales (diablillo, pseudodragón, quasit, esqueleto...).'} : {})}))},
+      // Pacto del Filo: solo el arma de pacto usa CAR y da competencia. Puede ser cualquier arma cuerpo a cuerpo que conjures, o una mágica tuya a la que te vincules
+      {id:'arma-pacto', titulo:'Arma de pacto', si: c => invocaciones(c).includes('pacto-filo'),
+        opciones: c => [...new Set([...Object.keys(ARMAS).filter(k => !k.includes(':')), ...(c.pj.armas || []).map(([k]) => k)])]
+          .filter(k => ARMAS[k] && !ARMAS[k].dist && (ARMAS[k].cat === 'sencilla' || ARMAS[k].cat === 'marcial'))
+          .map(k => ({key: k, nombre: ARMAS[k].n, desc: `${ARMAS[k].d} ${ARMAS[k].tipo}, ${ARMAS[k].cat}${(c.pj.armas || []).some(([x]) => x === k) ? ' (la llevas)' : ' (conjurada)'}`}))}],
     efecto: c => {
       const s = invocaciones(c);
       if (s.includes('armadura-sombras') && !c.armor) c.ac = Math.max(c.ac, 13 + c.m.des + (c.shield ? 2 : 0));
       if (s.includes('vision-diablo')) c.vision = Math.max(c.vision || 0, 120);
-      if (s.includes('pacto-filo')) { const antes = c.usaCar; c.pactoFilo = true; c.usaCar = w => !w.dist || !!antes?.(w); c.rehacerArmas = true; }
+      if (s.includes('pacto-filo')) {
+        const k = elegido(c, 'arma-pacto'), arma = ARMAS[k] && !ARMAS[k].dist ? ARMAS[k] : null;
+        c.pactoFilo = true; c.rehacerArmas = true;
+        if (arma) { const antes = c.usaCar; c.armaPacto = k; c.usaCar = w => w === arma || !!antes?.(w); }
+      }
       if (s.includes('filo-sediento')) c.extraAttack = true;
     },
     // Las que lanzan un conjuro lo ponen en tus conjuros: a voluntad, salvo Respirar bajo el agua (1 por descanso largo)

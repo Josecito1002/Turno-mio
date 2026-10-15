@@ -4,6 +4,7 @@
       solo está en la base, como lo aportado desde la app, no se toca). Los conjuros solo se suman: los que faltan, y las
       clases que el archivo les da y la base todavía no.
    3. Personajes de prueba: la cuenta de scripts/datos/personajes-prueba.json queda con exactamente esos.
+   3b. Arreglos puntuales en hojas de jugadores (scripts/arreglos-hojas.ts), solo si siguen con el error.
    4. Borra las imágenes antiguas de clase y subclase (scripts/imagenes-antiguas.ts).
    5. Copia las imágenes de la biblioteca a public/ para servirlas sin la base (scripts/imagenes-estaticas.ts).
    Así una sesión sin acceso a la base (Claude Code en la nube) solo tiene que subir los cambios.
@@ -19,6 +20,7 @@ import { leerLista, sincronizarPrueba } from './gemini/personajes-prueba';
 import { BESTIAS_COLADAS } from '../src/features/reglas/data/especies';
 import { limpiarImagenesAntiguas } from './imagenes-antiguas';
 import { exportarImagenes } from './imagenes-estaticas';
+import { aplicarArreglos } from './arreglos-hojas';
 
 /* Forma comparable de una fila: sin id autogenerado ni campos vacíos, con las claves ordenadas */
 const canon = (o: any): any => Array.isArray(o) ? o.map(canon)
@@ -85,6 +87,9 @@ async function main() {
       const r = await sincronizarPrueba(db, lista.correo, lista.personajes, archivo);
       console.log(`[despliegue] Personajes de prueba en ${lista.correo}: ${r.creados.length} creados, ${r.rehechos.length} rehechos, ${r.borrados.length} borrados.`);
     } else console.log(`[despliegue] Personajes de prueba pedidos: ${lista.personajes.length}.`);
+
+    const arreglos = await aplicarArreglos(db, !ver);
+    if (arreglos.length) console.log(`[despliegue] Hojas de jugadores ${ver ? 'a arreglar' : 'arregladas'}: ${arreglos.join('; ')}.`);
 
     const viejas = await limpiarImagenesAntiguas(db, !ver);
     if (viejas.length) console.log(`[despliegue] Imágenes antiguas de clase y subclase ${ver ? 'a borrar' : 'borradas'}: ${viejas.length} (${[...new Set(viejas.map(f => f.clave))].join(', ')}).`);

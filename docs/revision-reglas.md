@@ -22,7 +22,7 @@ Las que se deciden al usar el rasgo (a quién, qué efecto) no llevan selector: 
 - [x] **Kobold: Legado Kobold**: Astucia, Desafío o Hechicería Dracónica (paso Especie). <!-- selector|legado-kobold -->
 - [x] **Híbrido Simic: mejoras animales**: una en nivel 1 y otra en nivel 5 (paso Especie); Caparazón y Apéndices en el cálculo, Escupir Ácido como acción. <!-- selector|simic -->
 - [x] **Bardo: Secretos Mágicos y Descubrimientos Mágicos**: el paso Conjuros ofrece también las listas de clérigo, druida y mago. <!-- selector|descubrimientos-magicos -->
-- [x] **Brujo: Invocaciones Sobrenaturales**: 1 a 10 según nivel, las 28 del Manual 2024 con su nivel y su requisito; los pactos son invocaciones y reemplazan la casilla "Pacto de la Cadena". Armadura de Sombras, Visión del Diablo, Pacto del Filo y Filo Sediento en el cálculo. <!-- selector|invocaciones -->
+- [x] **Brujo: Invocaciones Sobrenaturales**: 1 a 10 según nivel, las 28 del Manual 2024 con su nivel y su requisito; los pactos son invocaciones y reemplazan la casilla "Pacto de la Cadena". Armadura de Sombras, Visión del Diablo, Pacto del Filo y Filo Sediento en el cálculo. 2026-10-15: Pacto del Filo pide elegir el arma de pacto (cualquier arma cuerpo a cuerpo sencilla o marcial, la lleve o no); solo esa usa CAR y da competencia, como dice el Manual 2024 (antes se aplicaba a todas las armas cuerpo a cuerpo). Guerrero bendito y Guerrero druídico suman 2 trucos de clérigo o druida al límite y los muestran en la lista. <!-- selector|invocaciones -->
 - [x] **Brujo: Arcano Místico**: un conjuro de brujo de nivel 6, 7, 8 y 9 en los niveles 11, 13, 15 y 17; cada uno sale con 1 uso por descanso largo. <!-- selector|arcano-mistico -->
 - [x] **Conjuros que dan los rasgos**: los de subclase, Arcano Místico, las invocaciones que lanzan un conjuro, las especies (elfo, gnomo, tiefling, aasimar, genasí, githyanki, githzerai, fata, firbolg, tritón, yuan-ti, sangre bruja, elfo astral con su truco a elegir) y las dotes (Marcas de Dragón, Toque Feérico, Toque de las Sombras) salen solos en la hoja, con sus usos y sin contar en el límite. Detectar veneno y enfermedad, Amistad con los animales, Custodia de la hoja y el truco de la Marca de la Tormenta no están en el catálogo: salen sin descripción. <!-- selector|conjuros-rasgos -->
 - [x] **El Genio: tipo de genio**: Dao, Djinn, Efreet o Marid: su tipo de daño y sus conjuros ampliados. <!-- selector|genio-tipo -->
@@ -287,7 +287,7 @@ Dudosos: 0. Con tipo claro: 0. Ya revisados: 59.
 
 ### Revisados
 
-- [x] **Pugilismo**: `pasiva`. dado 1d8, 1d10, 1d12 y 2d6 en el cálculo; 2024. <!-- pugilista|pugilismo -->
+- [x] **Pugilismo**: `pasiva`. dado 1d8, 1d10, 1d12 y 2d6 en el cálculo; 2024; las armas sencillas cuerpo a cuerpo también usan el dado (2026-10-15). <!-- pugilista|pugilismo -->
 - [x] **Mentón de Hierro**: `pasiva`. CA 12 + CON también con armadura ligera, en el cálculo; 2024. <!-- pugilista|menton de hierro -->
 - [x] **Ensangrentado pero Invicto** (nivel 2): `reaccion`. pasa del nivel 3 al 2; 2024. <!-- pugilista|ensangrentado pero invicto -->
 - [x] **Determinación (Moxie)** (nivel 2): `pasiva`. Moxie de 2024: 2 a 12 puntos; Prepárate, Uno-Dos y Pegar y Moverse aparte; 2024. <!-- pugilista|determinacion (moxie) -->

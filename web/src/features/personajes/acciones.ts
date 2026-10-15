@@ -44,6 +44,7 @@ export function savePj() {
 export function abrir(id: string, view: 'ficha' | 'editor' = 'ficha') {
   const p = almacen.pj(id); if (!p) return;
   S.pj = reparar(p); S.view = view; S.tab = 'turno'; S.dialogo = ''; S.sel = null;
+  ponerJugador();
   almacen.ultimo(id);
   render(); irArriba();
 }
@@ -55,7 +56,13 @@ export function entrarCombate(m: NonNullable<typeof S.combateMesa>) {
   S.combateMesa = m; S.combateHoja = false; render();
 }
 
-export function nuevo() { S.pj = nuevoPj(); savePj(); S.view = 'editor'; S.step = 'especie'; render(); irArriba(); }
+/** Con cuenta, el campo Jugador de la hoja abierta es el nombre de jugador de la cuenta (se cambia en el menú). */
+export function ponerJugador() {
+  const nombre = S.usuario && S.usuario.rol !== 'invitado' ? S.usuario.nombre : '';
+  if (S.pj && nombre && S.pj.jugador !== nombre) { S.pj.jugador = nombre; savePj(); }
+}
+
+export function nuevo() { S.pj = nuevoPj(); ponerJugador(); savePj(); S.view = 'editor'; S.step = 'especie'; render(); irArriba(); }
 
 export function setVal(path: string, v: any) {
   const pj = S.pj;

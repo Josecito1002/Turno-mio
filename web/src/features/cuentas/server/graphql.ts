@@ -36,6 +36,8 @@ const typeDefs = /* GraphQL */ `
     restablecerContrasena(id: ID!): String!
     "Cambia la contraseña propia; pide la actual."
     cambiarContrasena(actual: String!, nueva: String!): Boolean!
+    "Cambia el nombre de jugador propio (el que sale en las hojas y en las mesas)."
+    cambiarNombre(nombre: String!): Usuario!
   }
 `;
 
@@ -89,6 +91,15 @@ export const cuentasGraphQL: ModuloGraphQL = {
         if (!fila || !(await bcrypt.compare(actual, fila.hash))) throw new GraphQLError('La contraseña actual no es correcta.', { extensions: { code: 'BAD_USER_INPUT' } });
         await ctx.db.update(usuarios).set({ hash: await bcrypt.hash(nueva, 10) }).where(eq(usuarios.id, u.id));
         return true;
+      },
+      cambiarNombre: async (_: unknown, { nombre }: { nombre: string }, ctx: Contexto) => {
+        const u = requiereUsuario(ctx);
+        const limpio = nombre.replace(/\s+/g, ' ').trim();
+        if (limpio.length < 2 || limpio.length > 40) throw new GraphQLError('El nombre necesita entre 2 y 40 caracteres.', { extensions: { code: 'BAD_USER_INPUT' } });
+        const [f] = await ctx.db.update(usuarios).set({ nombre: limpio }).where(eq(usuarios.id, u.id))
+          .returning({ id: usuarios.id, email: usuarios.email, nombre: usuarios.nombre, rol: usuarios.rol, ultimoPj: usuarios.ultimoPj });
+        if (!f) throw new GraphQLError('Esa cuenta no existe.', { extensions: { code: 'NOT_FOUND' } });
+        return f;
       },
     },
   },
