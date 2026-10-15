@@ -847,10 +847,10 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
   const tirar = useDados();
   const cb = cp.combate;
   const vivo = useEconomiaVivo(cp.id, !!cb.activo), economia = vivo.eco;
-  const quitarMon = (id: string) => conCamp(c => {
-    // En un combate de la sesión, el enemigo que sale vivo (huye, desaparece) queda anotado por si vuelve en otro
+  /** Quita un enemigo del combate. Con `huyo`, en un combate de la sesión queda anotado con sus PG por si vuelve en otro. */
+  const quitarMon = (id: string, huyo = false) => conCamp(c => {
     const m = c.monstruos.find((x: any) => x.id === id);
-    if (m && c.combate.activo && c.encuentroActual && m.pg > 0 && !m.aliado) c.huidos = [...(c.huidos || []), m];
+    if (huyo && m && c.combate.activo && c.encuentroActual && m.pg > 0 && !m.aliado) c.huidos = [...(c.huidos || []), m];
     c.monstruos = c.monstruos.filter((x: any) => x.id !== id); c.combate.orden = (c.combate.orden || []).filter((o: any) => o.k !== 'm:' + id);
   });
   if (!cb.activo) {
@@ -930,7 +930,11 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
                 </div>
                 {x.tipo === 'pj' ? <Boton tamano="sm" onClick={() => abrir(x.pj.id)}>Hoja</Boton>
                   : x.tipo === 'jug' ? <Boton tamano="sm" onClick={() => verHoja(x.k)} aria-label={`Ver la hoja de ${x.nombre}`}>Hoja</Boton>
-                    : <Boton tamano="sm" onClick={() => quitarMon(x.m.id)} aria-label={`Quitar ${x.nombre}`}>Quitar</Boton>}
+                    : <div className="flex flex-wrap justify-end gap-2">
+                      {cp.encuentroActual && !x.m.aliado && !caido && <Boton tamano="sm" onClick={() => { quitarMon(x.m.id, true); avisar(`${x.nombre} huyó con ${x.m.pg} PG: volverá así en el combate que lo traiga.`); }}
+                        aria-label={`${x.nombre} huyó`}>Huyó</Boton>}
+                      <Boton tamano="sm" onClick={() => quitarMon(x.m.id)} aria-label={`Quitar ${x.nombre}`}>Quitar</Boton>
+                    </div>}
               </div>
               <AccionesRonda cp={cp} x={x} campId={cp.id} clave={x.tipo === 'jug' ? x.u.personajeId : x.k} nombre={x.nombre} eco={economia[x.tipo === 'jug' ? x.u.personajeId : x.k]} />
               {x.tipo === 'jug' && <Boton tamano="sm" className="mt-1" onClick={() => mandarOrden(cp.id, 'inspiracion', x.u.personajeId)}>Dar inspiración a {x.nombre}</Boton>}

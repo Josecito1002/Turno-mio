@@ -10,7 +10,7 @@ Mesa del DM → la campaña → pestaña **Sesión → Importar info de sesión*
   campaña con los datos que traiga el archivo;
 - si se vuelve a importar un combate con el mismo nombre, se reemplaza.
 - un combate con `vuelvenDe` (la lista de otros combates de la sesión) queda vinculado solo: los enemigos que quedaron
-  vivos al terminar cada uno de esos combates (o que el DM quitó vivos durante él) entran a este con los PG que tenían.
+  vivos al terminar cada uno de esos combates (o que el DM marcó con «Huyó» durante él) entran a este con los PG que tenían.
   Un enemigo que ya volvió en otro combate no entra dos veces. También se puede elegir o cambiar en la app, en la
   tarjeta del combate ("Enemigos que vuelven de otro combate"), que muestra de qué combate viene cada uno.
 
