@@ -33,6 +33,8 @@ const copiaCombate = (cp: any) => JSON.stringify(Object.fromEntries(PARTES_HISTO
 
 function conCamp(fn: (cp: any) => void | false) {
   const cp = campActual(); if (!cp) return;
+  // Lo que se ve en pantalla ya no cuenta a quien dejó la campaña: el turno que se guarda debe ser el mismo
+  if (cp.combate?.activo && cp.combate.orden) quitarDelOrdenLosQueNoEstan(cp.combate, cp);
   const antes = copiaCombate(cp);
   if (fn(cp) === false) return;
   if (copiaCombate(cp) !== antes) { const h = historial.get(cp.id) || []; h.push(antes); historial.set(cp.id, h.slice(-40)); }
@@ -869,8 +871,11 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
 /** El combate solo lista a quienes siguen en la campaña. */
 function quitarDelOrdenLosQueNoEstan(cb: any, cp: any) {
   // Mientras no se lean los jugadores unidos no se sabe si siguen: se conservan
-  cb.orden = cb.orden.filter((o: any) => (o.k.startsWith('jm:') && !unidosCargados(cp.id)) || combatiente(o.k, cp));
-  if (cb.turno >= cb.orden.length) cb.turno = 0;
+  const sigue = (o: any) => (o.k.startsWith('jm:') && !unidosCargados(cp.id)) || !!combatiente(o.k, cp);
+  // El turno sigue en la misma persona (o pasa a la siguiente si la que actuaba ya no está)
+  const antes = cb.orden.slice(0, cb.turno).filter(sigue).length;
+  cb.orden = cb.orden.filter(sigue);
+  cb.turno = antes < cb.orden.length ? antes : 0;
 }
 /** La campaña abierta, con sus valores por defecto; null si no hay (o ya no existe). */
 function campanaAbierta() {
