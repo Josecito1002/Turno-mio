@@ -1,10 +1,11 @@
 # Info sesión: archivo para preparar una sesión en la Mesa del DM
 
 El creador de campañas genera, al preparar cada sesión, un archivo **Info sesión N** (`.json` o `.csv`). En la app:
-Mesa del DM → la campaña → pestaña Grupo → **Preparar sesión → Importar info de sesión**. Al importarlo:
+Mesa del DM → la campaña → pestaña **Sesión → Importar info de sesión**. Al importarlo:
 
-- cada combate queda en su propia pestaña (Combate 1, Emboscada en el puente…) con sus enemigos;
-- "Preparar este combate" pone esos enemigos en la pestaña Combate, con CA, PG e iniciativa;
+- la pestaña Sesión muestra la lista de combates (Combate 1, Emboscada en el puente…), cada uno con sus enemigos y notas;
+- "Activar combate" pone esos enemigos en la pestaña Combate con CA, PG e iniciativa, y tira iniciativa para todos (si
+  había otro combate en curso, pregunta antes de terminarlo); "Sumar al combate en curso" agrega sus enemigos al actual;
 - los enemigos que no están en el bestiario de la app (Manual de Monstruos 2025) se guardan en el bestiario de esa
   campaña con los datos que traiga el archivo;
 - si se vuelve a importar un combate con el mismo nombre, se reemplaza.
