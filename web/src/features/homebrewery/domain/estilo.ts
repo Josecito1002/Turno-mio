@@ -35,4 +35,13 @@ export const ESTILO_GUIA = `
 .page .wide.fig img { max-height: 13cm; width: auto !important; max-width: 100%; }
 .page .fig.incol img { max-height: 6.5cm; width: auto !important; max-width: 70%; }
 .page tr { break-inside: avoid; }
+/* recuadros de leer y de entregar como en las guías en PDF (no el blanco del tema) */
+.page .descriptive { font-family: 'BookInsanityRemake'; font-size: 0.34cm; border: 0; border-image: none; box-shadow: none; }
+.page .descriptive.leer { background-color: #e9dfc4; border-left: 3px solid #8a6a2f; padding: 0.2cm 0.3cm;
+  box-shadow: inset 0 0 0 1px rgba(60,35,15,.22); }
+.page .descriptive.leer p { font-style: italic; line-height: 1.3em; }
+.page .descriptive.entregar { background-color: #f2ead6; border: 1px dashed rgba(88,24,13,.55); padding: 0.2cm 0.3cm; }
+.page .descriptive.entregar p { line-height: 1.3em; }
+.page .descriptive h5 { font-family: 'MrEavesRemake'; color: #58180D; font-size: 0.42cm; margin-bottom: 0.08cm; }
+.page .descriptive .lbl { color: #8a6a2f; }
 `;

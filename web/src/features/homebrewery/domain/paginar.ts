@@ -44,7 +44,8 @@ export function partir(b: Bloque): Particion | null {
   if (b.kind === 'table') {
     const lines = b.md.split('\n');
     const head = lines.slice(0, 2), rows = lines.slice(2);
-    if (rows.length < 3) return null;
+    // una tabla corta no se parte: se pierde el contexto (una página que solo dice «d8»)
+    if (rows.length < 8) return null;
     return { parts: rows, make: (a, rest) => [{ ...b, md: [...head, ...a].join('\n') }, { ...b, md: [...head, ...rest].join('\n') }] };
   }
   return null;
@@ -106,6 +107,8 @@ export async function paginar(bloquesIn: Bloque[], meta: MetaGuia, m: Medidor, p
         const [a] = sp.make(sp.parts.slice(0, mid), sp.parts.slice(mid));
         if (await cabe([...cur, a])) lo = mid; else hi = mid - 1;
       }
+      // de una tabla partida, al menos tres filas en cada lado
+      if (b.kind === 'table') lo = Math.min(lo, sp.parts.length - 3);
       if (lo >= 2) {
         const [a, rest] = sp.make(sp.parts.slice(0, lo), sp.parts.slice(lo));
         cur.push(a);
