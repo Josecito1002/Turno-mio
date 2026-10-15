@@ -63,6 +63,8 @@ export function leerCsv(texto: string): Record<string, string>[] {
   return lineas.slice(1).map(l => { const v = partir(l); return Object.fromEntries(cab.map((h, i) => [h, v[i] ?? ''])); });
 }
 
+const texto1 = (v: unknown) => typeof v === 'string' ? v.trim() : '';
+
 /** Lee el archivo (JSON o CSV) y arma la sesión, buscando cada enemigo en el bestiario de la app y en el de la campaña. */
 export function leerSesion(texto: string, nombreArchivo: string, catalogo: Record<string, Monstruo>, propios: Record<string, Monstruo> = {}): Sesion {
   const nuevos: Record<string, Monstruo> = {}, sinDatos: string[] = [];
@@ -84,6 +86,7 @@ export function leerSesion(texto: string, nombreArchivo: string, catalogo: Recor
     for (const [k, m] of Object.entries<any>(d.monstruos || {})) nuevos[claveMonstruo(k)] = monstruoPropio(m);
     const encuentros = (d.combates || d.encuentros || []).map((c: any, i: number) => ({
       id: id(i), nombre: c.nombre || `Combate ${i + 1}`, ...(c.notas ? { notas: c.notas } : {}),
+      ...(texto1(c.vuelvenDe ?? c.vuelveDe ?? c.vuelven_de) ? { vuelvenDe: texto1(c.vuelvenDe ?? c.vuelveDe ?? c.vuelven_de) } : {}),
       enemigos: (c.enemigos || []).map((e: any) => {
         const nombre = e.monstruo || e.nombre || 'Enemigo';
         const datos = e.datos || (e.ca != null || e.pg != null ? { ca: e.ca, pg: e.pg, ini: e.iniciativa ?? e.ini, cr: e.cr } : null);
@@ -93,16 +96,17 @@ export function leerSesion(texto: string, nombreArchivo: string, catalogo: Recor
     return { nombre: d.sesion || d.nombre || base, notas: d.notas, encuentros, monstruos: nuevos, sinDatos };
   }
 
-  const filas = leerCsv(texto), porCombate = new Map<string, EnemigoEncuentro[]>(), notas = new Map<string, string>();
+  const filas = leerCsv(texto), porCombate = new Map<string, EnemigoEncuentro[]>(), notas = new Map<string, string>(), vuelven = new Map<string, string>();
   for (const f of filas) {
     const nombre = f.enemigo || f.monstruo || f.nombre; if (!nombre) continue;
     const combate = f.combate || f.encuentro || 'Combate 1';
+    if (f.vuelvende || f.vuelvede) vuelven.set(combate, f.vuelvende || f.vuelvede);
     const datos = f.ca || f.pg ? { ca: f.ca, pg: f.pg, ini: f.iniciativa, cr: f.cr || undefined, texto: f.notas || undefined } : null;
     if (!porCombate.has(combate)) porCombate.set(combate, []);
     porCombate.get(combate)!.push({ ref: resolver(nombre, datos), nombre: '', cantidad: Math.max(1, num(f.cantidad, 1)) });
     if (f.notas && !datos) notas.set(combate, [notas.get(combate), f.notas].filter(Boolean).join(' '));
   }
-  const encuentros = [...porCombate].map(([nombre, enemigos], i) => ({ id: id(i), nombre, ...(notas.get(nombre) ? { notas: notas.get(nombre) } : {}), enemigos }));
+  const encuentros = [...porCombate].map(([nombre, enemigos], i) => ({ id: id(i), nombre, ...(notas.get(nombre) ? { notas: notas.get(nombre) } : {}), ...(vuelven.get(nombre) ? { vuelvenDe: vuelven.get(nombre) } : {}), enemigos }));
   return { nombre: base, encuentros, monstruos: nuevos, sinDatos };
 }
 
@@ -132,6 +136,7 @@ export function regresanA(e: Encuentro, encuentros: Encuentro[]) {
 export function conservarVinculos(nuevos: Encuentro[], viejos: Encuentro[]) {
   return nuevos.map(e => {
     const v = viejos.find(x => norm(x.nombre) === norm(e.nombre));
-    return v ? { ...e, ...(v.vuelvenDe ? { vuelvenDe: v.vuelvenDe } : {}), ...(v.sobrevivientes ? { sobrevivientes: v.sobrevivientes } : {}) } : e;
+    // El vínculo del archivo manda; si no trae, se conserva el que se eligió en la app
+    return v ? { ...e, ...(!e.vuelvenDe && v.vuelvenDe ? { vuelvenDe: v.vuelvenDe } : {}), ...(v.sobrevivientes ? { sobrevivientes: v.sobrevivientes } : {}) } : e;
   });
 }

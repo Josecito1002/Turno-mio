@@ -56,3 +56,19 @@ describe('Combates vinculados de la sesión', () => {
     assert.equal(conservarVinculos([base('final')], viejos)[0].vuelvenDe, 'Bosque');
   });
 });
+
+describe('Combates vinculados desde el archivo', () => {
+  test('JSON y CSV: "vuelvenDe" vincula el combate con otro de la sesión', () => {
+    const j = leerSesion(JSON.stringify({ combates: [
+      { nombre: 'Bosque', enemigos: [{ monstruo: 'Goblin Warrior' }] },
+      { nombre: 'Final', vuelvenDe: 'Bosque', enemigos: [{ monstruo: 'Goblin Boss' }] },
+    ] }), 's.json', CAT);
+    assert.deepEqual(j.encuentros.map(e => e.vuelvenDe), [undefined, 'Bosque']);
+    const c = leerSesion('combate;enemigo;cantidad;vuelvenDe\nBosque;Goblin Warrior;2;\nFinal;Goblin Boss;1;Bosque\n', 's.csv', CAT);
+    assert.equal(c.encuentros.find(e => e.nombre === 'Final')?.vuelvenDe, 'Bosque');
+  });
+  test('al reimportar, el vínculo del archivo manda sobre el elegido en la app', () => {
+    const viejo = [{ id: 'x', nombre: 'Final', enemigos: [], vuelvenDe: 'Otro' }];
+    assert.equal(conservarVinculos([{ id: 'y', nombre: 'Final', enemigos: [], vuelvenDe: 'Bosque' }], viejo)[0].vuelvenDe, 'Bosque');
+  });
+});
