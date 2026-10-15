@@ -127,6 +127,16 @@ export function SubirHomebrewery() {
     try {
       const brew = await brewDe(i);
       if (!brew) { v.cerrar(); return; }
+      // primero a Homebrewery (si aún no está), así la guía queda allí también sin tener que entrar
+      if (!guias[i].leer) {
+        setOcupado(`Subiendo ${guias[i].titulo}…`);
+        try {
+          const r = await subirUna(guias[i].archivo, brew, cookie);
+          cambiar(i, { editar: r.editar, leer: r.leer, error: undefined });
+        } catch (e) {
+          cambiar(i, { error: `No se subió a Homebrewery: ${e instanceof Error ? e.message : 'sin conexión'}. El PDF sale igual.` });
+        }
+      }
       setOcupado(`Preparando el PDF de ${guias[i].titulo}…`);
       v.mostrar(await paginaPdf(brew, guias[i].titulo));
     } catch (e) {
@@ -163,7 +173,7 @@ export function SubirHomebrewery() {
                 </span>
                 {g.error && <Aviso tipo="error" titulo="No se pudo">{g.error}</Aviso>}
                 <span className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-                  <Boton tamano="sm" disabled={!!ocupado} onClick={() => pdf(i)}>Descargar PDF</Boton>
+                  <Boton tamano="sm" disabled={!!ocupado} onClick={() => pdf(i)}>{g.leer ? 'Descargar PDF' : 'Subir y PDF'}</Boton>
                   {g.entregables > 0 && <Boton tamano="sm" onClick={() => abrirImprimibles(g)}>Imprimibles</Boton>}
                   {!g.lista && <Boton tamano="sm" disabled={!!ocupado} onClick={() => txt(i)}>Descargar .txt</Boton>}
                   {g.leer && <a className={enlaceBoton} href={g.leer} target="_blank" rel="noreferrer">Leer en Homebrewery</a>}
