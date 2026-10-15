@@ -964,13 +964,24 @@ function paraExportar(unidos: any[], grupo: any[]): PersonajeExportado[] {
 
 function Exportar({ cp, unidos, grupo }: { cp: any; unidos: any[]; grupo: any[] }) {
   const base = slug(cp.nombre || 'mesa');
-  const lista = () => paraExportar(unidos, grupo);
+  /* Los jugadores unidos se vuelven a leer al exportar: si la lista todavía no había llegado (o falló), el archivo
+     salía sin sus hojas y sin avisar */
+  const bajar = async (fn: (l: PersonajeExportado[]) => void) => {
+    let actuales = unidos;
+    try {
+      fijarUnidos(cp.id, await jugadoresMesa(cp.id));
+      actuales = unidosDe(cp.id).map(u => combatiente(claveUnido(u), cp)).filter(Boolean);
+    } catch (e) {
+      if (!unidosCargados(cp.id)) { avisar(`No se pudieron leer las hojas de los jugadores: ${(e as Error).message}. Inténtalo de nuevo.`, 'error'); return; }
+    }
+    fn(paraExportar(actuales, grupo));
+  };
   return (
     <Seccion titulo="Exportar">
       <Nota>Descarga la mesa con las hojas de todos los personajes tal como están ahora. El resumen se lee en cualquier editor de texto; los datos completos sirven de respaldo.</Nota>
       <div className="flex flex-wrap gap-2">
-        <Boton onClick={() => bajarArchivo(base + '-resumen.md', resumenMesa(cp.nombre, lista()) + '\n', 'text/markdown')}>Descargar resumen</Boton>
-        <Boton variante="fantasma" onClick={() => bajarArchivo(base + '.json', JSON.stringify(datosMesa(cp, lista()), null, 1))}>Descargar datos completos</Boton>
+        <Boton onClick={() => bajar(l => bajarArchivo(base + '-resumen.md', resumenMesa(cp.nombre, l) + '\n', 'text/markdown'))}>Descargar resumen</Boton>
+        <Boton variante="fantasma" onClick={() => bajar(l => bajarArchivo(base + '.json', JSON.stringify(datosMesa(cp, l), null, 1)))}>Descargar datos completos</Boton>
       </div>
     </Seccion>
   );
@@ -987,9 +998,10 @@ function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) 
   const enc = encuentros.find(e => S.mtab === 'enc-' + e.id);
   const mtab = S.mtab === 'bestiario' || S.mtab === 'combate' || enc ? S.mtab : 'grupo';
   const agregar = () => {
-    const ids = [...document.querySelectorAll<HTMLInputElement>('#campAddList input:checked')].map(i => i.value);
-    if (!ids.length) { avisar('Marca al menos un personaje.', 'aviso'); return; }
-    conCamp(c => { c.pjs.push(...ids.filter(i => !c.pjs.includes(i))); });
+    const id = val('campAddSel');
+    if (!id) { avisar('Elige un personaje.', 'aviso'); return; }
+    conCamp(c => { if (!c.pjs.includes(id)) c.pjs.push(id); });
+    avisar(`${S.list.find(p => p.id === id)?.name || 'Personaje'} agregado a la campaña.`);
   };
   const borrar = () => borrarCampana(cp);
   return (
@@ -1027,18 +1039,15 @@ function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) 
               : <Nota className="mt-2">Personajes guardados en tu cuenta (PNJ, o respaldos importados). Para jugadores con cuenta es mejor el código de arriba.</Nota>}
             <Seccion titulo="Agregar personajes">
               {fuera.length > 0 ? (
-                <fieldset className="m-0 border-0 p-0">
-                  <legend className="sr-only">Tus personajes que no están en la campaña</legend>
-                  <div id="campAddList" key={cp.pjs.length} className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-x-3">
-                    {fuera.map(p => (
-                      <label key={p.id} className="flex min-h-11 cursor-pointer items-center gap-3">
-                        <input type="checkbox" value={p.id} className={cx('size-5 accent-ink', foco)} />
-                        <span>{p.name} <span className="text-sm text-muted">{p.sub || ''}</span></span>
-                      </label>
-                    ))}
-                  </div>
-                  <Boton variante="primario" className="mt-2" onClick={agregar}>Agregar seleccionados</Boton>
-                </fieldset>
+                <div className="flex flex-wrap items-end gap-2" key={cp.pjs.length}>
+                  <Campo etiqueta="Tus personajes que no están en la campaña" className="min-w-60 flex-1">
+                    <select id="campAddSel" defaultValue="" className={claseCampo}>
+                      <option value="" disabled>Elige un personaje…</option>
+                      {fuera.map(p => <option key={p.id} value={p.id}>{p.name}{p.sub ? ` (${p.sub})` : ''}</option>)}
+                    </select>
+                  </Campo>
+                  <Boton variante="primario" onClick={agregar}>Agregar</Boton>
+                </div>
               ) : <Nota>Todos tus personajes ya están en esta campaña.</Nota>}
               <Nota className="mt-4">Pide a cada jugador su respaldo (en su hoja: Descargar respaldo) e impórtalo aquí; se agrega solo a la campaña.</Nota>
               <Boton onClick={importarHojas}>Importar hojas de jugadores</Boton>
