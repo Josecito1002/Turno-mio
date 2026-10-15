@@ -23,3 +23,13 @@ test('los jugadores solo reciben de un enemigo lo que el DM reveló', async () =
   cp.estado['m:g'] = { cond: [], muerte: { e: 0, f: 0 }, rev: 'b' };
   assert.deepEqual(datosVivos(cp).orden[0]!.info, { nivel: 'b', ca: 13 });
 });
+
+test('si alguien del orden ya no está, los jugadores siguen viendo el turno de la misma persona', async () => {
+  const { datosVivos } = await import('./combate-vivo');
+  const mon = (id: string) => ({ id, nombre: id, ca: 10, pg: 5, pgMax: 5, bono: 0 });
+  const cp: any = { monstruos: [mon('a'), mon('c')], pjs: [], estado: {},
+    combate: { activo: true, ronda: 1, turno: 2, orden: [{ k: 'm:a' }, { k: 'm:ya-no-esta' }, { k: 'm:c' }] } };
+  const v = datosVivos(cp);
+  assert.deepEqual(v.orden.map((o: any) => o.k), ['m:a', 'm:c']);
+  assert.equal(v.orden[v.turno]!.k, 'm:c');
+});

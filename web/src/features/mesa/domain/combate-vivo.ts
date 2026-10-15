@@ -21,11 +21,14 @@ function infoEnemigo(cp: any, k: string, x: any) {
 /** Lo que ven los jugadores del combate de la campaña `cp`. */
 export function datosVivos(cp: any) {
   const cb = cp.combate || {};
-  const orden = (cb.orden || []).map((o: any) => {
+  const todos = (cb.orden || []).map((o: any) => {
     const x = combatiente(o.k, cp);
     return x ? { k: o.k, nombre: x.nombre, tipo: x.m?.aliado ? 'aliado' : x.tipo, pid: o.k.startsWith('jm:') ? o.k.split(':')[2] : undefined, cond: [...(cp.estado?.[o.k]?.cond || [])], dur: { ...(cp.estado?.[o.k]?.dur || {}) }, ven: cp.estado?.[o.k]?.ven || '', info: infoEnemigo(cp, o.k, x) } : null;
-  }).filter(Boolean);
-  return { activo: !!cb.activo, ronda: cb.ronda || 1, turno: cb.turno || 0, orden };
+  });
+  const orden = todos.filter(Boolean);
+  // Si alguien del orden ya no está (un jugador que salió de la mesa), el turno se cuenta sin él para que siga en la misma persona
+  const turno = todos.slice(0, cb.turno || 0).filter(Boolean).length;
+  return { activo: !!cb.activo, ronda: cb.ronda || 1, turno: turno < orden.length ? turno : 0, orden };
 }
 
 export function publicarCombate(cp: any) {

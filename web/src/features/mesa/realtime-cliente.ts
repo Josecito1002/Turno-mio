@@ -103,6 +103,9 @@ export function conectarMesaRealtime(
   };
 }
 
+/** Lo último que se avisó de cada personaje: la hoja se guarda con cada cambio, y solo vale la pena avisar si cambiaron los PG. */
+const ultimoPg = new Map<string, string>();
+
 /** Notifica en tiempo real a las mesas del DM que los PG o salvaciones de muerte han cambiado. */
 export function emitirCambioPg(payload: {
   personajeId: string;
@@ -110,9 +113,12 @@ export function emitirCambioPg(payload: {
   pgTemp: number;
   muerteExitos: number;
   muerteFallos: number;
-  campanaId?: string;
 }) {
   if (typeof window === 'undefined') return;
+  const firma = [payload.pgUsados, payload.pgTemp, payload.muerteExitos, payload.muerteFallos].join('|');
+  // Cada aviso le cuesta al servidor una consulta a la base: si los PG siguen igual, no se manda
+  if (ultimoPg.get(payload.personajeId) === firma) return;
+  ultimoPg.set(payload.personajeId, firma);
   fetch('/api/mesa/evento', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
