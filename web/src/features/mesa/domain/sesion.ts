@@ -8,7 +8,11 @@ import { norm } from '@/shared/utils/texto';
 import type { Monstruo } from '@/features/reglas/data/bestiario';
 
 export type EnemigoEncuentro = { ref: string; nombre: string; cantidad: number };
-export type Encuentro = { id: string; nombre: string; notas?: string; enemigos: EnemigoEncuentro[] };
+/** Un enemigo que quedó vivo al terminar un combate de la sesión, con los PG que tenía. */
+export type Sobreviviente = { nombre: string; ca: number; pgMax: number; pg: number; bono: number; ref?: string };
+/** `vuelvenDe`: nombre del combate anterior cuyos sobrevivientes entran a este (lo elige el DM en la app; no viene en el
+    archivo). `sobrevivientes`: los que quedaron vivos la última vez que terminó este combate. */
+export type Encuentro = { id: string; nombre: string; notas?: string; enemigos: EnemigoEncuentro[]; vuelvenDe?: string; sobrevivientes?: Sobreviviente[] };
 export type Sesion = { nombre: string; notas?: string; encuentros: Encuentro[]; monstruos: Record<string, Monstruo>; sinDatos: string[] };
 
 export const claveMonstruo = (s: string) => norm(s).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'monstruo';
@@ -112,4 +116,22 @@ export function enemigosDe(e: Encuentro, monstruo: (ref: string) => Monstruo | n
       out.push({ id: `${Date.now().toString(36)}-${j}-${i}`, nombre: x.cantidad > 1 ? `${n} ${i + 1}` : n, ca: m.ca, pgMax: m.pg, pg: m.pg, bono: m.ini, ref: x.ref });
   });
   return out;
+}
+
+/** Los enemigos vivos (no aliados) de un combate que termina, para que puedan volver en otro combate de la sesión. */
+export const sobrevivientesDe = (monstruos: any[]): Sobreviviente[] => (monstruos || []).filter(m => !m.aliado && m.pg > 0)
+  .map(m => ({ nombre: m.nombre, ca: m.ca, pgMax: m.pgMax, pg: m.pg, bono: m.bono, ...(m.ref ? { ref: m.ref } : {}) }));
+
+/** Los sobrevivientes del combate del que vuelve `e`, listos para el combate (con id nuevo y los PG que tenían). */
+export function regresanA(e: Encuentro, encuentros: Encuentro[]) {
+  const de = e.vuelvenDe && encuentros.find(x => x.id !== e.id && norm(x.nombre) === norm(e.vuelvenDe!));
+  return (de ? de.sobrevivientes || [] : []).map((m, i) => ({ ...m, id: `${Date.now().toString(36)}-v${i}` }));
+}
+
+/** Al volver a importar una sesión, los combates que se reemplazan conservan su vínculo y sus sobrevivientes. */
+export function conservarVinculos(nuevos: Encuentro[], viejos: Encuentro[]) {
+  return nuevos.map(e => {
+    const v = viejos.find(x => norm(x.nombre) === norm(e.nombre));
+    return v ? { ...e, ...(v.vuelvenDe ? { vuelvenDe: v.vuelvenDe } : {}), ...(v.sobrevivientes ? { sobrevivientes: v.sobrevivientes } : {}) } : e;
+  });
 }

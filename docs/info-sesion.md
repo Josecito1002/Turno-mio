@@ -9,6 +9,9 @@ Mesa del DM → la campaña → pestaña **Sesión → Importar info de sesión*
 - los enemigos que no están en el bestiario de la app (Manual de Monstruos 2025) se guardan en el bestiario de esa
   campaña con los datos que traiga el archivo;
 - si se vuelve a importar un combate con el mismo nombre, se reemplaza.
+- en la tarjeta de un combate, "Enemigos que vuelven de otro combate" lo vincula con otro de la sesión: los enemigos que
+  quedaron vivos al terminar ese otro (o que el DM quitó vivos durante él) entran a este con los PG que tenían. Se elige
+  en la app y no cambia el formato del archivo; al reimportar, el vínculo se conserva.
 
 Al final de la sesión, **Exportar → Descargar datos completos** da el estado de la campaña y de las hojas para seguir
 con la siguiente.

@@ -1,6 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { enemigosDe, leerSesion } from './sesion';
+import { conservarVinculos, enemigosDe, leerSesion, regresanA, sobrevivientesDe } from './sesion';
 import { BESTIARIO_GENERADO as CAT } from '@/features/reglas/data/generadas/bestiario';
 
 describe('Info sesión (Mesa del DM)', () => {
@@ -35,5 +35,24 @@ describe('Info sesión (Mesa del DM)', () => {
     assert.equal(s.encuentros[0].enemigos[0].cantidad, 2);
     assert.deepEqual(s.sinDatos, ['Sombra rara']);
     assert.equal(s.monstruos['ogro-jefe'].pg, 80);
+  });
+});
+
+describe('Combates vinculados de la sesión', () => {
+  const base = (nombre: string, extra = {}) => ({ id: nombre, nombre, enemigos: [], ...extra });
+  test('vuelven los vivos del combate elegido, con sus PG; no los aliados ni los muertos', () => {
+    const sob = sobrevivientesDe([
+      { nombre: 'Meenlock 1', ca: 15, pgMax: 31, pg: 5, bono: 2, ref: 'meenlock' },
+      { nombre: 'Meenlock 2', ca: 15, pgMax: 31, pg: 0, bono: 2, ref: 'meenlock' },
+      { nombre: 'Lobo (de Elho)', ca: 13, pgMax: 11, pg: 11, bono: 0, aliado: true },
+    ]);
+    assert.deepEqual(sob.map(m => [m.nombre, m.pg]), [['Meenlock 1', 5]]);
+    const enc = [base('Bosque', { sobrevivientes: sob }), base('Final', { vuelvenDe: 'bosque' })];
+    assert.deepEqual(regresanA(enc[1], enc).map(m => [m.nombre, m.pg, m.pgMax]), [['Meenlock 1', 5, 31]]);
+    assert.deepEqual(regresanA(enc[0], enc), []);
+  });
+  test('al reimportar, el combate conserva su vínculo y sus sobrevivientes', () => {
+    const viejos = [base('Final', { vuelvenDe: 'Bosque', sobrevivientes: [] })];
+    assert.equal(conservarVinculos([base('final')], viejos)[0].vuelvenDe, 'Bosque');
   });
 });

@@ -19,7 +19,7 @@ import { conectarMesaRealtime } from '../realtime-cliente';
 import { publicarCombate } from '../domain/combate-vivo';
 import { combateVivoDm, confirmarGolpes, enviarEfectoDm, enviarOrdenDm, fijarAccionDm, quitarPeticiones, resolverSalvacion, type CombateVivo, type EconomiaRonda, type Golpe, type Peticion, type Salvacion, type TipoAccionRonda } from '../api';
 import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
-import { enemigosDe, leerSesion, type Encuentro } from '../domain/sesion';
+import { conservarVinculos, enemigosDe, leerSesion, regresanA, sobrevivientesDe, type Encuentro } from '../domain/sesion';
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
 import { BloqueMonstruo, BuscadorEnemigo, VistaBestiario, monstruoDe, useCatalogo } from './Bestiario';
 import { SubirHomebrewery } from '@/features/homebrewery/components/SubirHomebrewery';
@@ -440,10 +440,17 @@ function VerBloque({ cp, r, nombre }: { cp: any; r: string; nombre: string }) {
   );
 }
 
+/** Al terminar un combate de la sesión, guarda en él los enemigos que quedaron vivos (con sus PG), por si vuelven en otro. */
+function guardarSobrevivientes(c: any) {
+  const e = c.combate?.activo && (c.encuentros || []).find((x: any) => x.id === c.encuentroActual);
+  if (e) e.sobrevivientes = sobrevivientesDe([...c.monstruos, ...(c.huidos || [])]);
+  delete c.huidos;
+}
+
 /** Tira iniciativa para todos (grupo, jugadores unidos y enemigos) y empieza el combate. */
 function iniciarCombate(c: any) {
   const orden = [...c.pjs.map((id: string) => 'pj:' + id), ...unidosDe(c.id).map(claveUnido), ...c.monstruos.map((m: any) => 'm:' + m.id)].map(k => combatiente(k, c)).filter(Boolean).map((x: any) => ({ k: x.k, init: rnd(20) + x.bono, bono: x.bono }));
-  c.combate = { activo: true, ronda: 1, turno: 0, orden };
+  c.combate = { activo: true, ronda: 1, turno: 0, orden }; delete c.huidos;
   for (const o of [...orden]) if (!o.k.startsWith('m:')) sumarCompaneros(c, o.k, rnd);
   ordenar(c); c.combate.turno = 0;
 }
@@ -454,7 +461,9 @@ async function activarEncuentro(cp: any, e: Encuentro, sumar = false) {
   if (cp.combate.activo && !sumar && !(await confirmar({ titulo: `¿Empezar ${e.nombre}?`, si: 'Terminar y empezar este',
     texto: `Hay un combate en curso (ronda ${cp.combate.ronda}). Se termina, se quitan sus enemigos y se tira iniciativa para este.` }))) return;
   conCamp(c => {
-    const nuevos = enemigosDe(e, r => monstruoDe(c, r));
+    // Los que vuelven de otro combate de la sesión entran con los PG que tenían al terminarlo
+    if (!sumar) guardarSobrevivientes(c);
+    const nuevos = [...enemigosDe(e, r => monstruoDe(c, r)), ...regresanA(e, c.encuentros || [])];
     if (sumar && c.combate.activo) {
       c.monstruos.push(...nuevos);
       for (const m of nuevos) c.combate.orden.push({ k: 'm:' + m.id, init: rnd(20) + m.bono, bono: m.bono });
@@ -475,16 +484,39 @@ function TarjetaEncuentro({ cp, e }: { cp: any; e: Encuentro }) {
     conCamp(c => { c.encuentros = (c.encuentros || []).filter((x: any) => x.id !== e.id); });
   };
   const nombreDe = (x: any) => x.nombre || (cat && monstruoDe(cp, x.ref)?.n) || x.ref;
+  const otros: Encuentro[] = (cp.encuentros || []).filter((x: Encuentro) => x.id !== e.id);
+  const de = e.vuelvenDe ? otros.find(x => norm(x.nombre) === norm(e.vuelvenDe!)) : undefined;
+  const vuelven = de?.sobrevivientes || [];
+  const vincular = (nombre: string) => conCamp(c => { const x = (c.encuentros || []).find((y: any) => y.id === e.id); if (!x) return false; if (nombre) x.vuelvenDe = nombre; else delete x.vuelvenDe; });
+  const quitarVuelve = (i: number) => conCamp(c => { const x = (c.encuentros || []).find((y: any) => y.id === de?.id); if (!x?.sobrevivientes) return false; x.sobrevivientes.splice(i, 1); });
   return (
     <Tarjeta as="li" className={cx('border-l-4', enCurso ? 'border-pas' : 'border-acc')}>
       <h3 className="m-0 font-serif text-lg font-bold leading-snug">{e.nombre}</h3>
       {enCurso && <span className="mt-1 inline-block rounded-full bg-soft px-2 py-0.5 text-xs font-bold">En curso · ronda {cp.combate.ronda}</span>}
       <p className="m-0 mt-1 text-sm text-muted">{e.enemigos.map(x => `${x.cantidad > 1 ? `${x.cantidad} × ` : ''}${nombreDe(x)}`).join(', ') || 'Sin enemigos'}</p>
+      {de && <p className="m-0 mt-1 text-sm">{vuelven.length ? <>Vuelven de {de.nombre}: <b>{vuelven.map(m => `${m.nombre} (${m.pg}/${m.pgMax} PG)`).join(', ')}</b></> : <span className="text-muted">Vuelven de {de.nombre}: nadie todavía (se anotan al terminar ese combate).</span>}</p>}
       <div className="mt-3 flex flex-wrap gap-2">
         {!enCurso && <Boton variante="primario" className="grow sm:grow-0" disabled={!cat} onClick={() => activarEncuentro(cp, e)}>{cat ? 'Activar combate' : 'Cargando…'}</Boton>}
         {enCurso && <Boton variante="primario" onClick={() => { S.mtab = 'combate'; render(); irArriba(); }}>Ir al combate</Boton>}
         {cp.combate.activo && !enCurso && <Boton disabled={!cat} onClick={() => activarEncuentro(cp, e, true)}>Sumar al combate en curso</Boton>}
       </div>
+      {otros.length > 0 && (
+        <Plegable titulo="Enemigos que vuelven de otro combate" className="mt-2">
+          <p className="m-0 text-sm text-muted">Los que quedan vivos al terminar ese combate, o que quitaste vivos durante él (huyeron, desaparecieron o no los encontraron), entran a este con los PG que tenían. Quita a los que ya no deban volver.</p>
+          <select aria-label="Combate del que vuelven" value={de?.nombre || ''} onChange={ev => vincular(ev.target.value)} className={cx(claseCampo, 'mt-2')}>
+            <option value="">Ninguno</option>
+            {otros.map(x => <option key={x.id} value={x.nombre}>{x.nombre}</option>)}
+          </select>
+          {vuelven.length > 0 && (
+            <ul className="m-0 mt-2 grid list-none gap-1 p-0">
+              {vuelven.map((m, i) => (
+                <li key={i} className="flex flex-wrap items-center justify-between gap-2"><span>{m.nombre} <span className="text-sm text-muted">CA {m.ca}, {m.pg}/{m.pgMax} PG</span></span>
+                  <Boton tamano="sm" variante="fantasma" onClick={() => quitarVuelve(i)} aria-label={`No vuelve ${m.nombre}`}>No vuelve</Boton></li>
+              ))}
+            </ul>
+          )}
+        </Plegable>
+      )}
       {e.notas && <Plegable titulo="Notas del combate" className="mt-2"><p className="m-0 whitespace-pre-line">{e.notas}</p></Plegable>}
       <Plegable titulo="Enemigos" className="mt-1">
         <ul className="m-0 grid list-none gap-2 p-0">
@@ -532,7 +564,7 @@ function ImportarSesion({ cp }: { cp: any }) {
         c.bestiario = { ...(c.bestiario || {}), ...s.monstruos };
         // Un combate con el mismo nombre se reemplaza (volver a importar la sesión la actualiza)
         const nombres = new Set(s.encuentros.map(e => norm(e.nombre)));
-        c.encuentros = [...(c.encuentros || []).filter((e: any) => !nombres.has(norm(e.nombre))), ...s.encuentros];
+        c.encuentros = [...(c.encuentros || []).filter((e: any) => !nombres.has(norm(e.nombre))), ...conservarVinculos(s.encuentros, c.encuentros || [])];
         c.sesion = { nombre: s.nombre, ...(s.notas ? { notas: s.notas } : {}), importadaEn: new Date().toISOString() };
       });
       S.mtab = 'sesion'; render(); irArriba();
@@ -802,10 +834,15 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
   const tirar = useDados();
   const cb = cp.combate;
   const vivo = useEconomiaVivo(cp.id, !!cb.activo), economia = vivo.eco;
-  const quitarMon = (id: string) => conCamp(c => { c.monstruos = c.monstruos.filter((m: any) => m.id !== id); c.combate.orden = (c.combate.orden || []).filter((o: any) => o.k !== 'm:' + id); });
+  const quitarMon = (id: string) => conCamp(c => {
+    // En un combate de la sesión, el enemigo que sale vivo (huye, desaparece) queda anotado por si vuelve en otro
+    const m = c.monstruos.find((x: any) => x.id === id);
+    if (m && c.combate.activo && c.encuentroActual && m.pg > 0 && !m.aliado) c.huidos = [...(c.huidos || []), m];
+    c.monstruos = c.monstruos.filter((x: any) => x.id !== id); c.combate.orden = (c.combate.orden || []).filter((o: any) => o.k !== 'm:' + id);
+  });
   if (!cb.activo) {
     const empezar = () => {
-      conCamp(iniciarCombate);
+      conCamp(c => { c.encuentroActual = null; iniciarCombate(c); });
       irArriba(); avisar('Iniciativa tirada para todos.');
     };
     return (
@@ -834,7 +871,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
   const siguiente = () => conCamp(c => { const b = c.combate; if (!b.orden.length) return false; b.turno++; if (b.turno >= b.orden.length) { b.turno = 0; b.ronda++; } });
   const terminar = async () => {
     const quitar = cp.monstruos.length > 0 && await confirmar({ titulo: '¿Quitar también a los enemigos?', texto: 'El combate termina igual; puedes dejarlos para el siguiente.', si: 'Quitarlos', no: 'Dejarlos' });
-    conCamp(c => { c.combate = { activo: false, ronda: 1, turno: 0, orden: [] }; if (quitar) c.monstruos = []; });
+    conCamp(c => { guardarSobrevivientes(c); c.combate = { activo: false, ronda: 1, turno: 0, orden: [] }; if (quitar) c.monstruos = []; });
   };
   const fijarInit = (k: string, v: number) => conCamp(c => { const o = c.combate.orden.find((o: any) => o.k === k); if (!o) return false; o.init = v; ordenar(c); });
   return (
