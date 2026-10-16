@@ -33,22 +33,14 @@ html, body { margin: 0; background: #4a4a4a; }
 </body></html>`;
 }
 
-/** Abre una ventana ya (si no, el navegador la bloquea por llegar tarde) y la llena cuando el contenido esté listo. */
-export function ventanaNueva(): { mostrar: (html: string) => void; cerrar: () => void } | null {
+/** Abre una ventana con el HTML ya listo. Se llama en el mismo toque del botón (si llega tarde, el navegador la
+   bloquea) y el HTML se escribe dentro: en el móvil, llevar la ventana a un blob la dejaba en blanco, y si la ventana
+   se abre antes de maquetar, la pestaña de la app queda detrás y el móvil la congela a medio maquetar. */
+export function abrirVentana(html: string): boolean {
   const w = window.open('', '_blank');
-  if (!w) return null;
-  w.document.write('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><p style="font:18px system-ui;padding:24px">Preparando…</p>');
-  return {
-    mostrar: (html) => {
-      const url = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
-      try {
-        w.location.href = url;
-      } catch {
-        // algunos navegadores del móvil no dejan llevar la ventana a un blob: se escribe dentro
-        w.document.open(); w.document.write(html); w.document.close();
-      }
-      setTimeout(() => URL.revokeObjectURL(url), 120_000);
-    },
-    cerrar: () => w.close(),
-  };
+  if (!w) return false;
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  return true;
 }

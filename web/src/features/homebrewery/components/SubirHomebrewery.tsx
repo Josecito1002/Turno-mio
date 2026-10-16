@@ -7,7 +7,7 @@ import { paginar } from '../domain/paginar';
 import { extraerEntregables, paginaImprimibles } from '../domain/imprimibles';
 import { tituloDe } from '../domain/brew';
 import { crearMedidor } from '../client/medidor';
-import { paginaPdf, ventanaNueva } from '../client/pdf';
+import { abrirVentana, paginaPdf } from '../client/pdf';
 
 type Guia = {
   archivo: string; texto: string; titulo: string;
@@ -16,6 +16,8 @@ type Guia = {
   entregables: number;
   /** el texto para Homebrewery, cuando ya se maquetó */
   brew?: string;
+  /** la página del PDF, ya preparada: se abre con el siguiente toque */
+  pdf?: string;
   editar?: string; leer?: string; error?: string;
 };
 
@@ -36,14 +38,17 @@ function descargar(nombre: string, texto: string) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([texto], { type: 'text/plain;charset=utf-8' }));
   a.download = nombre;
+  // fuera de la página, algunos navegadores del móvil no descargan nada
+  document.body.appendChild(a);
   a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
 }
 
+const bloqueada = () => avisar('El navegador bloqueó la ventana nueva: permite las ventanas emergentes para esta página.', 'aviso');
+
 function abrirImprimibles(g: Guia) {
-  const v = ventanaNueva();
-  if (!v) return avisar('El navegador bloqueó la ventana nueva: permite las ventanas emergentes para esta página.', 'aviso');
-  v.mostrar(paginaImprimibles(g.titulo, extraerEntregables(g.texto), location.origin));
+  if (!abrirVentana(paginaImprimibles(g.titulo, extraerEntregables(g.texto), location.origin))) bloqueada();
 }
 
 const enlaceBoton = 'inline-flex min-h-11 items-center justify-center rounded-xl px-3 text-center text-sm font-bold ring-1 ring-inset ring-rule hover:bg-soft sm:min-h-9';
@@ -121,27 +126,27 @@ export function SubirHomebrewery() {
     return lista[i].brew;
   };
 
+  /** Primer toque: maqueta, sube a Homebrewery (si aún no está) y prepara el PDF con la app delante. Segundo: lo abre. */
   const pdf = async (i: number) => {
-    const v = ventanaNueva();
-    if (!v) return avisar('El navegador bloqueó la ventana nueva: permite las ventanas emergentes para esta página.', 'aviso');
+    const g = guias[i];
+    if (g.pdf) { if (!abrirVentana(g.pdf)) bloqueada(); return; }
     try {
       const brew = await brewDe(i);
-      if (!brew) { v.cerrar(); return; }
-      // primero a Homebrewery (si aún no está), así la guía queda allí también sin tener que entrar
-      if (!guias[i].leer) {
-        setOcupado(`Subiendo ${guias[i].titulo}…`);
+      if (!brew) return;
+      if (!g.leer) {
+        setOcupado(`Subiendo ${g.titulo}…`);
         try {
-          const r = await subirUna(guias[i].archivo, brew, cookie);
+          const r = await subirUna(g.archivo, brew, cookie);
           cambiar(i, { editar: r.editar, leer: r.leer, error: undefined });
         } catch (e) {
           cambiar(i, { error: `No se subió a Homebrewery: ${e instanceof Error ? e.message : 'sin conexión'}. El PDF sale igual.` });
         }
       }
-      setOcupado(`Preparando el PDF de ${guias[i].titulo}…`);
-      v.mostrar(await paginaPdf(brew, guias[i].titulo));
+      setOcupado(`Preparando el PDF de ${g.titulo}…`);
+      cambiar(i, { pdf: await paginaPdf(brew, g.titulo) });
+      avisar('El PDF está listo: pulsa «Abrir PDF».');
     } catch (e) {
       console.error('[homebrewery] pdf', e);
-      v.cerrar();
       // con el motivo, para poder arreglarlo (en el móvil no hay consola)
       avisar(`No se pudo preparar el PDF: ${e instanceof Error ? e.message : String(e)}`, 'aviso');
     } finally {
@@ -150,8 +155,12 @@ export function SubirHomebrewery() {
   };
 
   const txt = async (i: number) => {
-    const brew = await brewDe(i);
-    if (brew) descargar(nombreTxt(guias[i].archivo), brew);
+    try {
+      const brew = await brewDe(i);
+      if (brew) descargar(nombreTxt(guias[i].archivo), brew);
+    } finally {
+      setOcupado('');
+    }
   };
 
   return (
@@ -172,9 +181,10 @@ export function SubirHomebrewery() {
                     {g.entregables > 0 && ` · ${g.entregables} documento${g.entregables === 1 ? '' : 's'} para entregar`}
                   </span>
                 </span>
+                {ocupado && ocupado.includes(g.titulo) && <span role="status" className="text-sm font-bold">{ocupado}</span>}
                 {g.error && <Aviso tipo="error" titulo="No se pudo">{g.error}</Aviso>}
                 <span className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-                  <Boton tamano="sm" disabled={!!ocupado} onClick={() => pdf(i)}>{g.leer ? 'Descargar PDF' : 'Subir y PDF'}</Boton>
+                  <Boton tamano="sm" variante={g.pdf ? 'primario' : undefined} disabled={!!ocupado} onClick={() => pdf(i)}>{g.pdf ? 'Abrir PDF' : g.leer ? 'Preparar PDF' : 'Subir y PDF'}</Boton>
                   {g.entregables > 0 && <Boton tamano="sm" onClick={() => abrirImprimibles(g)}>Imprimibles</Boton>}
                   {!g.lista && <Boton tamano="sm" disabled={!!ocupado} onClick={() => txt(i)}>Descargar .txt</Boton>}
                   {g.leer && <a className={enlaceBoton} href={g.leer} target="_blank" rel="noreferrer">Leer en Homebrewery</a>}
