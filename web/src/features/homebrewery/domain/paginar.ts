@@ -12,6 +12,9 @@ export type Medidor = {
   cajas(md: string, prefijo: string): Promise<{ n: number; els: Caja[]; alto: number }>;
 };
 
+/** La ilustración de las tres velas que llevan de fondo las portadas de las guías (la misma de los .txt de Homebrewery). */
+export const IMAGEN_PORTADA = 'https://raw.githubusercontent.com/Josecito1002/Turno-mio/homebrewery-imagenes/img/cover_ses2.jpeg';
+
 const unir = (bl: Bloque[]) => bl.map((b) => b.md).join('\n\n');
 const esTitulo = (b: Bloque) => b.kind === 'h' || b.kind === 'h1' || b.kind === 'deck';
 
@@ -148,7 +151,10 @@ export async function paginar(bloquesIn: Bloque[], meta: MetaGuia, m: Medidor, p
 
   // ---- portada, índice y pie ----
   const limpio = (s: string) => s.replace(/[[\]{}]/g, '');
-  const cover = ['{{frontCover}}', '', `# ${limpio(meta.title)}`, `## ${limpio(meta.subtitle)}`, '___'].join('\n');
+  const sesion = /Sesi[oó]n\s+(\d+)/i.exec(meta.subtitle);
+  const cover = ['{{frontCover}}', '', `# ${limpio(meta.title)}`, `## ${limpio(meta.subtitle)}`, '___',
+    ...(sesion ? ['', `{{banner CAMPAÑA · SESIÓN ${sesion[1]}}}`] : []),
+    '', `![](${IMAGEN_PORTADA}){position:absolute,bottom:0,left:0,height:100%,width:100%,object-fit:cover}`].join('\n');
   const heads: { b: Bloque; n: number }[] = [];
   pages.forEach((pg, n) => pg.forEach((b) => { if ((b.kind === 'h1' || (b.kind === 'h' && b.level === 2)) && !b.cont) heads.push({ b, n }); }));
   const tocMd = (num: (n: number) => number) => {
