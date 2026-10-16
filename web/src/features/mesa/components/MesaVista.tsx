@@ -23,6 +23,7 @@ import { combatesOrigen, conservarVinculos, enemigosDe, leerSesion, marcarRegres
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
 import { BloqueMonstruo, BuscadorEnemigo, VistaBestiario, monstruoDe, useCatalogo } from './Bestiario';
 import { SubirHomebrewery } from '@/features/homebrewery/components/SubirHomebrewery';
+import { DarObjeto } from './DarObjeto';
 
 const val = (id: string) => (document.getElementById(id) as HTMLInputElement | null)?.value || '';
 /** Cada acción trabaja sobre una copia fresca de la campaña, la guarda y redibuja. */
@@ -228,6 +229,7 @@ function TarjetaJugador({ cp, x, alQuitar }: { cp: any; x: any; alQuitar: () => 
       </header>
       <Pasivas x={x} />
       <PuntosGolpe x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
+      <DarObjeto campId={cp.id} personajeId={x.u.personajeId} nombre={x.nombre} />
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
         <span className="text-xs text-muted">Hoja actualizada {hora(x.u.actualizadoEn)}</span>
         <Boton tamano="sm" variante="fantasma" onClick={quitar}>Quitar de la mesa</Boton>

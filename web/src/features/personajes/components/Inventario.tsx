@@ -12,6 +12,10 @@ import { maxSintonia } from '../domain/magicos';
 import { OBJETOS_MAGICOS, RAREZAS, type ObjetoMagico } from '@/features/reglas/data/objetos-magicos';
 import { ORDEN_TIPOS, TIPOS } from '@/features/reglas/data/caracteristicas';
 import { norm } from '@/shared/utils/texto';
+import { avisar } from '@/shared/ui/avisos';
+import { abrirVentana } from '@/features/homebrewery/client/pdf';
+import { paginaImprimibles } from '@/features/homebrewery/domain/imprimibles';
+import { fichasInventario } from '../domain/fichas-inventario';
 import {
   agregarArma, agregarArmadura, agregarMagico, agregarObjeto, cambiarCantidadArma, cambiarCantidadArmadura, cambiarCantidadMagico, cambiarObjeto,
   juntarMonedas, moverMonedas, ponerArmadura, sintonizar,
@@ -199,7 +203,7 @@ const PROPIEDADES = ['ligera', 'sutil', 'arrojadiza', 'versátil', 'dos manos', 
 function Agregar() {
   const [tipo, setTipo] = useState<'arma' | 'armadura' | 'magico' | 'otro'>('arma');
   const [sel, setSel] = useState(''), [f, setF] = useState<any>({});
-  const [obj, setObj] = useState(''), [q, setQ] = useState('1');
+  const [obj, setObj] = useState(''), [q, setQ] = useState('1'), [texto, setTexto] = useState('');
   const cambiar = (k: string, v: any) => setF((x: any) => ({ ...x, [k]: v }));
   const campo = (k: string, etiqueta: string, props: any = {}) => (
     <Campo etiqueta={etiqueta}><input value={f[k] ?? ''} onChange={e => cambiar(k, e.target.value)} className={claseCampo} {...props} /></Campo>
@@ -285,14 +289,27 @@ function Agregar() {
         </>
       )}
       {tipo === 'otro' && (
-        <div className="flex flex-wrap items-end gap-2">
-          <Campo etiqueta="Objeto" className="min-w-52 flex-1"><input value={obj} onChange={e => setObj(e.target.value)} placeholder="Cuerda de cáñamo (50 pies)" className={claseCampo} /></Campo>
-          <Campo etiqueta="Cantidad" className="w-24"><input type="number" inputMode="numeric" min={1} value={q} onChange={e => setQ(e.target.value)} className={claseCampo} /></Campo>
-          <Boton variante="primario" disabled={!obj.trim()} onClick={() => { agregarObjeto(obj, Math.max(1, +q || 1)); setObj(''); setQ('1'); }}>Añadir</Boton>
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-end gap-2">
+            <Campo etiqueta="Objeto" className="min-w-52 flex-1"><input value={obj} onChange={e => setObj(e.target.value)} placeholder="Cuerda de cáñamo (50 pies)" className={claseCampo} /></Campo>
+            <Campo etiqueta="Cantidad" className="w-24"><input type="number" inputMode="numeric" min={1} value={q} onChange={e => setQ(e.target.value)} className={claseCampo} /></Campo>
+          </div>
+          <Campo etiqueta="Qué hace (opcional)" ayuda="Sale en su ficha. El equipo de aventura conocido ya trae su texto.">
+            <textarea value={texto} onChange={e => setTexto(e.target.value)} rows={2} className={claseCampo} />
+          </Campo>
+          <div><Boton variante="primario" disabled={!obj.trim()} onClick={() => { agregarObjeto(obj, Math.max(1, +q || 1), texto.trim()); setObj(''); setQ('1'); setTexto(''); }}>Añadir</Boton></div>
         </div>
       )}
     </div>
   );
+}
+
+/** Abre la página para imprimir las fichas de todo el inventario. */
+function imprimirFichas(pj: any, c: any) {
+  const fichas = fichasInventario(pj, c, location.origin);
+  if (!fichas.length) { avisar('Todavía no llevas nada.', 'aviso'); return; }
+  if (!abrirVentana(paginaImprimibles(`Inventario de ${pj.nombre || 'tu personaje'}`, { fichas }, location.origin)))
+    avisar('El navegador bloqueó la ventana nueva: permite las ventanas emergentes para esta página.', 'aviso');
 }
 
 /** Pestaña Equipo de la hoja: manos, armadura puesta, monedas e inventario. */
@@ -325,12 +342,15 @@ export function Inventario({ c }: { c: any }) {
               detalle={k === 'escudo' ? (c.shield ? 'En la otra mano' : 'Guardado') : c.armorKey === k ? 'Puesta' : 'Guardada'} />
           ))}
           {(pj.objetos || []).map((o: any, i: number) => (
-            <Fila key={'o' + i} q={o.q} nombre={o.n} menos={() => cambiarObjeto(i, -1)} mas={() => cambiarObjeto(i, 1)} />
+            <Fila key={'o' + i} q={o.q} nombre={o.n} detalle={o.t} menos={() => cambiarObjeto(i, -1)} mas={() => cambiarObjeto(i, 1)} />
           ))}
           {!c.armas.length && !armaduras.length && !(pj.objetos || []).length && <li className="py-2 text-sm text-muted">Todavía no llevas nada.</li>}
         </Lista>
       </Seccion>
       <Seccion titulo="Objetos mágicos"><ListaMagicos c={c} /></Seccion>
+      <Seccion titulo="Fichas de objeto" descripcion="Una carta de 63 × 88 mm por cada cosa que llevas, nueve por hoja. Imprime al 100 %.">
+        <div><Boton onClick={() => imprimirFichas(pj, c)}>Imprimir fichas</Boton></div>
+      </Seccion>
       <Seccion titulo="Añadir al inventario"><div className="rounded-2xl bg-surface p-4 ring-1 ring-rule/60"><Agregar /></div></Seccion>
       <Seccion titulo="Notas" descripcion="Lo que trajeron los kits iniciales y cualquier otra cosa que quieras anotar.">
         <CampoArea path="inventario" value={pj.inventario} rows={5} aria-label="Notas del inventario" />

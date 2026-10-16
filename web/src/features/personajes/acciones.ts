@@ -20,6 +20,7 @@ import { ARMAS, ARMADURAS } from '@/features/reglas/data/equipo';
 import { CRIATURAS } from '@/features/reglas/data/criaturas';
 import { maxSintonia, armaMagica, armaduraMagica, defDe, sintonizados } from './domain/magicos';
 import { emitirCambioPg } from '@/features/mesa/realtime-cliente';
+import type { ObjetoEntregado } from '@/features/mesa/domain/entregas';
 
 export type Tirar = (expr: string, label: string, o?: OpcionesTirada) => Promise<Resultado>;
 
@@ -418,11 +419,20 @@ export function ponerArmadura(k: string) {
   pj.armaduras = armadurasDe(pj); pj.armadura = k || 'ninguna';
   savePj(); render();
 }
-export function agregarObjeto(nombre: string, q: number) {
+/** Un objeto cualquiera; `texto` es lo que pone su ficha (opcional). Si ya lo lleva, se suman. */
+export function agregarObjeto(nombre: string, q: number, texto = '') {
   const pj = S.pj, n = nombre.trim(); if (!n) return;
   const ex = (pj.objetos || []).find((o: any) => o.n.toLowerCase() === n.toLowerCase());
-  if (ex) ex.q += q; else pj.objetos = [...(pj.objetos || []), { n, q }];
+  if (ex) { ex.q += q; if (texto.trim() && !ex.t) ex.t = texto.trim(); }
+  else pj.objetos = [...(pj.objetos || []), { n, q, ...(texto.trim() ? { t: texto.trim() } : {}) }];
   savePj(); render();
+}
+/** Mete en el inventario un objeto que dio el DM desde la mesa. */
+export function recibirObjeto(o: ObjetoEntregado) {
+  if (o.tipo === 'objeto') { agregarObjeto(o.n, o.q, o.t); avisar(`Tu DM te dio: ${o.q > 1 ? `${o.q} × ` : ''}${o.n}.`); }
+  else if (o.tipo === 'arma') agregarArma(o.k);
+  else if (o.tipo === 'armadura') agregarArmadura(o.k);
+  else agregarMagico(o.k || '', o.def, o.base);
 }
 export function cambiarObjeto(i: number, d: number) {
   const pj = S.pj, o = pj.objetos?.[i]; if (!o) return;

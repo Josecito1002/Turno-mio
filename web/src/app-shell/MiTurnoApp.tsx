@@ -14,6 +14,7 @@ import { faltaParaSubir } from '@/features/personajes/domain/pendientes';
 import { getC } from '@/features/biblioteca/domain/biblioteca';
 import { abrirSubida, bajarArchivo, bajarNivel, borrarPj, descansar, gastarRecurso, quedaRecurso } from '@/features/personajes/acciones';
 import { Ficha } from '@/features/personajes/components/ficha/Ficha';
+import { RecibirEntregas } from '@/features/personajes/components/RecibirEntregas';
 import { MesaJugadorVista } from '@/features/mesa/components/UnirseMesa';
 import { ModoCombate } from '@/features/personajes/components/ficha/ModoCombate';
 import { SubidaNivel } from '@/features/personajes/components/ficha/SubidaNivel';
@@ -79,16 +80,18 @@ function Vista({ elegirArchivos, importarHojas }: { elegirArchivos: () => void; 
   if (vista === 'ajeno') return <HojaAjena />;
   if (vista === 'home') return <Inicio />;
   const c = calcularAbierto();
+  const recibir = <RecibirEntregas personajeId={S.pj.id} />;
   if (vista === 'ficha' && S.combateMesa && S.combateMesa.personajeId === S.pj.id) {
-    if (!S.combateHoja) return <ModoCombate c={c} />;
+    if (!S.combateHoja) return <>{recibir}<ModoCombate c={c} /></>;
     return (
       <>
+        {recibir}
         <div className="mb-3"><Boton variante="primario" onClick={() => { S.combateHoja = false; render(); irArriba(); }}>Volver al combate</Boton></div>
         <Ficha c={c} />
       </>
     );
   }
-  return vista === 'editor' ? <Editor c={c} /> : <Ficha c={c} />;
+  return <>{recibir}{vista === 'editor' ? <Editor c={c} /> : <Ficha c={c} />}</>;
 }
 
 const TITULOS: Record<string, string> = { home: 'Personajes', lib: 'Biblioteca', mesa: 'Mesa del DM', mesaj: 'Campañas', cuentas: 'Cuentas' };

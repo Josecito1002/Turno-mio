@@ -6,6 +6,7 @@ import { exigir } from '@/features/cuentas/server/permisos';
 import { usuarios } from '@/features/cuentas/server/tablas';
 import { personajes } from '@/features/personajes/server/tablas';
 import { campanas, mesaJugadores } from './tablas';
+import { MAX_ENTREGAS, validarObjeto, type Entrega } from '../domain/entregas';
 
 const SOLO_DM = 'La Mesa del DM es solo para cuentas de DM.';
 
@@ -73,6 +74,8 @@ const typeDefs = /* GraphQL */ `
     combateVivo(campanaId: ID!): JSON
     "Jugador: el combate de la mesa a la que unió su personaje (null si no hay)."
     combateMesa(dmId: ID!, campanaId: ID!, personajeId: ID!): JSON
+    "Jugador: los objetos que el DM le dio a su personaje y aún no recogió."
+    entregasMesa(dmId: ID!, campanaId: ID!, personajeId: ID!): JSON!
   }
   extend type Mutation {
     guardarCampana(id: ID!, nombre: String!, datos: JSON!): Campana!
@@ -101,6 +104,10 @@ const typeDefs = /* GraphQL */ `
     resolverSalvacion(campanaId: ID!, id: String!, clave: String!): Boolean!
     "DM: manda a los jugadores un descanso corto o largo, o inspiración (a uno o a todos); cada hoja lo aplica al conectarse."
     enviarOrdenDm(campanaId: ID!, tipo: String!, personajeId: ID): Boolean!
+    "DM: da un objeto a un personaje unido; le llega a su hoja la próxima vez que la abra."
+    darObjetoDm(campanaId: ID!, personajeId: ID!, objeto: JSON!): Boolean!
+    "Jugador: marca como recogidos (ya en su inventario) los objetos que le dio el DM."
+    recibirEntregas(dmId: ID!, campanaId: ID!, personajeId: ID!, ids: [String!]!): Boolean!
     "DM: le manda a un jugador unido el daño, la curación o la condición de un enemigo; su hoja lo aplica al conectarse."
     enviarEfectoDm(campanaId: ID!, personajeId: ID!, de: String!, dano: Int!, cura: Boolean, condicion: String, nota: String): Boolean!
     "Jugador: pide al DM que le cuente lo que sabe de un enemigo (el DM aprueba o no)."
@@ -197,12 +204,18 @@ export const mesaGraphQL: ModuloGraphQL = {
         const [c] = await ctx.db.select({ v: campanas.combateVivo }).from(campanas).where(and(eq(campanas.usuarioId, a.dmId), eq(campanas.id, a.campanaId))).limit(1);
         return c?.v ?? null;
       },
+      entregasMesa: async (_: unknown, a: { dmId: string; campanaId: string; personajeId: string }, ctx: Contexto) => {
+        await exigirUnido(ctx, a);
+        const [c] = await ctx.db.select({ v: sql<Entrega[] | null>`${campanas.combateVivo}->'entregas'` }).from(campanas)
+          .where(and(eq(campanas.usuarioId, a.dmId), eq(campanas.id, a.campanaId))).limit(1);
+        return (c?.v || []).filter((e) => e.personajeId === a.personajeId);
+      },
     },
     Mutation: {
       fijarCombateVivo: async (_: unknown, a: { campanaId: string; datos: Record<string, unknown>; reiniciarEconomia?: boolean }, ctx: Contexto) => {
         const u = await exigir(ctx, 'usarMesa', SOLO_DM);
         // La economía (lo que gastan los jugadores) se conserva salvo que se pida reiniciarla; lo demás lo manda el DM
-        const { economia: _e, golpes: _g, salvaciones: _s, ultimas: _u, ordenes: _o, peticiones: _p, ...datos } = a.datos; void _e; void _g; void _s; void _u; void _o; void _p;
+        const { economia: _e, golpes: _g, salvaciones: _s, ultimas: _u, ordenes: _o, peticiones: _p, entregas: _n, ...datos } = a.datos; void _e; void _g; void _s; void _u; void _o; void _p; void _n;
         const nuevo = sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || ${JSON.stringify({ ...datos, actualizadoEn: new Date().toISOString() })}::jsonb`;
         await ctx.db.update(campanas).set({ combateVivo: a.reiniciarEconomia ? sql`(${nuevo}) || '{"economia":{}}'::jsonb` : nuevo })
           .where(and(eq(campanas.usuarioId, u.id), eq(campanas.id, a.campanaId)));
@@ -284,6 +297,31 @@ export const mesaGraphQL: ModuloGraphQL = {
         const ultimas = sql`coalesce((select jsonb_agg(o order by n) from (select o, n from jsonb_array_elements(${lista}) with ordinality t(o, n) order by n desc limit 30) x), '[]'::jsonb)`;
         await ctx.db.update(campanas).set({ combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('ordenes', ${ultimas})` })
           .where(and(eq(campanas.usuarioId, u.id), eq(campanas.id, a.campanaId)));
+        return true;
+      },
+      darObjetoDm: async (_: unknown, a: { campanaId: string; personajeId: string; objeto: unknown }, ctx: Contexto) => {
+        const u = await exigir(ctx, 'usarMesa', SOLO_DM);
+        const objeto = validarObjeto(a.objeto);
+        if (!objeto) throw new GraphQLError('Ese objeto no es válido.');
+        // Solo a un personaje unido a una mesa propia
+        const [fila] = await ctx.db.select({ n: count() }).from(mesaJugadores)
+          .where(and(eq(mesaJugadores.dmId, u.id), eq(mesaJugadores.campanaId, a.campanaId), eq(mesaJugadores.personajeId, a.personajeId)));
+        if (!Number(fila?.n)) throw new GraphQLError('Ese personaje no está en tu mesa.');
+        const entrega: Entrega = { id: randomUUID(), personajeId: a.personajeId, objeto, de: 'DM', ts: new Date().toISOString() };
+        const lista = sql`coalesce(${campanas.combateVivo}->'entregas', '[]'::jsonb) || ${JSON.stringify([entrega])}::jsonb`;
+        const ultimas = sql`coalesce((select jsonb_agg(o order by n) from (select o, n from jsonb_array_elements(${lista}) with ordinality t(o, n) order by n desc limit ${MAX_ENTREGAS}) x), '[]'::jsonb)`;
+        await ctx.db.update(campanas).set({ combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('entregas', ${ultimas})` })
+          .where(and(eq(campanas.usuarioId, u.id), eq(campanas.id, a.campanaId)));
+        return true;
+      },
+      recibirEntregas: async (_: unknown, a: { dmId: string; campanaId: string; personajeId: string; ids: string[] }, ctx: Contexto) => {
+        await exigirUnido(ctx, a);
+        const ids = a.ids.filter((x) => /^[\w-]{1,60}$/.test(x)).slice(0, MAX_ENTREGAS);
+        if (!ids.length) return true;
+        // Solo las suyas: las de otros personajes se quedan aunque alguien mande sus ids
+        const resto = sql`coalesce((select jsonb_agg(e) from jsonb_array_elements(coalesce(${campanas.combateVivo}->'entregas', '[]'::jsonb)) e where not ((e->>'personajeId') = ${a.personajeId}::text and (e->>'id') in (select jsonb_array_elements_text(${JSON.stringify(ids)}::jsonb)))), '[]'::jsonb)`;
+        await ctx.db.update(campanas).set({ combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('entregas', ${resto})` })
+          .where(and(eq(campanas.usuarioId, a.dmId), eq(campanas.id, a.campanaId)));
         return true;
       },
       enviarEfectoDm: async (_: unknown, a: { campanaId: string; personajeId: string; de: string; dano: number; cura?: boolean | null; condicion?: string | null; nota?: string | null }, ctx: Contexto) => {

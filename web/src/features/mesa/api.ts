@@ -1,4 +1,5 @@
 import { gql } from '@/shared/graphql/cliente';
+import type { Entrega, ObjetoEntregado } from './domain/entregas';
 
 export const QUERY_CAMPANAS = /* GraphQL */ `campanas { id nombre datos codigo unidos }`;
 export type CampanaServidor = { id: string; nombre: string; datos: Record<string, unknown>; codigo: string | null; unidos: number | null };
@@ -111,3 +112,14 @@ export const enviarEfectoDm = (campanaId: string, personajeId: string, e: { de: 
   gql(`mutation ($campanaId: ID!, $personajeId: ID!, $de: String!, $dano: Int!, $cura: Boolean, $condicion: String, $nota: String) { enviarEfectoDm(campanaId: $campanaId, personajeId: $personajeId, de: $de, dano: $dano, cura: $cura, condicion: $condicion, nota: $nota) }`, { campanaId, personajeId, ...e });
 export const enviarOrdenDm = (campanaId: string, tipo: OrdenDm['tipo'], personajeId?: string) =>
   gql(`mutation ($campanaId: ID!, $tipo: String!, $personajeId: ID) { enviarOrdenDm(campanaId: $campanaId, tipo: $tipo, personajeId: $personajeId) }`, { campanaId, tipo, personajeId });
+
+/* ---- Objetos que el DM da a los personajes de su mesa ---- */
+export const darObjetoDm = (campanaId: string, personajeId: string, objeto: ObjetoEntregado) =>
+  gql(`mutation ($campanaId: ID!, $personajeId: ID!, $objeto: JSON!) { darObjetoDm(campanaId: $campanaId, personajeId: $personajeId, objeto: $objeto) }`, { campanaId, personajeId, objeto });
+
+export const entregasMesa = (m: { dmId: string; campanaId: string; personajeId: string }) =>
+  gql<{ entregasMesa: Entrega[] }>(`query ($dmId: ID!, $campanaId: ID!, $personajeId: ID!) { entregasMesa(dmId: $dmId, campanaId: $campanaId, personajeId: $personajeId) }`, m)
+    .then(d => d.entregasMesa || []);
+
+export const recibirEntregas = (m: { dmId: string; campanaId: string; personajeId: string }, ids: string[]) =>
+  gql(`mutation ($dmId: ID!, $campanaId: ID!, $personajeId: ID!, $ids: [String!]!) { recibirEntregas(dmId: $dmId, campanaId: $campanaId, personajeId: $personajeId, ids: $ids) }`, { ...m, ids });

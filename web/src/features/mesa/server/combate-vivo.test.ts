@@ -130,3 +130,25 @@ describe('combate en vivo', () => {
     assert.ok(v.golpes.some((g: any) => g.objetivo === 'pj:abc' && g.cura));
   });
 });
+
+describe('objetos que da el DM', () => {
+  test('el DM da un objeto, solo le llega a ese personaje y desaparece al recogerlo', async () => {
+    await M.darObjetoDm(null, { campanaId: 'c1', personajeId: 'pj1', objeto: { tipo: 'objeto', n: '  El libro verde ', q: 0, t: 'Huele a lirios.' } }, ctx(dm));
+    await M.darObjetoDm(null, { campanaId: 'c1', personajeId: 'pj1', objeto: { tipo: 'magico', k: 'gafas-noche' } }, ctx(dm));
+    const e = await Q.entregasMesa(null, unido, ctx(jug));
+    assert.equal(e.length, 2);
+    assert.deepEqual(e[0].objeto, { tipo: 'objeto', n: 'El libro verde', q: 1, t: 'Huele a lirios.' });
+    // publicar el combate no las borra
+    await M.fijarCombateVivo(null, { campanaId: 'c1', datos: { activo: false, entregas: [] } }, ctx(dm));
+    assert.equal((await Q.entregasMesa(null, unido, ctx(jug))).length, 2);
+    await M.recibirEntregas(null, { ...unido, ids: [e[0].id] }, ctx(jug));
+    const r = await Q.entregasMesa(null, unido, ctx(jug));
+    assert.equal(r.length, 1); assert.equal(r[0].objeto.k, 'gafas-noche');
+  });
+  test('no se da a quien no está en la mesa, ni lo da un jugador, ni un objeto raro', async () => {
+    await assert.rejects(M.darObjetoDm(null, { campanaId: 'c1', personajeId: 'pjx', objeto: { tipo: 'objeto', n: 'Algo' } }, ctx(dm)));
+    await assert.rejects(M.darObjetoDm(null, { campanaId: 'c1', personajeId: 'pj1', objeto: { tipo: 'objeto', n: 'Algo' } }, ctx(jug)));
+    await assert.rejects(M.darObjetoDm(null, { campanaId: 'c1', personajeId: 'pj1', objeto: { tipo: 'conjuro', n: 'Algo' } }, ctx(dm)));
+    await assert.rejects(Q.entregasMesa(null, unido, ctx(otro)));
+  });
+});
