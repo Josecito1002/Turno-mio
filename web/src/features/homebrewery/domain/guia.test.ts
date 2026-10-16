@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { guiaABloques } from './guia';
 import { paginar, IMAGEN_PORTADA, type Medidor } from './paginar';
-import { enLinea, extraerEntregables, extraerImprimibles, mdAHtml } from './imprimibles';
+import { enLinea, extraerEntregables, extraerImprimibles, mdAHtml, paginaImprimibles } from './imprimibles';
 
 const GUIA = `# El Precio de los Deseos · Sesión 9: Prueba
 
@@ -99,4 +99,47 @@ test('imprimibles: mapas del apéndice con su leyenda, y las páginas del DM', (
   ]);
   assert.deepEqual(x.dm.map((d) => d.titulo), ['Estadísticas', 'El reloj y hoja de control']);
   assert.match(mdAHtml(x.dm[1].md), /<div class="reloj"><span>1<\/span><span>2<\/span><span>3<\/span><\/div>/);
+});
+
+test('imprimibles: fichas de objeto con sus copias, tapetes a escala, y las fichas no entran en el manual', () => {
+  const md = `# Guía · Sesión 9: Prueba
+
+## Apéndice C: Mapas
+
+### M9
+
+![La cámara.](https://x/m9.jpg "tapete")
+
+## Apéndice F: Fichas de objeto
+
+*Para recortar.*
+
+### El libro verde
+
+![](https://x/libro.png)
+
+*Libro encuadernado en cuero*
+
+Huele a lirios.
+
+*«Para los héroes.»*
+
+### Copo de Nevisca ×6
+
+*Regalo de la señora del lago*
+
+Una vez, ventaja.
+`;
+  const x = extraerImprimibles(md);
+  assert.deepEqual(x.mapas, [{ titulo: 'M9 · La cámara', url: 'https://x/m9.jpg', nota: '', tapete: true }]);
+  assert.deepEqual(x.fichas, [
+    { titulo: 'El libro verde', imagen: 'https://x/libro.png', tipo: 'Libro encuadernado en cuero', parrafos: ['Huele a lirios.', '*«Para los héroes.»*'], copias: 1 },
+    { titulo: 'Copo de Nevisca', imagen: '', tipo: 'Regalo de la señora del lago', parrafos: ['Una vez, ventaja.'], copias: 6 },
+  ]);
+  const pagina = paginaImprimibles('Prueba', { fichas: x.fichas }, 'https://app');
+  assert.equal(pagina.match(/class="ficha"/g)?.length, 7);
+  assert.doesNotMatch(pagina, /class="mapa/);
+  const { bloques } = guiaABloques(md);
+  assert.ok(bloques.some((b) => b.kind === 'fig' && b.md.includes('m9.jpg')));
+  assert.ok(!bloques.some((b) => /libro|Fichas/.test(b.md)));
 });

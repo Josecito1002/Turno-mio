@@ -14,6 +14,8 @@ type Guia = {
   /** ya viene en formato Homebrewery (.txt hecho antes); si no, es una guía en Markdown que hay que maquetar */
   lista: boolean;
   imprimibles: string;
+  /** cuántos hay de cada cosa, para enseñar solo los botones que sirven */
+  partes: Record<Parte, number>;
   /** el texto para Homebrewery, cuando ya se maquetó */
   brew?: string;
   /** la página del PDF, ya preparada: se abre con el siguiente toque */
@@ -45,10 +47,15 @@ function descargar(nombre: string, texto: string) {
   setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
 }
 
+type Parte = 'fichas' | 'mapas' | 'docs' | 'dm';
+const PARTES: [Parte, string][] = [['fichas', 'Fichas de objeto'], ['mapas', 'Mapas'], ['docs', 'Documentos'], ['dm', 'Para el DM']];
+const partesDe = (x: Imprimibles): Record<Parte, number> => ({ fichas: x.fichas.length, mapas: x.mapas.length, docs: x.docs.length, dm: x.dm.length });
+
 /** «3 documentos, 4 mapas y estadísticas»: lo que sale en Imprimibles, o vacío si no hay nada. */
 function resumen(x: Imprimibles): string {
   if (!cuantosImprimibles(x)) return '';
   const partes = [
+    x.fichas.length && `${x.fichas.length} ficha${x.fichas.length === 1 ? '' : 's'}`,
     x.docs.length && `${x.docs.length} documento${x.docs.length === 1 ? '' : 's'}`,
     x.mapas.length && `${x.mapas.length} mapa${x.mapas.length === 1 ? '' : 's'}`,
     x.dm.length && 'páginas del DM',
@@ -58,8 +65,10 @@ function resumen(x: Imprimibles): string {
 
 const bloqueada = () => avisar('El navegador bloqueó la ventana nueva: permite las ventanas emergentes para esta página.', 'aviso');
 
-function abrirImprimibles(g: Guia) {
-  if (!abrirVentana(paginaImprimibles(g.titulo, extraerImprimibles(g.texto), location.origin))) bloqueada();
+/** Cada cosa en su página: las fichas, los mapas, los documentos para los jugadores o las páginas del DM. */
+function abrirImprimibles(g: Guia, parte: Parte) {
+  const x = extraerImprimibles(g.texto);
+  if (!abrirVentana(paginaImprimibles(g.titulo, { [parte]: x[parte] }, location.origin))) bloqueada();
 }
 
 const enlaceBoton = 'inline-flex min-h-11 items-center justify-center rounded-xl px-3 text-center text-sm font-bold ring-1 ring-inset ring-rule hover:bg-soft sm:min-h-9';
@@ -77,7 +86,8 @@ export function SubirHomebrewery() {
       const texto = await f.text();
       const lista = esHomebrewery(texto);
       const titulo = lista ? tituloDe(texto, f.name) : (() => { const { meta } = guiaABloques(texto); return [meta.title, meta.subtitle].filter(Boolean).join(' · '); })();
-      return { archivo: f.name, texto, titulo, lista, imprimibles: resumen(extraerImprimibles(texto)) };
+      const x = extraerImprimibles(texto);
+      return { archivo: f.name, texto, titulo, lista, imprimibles: resumen(x), partes: partesDe(x) };
     })));
   };
 
@@ -196,7 +206,9 @@ export function SubirHomebrewery() {
                 {g.error && <Aviso tipo="error" titulo="No se pudo">{g.error}</Aviso>}
                 <span className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
                   <Boton tamano="sm" variante={g.pdf ? 'primario' : undefined} disabled={!!ocupado} onClick={() => pdf(i)}>{g.pdf ? 'Abrir PDF' : g.leer ? 'Preparar PDF' : 'Subir y PDF'}</Boton>
-                  {g.imprimibles && <Boton tamano="sm" onClick={() => abrirImprimibles(g)}>Imprimibles</Boton>}
+                  {PARTES.filter(([p]) => g.partes[p]).map(([p, nombre]) => (
+                    <Boton key={p} tamano="sm" onClick={() => abrirImprimibles(g, p)}>{nombre}</Boton>
+                  ))}
                   {!g.lista && <Boton tamano="sm" disabled={!!ocupado} onClick={() => txt(i)}>Descargar .txt</Boton>}
                   {g.leer && <a className={enlaceBoton} href={g.leer} target="_blank" rel="noreferrer">Leer en Homebrewery</a>}
                   {g.editar && <a className={enlaceBoton} href={g.editar} target="_blank" rel="noreferrer">Editar en Homebrewery</a>}

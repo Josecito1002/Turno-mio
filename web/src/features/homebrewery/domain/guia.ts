@@ -96,6 +96,11 @@ export function guiaABloques(texto: string): { meta: MetaGuia; bloques: Bloque[]
         continue;
       }
       if (n === 2) {
+        // las fichas de objeto solo se imprimen recortables (Imprimibles): en el manual no van
+        if (/^Ap[ée]ndice\b.*\bfichas\b/i.test(t)) {
+          while (i < lineas.length && !/^#{1,2}\s/.test(lineas[i])) i++;
+          continue;
+        }
         add({ md: `# ${escapar(t)}`, kind: 'h1', text: textoPlano(t) });
         // la entradilla en cursiva justo debajo del capítulo
         let j = i;
@@ -119,7 +124,7 @@ export function guiaABloques(texto: string): { meta: MetaGuia; bloques: Bloque[]
       add({ md: filas.join('\n'), kind: 'table' });
       continue;
     }
-    const img = /^!\[([^\]]*)\]\(([^)\s]+)\)\s*$/.exec(l.trim());
+    const img = /^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)\s*$/.exec(l.trim());
     if (img) {
       const pie = img[1].trim();
       add({ md: `{{fig,incol\n![${pie}](${img[2]}){width:60%}${pie ? `\n\n{{cap ${escapar(pie)}}}` : ''}\n}}`, kind: 'fig' });

@@ -1,5 +1,6 @@
 /* Lo que se imprime de una guía, sacado solo y maquetado: los documentos «para entregar a los jugadores» para
-   recortar, los mapas a hoja completa y, para el DM, las estadísticas y la hoja de control.
+   recortar, los mapas a hoja completa (los tapetes, a escala de miniatura), las fichas de objeto a tamaño de carta
+   de Magic y, para el DM, las estadísticas y la hoja de control.
    Los documentos y los mapas salen tanto de la guía en Markdown (`> **PARA ENTREGAR A LOS JUGADORES · Título**`)
    como del .txt de Homebrewery (`{{descriptive,entregar`); las secciones del DM, solo del Markdown. */
 
@@ -58,10 +59,17 @@ export function extraerEntregables(texto: string): Entregable[] {
   return out;
 }
 
-export type Mapa = { titulo: string; url: string; nota: string };
+/** `tapete`: mapa de combate con su cuadrícula de 2,5 cm ya dibujada (`![…](url "tapete")`): se imprime a escala. */
+export type Mapa = { titulo: string; url: string; nota: string; tapete?: boolean };
+/** Una ficha de objeto de 63 × 88 mm: `### Nombre` (con `×N` si van varias), la imagen, la línea de tipo en cursiva
+    y el texto. */
+export type Ficha = { titulo: string; imagen: string; tipo: string; parrafos: string[]; copias: number };
 /** Un apéndice para el DM, con su Markdown tal cual. */
 export type SeccionDm = { titulo: string; md: string };
-export type Imprimibles = { docs: Entregable[]; mapas: Mapa[]; dm: SeccionDm[] };
+export type Imprimibles = { docs: Entregable[]; mapas: Mapa[]; dm: SeccionDm[]; fichas: Ficha[] };
+
+/** Una imagen de Markdown, con su título opcional: `![pie](url "título")`. */
+export const IMAGEN_MD = /^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/;
 
 type Apendice = { titulo: string; lineas: string[] };
 
@@ -94,10 +102,11 @@ export function extraerMapas(texto: string): Mapa[] {
     const t = l.trim();
     const h = /^#{3,6}\s+(.*)$/.exec(t);
     if (h) { seccion = h[1].trim(); ultimo = null; continue; }
-    const img = /^!\[([^\]]*)\]\(([^)\s]+)\)/.exec(t);
+    const img = IMAGEN_MD.exec(t);
     if (img) {
       const pie = img[1].trim().replace(/\.$/, '');
       ultimo = { titulo: [seccion, pie].filter(Boolean).join(' · ') || 'Mapa', url: img[2], nota: '' };
+      if (/tapete/i.test(img[3] || '')) ultimo.tapete = true;
       out.push(ultimo);
       continue;
     }
@@ -105,6 +114,27 @@ export function extraerMapas(texto: string): Mapa[] {
     if (ultimo && t && !/^[{}\\|<]/.test(t) && !t.startsWith('{{')) ultimo.nota = [ultimo.nota, t.replace(/^\*(.*)\*$/, '$1')].filter(Boolean).join(' ');
   }
   return out;
+}
+
+/** Las fichas del apéndice «Fichas de objeto»: una por `###`. */
+export function extraerFichas(texto: string): Ficha[] {
+  const ap = apendices(texto).find((a) => /fichas/i.test(a.titulo));
+  if (!ap) return [];
+  const out: Ficha[] = [];
+  let cur: Ficha | null = null;
+  for (const l of ap.lineas) {
+    const t = l.trim();
+    const h = /^#{3,6}\s+(.*?)(?:\s+[×x]\s*(\d+))?\s*$/.exec(t);
+    if (h) { cur = { titulo: h[1].trim(), imagen: '', tipo: '', parrafos: [], copias: Math.max(1, Number(h[2] || 1)) }; out.push(cur); continue; }
+    if (!cur || !t) continue;
+    const img = IMAGEN_MD.exec(t);
+    if (img) { if (!cur.imagen) cur.imagen = img[2]; continue; }
+    // la línea de tipo es la primera, si va entera en cursiva
+    const tipo = /^\*([^*].*[^*]|[^*])\*$/.exec(t);
+    if (tipo && !cur.tipo && !cur.parrafos.length) { cur.tipo = tipo[1]; continue; }
+    cur.parrafos.push(t);
+  }
+  return out.filter((f) => f.parrafos.length || f.imagen);
 }
 
 /** Las estadísticas y la hoja de control (con el reloj o el contador de la sesión): solo del Markdown. */
@@ -120,10 +150,15 @@ export function extraerImprimibles(texto: string): Imprimibles {
   // si la guía junta los documentos en su apéndice, se imprimen esos: en las escenas a veces van a trozos o resumidos
   const ap = apendices(texto).find((a) => /documentos/i.test(a.titulo));
   const delApendice = ap ? extraerEntregables(ap.lineas.join('\n')) : [];
-  return { docs: delApendice.length ? delApendice : extraerEntregables(texto), mapas: extraerMapas(texto), dm: extraerSeccionesDm(texto) };
+  return {
+    docs: delApendice.length ? delApendice : extraerEntregables(texto),
+    mapas: extraerMapas(texto),
+    dm: extraerSeccionesDm(texto),
+    fichas: texto.includes('{{frontCover}}') ? [] : extraerFichas(texto),
+  };
 }
 
-export const cuantosImprimibles = (x: Imprimibles) => x.docs.length + x.mapas.length + (x.dm.length ? 1 : 0);
+export const cuantosImprimibles = (x: Imprimibles) => x.docs.length + x.mapas.length + x.fichas.length + (x.dm.length ? 1 : 0);
 
 const html = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -192,8 +227,14 @@ function bloquesDm(s: SeccionDm): string {
 
 /** Página para imprimir: cada documento en su pergamino con línea de corte (el título va fuera, solo para el DM),
     cada mapa en su hoja (apaisada si el mapa lo es), y al final las páginas del DM. */
-export function paginaImprimibles(titulo: string, x: Imprimibles | Entregable[], origen: string): string {
-  const { docs, mapas, dm } = Array.isArray(x) ? { docs: x, mapas: [] as Mapa[], dm: [] as SeccionDm[] } : x;
+export function paginaImprimibles(titulo: string, x: Partial<Imprimibles> | Entregable[], origen: string): string {
+  const { docs = [], mapas = [], dm = [], fichas = [] } = Array.isArray(x) ? { docs: x } : x;
+  // las fichas, de nueve en nueve: cada hoja carta lleva tres filas de tres
+  const copias = fichas.flatMap((f) => Array.from({ length: f.copias }, () => f));
+  const hojasFichas: Ficha[][] = [];
+  for (let i = 0; i < copias.length; i += 9) hojasFichas.push(copias.slice(i, i + 9));
+  const ficha = (f: Ficha) => `<div class="ficha"><p class="fn">${enLinea(f.titulo)}</p>${f.imagen
+    ? `<div class="fi"><img src="${html(f.imagen)}" alt=""></div>` : '<div class="fs"></div>'}${f.tipo ? `<p class="ft">${enLinea(f.tipo)}</p>` : ''}<div class="fx">${f.parrafos.map((p) => `<p>${enLinea(p)}</p>`).join('')}</div></div>`;
   const fuente = (n: string, f: string, extra = '') =>
     `@font-face{font-family:'${n}';src:url('${origen}/homebrewery/fonts/5e/${f}.woff2') format('woff2');${extra}}`;
   const tarjetas = docs.map((d) => `<section class="doc">
@@ -202,6 +243,7 @@ export function paginaImprimibles(titulo: string, x: Imprimibles | Entregable[],
 </section>`).join('\n');
   return `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${html(titulo)} · imprimibles</title>
+${fichas.length ? '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=EB+Garamond:ital,wght@0,400;0,700;1,400&display=swap">' : ''}
 <style>
 ${fuente('Bookinsanity', 'Bookinsanity')}
 ${fuente('Bookinsanity', 'Bookinsanity Italic', 'font-style:italic;')}
@@ -215,6 +257,8 @@ ${fuente('ScalySans', 'Scaly Sans Bold Italic', 'font-weight:bold;font-style:ita
 @page { size: letter; margin: 1.2cm; }
 @page mapa { size: letter portrait; margin: 0.8cm; }
 @page mapah { size: letter landscape; margin: 0.8cm; }
+@page tapete { size: letter landscape; margin: 0.5cm; }
+@page fichas { size: letter; margin: 0; }
 * { box-sizing: border-box; }
 body { margin: 0; background: #e9e4da; color: #1f1a14; font-family: Bookinsanity, Georgia, serif; }
 .barra { position: sticky; top: 0; display: flex; gap: 12px; align-items: center; justify-content: space-between;
@@ -236,6 +280,23 @@ h2.parte { font-family: MrEaves, Georgia, serif; color: #58180d; font-size: 26px
 .mapa img { display: block; margin: 0 auto; max-width: 100%; max-height: 24.6cm; object-fit: contain; }
 .mapa.h img { max-height: 18.4cm; }
 .mapa p { margin: .2cm 0 0; font-family: MrEaves, Georgia, serif; font-size: 13px; color: #6d6455; }
+/* un tapete lleva la cuadrícula de 2,5 cm dibujada para una imagen de 19,6 cm de alto: se imprime a esa medida */
+.mapa.tapete { page: tapete; }
+.mapa.tapete img { height: 19.6cm; width: auto; max-width: none; max-height: none; }
+/* fichas de objeto: 63 × 88 mm, como una carta de Magic, nueve por hoja carta */
+.hojaf { page: fichas; break-before: page; width: 21.59cm; height: 27.94cm; margin: 0 auto; display: grid;
+  grid-template-columns: repeat(3, 63mm); grid-auto-rows: 88mm; justify-content: center; align-content: center; }
+.ficha { position: relative; display: flex; flex-direction: column; padding: 4mm 4.5mm; background: #ece5d8; border: .3mm dashed #bbb;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact; overflow: hidden; }
+.ficha::before { content: ""; position: absolute; inset: 2.2mm; border: .35mm solid #6b5a48; border-radius: 3mm; pointer-events: none; }
+.ficha .fn { margin: 1mm 0; text-align: center; font-family: Cinzel, MrEaves, Georgia, serif; font-weight: 700; font-size: 9.5pt;
+  letter-spacing: .03em; color: #58180d; text-transform: uppercase; }
+.ficha .fi { height: 30mm; display: flex; align-items: center; justify-content: center; }
+.ficha .fi img { max-height: 30mm; max-width: 52mm; mix-blend-mode: multiply; }
+.ficha .fs { height: 2mm; margin: 0 6mm 1mm; border-bottom: .3mm solid #b9a88f; }
+.ficha .ft { margin: 1mm 0 1.5mm; text-align: center; font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 8pt; color: #4a3d30; }
+.ficha .fx { font-family: 'EB Garamond', Georgia, serif; font-size: 8.3pt; line-height: 1.18; color: #231c15; }
+.ficha .fx p { margin: 0 0 1.3mm; }
 .dm { break-before: page; font-family: ScalySans, Georgia, sans-serif; font-size: 12.5px; line-height: 1.3; }
 .dm h2 { font-family: MrEaves, Georgia, serif; color: #58180d; font-size: 24px; margin: 0 0 .3cm; border-bottom: 2px solid #c9ad6a; }
 .dm h3 { font-family: MrEaves, Georgia, serif; color: #58180d; font-size: 19px; margin: .1cm 0 .05cm; }
@@ -259,21 +320,24 @@ h2.parte { font-family: MrEaves, Georgia, serif; color: #58180d; font-size: 26px
 .reloj span { flex: 1; height: 1.4cm; border: 2px solid #1f1a14; border-radius: 4px; padding: 2px 4px; font-weight: bold; font-size: 11px; }
 @media print { body { background: none; } .barra { display: none; } main { padding: 0; max-width: none; } h2.parte { margin-top: 0; }
   .mapa { margin: 0; } }
+@media screen { .hojaf { margin-bottom: 16px; background: #fff; box-shadow: 0 1px 6px #0003; } main:has(.hojaf) { max-width: 23cm; } }
 </style></head><body>
 <div class="barra"><span>${html(titulo)}: ${[
     docs.length && `${docs.length} documento${docs.length === 1 ? '' : 's'} para recortar`,
-    mapas.length && `${mapas.length} mapa${mapas.length === 1 ? '' : 's'}`,
+    mapas.length && `${mapas.length} mapa${mapas.length === 1 ? '' : 's'}${mapas.some((m) => m.tapete) ? ' (los tapetes, al 100 %)' : ''}`,
+    copias.length && `${copias.length} ficha${copias.length === 1 ? '' : 's'} de 63 × 88 mm (al 100 %, márgenes mínimos)`,
     dm.length && 'las páginas del DM',
   ].filter(Boolean).join(', ')}</span><button onclick="print()">Imprimir</button></div>
 <main>${docs.length ? `<div class="docs"><h2 class="parte">Para los jugadores</h2>${tarjetas}</div>` : ''}
-${mapas.map((m) => `<section class="mapa"><img src="${html(m.url)}" alt="${html(m.titulo)}"><p><b>${html(m.titulo)}</b>${m.nota ? ` · ${enLinea(m.nota)}` : ''}</p></section>`).join('\n')}
+${hojasFichas.map((h) => `<div class="hojaf">${h.map(ficha).join('')}</div>`).join('\n')}
+${mapas.map((m) => `<section class="mapa${m.tapete ? ' tapete' : ''}"><img src="${html(m.url)}" alt="${html(m.titulo)}"><p><b>${html(m.titulo)}</b>${m.nota ? ` · ${enLinea(m.nota)}` : ''}</p></section>`).join('\n')}
 ${dm.map((d) => `<section class="dm"><h2>${html(d.titulo)}</h2>${bloquesDm(d)}</section>`).join('\n')}
-${docs.length || mapas.length || dm.length ? '' : '<p class="vacio">Esta guía no tiene nada para imprimir.</p>'}</main>
+${docs.length || mapas.length || dm.length || copias.length ? '' : '<p class="vacio">Esta guía no tiene nada para imprimir.</p>'}</main>
 <script>
 // los mapas apaisados van en una hoja girada
 document.querySelectorAll('.mapa img').forEach(function (i) {
   i.loading = 'eager';
-  var mira = function () { if (i.naturalWidth > i.naturalHeight) i.closest('.mapa').classList.add('h'); };
+  var mira = function () { var m = i.closest('.mapa'); if (i.naturalWidth > i.naturalHeight && !m.classList.contains('tapete')) m.classList.add('h'); };
   if (i.complete) mira(); else i.addEventListener('load', mira);
 });
 </script>
