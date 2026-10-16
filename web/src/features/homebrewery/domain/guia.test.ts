@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { guiaABloques } from './guia';
-import { paginar, type Medidor } from './paginar';
+import { paginar, IMAGEN_PORTADA, type Medidor } from './paginar';
 import { enLinea, extraerEntregables } from './imprimibles';
 
 const GUIA = `# El Precio de los Deseos · Sesión 9: Prueba
@@ -47,6 +47,7 @@ test('cada capítulo empieza página y las páginas llevan índice y pie', async
   const paginas = texto.split(/^\\page$/m);
   assert.equal(paginas.length, 4); // portada, índice y los dos capítulos
   assert.ok(paginas[0].startsWith('<style>') && paginas[0].includes('{{frontCover}}'));
+  assert.ok(paginas[0].includes('{{banner CAMPAÑA · SESIÓN 9}}') && paginas[0].includes(IMAGEN_PORTADA)); // las velas de fondo
   assert.match(paginas[1], /\[\{\{ Segundo capítulo\}\}\{\{ 4\}\}\]\(#p4\)/);
   assert.ok(paginas[3].includes('# Segundo capítulo') && paginas[3].includes('{{footnote Sesión 9: Prueba}}'));
 });

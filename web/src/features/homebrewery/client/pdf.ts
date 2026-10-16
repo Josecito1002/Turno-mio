@@ -14,6 +14,8 @@ export async function paginaPdf(brew: string, titulo: string): Promise<string> {
 <link rel="stylesheet" href="${o}/homebrewery/tema.css">
 <style>
 @page { size: 215.9mm 279.4mm; margin: 0; }
+/* el pergamino y la portada son fondos: sin esto Firefox (y Chrome sin «Gráficos de fondo») los quita y oscurece los títulos */
+*, *::before, *::after { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 html, body { margin: 0; background: #4a4a4a; }
 .barra { position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: center;
   padding: 10px 16px; background: #58180d; color: #fff; font: 16px/1.3 system-ui, sans-serif; }
