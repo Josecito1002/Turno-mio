@@ -4,7 +4,7 @@ import { avisar } from '@/shared/ui/avisos';
 import { Aviso, Boton, Campo, Fila, Lista, Nota, Seccion, claseCampo } from '@/shared/ui/kit';
 import { guiaABloques } from '../domain/guia';
 import { paginar } from '../domain/paginar';
-import { extraerEntregables, paginaImprimibles } from '../domain/imprimibles';
+import { cuantosImprimibles, extraerImprimibles, paginaImprimibles, type Imprimibles } from '../domain/imprimibles';
 import { tituloDe } from '../domain/brew';
 import { crearMedidor } from '../client/medidor';
 import { abrirVentana, paginaPdf } from '../client/pdf';
@@ -13,7 +13,7 @@ type Guia = {
   archivo: string; texto: string; titulo: string;
   /** ya viene en formato Homebrewery (.txt hecho antes); si no, es una guía en Markdown que hay que maquetar */
   lista: boolean;
-  entregables: number;
+  imprimibles: string;
   /** el texto para Homebrewery, cuando ya se maquetó */
   brew?: string;
   /** la página del PDF, ya preparada: se abre con el siguiente toque */
@@ -45,10 +45,21 @@ function descargar(nombre: string, texto: string) {
   setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
 }
 
+/** «3 documentos, 4 mapas y estadísticas»: lo que sale en Imprimibles, o vacío si no hay nada. */
+function resumen(x: Imprimibles): string {
+  if (!cuantosImprimibles(x)) return '';
+  const partes = [
+    x.docs.length && `${x.docs.length} documento${x.docs.length === 1 ? '' : 's'}`,
+    x.mapas.length && `${x.mapas.length} mapa${x.mapas.length === 1 ? '' : 's'}`,
+    x.dm.length && 'páginas del DM',
+  ].filter(Boolean) as string[];
+  return partes.length > 1 ? `${partes.slice(0, -1).join(', ')} y ${partes[partes.length - 1]} para imprimir` : `${partes[0]} para imprimir`;
+}
+
 const bloqueada = () => avisar('El navegador bloqueó la ventana nueva: permite las ventanas emergentes para esta página.', 'aviso');
 
 function abrirImprimibles(g: Guia) {
-  if (!abrirVentana(paginaImprimibles(g.titulo, extraerEntregables(g.texto), location.origin))) bloqueada();
+  if (!abrirVentana(paginaImprimibles(g.titulo, extraerImprimibles(g.texto), location.origin))) bloqueada();
 }
 
 const enlaceBoton = 'inline-flex min-h-11 items-center justify-center rounded-xl px-3 text-center text-sm font-bold ring-1 ring-inset ring-rule hover:bg-soft sm:min-h-9';
@@ -66,7 +77,7 @@ export function SubirHomebrewery() {
       const texto = await f.text();
       const lista = esHomebrewery(texto);
       const titulo = lista ? tituloDe(texto, f.name) : (() => { const { meta } = guiaABloques(texto); return [meta.title, meta.subtitle].filter(Boolean).join(' · '); })();
-      return { archivo: f.name, texto, titulo, lista, entregables: extraerEntregables(texto).length };
+      return { archivo: f.name, texto, titulo, lista, imprimibles: resumen(extraerImprimibles(texto)) };
     })));
   };
 
@@ -178,14 +189,14 @@ export function SubirHomebrewery() {
                   <b className="[overflow-wrap:anywhere]">{g.titulo}</b>
                   <span className="text-sm text-muted">
                     {g.lista ? 'Ya maquetada' : 'Guía en Markdown: se maqueta al usarla'}
-                    {g.entregables > 0 && ` · ${g.entregables} documento${g.entregables === 1 ? '' : 's'} para entregar`}
+                    {g.imprimibles && ` · ${g.imprimibles}`}
                   </span>
                 </span>
                 {ocupado && ocupado.includes(g.titulo) && <span role="status" className="text-sm font-bold">{ocupado}</span>}
                 {g.error && <Aviso tipo="error" titulo="No se pudo">{g.error}</Aviso>}
                 <span className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
                   <Boton tamano="sm" variante={g.pdf ? 'primario' : undefined} disabled={!!ocupado} onClick={() => pdf(i)}>{g.pdf ? 'Abrir PDF' : g.leer ? 'Preparar PDF' : 'Subir y PDF'}</Boton>
-                  {g.entregables > 0 && <Boton tamano="sm" onClick={() => abrirImprimibles(g)}>Imprimibles</Boton>}
+                  {g.imprimibles && <Boton tamano="sm" onClick={() => abrirImprimibles(g)}>Imprimibles</Boton>}
                   {!g.lista && <Boton tamano="sm" disabled={!!ocupado} onClick={() => txt(i)}>Descargar .txt</Boton>}
                   {g.leer && <a className={enlaceBoton} href={g.leer} target="_blank" rel="noreferrer">Leer en Homebrewery</a>}
                   {g.editar && <a className={enlaceBoton} href={g.editar} target="_blank" rel="noreferrer">Editar en Homebrewery</a>}

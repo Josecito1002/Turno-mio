@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { guiaABloques } from './guia';
 import { paginar, IMAGEN_PORTADA, type Medidor } from './paginar';
-import { enLinea, extraerEntregables } from './imprimibles';
+import { enLinea, extraerEntregables, extraerImprimibles, mdAHtml } from './imprimibles';
 
 const GUIA = `# El Precio de los Deseos · Sesión 9: Prueba
 
@@ -57,4 +57,46 @@ test('los documentos para entregar salen de la guía y del .txt ya maquetado, ta
   const txt = '{{descriptive,entregar\n{{lbl PARA ENTREGAR A LOS JUGADORES}}\n##### El diario\n*Día 1.*\n\n*Día 2.*\n}}\n\n\\column\n\n{{descriptive,entregar\n*Día 3.*\n}}\n';
   assert.deepEqual(extraerEntregables(txt), [{ titulo: 'El diario', parrafos: ['*Día 1.*', '*Día 2.*', '*Día 3.*'] }]);
   assert.equal(enLinea('***A.*** *b* <c> \\{d\\}'), '<b><i>A.</i></b> <i>b</i> &lt;c&gt; {d}');
+});
+
+test('imprimibles: mapas del apéndice con su leyenda, y las páginas del DM', () => {
+  const md = `# Guía · Sesión 9: Prueba
+
+## Una escena
+
+> **PARA ENTREGAR A LOS JUGADORES · La nota**
+> Trozo.
+
+## Apéndice A: Estadísticas
+
+### Lobo
+
+**CA:** 13
+
+## Apéndice B: Documentos para los jugadores
+
+> **PARA ENTREGAR A LOS JUGADORES · La nota**
+> Trozo y el resto.
+
+## Apéndice C: Mapas
+
+### El lago
+
+![Helado.](https://x/helado.jpg)
+
+![Deshelado.](https://x/deshelado.jpg)
+*Sin escala.*
+
+## Apéndice D: El reloj y hoja de control
+
+**1 2 3**
+`;
+  const x = extraerImprimibles(md);
+  assert.deepEqual(x.docs.map((d) => d.parrafos), [['Trozo y el resto.']]); // la del apéndice, no la de la escena
+  assert.deepEqual(x.mapas, [
+    { titulo: 'El lago · Helado', url: 'https://x/helado.jpg', nota: '' },
+    { titulo: 'El lago · Deshelado', url: 'https://x/deshelado.jpg', nota: 'Sin escala.' },
+  ]);
+  assert.deepEqual(x.dm.map((d) => d.titulo), ['Estadísticas', 'El reloj y hoja de control']);
+  assert.match(mdAHtml(x.dm[1].md), /<div class="reloj"><span>1<\/span><span>2<\/span><span>3<\/span><\/div>/);
 });
