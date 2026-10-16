@@ -53,6 +53,29 @@ export async function leerBiblioteca(db: Db, { completa = false } = {}): Promise
   };
 }
 
+/** La versión de la biblioteca (sube con cada cambio; ver tablas.ts). Sin la fila (base sin migrar) vale '0'. */
+export async function versionBiblioteca(db: Db): Promise<string> {
+  const [x] = await db.select({ v: t.bibliotecaVersion.version }).from(t.bibliotecaVersion).limit(1);
+  return String(x?.v ?? 0);
+}
+
+/* La biblioteca que leyó esta instancia del servidor, con la versión que tenía al leerla. Mientras la versión no cambie
+   se responde con esta copia: son diez consultas y el md5 de cada imagen menos por carga. */
+let enMemoria: { version: string; lib: Promise<BibliotecaAnidada> } | null = null;
+
+/** La biblioteca como la pide la web, y su versión. Sin cambios en la base, sale de memoria con una sola consulta. */
+export async function leerBibliotecaConVersion(db: Db): Promise<{ version: string; lib: BibliotecaAnidada }> {
+  // La versión se lee antes que los datos: si algo cambia entre medio, la copia queda con una versión vieja y la
+  // siguiente petición la vuelve a leer, nunca al revés.
+  const version = await versionBiblioteca(db);
+  if (enMemoria?.version !== version || version === '0') {
+    const lib = leerBiblioteca(db);
+    enMemoria = { version, lib };
+    lib.catch(() => { if (enMemoria?.lib === lib) enMemoria = null; });
+  }
+  return { version, lib: await enMemoria.lib };
+}
+
 async function insertar(db: Db, tabla: any, filas: any[], ignorarConflictos = false) {
   const out: any[] = [];
   for (const g of trozos(filas)) {

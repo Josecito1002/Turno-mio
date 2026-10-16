@@ -7,6 +7,7 @@ import { filasALib } from '@/features/biblioteca/domain/mapeo';
 import { QUERY_BIBLIOTECA, aportarBiblioteca, guardarBiblioteca, guardarExtras, type CambioExtra, type RespuestaBiblioteca } from '@/features/biblioteca/api';
 import { QUERY_PERSONAJES, borrarPersonaje, borrarPersonajes, guardarPersonaje, marcarUltimo, type PersonajeServidor } from '@/features/personajes/api';
 import { QUERY_CAMPANAS, borrarCampana, guardarCampana, type CampanaServidor } from '@/features/mesa/api';
+import { leerCopiaBiblioteca, guardarCopiaBiblioteca } from '@/features/biblioteca/copia-local';
 import { puedeUsarMesa, type Usuario } from './estado';
 
 /*
@@ -58,8 +59,7 @@ const escribirUltimo = (id: string | null) => { try { if (id) localStorage.setIt
 
 async function cargarInvitado(): Promise<Carga> {
   invitado = true;
-  const d = await gql<RespuestaBiblioteca>(`{ ${QUERY_BIBLIOTECA} }`);
-  setLib(filasALib(d.biblioteca));
+  await pedirConBiblioteca('');
   limpiarBestias();
   const locales = leerLocal();
   mem.pjs = new Map(Object.entries(locales).map(([id, p]) => [id, p.datos]));
@@ -68,6 +68,26 @@ async function cargarInvitado(): Promise<Carga> {
     usuario: { id: 'invitado', email: '', nombre: 'Invitado', rol: 'invitado', ultimoPj: leerUltimo() },
     lista: Object.entries(locales).map(([id, p]) => ({ id, name: p.nombre, sub: p.resumen || '' })),
   };
+}
+
+/** Pide `campos` junto con la biblioteca y la deja cargada. Si este navegador ya tiene la biblioteca guardada, solo
+    pregunta su versión: la descarga entera (más de 1 MB) llega únicamente la primera vez o cuando cambió. */
+async function pedirConBiblioteca<T>(campos: string): Promise<T> {
+  const copia = await leerCopiaBiblioteca(QUERY_BIBLIOTECA);
+  if (copia) {
+    const d = await gql<T & { bibliotecaVersion: string }>(`{ bibliotecaVersion ${campos} }`);
+    if (d.bibliotecaVersion === copia.version) { setLib(filasALib(copia.lib)); return d; }
+    const r = await gql<RespuestaBiblioteca>(`{ ${QUERY_BIBLIOTECA} }`);
+    usarBiblioteca(r.biblioteca);
+    return d;
+  }
+  const d = await gql<T & RespuestaBiblioteca>(`{ ${QUERY_BIBLIOTECA} ${campos} }`);
+  usarBiblioteca(d.biblioteca);
+  return d;
+}
+function usarBiblioteca({ version, ...lib }: RespuestaBiblioteca['biblioteca']) {
+  void guardarCopiaBiblioteca(version, QUERY_BIBLIOTECA, lib);
+  setLib(filasALib(lib));
 }
 
 /** Errores que suelen arreglarse solos: la base sin conexiones libres, un fallo del servidor o de la red. */
@@ -87,14 +107,16 @@ export async function cargarTodo(comoInvitado = false): Promise<Carga> {
 async function cargarUnaVez(comoInvitado: boolean): Promise<Carga> {
   if (comoInvitado) return cargarInvitado();
   invitado = false; // por si antes se usó como invitado en esta misma pestaña
-  const d = await gql<RespuestaBiblioteca & { yo: Usuario | null; personajes: PersonajeServidor[] }>(
-    `{ yo { id email nombre rol ultimoPj } ${QUERY_BIBLIOTECA} ${QUERY_PERSONAJES} }`);
-  setLib(filasALib(d.biblioteca));
+  // Las campañas solo existen para DM y administradores (el servidor rechaza a los demás). Se piden a la vez que lo
+  // demás para no esperar dos viajes; si quien entra no es DM, la respuesta se descarta.
+  const pedirCamps = () => gql<{ campanas: CampanaServidor[] }>(`{ ${QUERY_CAMPANAS} }`).then(r => r.campanas);
+  const campsAntes = pedirCamps().catch(() => null);
+  const d = await pedirConBiblioteca<{ yo: Usuario | null; personajes: PersonajeServidor[] }>(
+    `yo { id email nombre rol ultimoPj } ${QUERY_PERSONAJES}`);
   if (limpiarBestias().length && d.yo?.rol === 'admin') guardarLib(true);
   yoId = d.yo?.id || '';
   mem.pjs = new Map(d.personajes.map(p => [p.id, p.datos]));
-  // Las campañas solo existen para DM y administradores (el servidor rechaza a los demás).
-  const camps = d.yo && puedeUsarMesa(d.yo.rol) ? (await gql<{ campanas: CampanaServidor[] }>(`{ ${QUERY_CAMPANAS} }`)).campanas : [];
+  const camps = d.yo && puedeUsarMesa(d.yo.rol) ? (await campsAntes) ?? await pedirCamps() : [];
   mem.campanas = camps.map(c => c.datos);
   infoMesas.clear();
   for (const c of camps) infoMesas.set(c.id, { codigo: c.codigo, unidos: c.unidos || 0 });

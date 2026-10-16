@@ -1,6 +1,6 @@
 import { requiereUsuario, type Contexto, type ModuloGraphQL } from '@/shared/graphql/servidor';
 import { exigir } from '@/features/cuentas/server/permisos';
-import { aportarBiblioteca, guardarExtras, leerBiblioteca, leerExtra, reemplazarBiblioteca, type CambioExtra } from './repositorio';
+import { aportarBiblioteca, guardarExtras, leerBibliotecaConVersion, leerExtra, reemplazarBiblioteca, versionBiblioteca, type CambioExtra } from './repositorio';
 import type { Biblioteca } from '../domain/biblioteca';
 
 const typeDefs = /* GraphQL */ `
@@ -84,11 +84,15 @@ const typeDefs = /* GraphQL */ `
     dotes: [Dote!]!
     conjuros: [Conjuro!]!
     libExtra: [LibExtra!]!
+    "Cambia con cada cambio de la biblioteca; la web la guarda junto a su copia."
+    version: String!
   }
 
   extend type Query {
     "Todo el contenido compartido (clases, especies, trasfondos, dotes, conjuros e imágenes/descripciones)."
     biblioteca: Biblioteca!
+    "Solo la versión de la biblioteca, para saber si la copia guardada en el navegador sigue al día."
+    bibliotecaVersion: String!
     "Una entrada suelta de la biblioteca (p. ej. tipo imgOrig, la imagen sin recortar, que biblioteca no trae)."
     extraBiblioteca(tipo: String!, clave: String!): JSON
   }
@@ -107,7 +111,11 @@ export const bibliotecaGraphQL: ModuloGraphQL = {
   resolvers: {
     Query: {
       // Lectura pública: es contenido del juego, y el modo invitado la necesita sin cuenta. Editarla sigue pidiendo permisos.
-      biblioteca: (_: unknown, __: unknown, ctx: Contexto) => leerBiblioteca(ctx.db),
+      biblioteca: async (_: unknown, __: unknown, ctx: Contexto) => {
+        const { version, lib } = await leerBibliotecaConVersion(ctx.db);
+        return { ...lib, version };
+      },
+      bibliotecaVersion: (_: unknown, __: unknown, ctx: Contexto) => versionBiblioteca(ctx.db),
       extraBiblioteca: (_: unknown, { tipo, clave }: { tipo: string; clave: string }, ctx: Contexto) => leerExtra(ctx.db, tipo, clave),
     },
     Mutation: {
