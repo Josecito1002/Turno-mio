@@ -50,6 +50,13 @@
       "when": 1792072309319,
       "tag": "0006_activar_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792183345718,
+      "tag": "0007_version_biblioteca",
+      "breakpoints": true
     }
   ]
 }

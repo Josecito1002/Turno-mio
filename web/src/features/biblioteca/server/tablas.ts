@@ -1,4 +1,4 @@
-import { bigserial, boolean, index, jsonb, pgTable, primaryKey, smallint, text } from 'drizzle-orm/pg-core';
+import { bigint, bigserial, boolean, index, jsonb, pgTable, primaryKey, smallint, text } from 'drizzle-orm/pg-core';
 
 /* Catálogo compartido (antes miturno2:biblioteca). Las columnas `extra` guardan cualquier
    campo que no tenga columna propia, para que importar y exportar no pierda nada. */
@@ -123,3 +123,10 @@ export const libExtra = pgTable('lib_extra', {
   clave: text('clave').notNull(),
   valor: jsonb('valor').notNull(),
 }, t => [primaryKey({ columns: [t.tipo, t.clave] })]);
+
+/** Una sola fila: sube en cada cambio de las tablas de la biblioteca (lo hace un trigger de la base, migración 0007).
+    La web la compara con la que guardó para no volver a descargar la biblioteca entera en cada carga. */
+export const bibliotecaVersion = pgTable('biblioteca_version', {
+  id: smallint('id').primaryKey(),
+  version: bigint('version', { mode: 'number' }).notNull().default(1),
+});

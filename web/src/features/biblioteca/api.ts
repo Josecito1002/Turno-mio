@@ -21,9 +21,10 @@ export const QUERY_BIBLIOTECA = /* GraphQL */ `
     dotes { id nombre tipo texto categoria nivelMin extra }
     conjuros { id nombre nivel tiempo alcance duracion concentracion ritual salvacion ataque dados descripcion extra clases }
     libExtra { tipo clave valor }
+    version
   }
 `;
-export type RespuestaBiblioteca = { biblioteca: BibliotecaAnidada };
+export type RespuestaBiblioteca = { biblioteca: BibliotecaAnidada & { version: string } };
 
 /** Quita lo que no es contenido (p. ej. el PIN de las bibliotecas viejas) y las imágenes, que van de a una con guardarExtras. */
 const limpia = (lib: Biblioteca) => {
