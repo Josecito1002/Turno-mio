@@ -142,7 +142,8 @@ export function SubirHomebrewery() {
     } catch (e) {
       console.error('[homebrewery] pdf', e);
       v.cerrar();
-      avisar('No se pudo preparar el PDF.', 'aviso');
+      // con el motivo, para poder arreglarlo (en el móvil no hay consola)
+      avisar(`No se pudo preparar el PDF: ${e instanceof Error ? e.message : String(e)}`, 'aviso');
     } finally {
       setOcupado('');
     }

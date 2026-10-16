@@ -41,7 +41,12 @@ export function ventanaNueva(): { mostrar: (html: string) => void; cerrar: () =>
   return {
     mostrar: (html) => {
       const url = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
-      w.location.href = url;
+      try {
+        w.location.href = url;
+      } catch {
+        // algunos navegadores del móvil no dejan llevar la ventana a un blob: se escribe dentro
+        w.document.open(); w.document.write(html); w.document.close();
+      }
       setTimeout(() => URL.revokeObjectURL(url), 120_000);
     },
     cerrar: () => w.close(),
