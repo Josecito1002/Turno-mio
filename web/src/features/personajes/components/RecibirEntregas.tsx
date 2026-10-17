@@ -1,8 +1,9 @@
 'use client';
 import { useEffect } from 'react';
 import { S } from '@/app-shell/estado';
-import { entregasMesa, misMesas, recibirEntregas, type MesaUnida } from '@/features/mesa/api';
+import { combateMesa, entregasMesa, misMesas, recibirEntregas, type MesaUnida } from '@/features/mesa/api';
 import { recibirObjeto } from '../acciones';
+import { aplicarOrdenes } from './ficha/ModoCombate';
 
 /** Las mesas del jugador se piden una vez cada pocos minutos, no en cada vuelta. */
 let mesas: { ts: number; lista: MesaUnida[] } | null = null;
@@ -12,7 +13,8 @@ async function mesasDe(personajeId: string) {
   return mesas.lista.filter(m => m.personajeId === personajeId);
 }
 
-/** Mientras la hoja está abierta, mete en el inventario los objetos que le dio el DM desde la mesa (cada 30 s). */
+/** Mientras la hoja está abierta, mete en el inventario los objetos que le dio el DM desde la mesa y aplica los descansos
+ *  e inspiración que mandó (cada 30 s). En combate la pantalla de combate ya los mira más seguido. */
 export function RecibirEntregas({ personajeId }: { personajeId: string }) {
   useEffect(() => {
     if (!S.usuario) return;
@@ -23,6 +25,10 @@ export function RecibirEntregas({ personajeId }: { personajeId: string }) {
       try {
         for (const m of await mesasDe(personajeId)) {
           const ref = { dmId: m.dmId, campanaId: m.campanaId, personajeId };
+          if (S.combateMesa?.personajeId !== personajeId) {
+            const vivoMesa = await combateMesa(ref);
+            if (vivo && S.pj?.id === personajeId) aplicarOrdenes(vivoMesa?.ordenes, personajeId);
+          }
           const nuevas = await entregasMesa(ref);
           // Si en medio cambió de hoja, se recogen la próxima vez que abra esta
           if (!vivo || !nuevas.length || S.pj?.id !== personajeId) continue;

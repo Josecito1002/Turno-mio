@@ -38,7 +38,7 @@ function aplicarEfecto(o: OrdenDm) {
 
 /** Aplica a esta hoja los descansos y la inspiración que mandó el DM. Se recuerda cuáles ya se aplicaron (por personaje);
  *  la primera vez solo cuentan las de los últimos 10 minutos, para no repetir lo de otras sesiones. */
-function aplicarOrdenes(ordenes: OrdenDm[] | undefined, pid: string) {
+export function aplicarOrdenes(ordenes: OrdenDm[] | undefined, pid: string) {
   if (!ordenes?.length) return;
   const clave = 'mt-ordenes-' + pid;
   let vistos: string[] | null = null;
