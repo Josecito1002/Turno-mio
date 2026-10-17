@@ -12,13 +12,15 @@ import { esc, norm, richT, sign } from '@/shared/utils/texto';
 import { moverPool, setVal } from '../../acciones';
 import { resumen } from '../../domain/modelo';
 import { combateMesa, enviarGolpeMesa, gastarAccionMesa, type CombateVivo, type EconomiaRonda, type TipoAccionRonda } from '@/features/mesa/api';
-import { aplicarOrdenes } from './ordenes-dm';
+import { aplicarOrdenes, pedirConcentracion } from './ordenes-dm';
+import { INCAPACITANTES, terminarConcentracion } from './concentracion';
 import { EFECTO_CONDICION } from '@/features/mesa/domain/condiciones';
 import { datosConjuro } from '../piezas';
-import { ataquesPorAccion, bonosPara, golpesDeRasgo, restanteConjuro, restanteDe } from '../../domain/lanzar';
+import { ataquesPorAccion, bonosPara, espaciosPara, extrasAtaque, golpesDeRasgo, restanteConjuro, restanteDe } from '../../domain/lanzar';
 import { UsoAccion, type Marca, type Objetivo, type Uso } from './UsoAccion';
 import { EFECTOS_ALIADO, SEGUIMIENTOS } from '@/features/reglas/data/efectos-conjuro';
 import { BarraIniciativa } from './BarraIniciativa';
+import { rondasDe, rondasRestantes, textoDuracion, textoRestante } from '@/features/mesa/domain/duracion';
 import { FilaArsenal, Ranuras, RecursosClase } from './Ficha';
 
 const TIPOS_BOTON: TipoAccionRonda[] = ['accion', 'adicional', 'reaccion'];
@@ -72,6 +74,7 @@ function FilaMagia({ s, c, uso, elegido, elegir }: { s: any; c: any; uso: Uso; e
             {salv && <span>Salvación: <strong className="text-secondary">CD {d.cd} de {salv}</strong></span>}
             {d.dexpr && <span>Daño: <strong className="text-secondary">{d.dexpr}{s.tipo ? ' ' + s.tipo : ''}</strong></span>}
           </div>
+          {truco ? <p className="m-0 mt-1 text-body-sm text-outline">Truco: no gasta nada</p> : <Coste k={costeDe(c, { nivel: +s.nivel, recurso: s.recurso, ritual: !!s.ritual })} />}
           {marcada && uso.texto && <p className="m-0 mt-2 border-t border-outline-variant/30 pt-2 text-body-sm text-on-surface-variant" dangerouslySetInnerHTML={{ __html: richT(uso.texto) }} />}
         </div>
         <Restante r={restanteConjuro(c, s)} />
@@ -126,7 +129,8 @@ function FilaRasgo({ e, c, uso, elegido, elegir }: { e: any; c: any; uso: Uso; e
         <div className="grid size-12 shrink-0 place-items-center rounded-lg bg-surface-container-lowest text-primary shadow-inner">{iconoDe(e) === 'mascara-luchador' ? <MascaraLuchador className="text-headline-md" /> : <Simbolo n={iconoDe(e)} className="text-headline-md" />}</div>
         <div className="min-w-0 flex-1">
           <h3 className="m-0 font-serif text-headline-sm text-on-surface">{e.nombre}</h3>
-          <p className="m-0 mt-0.5 text-body-sm text-outline">{[e.coste, !marcada && corta].filter(Boolean).join(' • ')}</p>
+          <Coste k={costeDe(c, { recurso: e.recurso, coste: e.coste })} />
+          {!marcada && corta && <p className="m-0 mt-0.5 text-body-sm text-outline">{corta}</p>}
           {marcada && uso.texto && <p className="m-0 mt-2 border-t border-outline-variant/30 pt-2 text-body-sm text-on-surface-variant" dangerouslySetInnerHTML={{ __html: uso.raw ? richT(uso.texto) : esc(uso.texto) }} />}
         </div>
         <Restante r={restanteDe(c, e.recurso)} />
@@ -144,6 +148,24 @@ function Restante({ r }: { r: { quedan: number; max: number; nombre: string } | 
       <div className="max-w-24 truncate text-[0.65rem] uppercase text-outline">{r.nombre}</div>
     </div>
   );
+}
+
+/** Qué cuesta usar algo y si te alcanza, en una línea: verde si puedes pagarlo, rojo si ya no te queda. */
+export function costeDe(c: any, o: { nivel?: number; recurso?: string; ritual?: boolean; coste?: string }): { texto: string; falta: boolean } | null {
+  const r = o.recurso ? restanteDe(c, o.recurso) : null;
+  if (r) return r.quedan ? { texto: `Cuesta 1 de ${r.nombre} (te quedan ${r.quedan})`, falta: false } : { texto: `Sin ${r.nombre} disponible`, falta: true };
+  if (o.nivel && o.nivel > 0) {
+    const es = espaciosPara(c, o.nivel), libre = es.find((e: any) => e.quedan > 0);
+    const ritual = o.ritual ? ' (o lánzalo como ritual, sin gastar)' : '';
+    if (!libre) return { texto: `Sin espacios de nivel ${o.nivel} o más disponibles${ritual}`, falta: !o.ritual };
+    if (libre.nivel > o.nivel) return { texto: `Sin espacios de nivel ${o.nivel}: puedes usar uno de nivel ${libre.nivel} (te quedan ${libre.quedan})`, falta: false };
+    return { texto: `Cuesta 1 espacio de nivel ${o.nivel} (te quedan ${libre.quedan})${ritual}`, falta: false };
+  }
+  return o.coste ? { texto: `Cuesta: ${o.coste}`, falta: false } : null;
+}
+function Coste({ k }: { k: { texto: string; falta: boolean } | null }) {
+  if (!k) return null;
+  return <p className={cx('m-0 mt-1 flex items-center gap-1 text-body-sm font-bold', k.falta ? 'text-error' : 'text-green-400')}><Simbolo n={k.falta ? 'block' : 'toll'} className="text-body-md" />{k.texto}</p>;
 }
 
 /** Rasgos que dan más ataques con la acción Atacar solo mientras están activos. */
@@ -179,7 +201,9 @@ function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any
   // Efectos que suman ataques solo mientras se cumplen: una casilla dice si valen ahora
   const puedeRenunciar = (c.entries || []).some((e: any) => RENUNCIA.test(String(typeof e.texto === 'function' ? '' : e.texto || '')) || /golpe brutal|maniobra/i.test(e.nombre || ''));
   const condicionales = t === 'accion' ? CONDICIONALES.filter(x => c.entries.some((e: any) => norm(e.nombre) === norm(x.rasgo))) : [];
-  const deArma = (a: any): Uso => ({ tipo: t, nombre: a.nombre, ...(nAtaques > 1 && t === 'accion' ? { golpes: nAtaques } : {}), ...(condicionales.length ? { condiciones: condicionales } : {}), ...(puedeRenunciar ? { renuncia: true } : {}), texto: [a.w?.dist ? 'Ataque a distancia' : 'Ataque cuerpo a cuerpo', ...(nAtaques > 1 && t === 'accion' ? [`Con Ataque Extra haces ${nAtaques} ataques con la acción Atacar`] : []), a.dmg && `Daño: ${a.dmg}`, a.maestria && `Maestría: ${a.maestria}`, ...(a.notas || [])].filter(Boolean).join('. ') || 'Ataque', ...(a.cd == null ? { atk: a.atk } : { salv: a.salv, cd: a.cd }), dexpr: a.expr, afecta: true });
+  const deArma = (a: any): Uso => ({ tipo: t, nombre: a.nombre, ...(nAtaques > 1 && t === 'accion' ? { golpes: nAtaques } : {}), ...(condicionales.length ? { condiciones: condicionales } : {}), ...(puedeRenunciar ? { renuncia: true } : {}), texto: [a.w?.dist ? 'Ataque a distancia' : 'Ataque cuerpo a cuerpo', ...(nAtaques > 1 && t === 'accion' ? [`Con Ataque Extra haces ${nAtaques} ataques con la acción Atacar`] : []), a.dmg && `Daño: ${a.dmg}`, a.maestria && `Maestría: ${a.maestria}`, ...(a.notas || [])].filter(Boolean).join('. ') || 'Ataque', ...(a.cd == null ? { atk: a.atk } : { salv: a.salv, cd: a.cd }), dexpr: a.expr, afecta: true,
+    ...(a.atkDesg ? { atkDesg: a.atkDesg } : {}), ...(a.dmgDesg ? { dmgDesg: a.dmgDesg } : {}), ...(a.w?.tipo ? { tipoDano: a.w.tipo } : /contundente/.test(a.dmg || '') ? { tipoDano: 'contundente' } : {}),
+    ...(t === 'accion' ? { extras: extrasAtaque(c, a) } : {}) });
   // Un rasgo que ataca sin armas (Golpe sin armas extra) se ve como un ataque, con su puño
   const comoAtaque = (e: any) => !!e.roll?.[0];
   const deRasgo = (e: any): Uso => {
@@ -200,7 +224,7 @@ function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any
     const efecto = EFECTOS_ALIADO[norm(e.nombre)] || amuEfecto, equipar = norm(e.nombre) === 'pacto del filo';
     // Conjuro Apresurado: se lanza como acción adicional un conjuro del grimorio que tarde una acción o una acción adicional
     const lista = norm(e.nombre) === 'conjuro apresurado' ? { titulo: 'Conjuros de tu grimorio que puedes lanzar así', items: (c.conjuros || []).filter((x: any) => ['accion', 'adicional'].includes(x.tiempo || 'accion') && !/ritual/i.test(x.nota || '')).sort((a: any, b: any) => +a.nivel - +b.nivel).map((x: any) => ({ nombre: x.nombre, nota: +x.nivel > 0 ? `nivel ${x.nivel}` : 'truco', texto: String(x.desc || '') })) } : undefined;
-    return { tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, ...(lista ? { lista } : {}), ...(efecto ? { efecto } : {}), ...(amuCura ? { cura: true, fijo: +amuCura[1] } : {}), ...(amuSalv ? { salv: amuSalv[1].toUpperCase(), cd: +amuSalv[2] } : {}), ...(amuAtq ? { atk: +amuAtq[1] } : {}), ...(amuDano && atk == null ? { dexpr: amuDano[1].replace(/\s/g, '') } : {}), ...(equipar ? { equipar } : {}), ...(golpes ? { golpes } : {}), ...(atk != null ? { atk, dexpr: e.roll[1] } : {}), afecta: ataca || !!efecto || !!amuCura || !!amuSalv || !!amuAtq, ...(gasta ? { gasta } : {}) };
+    return { tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, ...(/\(concentraci[oó]n/i.test(String(e.texto || '')) ? { concentracion: true } : {}), ...(lista ? { lista } : {}), ...(efecto ? { efecto } : {}), ...(amuCura ? { cura: true, fijo: +amuCura[1] } : {}), ...(amuSalv ? { salv: amuSalv[1].toUpperCase(), cd: +amuSalv[2] } : {}), ...(amuAtq ? { atk: +amuAtq[1] } : {}), ...(amuDano && atk == null ? { dexpr: amuDano[1].replace(/\s/g, '') } : {}), ...(equipar ? { equipar } : {}), ...(golpes ? { golpes } : {}), ...(atk != null ? { atk, dexpr: e.roll[1] } : {}), afecta: ataca || !!efecto || !!amuCura || !!amuSalv || !!amuAtq, ...(gasta ? { gasta } : {}) };
   };
   const comoArma = (e: any) => ({ puno: /sin armas|golpe|pu[ñn]/i.test(`${e.nombre} ${e.texto}`), nombre: e.nombre, atk: +(/([+-]\d+)\s*$/.exec(e.roll[0])?.[1] ?? 0), expr: e.roll[1], dmg: String(e.roll[1]).replace(/\s/g, ''), notas: [] as string[] });
   const deConjuro = (s: any): Uso => {
@@ -208,10 +232,11 @@ function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any
     const sg = SEGUIMIENTOS[norm(s.nombre)], ef = EFECTOS_ALIADO[norm(s.nombre)];
     // Un conjuro que cura: devuelve puntos de golpe y no ataca ni pide salvación
     const cura = !s.ataque && !salv && /recuper\w* (?:\w+ ){0,3}puntos de golpe|recuper\w* \d+d\d+/i.test(String(s.desc || ''));
-    return { tipo: t, nombre: s.nombre, coste: s.coste || (+s.nivel ? `Nivel ${s.nivel}` : 'Truco'), texto: String(s.desc || '').trim(), raw: true, ...(s.ataque && d.atk != null ? { atk: d.atk } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: ef ? undefined : d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados || ef || cura),
+    return { tipo: t, nombre: s.nombre, coste: s.coste || (+s.nivel ? `Nivel ${s.nivel}` : 'Truco'), texto: String(s.desc || '').trim(), raw: true, ...(s.ataque && d.atk != null ? { atk: d.atk, atkDesg: d.atkDesg } : {}),
+      ...(s.tipo ? { tipoDano: String(s.tipo) } : {}), ...(s.mod && d.mSpell ? { dmgDesg: `${d.mSpell} ${d.ab}` } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: ef ? undefined : d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados || ef || cura),
       ...(sg ? { marca: { id: norm(s.nombre).replace(/\s+/g, '-'), nombre: sg.nombre, texto: sg.texto, dexpr: sg.dado || d.dexpr || '', tipo: sg.tipo, en: sg.en, desde: sg.desde, objetivo: sg.objetivo,
         ...(sg.ataque && d.atk != null ? { atk: d.atk } : {}), ...(sg.salv ? { salv: sg.salv, cd: d.cd } : {}), ...(sg.porNivel ? { porNivel: sg.porNivel, nivelBase: sg.nivelBase } : {}) } as Marca } : {}),
-      ...(ef ? { efecto: ef } : {}), ...(cura ? { cura: true } : {}),
+      ...(ef ? { efecto: ef } : {}), ...(cura ? { cura: true } : {}), ...(rondasDe(s.dur || '') ? { duracion: rondasDe(s.dur || '')!, durTexto: String(s.dur) } : {}), ...(s.conc || /concentraci/i.test(s.dur || '') ? { concentracion: true } : {}),
       ...(+s.nivel > 0 ? { conjuro: { nivel: +s.nivel, rasgo: s.recurso, ritual: !!s.ritual, desc: s.desc, base: ef ? '' : d.dexpr, bono: d.dexpr && !ef ? bonosPara(c, s).reduce((x: number, b: any) => x + (+b.valor || 0), 0) : 0 } } : {}) };
   };
   const nom = (u: Uso, k: string | number, sub?: string, icono?: string) => <OpcionNombre key={k} uso={u} elegido={elegido} elegir={elegir} sub={sub} icono={icono} />;
@@ -259,8 +284,9 @@ function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any
 }
 
 /** La tarjeta resumida del personaje (como la que ve el DM): pasivas, PG con daño y curación directos, y los botones de la pantalla. */
-function ResumenCombate({ c, m, conds, dur, ven, esMiTurno }: { c: any; m: { mesa: string; dm: string }; conds: string[]; dur: Record<string, string>; ven: '' | 'v' | 'd'; esMiTurno: boolean }) {
+function ResumenCombate({ c, m, conds, dur, ven, esMiTurno, cb }: { c: any; m: { mesa: string; dm: string; dmId: string; campanaId: string; personajeId: string }; conds: string[]; dur: Record<string, string>; ven: '' | 'v' | 'd'; esMiTurno: boolean; cb: { ronda?: number; turno?: number; orden?: { k: string }[] } | null }) {
   const pj = c.pj, [n, setN] = useState('');
+  const mesa = { dmId: m.dmId, campanaId: m.campanaId, personajeId: m.personajeId }, conc = pj.concentracion;
   const pg = c.recursos.find((r: any) => r.id === 'pg');
   const max = pg?.max ?? c.hpMax, actual = max - Math.min(pj.used?.pg || 0, max);
   const temp = Math.max(0, +pj.pgTemp || 0), pct = max ? (actual / max) * 100 : 0;
@@ -273,6 +299,7 @@ function ResumenCombate({ c, m, conds, dur, ven, esMiTurno }: { c: any; m: { mes
     if (t) setVal('pgTemp', temp - t);
     if (x - t) moverPool('pg', -(x - t));
     setN('');
+    pedirConcentracion(x, mesa);
   };
   const curar = (x: number) => { if (x && pg) { moverPool('pg', x); setN(''); } };
   const stats: [string | number, string][] = [
@@ -302,10 +329,19 @@ function ResumenCombate({ c, m, conds, dur, ven, esMiTurno }: { c: any; m: { mes
           ))}
         </div>
       )}
+      {conc && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg bg-primary-container/30 p-2" aria-label="Tu concentración">
+          <p className="m-0 flex-1 text-body-sm text-on-surface"><b className="text-primary">Concentrado en {conc.nombre}</b>
+            {conc.hasta && cb ? <b className="text-primary"> ({textoRestante(conc.hasta, cb)})</b> : conc.rondas ? <span className="text-outline"> (dura {textoDuracion(conc.rondas)})</span> : null}.
+            <span className="text-outline"> Si te hacen daño, te pediremos la salvación de Constitución.</span></p>
+          <Boton tamano="sm" onClick={() => void terminarConcentracion(mesa, 'la dejaste')}>Dejar de concentrarme</Boton>
+        </div>
+      )}
       {(pj.efectos || []).length > 0 && (
         <div className="mt-3 grid gap-1 rounded-lg bg-primary-container/30 p-2" aria-label="Efectos que tienes">
           {(pj.efectos as any[]).map(x => (
             <p key={x.nombre} className="m-0 text-body-sm text-on-surface"><b className="text-primary">{x.nombre}</b>{x.de ? ` (de ${x.de})` : ''}. {x.texto}{' '}
+              {x.hasta && cb ? <b className="text-primary">({textoRestante(x.hasta, cb)}) </b> : x.rondas ? <span className="text-outline">(dura {textoDuracion(x.rondas)}) </span> : null}
               <button type="button" className="cursor-pointer text-outline underline" onClick={() => setVal('efectos', (pj.efectos as any[]).filter(y => y.nombre !== x.nombre))}>Quitar</button></p>
           ))}
         </div>
@@ -369,7 +405,7 @@ export function ModoCombate({ c }: { c: any }) {
     const leer = () => { if (ocupado || document.hidden) return; ocupado = true; combateMesa(ref).then(d => {
       if (!vivo) return;
       fallos = 0; setViv(d); setError('');
-      aplicarOrdenes(d?.ordenes, personajeId);
+      aplicarOrdenes(d?.ordenes, personajeId, ref);
       const e = d?.economia?.[personajeId] || {};
       // Un toque reciente manda sobre lo que devuelva el servidor, para que el botón no parpadee
       setEco(prev => {
@@ -386,7 +422,30 @@ export function ModoCombate({ c }: { c: any }) {
 
   // Al terminar el combate se acaban las marcas
   const terminado = !!viv && !viv.activo;
-  useEffect(() => { if (terminado && c.pj.marcas?.length) setVal('marcas', []); if (terminado && c.pj.efectos?.length) setVal('efectos', []); }, [terminado, c.pj.marcas?.length, c.pj.efectos?.length]);
+  useEffect(() => {
+    if (terminado && c.pj.marcas?.length) setVal('marcas', []);
+    if (terminado && c.pj.efectos?.length) setVal('efectos', []);
+    if (terminado && c.pj.concentracion) setVal('concentracion', null);
+  }, [terminado, c.pj.marcas?.length, c.pj.efectos?.length, c.pj.concentracion]);
+  // Los efectos con duración se acaban solos al llegar su turno (Bendición: 10 rondas después de lanzarla)
+  useEffect(() => {
+    if (!viv?.activo) return;
+    const acabados = (c.pj.efectos || []).filter((x: any) => x.hasta && rondasRestantes(x.hasta, viv) == null);
+    if (!acabados.length) return;
+    setVal('efectos', (c.pj.efectos as any[]).filter(x => !acabados.includes(x)));
+    avisar(`Se acabó: ${acabados.map((x: any) => x.nombre).join(', ')}.`);
+  }, [viv, c.pj.efectos]);
+  // La concentración se pierde al quedar incapacitado o a 0 PG, y termina sola al acabarse su duración
+  const yoK = viv?.orden?.find(o => o.pid === personajeId);
+  const pgRec = c.recursos.find((r: any) => r.id === 'pg'), pgActual = pgRec ? pgRec.max - Math.min(c.pj.used?.pg || 0, pgRec.max) : 1;
+  const incapacitado = [...(yoK?.cond || []), ...(c.pj.efectos || []).map((x: any) => x.nombre)].find(n => INCAPACITANTES.includes(n));
+  useEffect(() => {
+    const conc = c.pj.concentracion;
+    if (!conc || !viv?.activo) return;
+    if (incapacitado) void terminarConcentracion({ dmId, campanaId, personajeId }, `quedaste ${incapacitado}`);
+    else if (pgActual <= 0) void terminarConcentracion({ dmId, campanaId, personajeId }, 'caíste a 0 PG');
+    else if (conc.hasta && rondasRestantes(conc.hasta, viv) == null) { setVal('concentracion', null); avisar(`Se acabó ${conc.nombre}.`); }
+  }, [viv, c.pj.concentracion, incapacitado, pgActual, dmId, campanaId, personajeId]);
 
   const gastar = (t: TipoAccionRonda, gastado: boolean) => {
     toques.current[t] = Date.now();
@@ -412,7 +471,7 @@ export function ModoCombate({ c }: { c: any }) {
   return (
     <div className="mx-auto grid max-w-3xl gap-4 pb-24">
       {viv && <BarraIniciativa viv={viv} miPid={personajeId} mesa={m} />}
-      <ResumenCombate c={c} m={m} conds={mias} dur={yo?.dur || {}} ven={yo?.ven || ''} esMiTurno={esMiTurno} />
+      <ResumenCombate c={c} m={m} conds={mias} dur={yo?.dur || {}} ven={yo?.ven || ''} esMiTurno={esMiTurno} cb={viv} />
 
       {(ranuras.length > 0 || c.recursos.some((r: any) => r.id !== 'pg' && !/^slot\d/.test(r.id))) && (
         <section className="grid gap-3" aria-label="Recursos">
@@ -468,7 +527,7 @@ export function ModoCombate({ c }: { c: any }) {
       </Dialogo>
 
       <UsoAccion c={c} uso={uso} ventaja={yo?.ven || ''} enemigos={objetivos} mesa={{ dmId, campanaId, personajeId }} yaGastada={!!(uso && eco[uso.tipo])} alCerrar={() => setUso(null)}
-        alUsar={t => { toques.current[t] = Date.now(); setEco(p => ({ ...p, [t]: true })); }} alMarcar={marcar} />
+        alUsar={t => { toques.current[t] = Date.now(); setEco(p => ({ ...p, [t]: true })); }} alMarcar={marcar} ahora={yo && viv ? { ronda: viv.ronda || 1, turno: viv.turno || 0, orden: viv.orden || [], k: yo.k } : undefined} />
     </div>
   );
 }

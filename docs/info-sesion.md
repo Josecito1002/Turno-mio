@@ -4,7 +4,7 @@ El creador de campañas genera, al preparar cada sesión, un archivo **Info sesi
 Mesa del DM → la campaña → pestaña **Sesión → Importar info de sesión**. Al importarlo:
 
 - la pestaña Sesión muestra la lista de combates (Combate 1, Emboscada en el puente…), cada uno con sus enemigos y notas;
-- "Activar combate" pone esos enemigos en la pestaña Combate con CA, PG e iniciativa, y tira iniciativa para todos (si
+- "Activar combate" pone esos enemigos en la pestaña Combate con CA, PG e iniciativa, y abre la pantalla «Tirar iniciativas» (si
   había otro combate en curso, pregunta antes de terminarlo); "Sumar al combate en curso" agrega sus enemigos al actual;
 - los enemigos que no están en el bestiario de la app (Manual de Monstruos 2025) se guardan en el bestiario de esa
   campaña con los datos que traiga el archivo;

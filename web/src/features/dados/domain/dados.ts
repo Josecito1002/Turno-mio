@@ -54,3 +54,20 @@ export function resolver(expr: string, o: OpcionesTirada): Resultado {
   const g20 = groups.length === 1 && groups[0].d === 20 && groups[0].vals.length <= 2 ? groups[0] : null;
   return { expr, groups, consts, total, nat: g20 ? g20.vals[g20.kept.indexOf(true)] : null };
 }
+
+/** Separa una tirada en sus dados y su número fijo, para decir qué tirar y qué se suma solo:
+ *  "2d6+1d4+3" → dados "2d6 + 1d4", mod 3. Con `crit` los dados se duplican (el número fijo no). */
+export function partesTirada(expr: string, crit = false): { dados: string; mod: number; conDados: boolean } {
+  let mod = 0;
+  const dados: string[] = [];
+  for (const t of parseRoll(expr)) {
+    if ('k' in t) mod += t.k;
+    else dados.push(`${t.s < 0 ? '− ' : ''}${t.n * (crit ? 2 : 1)}d${t.d}`);
+  }
+  return { dados: dados.join(' + ').replace(/\+ −/g, '−'), mod, conDados: dados.length > 0 };
+}
+
+/** "1d20 + 5", "2d6 − 1" o solo "8d6": lo que hay que tirar, escrito para leerlo. */
+export function textoTirada(dados: string, mod: number) {
+  return mod ? `${dados} ${mod > 0 ? '+' : '−'} ${Math.abs(mod)}` : dados;
+}

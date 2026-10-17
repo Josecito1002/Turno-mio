@@ -6,10 +6,11 @@ import { almacen } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
 import { confirmar } from '@/shared/ui/confirmar';
 import { modStr, norm, sign, slug } from '@/shared/utils/texto';
-import { Aviso, Boton, Campo, EncabezadoPagina, Fila, Lista, Nota, PanelPestana, Pestanas, Plegable, Seccion, Tarjeta, claseCampo, cx, foco } from '@/shared/ui/kit';
+import { Aviso, Boton, Campo, EncabezadoPagina, Fila, Lista, Nota, PanelPestana, Pestanas, Plegable, Seccion, Simbolo, Tarjeta, claseCampo, cx, foco } from '@/shared/ui/kit';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { BotonTirada } from '@/features/dados/components/BotonTirada';
-import { rnd } from '@/features/dados/domain/dados';
+import { CampoTirada, totalTirada } from '@/features/dados/components/CampoTirada';
+import { partesTirada, rnd } from '@/features/dados/domain/dados';
 import { resumen } from '@/features/personajes/domain/modelo';
 import { abrir, bajarArchivo } from '@/features/personajes/acciones';
 import { Ficha } from '@/features/personajes/components/ficha/Ficha';
@@ -17,9 +18,10 @@ import { CONDICIONES, actualizarPgUnido, cambiarPg, campActual, camps, claveUnid
 import { codigoMesa, guardarCampana, jugadoresMesa, quitarDeMesa } from '../api';
 import { conectarMesaRealtime } from '../realtime-cliente';
 import { publicarCombate } from '../domain/combate-vivo';
-import { combateVivoDm, confirmarGolpes, enviarEfectoDm, enviarOrdenDm, fijarAccionDm, quitarPeticiones, resolverSalvacion, type CombateVivo, type EconomiaRonda, type Golpe, type Peticion, type Salvacion, type TipoAccionRonda } from '../api';
+import { avisarJugadorDm, combateVivoDm, confirmarGolpes, enviarEfectoDm, enviarOrdenDm, fijarAccionDm, pedirSalvacionDm, quitarPeticiones, quitarRespuestas, resolverSalvacion, terminarConcentracionDm, type CombateVivo, type EconomiaRonda, type Golpe, type Peticion, type RespuestaSalvacion, type Salvacion, type TipoAccionRonda } from '../api';
 import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
-import { efectoSalvacion } from '../domain/condiciones';
+import { efectoSalvacion, repiteSalvacion } from '../domain/condiciones';
+import { hastaDe, quitarConcentracion, quitarCondicion, repeticionesDe, textoRestante, vencerCondiciones, type Hasta, type Repite } from '../domain/duracion';
 import { combatesOrigen, conservarVinculos, danosDe, enemigosDe, leerSesion, marcarRegresados, origenesDe, puedenVolver, regresanA, sobrevivientesDe, type Encuentro } from '../domain/sesion';
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
 import { BloqueMonstruo, BuscadorEnemigo, VistaBestiario, monstruoDe, useCatalogo } from './Bestiario';
@@ -66,7 +68,17 @@ const hayQueDeshacer = (id: string) => (historial.get(id) || []).length > 0;
 
 function Condiciones({ cp, k, nombre }: { cp: any; k: string; nombre: string }) {
   const e = estadoDe(cp, k);
-  const alternar = (n: string) => conCamp(c => { const x = estadoDe(c, k); x.cond = x.cond.includes(n) ? x.cond.filter((y: string) => y !== n) : [...x.cond, n]; });
+  const alternar = (n: string) => {
+    const propia = n === 'Concentrado' && e.cond.includes(n) ? e.concPropia : null;
+    conCamp(c => {
+      const x = estadoDe(c, k); if (x.hasta?.[n]) delete x.hasta[n];
+      x.cond = x.cond.includes(n) ? x.cond.filter((y: string) => y !== n) : [...x.cond, n];
+      // Si deja de concentrarse, se acaba lo que había dejado su conjuro
+      if (x.repite?.[n] && !x.cond.includes(n)) delete x.repite[n];
+      if (propia) { delete x.concPropia; acabarConcentracion(c, propia.id, nombre, propia.nombre); }
+    });
+    if (propia) terminarConcentracionDm(cp.id, propia.id, nombre, propia.nombre).catch(() => avisar('Los jugadores no se enteraron: díselo en voz alta.', 'error'));
+  };
   const chip = (n: string, on: boolean) => (
     <button key={n} type="button" aria-pressed={on} onClick={() => alternar(n)}
       className={cx('min-h-11 cursor-pointer rounded-full px-3 text-sm font-bold sm:min-h-8', foco, on ? 'bg-gol text-bg' : 'bg-soft hover:bg-rule/70')}>
@@ -99,7 +111,7 @@ function Condiciones({ cp, k, nombre }: { cp: any; k: string; nombre: string }) 
       )}
       <div className="flex flex-wrap items-center gap-x-3">
         <details className="mt-1">
-          <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>+ Agregar condición</summary>
+          <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center gap-1 rounded-lg bg-soft px-3 text-sm font-bold text-ink ring-1 ring-inset ring-muted/60 hover:bg-rule/60 sm:min-h-9 [&::-webkit-details-marker]:hidden', foco)}>+ Agregar condición</summary>
           <div className="mt-1 flex flex-wrap gap-1.5">{CONDICIONES.filter(n => !e.cond.includes(n)).map(n => chip(n, false))}</div>
         </details>
         {hayQueDeshacer(cp.id) && <button type="button" onClick={() => deshacer(k)} className={cx('min-h-11 cursor-pointer rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8', foco)}>↶ Deshacer lo último de {nombre}</button>}
@@ -469,19 +481,22 @@ function guardarSobrevivientes(c: any) {
   delete c.huidos;
 }
 
-/** Tira iniciativa para todos (grupo, jugadores unidos y enemigos) y empieza el combate. */
-function iniciarCombate(c: any) {
-  const orden = [...c.pjs.map((id: string) => 'pj:' + id), ...unidosDe(c.id).map(claveUnido), ...c.monstruos.map((m: any) => 'm:' + m.id)].map(k => combatiente(k, c)).filter(Boolean).map((x: any) => ({ k: x.k, init: rnd(20) + x.bono, bono: x.bono }));
+/** Quienes entran al combate al empezarlo: el grupo, los jugadores unidos y los enemigos. */
+const participantes = (c: any) => [...c.pjs.map((id: string) => 'pj:' + id), ...unidosDe(c.id).map(claveUnido), ...c.monstruos.map((m: any) => 'm:' + m.id)].map(k => combatiente(k, c)).filter(Boolean);
+
+/** Empieza el combate con las iniciativas que escribió el DM (`fijas`, por clave); las que faltan se tiran solas. */
+function iniciarCombate(c: any, fijas: Record<string, number> = {}) {
+  const orden = participantes(c).map((x: any) => ({ k: x.k, init: fijas[x.k] ?? rnd(20) + x.bono, bono: x.bono }));
   c.combate = { activo: true, ronda: 1, turno: 0, orden }; delete c.huidos;
   for (const o of [...orden]) if (!o.k.startsWith('m:')) sumarCompaneros(c, o.k, rnd);
   ordenar(c); c.combate.turno = 0;
 }
 
-/** Activa un combate de la sesión: pone sus enemigos y tira iniciativa. Si hay otro en curso, lo termina antes (con
+/** Activa un combate de la sesión: pone sus enemigos y abre la pantalla de iniciativas. Si hay otro en curso, lo termina antes (con
     `sumar`, en cambio, los enemigos entran al combate en curso con su propia iniciativa). */
 async function activarEncuentro(cp: any, e: Encuentro, sumar = false) {
   if (cp.combate.activo && !sumar && !(await confirmar({ titulo: `¿Empezar ${e.nombre}?`, si: 'Terminar y empezar este',
-    texto: `Hay un combate en curso (ronda ${cp.combate.ronda}). Se termina, se quitan sus enemigos y se tira iniciativa para este.` }))) return;
+    texto: `Hay un combate en curso (ronda ${cp.combate.ronda}). Se termina, se quitan sus enemigos y pasas a tirar las iniciativas de este.` }))) return;
   conCamp(c => {
     // Los que vuelven de otro combate de la sesión entran con los PG que tenían al terminarlo
     if (!sumar) guardarSobrevivientes(c);
@@ -492,11 +507,13 @@ async function activarEncuentro(cp: any, e: Encuentro, sumar = false) {
       c.monstruos.push(...nuevos);
       for (const m of nuevos) c.combate.orden.push({ k: 'm:' + m.id, init: rnd(20) + m.bono, bono: m.bono });
       ordenar(c);
-    } else { c.monstruos = nuevos; iniciarCombate(c); }
+    } else { c.monstruos = nuevos; c.combate = { activo: false, ronda: 1, turno: 0, orden: [] }; }
     c.encuentroActual = e.id;
   });
+  // Lo primero de un combate nuevo es la pantalla para tirar o escribir las iniciativas
+  if (!sumar) S.iniPendiente = cp.id;
   S.mtab = 'combate'; render(); irArriba();
-  avisar(sumar ? `${e.nombre}: enemigos sumados al combate.` : `${e.nombre}: iniciativa tirada para todos.`);
+  if (sumar) avisar(`${e.nombre}: enemigos sumados al combate.`);
 }
 
 /** Un combate preparado de la sesión, con su botón para activarlo. */
@@ -624,6 +641,68 @@ function ImportarSesion({ cp }: { cp: any }) {
 const golpesAplicados = new Set<string>();
 /** Golpes de los que ya se avisó con un mensaje (para no avisar dos veces). */
 const golpesAvisados = new Set<string>();
+/** Concentraciones que ya se perdieron: lo que llegue después con ellas no se aplica. */
+const concTerminadas = new Set<string>();
+/** Pone una condición; si trae duración, se quita sola cuando termina, y si depende de una concentración, al perderla. */
+function ponerCondicion(c: any, k: string, cond: string, hasta?: Hasta, conc?: string, repite?: Repite) {
+  if (conc && concTerminadas.has(conc)) return;
+  const e = estadoDe(c, k);
+  if (!e.cond.includes(cond)) e.cond.push(cond);
+  if (repite) e.repite = { ...(e.repite || {}), [cond]: repite };
+  if (hasta) { e.hasta = { ...(e.hasta || {}), [cond]: hasta }; e.dur = { ...(e.dur || {}), [cond]: textoRestante(hasta, c.combate) }; }
+  if (conc) e.conc = { ...(e.conc || {}), [cond]: conc };
+}
+/** El id de una concentración nueva de `k` (lo llevan sus efectos). */
+const idConcentracion = (k: string) => `${k.replace(/[^\w-]/g, '-')}-${Date.now().toString(36)}`;
+/** El modificador de salvación de alguien del combate, si se sabe (enemigo con bloque o personaje con hoja). */
+function modSalvDe(cp: any, k: string, salv: string): number | null {
+  const y = combatiente(k, cp); if (!y) return null;
+  if (y.c?.saves) return y.c.saves[salv] ?? null;
+  const f = y.m?.ref ? monstruoDe(cp, y.m.ref) : null;
+  return f ? f.salv?.[salv] ?? Math.floor((((f.ab as any)?.[salv] ?? 10) - 10) / 2) : null;
+}
+/** Salvaciones que un enemigo (o un personaje del DM) repite al terminar su turno, esperando la tirada. */
+type Repeticion = { id: string; campId: string; k: string; cond: string } & Repite;
+let repeticiones: Repeticion[] = [];
+/** Se libra o no de la condición que lo tenía; quien se la puso se entera. */
+function resolverRepeticion(r: Repeticion, supero: boolean) {
+  repeticiones = repeticiones.filter(x => x.id !== r.id);
+  const cp = campActual(), nombre = (cp && combatiente(r.k, cp)?.nombre) || 'El objetivo';
+  if (supero) conCamp(c => { quitarCondicion(estadoDe(c, r.k), r.cond); });
+  else render();
+  avisar(supero ? `${nombre} se libra de ${r.cond}.` : `${nombre} sigue ${r.cond}.`);
+  if (r.pid) avisarJugadorDm(r.campId, r.pid, `${nombre} ${supero ? `superó la salvación y se libra de ${r.cond}` : `falló la salvación y sigue ${r.cond}`}.`).catch(() => {});
+}
+function SalvacionesRepetidas({ cp }: { cp: any }) {
+  const tirar = useDados();
+  return <>{repeticiones.filter(r => r.campId === cp.id).map(r => {
+    const nombre = combatiente(r.k, cp)?.nombre || '?', mod = modSalvDe(cp, r.k, r.salv), ns = NOMBRE_SALV[r.salv] || r.salv;
+    const tirarla = () => tirar(`1d20${modStr(mod ?? 0)}`, `Salvación de ${ns} de ${nombre} (CD ${r.cd})`, { noRepeat: true })
+      .then(t => resolverRepeticion(r, t.total >= r.cd)).catch(() => {});
+    return (
+      <Aviso key={r.id} tipo="aviso" titulo={`${nombre} termina su turno: repite la salvación de ${ns} CD ${r.cd}`}
+        accion={<div className="flex flex-wrap gap-2">
+          <Boton tamano="sm" onClick={tirarla}>Tirar{mod != null ? ` (${sign(mod)})` : ''}</Boton>
+          <Boton tamano="sm" variante="primario" onClick={() => resolverRepeticion(r, true)}>Superó</Boton>
+          <Boton tamano="sm" onClick={() => resolverRepeticion(r, false)}>Falló</Boton>
+        </div>}>
+        Si la supera, se libra de {r.cond} ({r.de}).
+      </Aviso>
+    );
+  })}</>;
+}
+/** Un enemigo concentrado que recibe daño hace una salvación de Constitución para no perderla. */
+function avisoConcentracion(c: any, k: string, dano: number, nombre: string) {
+  if (dano > 0 && estadoDe(c, k).cond.includes('Concentrado'))
+    avisar(`${nombre} está concentrado: salvación de Constitución CD ${Math.min(30, Math.max(10, Math.floor(dano / 2)))}. Si falla, quítale «Concentrado».`, 'aviso');
+}
+/** Se acaba lo que dependía de esa concentración, en esta mesa (las hojas de los jugadores se enteran por su lado). */
+function acabarConcentracion(c: any, conc: string, quien: string, que: string) {
+  concTerminadas.add(conc);
+  const fin = quitarConcentracion(c.estado, conc, k => combatiente(k, c)?.nombre || k);
+  if (fin.length) avisar(`${quien} dejó de concentrarse en ${que}: se acabó ${fin.join('; ')}.`);
+  return fin.length > 0;
+}
 /** Aplica un golpe de un jugador al objetivo (daño, curación y condición) y avisa al servidor para vaciarlo de la lista. */
 function aplicarGolpe(campId: string, g: Golpe) {
   if (golpesAplicados.has(g.id)) return;
@@ -635,7 +714,8 @@ function aplicarGolpe(campId: string, g: Golpe) {
     const quien = m?.nombre || pjDm?.nombre;
     if (m) m.pg = Math.min(m.pgMax, Math.max(0, m.pg + (g.cura ? g.dano : -g.dano)));
     else if (pjDm) cambiarPg(c, g.objetivo, g.cura ? g.dano : -g.dano);
-    if (quien && g.condicion) { const e = estadoDe(c, g.objetivo); if (!e.cond.includes(g.condicion)) e.cond.push(g.condicion); }
+    if (quien && g.condicion) ponerCondicion(c, g.objetivo, g.condicion, g.hasta, g.conc);
+    if (quien && !g.cura) avisoConcentracion(c, g.objetivo, g.dano, quien);
     const hecho = g.dano ? (g.cura ? `${g.dano} de curación` : `${g.dano} de daño`) : '';
     avisar(quien ? `${[hecho, g.condicion].filter(Boolean).join(', ')} aplicado a ${quien}.` : `${g.de} actuó sobre alguien que ya no está.`);
   });
@@ -701,7 +781,7 @@ function GolpesPendientes({ cp, k, nombre, golpes }: { cp: any; k: string; nombr
   );
 }
 
-type VivoDm = { eco: Record<string, EconomiaRonda>; salvs: Salvacion[]; golpes: Golpe[]; peticiones: Peticion[]; ultimas: NonNullable<CombateVivo>['ultimas'] };
+type VivoDm = { eco: Record<string, EconomiaRonda>; salvs: Salvacion[]; golpes: Golpe[]; peticiones: Peticion[]; ultimas: NonNullable<CombateVivo>['ultimas']; respuestas: RespuestaSalvacion[] };
 /** Descanso o inspiración para los jugadores unidos (a uno solo si se da su personaje). */
 async function mandarOrden(campId: string, tipo: 'corto' | 'largo' | 'inspiracion', personajeId?: string) {
   const nombre = { corto: 'Descanso corto', largo: 'Descanso largo', inspiracion: 'Inspiración' }[tipo];
@@ -711,14 +791,31 @@ async function mandarOrden(campId: string, tipo: 'corto' | 'largo' | 'inspiracio
 }
 
 function useEconomiaVivo(campId: string, activo: boolean): VivoDm {
-  const [vivo, setVivo] = useState<VivoDm>({ eco: {}, salvs: [], golpes: [], peticiones: [], ultimas: {} });
+  const [vivo, setVivo] = useState<VivoDm>({ eco: {}, salvs: [], golpes: [], peticiones: [], ultimas: {}, respuestas: [] });
   useEffect(() => {
     if (!activo) return;
     let sigue = true;
     const leer = () => combateVivoDm(campId).then(v => {
       if (!sigue) return;
       const golpes = v?.golpes || [];
-      setVivo({ eco: v?.economia || {}, salvs: v?.salvaciones || [], golpes, peticiones: v?.peticiones || [], ultimas: v?.ultimas || {} });
+      setVivo({ eco: v?.economia || {}, salvs: v?.salvaciones || [], golpes, peticiones: v?.peticiones || [], ultimas: v?.ultimas || {}, respuestas: v?.respuestas || [] });
+      // La condición que le quedó a un jugador al fallar la salvación que le pediste también se anota en su tarjeta
+      for (const r of v?.respuestas || []) if (!respuestasVistas.has(r.id)) {
+        respuestasVistas.add(r.id);
+        if (r.condicion) conCamp(c => {
+          const o = (c.combate.orden || []).find((x: any) => combatiente(x.k, c)?.u?.personajeId === r.pid); if (!o) return false;
+          const e = estadoDe(c, o.k), tiene = e.cond.includes(r.condicion);
+          // Superó la salvación que repite al final de su turno: se libra
+          if (r.supero) { if (!tiene) return false; quitarCondicion(e, r.condicion!); return; }
+          if (tiene && !r.repite) return false;
+          ponerCondicion(c, o.k, r.condicion!, r.hasta, r.conc, r.repite && r.salv && r.cd ? { salv: r.salv, cd: r.cd, de: r.de } : undefined);
+        });
+      }
+      // Alguien perdió la concentración: se quita lo que dependía de ella
+      for (const o of v?.ordenes || []) if (o.tipo === 'finConc' && o.conc && !concTerminadas.has(o.conc)) {
+        const conc = o.conc;
+        conCamp(c => { if (!acabarConcentracion(c, conc, o.de || 'Alguien', o.nota || 'su conjuro')) return false; });
+      }
       for (const q of v?.peticiones || []) if (!golpesAvisados.has(q.id) && !peticionesResueltas.has(q.id)) {
         golpesAvisados.add(q.id);
         const cp = campActual(), obj = cp && combatiente(q.objetivo, cp);
@@ -738,6 +835,20 @@ function useEconomiaVivo(campId: string, activo: boolean): VivoDm {
   return vivo;
 }
 
+/** Respuestas de salvación de los jugadores ya vistas (para anotar su condición una sola vez) y las que el DM ya cerró. */
+const respuestasVistas = new Set<string>(), respuestasCerradas = new Set<string>();
+/** Lo que respondieron los jugadores a las salvaciones que les pediste, hasta que lo des por visto. */
+function RespuestasSalvacion({ campId, respuestas }: { campId: string; respuestas: RespuestaSalvacion[] }) {
+  const [, setN] = useState(0);
+  const cerrar = (r: RespuestaSalvacion) => { respuestasCerradas.add(r.id); setN(n => n + 1); quitarRespuestas(campId, [r.id]).catch(() => {}); };
+  return <>{respuestas.filter(r => !respuestasCerradas.has(r.id)).map(r => (
+    <Aviso key={r.id} tipo={r.supero ? 'info' : 'aviso'} titulo={`${r.de} ${r.supero ? 'superó' : 'falló'} la salvación (sacó ${r.total})`}
+      accion={<Boton tamano="sm" onClick={() => cerrar(r)}>Entendido</Boton>}>
+      {r.supero && r.condicion ? `Se libra de ${r.condicion}` : [r.dano ? `Recibió ${r.dano} de daño` : r.supero ? 'No le pasa nada' : '', r.condicion ? `queda ${r.condicion}` : ''].filter(Boolean).join(' y ') || 'Ya se aplicó en su hoja'}.
+    </Aviso>
+  ))}</>;
+}
+
 /** Salvaciones ya resueltas en esta pantalla (la lista del servidor tarda un rato en vaciarse). */
 const salvacionesResueltas = new Set<string>();
 /** El DM dice si el enemigo superó o falló la salvación: se aplica el daño (completo, mitad o nada) y la condición. */
@@ -750,10 +861,14 @@ function resolverSalv(campId: string, s: Salvacion, k: string, supero: boolean) 
     if (!m) return false;
     const dano = supero ? (s.mitad ? Math.floor(s.dano / 2) : 0) : s.dano;
     m.pg = Math.max(0, m.pg - dano);
-    if (!supero && s.condicion) { const e = estadoDe(c, k); if (!e.cond.includes(s.condicion)) e.cond.push(s.condicion); }
+    if (!supero && s.condicion) ponerCondicion(c, k, s.condicion, s.hasta, s.conc, s.repite ? { salv: s.salv.toLowerCase(), cd: s.cd, de: s.de, ...(s.pid ? { pid: s.pid } : {}) } : undefined);
+    avisoConcentracion(c, k, dano, m.nombre);
     avisar(`${m.nombre} ${supero ? 'superó' : 'falló'} la salvación de ${s.salv}${dano ? `: ${dano} de daño` : ''}${!supero && s.condicion ? `, ${s.condicion}` : ''}.`);
   });
   resolverSalvacion(campId, s.id, k).catch(() => {});
+  // Quien la pidió se entera en su pantalla
+  const m = campActual()?.monstruos.find((x: any) => 'm:' + x.id === k);
+  if (s.pid) avisarJugadorDm(campId, s.pid, `${m?.nombre || 'El enemigo'} ${supero ? 'superó' : 'falló'} la salvación de ${s.salv}${s.nota ? ` contra tu ${s.nota}` : ''}${supero ? (s.mitad && s.dano ? ': recibe la mitad del daño' : '') : s.condicion ? `: queda ${s.condicion}` : ''}.`).catch(() => {});
 }
 
 const CLAVE_SALV: Record<string, string> = { FUE: 'fue', DES: 'des', CON: 'con', INT: 'int', SAB: 'sab', CAR: 'car' };
@@ -817,44 +932,67 @@ function AccionesRonda({ cp, x, campId, clave, eco, nombre }: { cp: any; x: any;
   );
 }
 
-/** Las acciones del bloque de un enemigo o compañero para el tipo elegido: el DM escoge objetivo, tira y aplica el daño. */
+/** Las acciones del bloque de un enemigo o compañero para el tipo elegido: el DM escoge objetivo, tira (en la app o con sus dados) y aplica el daño. */
 function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x: any; ficha: any; tipo: TipoAccionRonda; gastada: boolean; marcar: (g: boolean) => void }) {
-  const tirar = useDados();
   const [obj, setObj] = useState('');
   // Los daños como lista aunque un archivo de sesión viejo los haya guardado como texto
   const lista = (({ accion: ficha.acciones, adicional: ficha.adicionales, reaccion: ficha.reacciones }[tipo] || []) as any[]).map(a => ({ ...a, dano: danosDe(a.dano) }));
   const blancos = (cp.combate.orden || []).map((o: any) => combatiente(o.k, cp)).filter((y: any) => y && y.k !== x.k);
   const elegido = blancos.find((y: any) => y.k === obj);
-  const atacar = (a: any) => {
-    if (!elegido) { avisar('Elige primero el objetivo.', 'aviso'); return; }
-    tirar(`1d20${modStr(a.atk)}`, `${x.nombre}: ${a.n} contra ${elegido.nombre} (CA ${elegido.ca})`, { noRepeat: true }).catch(() => {});
-  };
+  const tirar = useDados();
   /** Salvación que debe hacer el objetivo: tras acertar (la parálisis de las garras) o en lugar del ataque (con el daño
       ya tirado, que entra entero, a la mitad o nada según la supere). */
   const [pend, setPend] = useState<{ a: any; k: string; nombre: string; dano: number; cd: number; salv: string; condicion?: string; mitad: boolean } | null>(null);
   /** Aplica el daño a un objetivo: a un jugador unido le llega a su hoja (con la condición, si la hay). */
-  const aplicar = async (k: string, nombre: string, dano: number, a: any, condicion?: string) => {
+  const aplicar = async (k: string, nombre: string, dano: number, a: any, condicion?: string, repite?: Repite) => {
     const y = combatiente(k, campActual() || cp);
     if (!y || !(dano || condicion)) return;
-    if (y.tipo === 'jug') await enviarEfectoDm(cp.id, y.u.personajeId, { de: x.nombre, dano, nota: a.n, ...(condicion ? { condicion } : {}) });
+    const tipoDano = dano ? (a.dano || []).map((d: any) => d.tipo).filter(Boolean).join(', ') : '';
+    const dura = condicion ? duracionDe(a, k) : null;
+    if (y.tipo === 'jug') await enviarEfectoDm(cp.id, y.u.personajeId, { de: x.nombre, dano, nota: a.n, ...(condicion ? { condicion } : {}), ...(tipoDano ? { tipoDano } : {}), ...(dura?.extras || {}) });
     conCamp(c => {
       if (y.tipo !== 'jug' && dano) cambiarPg(c, k, -dano);
-      if (condicion) { const e = estadoDe(c, k); if (!e.cond.includes(condicion)) e.cond.push(condicion); }
+      if (condicion) ponerCondicion(c, k, condicion, dura?.hasta, dura?.conc, repite);
+      if (y.tipo !== 'jug') avisoConcentracion(c, k, dano, nombre);
     });
     avisar(`${x.nombre}: ${nombre}${dano ? ` recibe ${dano} de daño` : ''}${dano && condicion ? ' y' : ''}${condicion ? ` queda ${condicion}` : ''}${y.tipo === 'jug' ? '. Le llega a su hoja.' : '.'}`);
   };
-  const danar = async (a: any) => {
-    if (!elegido) { avisar('Elige primero el objetivo.', 'aviso'); return; }
-    const expr = (a.dano || []).map((d: any) => d.d).join('+'), ef = efectoSalvacion(a);
+  /** Cuánto dura la condición que deja la acción (según su texto) y, si pide concentración, el enemigo se concentra en ella. */
+  const duracionDe = (a: any, objetivo: string) => {
+    const c0 = campActual() || cp, h = hastaDe(a.t || '', c0.combate, x.k, objetivo);
+    let conc: string | undefined;
+    if (/concentraci/i.test(a.t || '')) {
+      const e = estadoDe(c0, x.k);
+      // Una sola concentración: la nueva reemplaza a la anterior
+      if (e.concPropia?.nombre !== a.n) {
+        const antes = e.concPropia;
+        conc = idConcentracion(x.k);
+        conCamp(c => {
+          const ee = estadoDe(c, x.k);
+          if (antes) acabarConcentracion(c, antes.id, x.nombre, antes.nombre);
+          ee.concPropia = { id: conc, nombre: a.n };
+          ponerCondicion(c, x.k, 'Concentrado', h?.hasta);
+        });
+        if (antes) terminarConcentracionDm(cp.id, antes.id, x.nombre, antes.nombre).catch(() => {});
+      } else conc = e.concPropia.id;
+    }
+    const extras = { ...(h ? { rondas: h.rondas, hastaRonda: h.hasta.ronda, hastaK: h.hasta.k } : {}), ...(conc ? { conc } : {}) };
+    return { hasta: h?.hasta, conc, extras };
+  };
+  /** El daño ya tirado (a mano o en la app): con salvación en lugar del ataque, primero se pide la salvación;
+      tras un ataque que acierta, entra entero y después llega la salvación de su condición. */
+  const danar = async (a: any, dano: number) => {
+    if (!elegido) { avisar('Elige primero el objetivo.', 'aviso'); return false; }
+    const ef = efectoSalvacion(a);
     try {
-      const r = await tirar(expr, `${x.nombre}: ${a.n} (daño a ${elegido.nombre})`, { noRepeat: true });
-      if (ef && a.atk == null) setPend({ a, k: elegido.k, nombre: elegido.nombre, dano: r.total, ...ef });
+      if (ef && a.atk == null) setPend({ a, k: elegido.k, nombre: elegido.nombre, dano, ...ef });
       else {
-        await aplicar(elegido.k, elegido.nombre, r.total, a);
+        await aplicar(elegido.k, elegido.nombre, dano, a);
         if (ef) setPend({ a, k: elegido.k, nombre: elegido.nombre, dano: 0, ...ef, mitad: false });
       }
       if (!gastada) marcar(true);
-    } catch (e) { if ((e as Error).message && !/dados|cancel/i.test((e as Error).message)) avisar(`No se pudo aplicar: ${(e as Error).message}`, 'error'); }
+      return true;
+    } catch (e) { avisar(`No se pudo aplicar: ${(e as Error).message}`, 'error'); return false; }
   };
   /** Una acción que solo pide salvación (sin daño): la condición entra si la falla. */
   const pedirSalv = (a: any) => {
@@ -867,16 +1005,23 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x:
     setPend(null);
     const dano = supero ? (pend.mitad ? Math.floor(pend.dano / 2) : 0) : pend.dano;
     try {
-      await aplicar(pend.k, pend.nombre, dano, pend.a, supero ? undefined : pend.condicion);
+      const repite = !supero && pend.condicion && repiteSalvacion(pend.a.t || '') ? { salv: pend.salv, cd: pend.cd, de: x.nombre } : undefined;
+      await aplicar(pend.k, pend.nombre, dano, pend.a, supero ? undefined : pend.condicion, repite);
       if (supero && !dano) avisar(`${pend.nombre} superó la salvación de ${pend.a.n}.`);
     } catch (e) { avisar(`No se pudo aplicar: ${(e as Error).message}`, 'error'); }
   };
   /** El modificador de salvación del objetivo, si se sabe (enemigo con bloque o personaje con hoja). */
-  const modSalv = (k: string, salv: string): number | null => {
-    const y = combatiente(k, cp); if (!y) return null;
-    if (y.c?.saves) return y.c.saves[salv] ?? null;
-    const f = y.m?.ref ? monstruoDe(cp, y.m.ref) : null;
-    return f ? f.salv?.[salv] ?? Math.floor((((f.ab as any)?.[salv] ?? 10) - 10) / 2) : null;
+  const modSalv = (k: string, salv: string) => modSalvDe(cp, k, salv);
+  /** A un jugador unido le sale la salvación en grande; él la tira, se aplica en su hoja y su resultado llega aquí. */
+  const mandarSalv = async () => {
+    if (!pend) return;
+    const y = combatiente(pend.k, cp); if (y?.tipo !== 'jug') return;
+    try {
+      const dura = pend.condicion ? duracionDe(pend.a, pend.k) : null;
+      await pedirSalvacionDm(cp.id, y.u.personajeId, { de: x.nombre, salv: pend.salv, cd: pend.cd, dano: pend.dano, mitad: pend.mitad, ...(pend.condicion ? { condicion: pend.condicion } : {}), nota: pend.a.n, ...(dura?.extras || {}), ...(pend.condicion && repiteSalvacion(pend.a.t || '') ? { repite: true } : {}) });
+      avisar(`A ${pend.nombre} le salió la salvación en su pantalla. Su resultado aparece arriba del combate.`);
+      setPend(null);
+    } catch (e) { avisar(`No se pudo enviar: ${(e as Error).message}`, 'error'); }
   };
   const tirarSalv = async () => {
     if (!pend) return;
@@ -896,20 +1041,8 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x:
         </select>
         <Boton tamano="sm" onClick={() => marcar(!gastada)}>{gastada ? 'Recuperar' : 'Marcar gastada'}</Boton>
       </div>
-      {lista.length ? lista.map((a, i) => (
-        <div key={i} className="mt-2 border-t border-rule pt-2">
-          <b>{a.n}.</b> {a.atk != null && <span>{sign(a.atk)} al golpe. </span>}{a.cd != null && <span>Salvación de {a.salv} CD {a.cd}. </span>}
-          {a.dano?.length ? <span>Daño: {a.dano.map((d: any) => `${d.d} ${d.tipo}`).join(' + ')}. </span> : null}
-          {a.t && <p className="m-0 mt-0.5 text-muted">{a.t}</p>}
-          {(a.atk != null || a.dano?.length || efectoSalvacion(a)) && (
-            <div className="mt-1 flex flex-wrap gap-2">
-              {a.atk != null && <Boton tamano="sm" onClick={() => atacar(a)}>Tirar ataque</Boton>}
-              {a.dano?.length ? <Boton tamano="sm" variante="primario" onClick={() => danar(a)}>{a.atk != null ? 'Acertó: tirar daño y aplicar' : 'Tirar daño'}</Boton> : null}
-              {!a.dano?.length && efectoSalvacion(a) && <Boton tamano="sm" variante="primario" onClick={() => pedirSalv(a)}>Pedir salvación</Boton>}
-            </div>
-          )}
-        </div>
-      )) : <p className="m-0 mt-2 text-muted">No tiene acciones de este tipo en su bloque.</p>}
+      {lista.length ? lista.map((a, i) => <AccionMonstruo key={`${x.k}-${tipo}-${i}`} a={a} x={x} elegido={elegido} danar={danar} pedirSalv={pedirSalv} />)
+        : <p className="m-0 mt-2 text-muted">No tiene acciones de este tipo en su bloque.</p>}
       {pend && (() => {
         const mod = modSalv(pend.k, pend.salv), nombreSalv = NOMBRE_SALV[pend.salv] || pend.salv;
         const jug = combatiente(pend.k, cp)?.tipo === 'jug';
@@ -917,8 +1050,9 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x:
           <div className="mt-2 rounded-xl bg-gol/20 p-2" role="status">
             <p className="m-0"><b>{pend.nombre}</b> hace una salvación de <b>{nombreSalv} CD {pend.cd}</b> ({pend.a.n}).{' '}
               <span className="text-muted">{[pend.dano ? `Si falla, ${pend.dano} de daño${pend.mitad ? `; si la supera, ${Math.floor(pend.dano / 2)}` : '; si la supera, nada'}` : '', pend.condicion ? `si falla queda ${pend.condicion}` : ''].filter(Boolean).join(', ')}.
-              {jug ? ' Pídele que tire, o tira tú.' : ''}</span></p>
+              {jug ? ' Pídesela en su pantalla, o tira tú.' : ''}</span></p>
             <div className="mt-1 flex flex-wrap items-center gap-2">
+              {jug && <Boton tamano="sm" variante="primario" onClick={mandarSalv}>Pedírsela en su pantalla</Boton>}
               <Boton tamano="sm" onClick={tirarSalv}>Tirar salvación{mod != null ? ` (${sign(mod)})` : ''} y aplicar</Boton>
               <Boton tamano="sm" variante="primario" onClick={() => resolver(false)}>Falló</Boton>
               <Boton tamano="sm" onClick={() => resolver(true)}>Superó</Boton>
@@ -928,6 +1062,104 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x:
         );
       })()}
     </div>
+  );
+}
+
+/** Una acción del bloque, paso a paso: el d20 (natural, el bono se suma solo) contra la CA del objetivo, y después el daño. */
+function AccionMonstruo({ x, a, elegido, danar, pedirSalv }: { x: any; a: any; elegido: any; danar: (a: any, dano: number) => Promise<boolean>; pedirSalv: (a: any) => void }) {
+  const [nat, setNat] = useState(''), [dados, setDados] = useState(''), [adv, setAdv] = useState(0);
+  const atkExpr = a.atk != null ? `1d20${modStr(a.atk)}` : '';
+  const dexpr = (a.dano || []).map((d: any) => d.d).join('+');
+  const conDados = !!dexpr && partesTirada(dexpr).conDados;
+  const total = atkExpr ? totalTirada(atkExpr, nat) : null;
+  const acierta = total == null || !elegido ? null : nat === '20' || (nat !== '1' && total >= elegido.ca);
+  const dano = !dexpr ? null : conDados ? totalTirada(dexpr, dados, nat === '20') : partesTirada(dexpr).mod;
+  const salvPrimero = a.atk == null && !!efectoSalvacion(a);
+  const aplicar = async (cuanto: number) => { if (await danar(a, cuanto)) { setNat(''); setDados(''); } };
+  return (
+    <div className="mt-2 grid gap-2 border-t border-rule pt-2">
+      <div>
+        <b>{a.n}.</b> {a.atk != null && <span>{sign(a.atk)} al golpe. </span>}{a.cd != null && <span>Salvación de {a.salv} CD {a.cd}. </span>}
+        {a.dano?.length ? <span>Daño: {a.dano.map((d: any) => `${d.d} ${d.tipo}`).join(' + ')}. </span> : null}
+        {a.t && <p className="m-0 mt-0.5 text-muted">{a.t}</p>}
+      </div>
+      {!dexpr && !atkExpr && efectoSalvacion(a) && <Boton tamano="sm" variante="primario" className="justify-self-start" onClick={() => pedirSalv(a)}>Pedir salvación</Boton>}
+      {atkExpr && (
+        <div className="grid gap-1 rounded-lg bg-surface p-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-xs font-bold uppercase tracking-wide text-muted">1. Ataque</span>
+            <select aria-label={`Ventaja en ${a.n}`} value={adv} onChange={e => setAdv(+e.target.value)} className={cx(claseCampo, 'min-h-9! w-auto! text-sm')}>
+              <option value={0}>Normal</option><option value={1}>Con ventaja</option><option value={-1}>Con desventaja</option>
+            </select>
+          </div>
+          <CampoTirada tipo="ataque" expr={atkExpr} valor={nat} alCambiar={setNat} adv={adv} claseInput={claseCampo}
+            etiqueta={`${x.nombre}: ${a.n}${elegido ? ` contra ${elegido.nombre} (CA ${elegido.ca})` : ''}`} />
+          {total != null && (elegido
+            ? <p className={cx('m-0 font-bold', acierta ? 'text-pas' : 'text-acc')}>{total} contra CA {elegido.ca}: {acierta ? (nat === '20' ? 'acierta con crítico' : 'acierta') : 'falla, no hace daño'}.</p>
+            : <p className="m-0 text-muted">Elige el objetivo para saber si acierta.</p>)}
+        </div>
+      )}
+      {dexpr && acierta !== false && (
+        <div className="grid gap-1 rounded-lg bg-surface p-2">
+          <span className="text-xs font-bold uppercase tracking-wide text-muted">{atkExpr ? '2. Daño' : a.cd != null ? 'Daño (si falla la salvación)' : 'Daño'}</span>
+          {conDados
+            ? <CampoTirada tipo="dano" expr={dexpr} valor={dados} alCambiar={setDados} crit={nat === '20'} claseInput={claseCampo} etiqueta={`${x.nombre}: ${a.n} (daño${elegido ? ` a ${elegido.nombre}` : ''})`} />
+            : <p className="m-0">Daño fijo: <b>{dano}</b>.</p>}
+          {dano != null && (
+            <div className="flex flex-wrap gap-2">
+              <Boton tamano="sm" variante="primario" onClick={() => aplicar(Math.max(0, dano))}>
+                {salvPrimero ? `Pedir salvación (${Math.max(0, dano)} de daño si falla)` : `Aplicar ${Math.max(0, dano)} de daño${elegido ? ` a ${elegido.nombre}` : ''}`}
+              </Boton>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Lo primero al empezar un combate: la iniciativa de cada uno, escrita a mano o tirada en la app. */
+function TirarIniciativas({ cp }: { cp: any }) {
+  const tirar = useDados();
+  const lista = participantes(cp);
+  const [vals, setVals] = useState<Record<string, string>>({});
+  const poner = (k: string, v: string) => setVals(x => ({ ...x, [k]: v }));
+  const faltan = lista.filter((x: any) => (vals[x.k] ?? '') === '');
+  const tirarFaltan = () => setVals(x => ({ ...x, ...Object.fromEntries(faltan.map((y: any) => [y.k, String(rnd(20) + y.bono)])) }));
+  const empezar = () => {
+    const fijas = Object.fromEntries(Object.entries(vals).filter(([, v]) => v.trim() !== '').map(([k, v]) => [k, Math.round(+v || 0)]));
+    conCamp(c => { iniciarCombate(c, fijas); });
+    S.iniPendiente = null; render(); irArriba();
+    avisar(faltan.length ? `Combate empezado. ${faltan.length === 1 ? 'Una iniciativa vacía se tiró sola' : `${faltan.length} iniciativas vacías se tiraron solas`}.` : 'Combate empezado.');
+  };
+  const cancelar = () => { S.iniPendiente = null; render(); };
+  return (
+    <Seccion titulo="Tirar iniciativas" descripcion="Escribe el total de cada uno (el d20 más su bono) o tócale el d20 para tirarlo en la app. Las que dejes vacías se tiran solas al empezar.">
+      <Lista etiqueta="Iniciativas">
+        {lista.length ? lista.map((x: any) => (
+          <Fila key={x.k}>
+            <span className="min-w-0 flex-1">
+              <b className="block">{x.nombre}</b>
+              <span className="text-sm text-muted">{x.tipo === 'm' ? (x.m.aliado ? 'Compañero' : 'Enemigo') : 'Jugador'} · tira 1d20 {x.bono < 0 ? '−' : '+'} {Math.abs(x.bono)}</span>
+            </span>
+            <span className="flex items-center gap-2">
+              <label className="sr-only" htmlFor={`ini0-${x.k}`}>Iniciativa de {x.nombre}</label>
+              <input id={`ini0-${x.k}`} type="number" inputMode="numeric" placeholder="Total" value={vals[x.k] ?? ''} onChange={e => poner(x.k, e.target.value)}
+                className={cx(claseCampo, 'w-20! px-1 text-center font-serif text-xl font-bold')} />
+              <Boton tamano="sm" aria-label={`Tirar iniciativa de ${x.nombre}`}
+                onClick={() => tirar(`1d20${modStr(x.bono)}`, `Iniciativa de ${x.nombre}`, { noRepeat: true }).then(r => poner(x.k, String(r.total)))}>
+                <Simbolo n="casino" />d20
+              </Boton>
+            </span>
+          </Fila>
+        )) : <Fila><span className="text-sm text-muted">No hay nadie en el combate todavía.</span></Fila>}
+      </Lista>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Boton variante="primario" disabled={!lista.length} onClick={empezar}>Empezar combate</Boton>
+        {faltan.length > 0 && <Boton onClick={tirarFaltan}>Tirar las que faltan ({faltan.length})</Boton>}
+        <Boton variante="fantasma" onClick={cancelar}>Cancelar</Boton>
+      </div>
+    </Seccion>
   );
 }
 
@@ -942,13 +1174,14 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
     c.monstruos = c.monstruos.filter((x: any) => x.id !== id); c.combate.orden = (c.combate.orden || []).filter((o: any) => o.k !== 'm:' + id);
   });
   if (!cb.activo) {
+    if (S.iniPendiente === cp.id) return <TirarIniciativas cp={cp} />;
     const empezar = () => {
-      conCamp(c => { c.encuentroActual = null; iniciarCombate(c); });
-      irArriba(); avisar('Iniciativa tirada para todos.');
+      conCamp(c => { c.encuentroActual = null; });
+      S.iniPendiente = cp.id; render(); irArriba();
     };
     return (
       <>
-        <p className="mt-2">Se tira iniciativa para el grupo y los enemigos, y se ordena sola. Después puedes corregir cualquier valor.</p>
+        <p className="mt-2">Al empezar, escribes la iniciativa de cada uno o la tiras en la app, y el orden se arma solo. Después puedes corregir cualquier valor.</p>
         <Seccion titulo="Enemigos">
           <Lista>{cp.monstruos.length ? cp.monstruos.map((m: any) => (
             <Fila key={m.id}><span>{m.nombre} <span className="text-sm text-muted">CA {m.ca}, {m.pg}/{m.pgMax} PG, iniciativa {sign(m.bono)}</span></span>
@@ -975,7 +1208,29 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
     for (const k of nuevos) { const x = combatiente(k, c); if (x) { c.combate.orden.push({ k, init: rnd(20) + x.bono, bono: x.bono }); sumarCompaneros(c, k, rnd); } }
     ordenar(c);
   });
-  const siguiente = () => conCamp(c => { const b = c.combate; if (!b.orden.length) return false; b.turno++; if (b.turno >= b.orden.length) { b.turno = 0; b.ronda++; } });
+  const siguiente = () => {
+    let pendientes: { k: string; cond: string; r: Repite }[] = [];
+    conCamp(c => {
+      const b = c.combate; if (!b.orden.length) return false;
+      // Quien termina su turno repite las salvaciones que lo dejan librarse de una condición
+      const termina = b.orden[b.turno]?.k;
+      if (termina) pendientes = repeticionesDe(c.estado?.[termina]).map(x => ({ k: termina, ...x }));
+      b.turno++; if (b.turno >= b.orden.length) { b.turno = 0; b.ronda++; }
+      // Las condiciones con duración se descuentan solas y se quitan al terminar
+      for (const e of Object.values(c.estado || {}) as any[]) for (const [n, h] of Object.entries(e?.hasta || {})) if (e.dur) e.dur[n] = textoRestante(h as Hasta, b);
+      const fin = vencerCondiciones(c.estado, b, k => combatiente(k, c)?.nombre || k);
+      if (fin.length) avisar(`Se acabó: ${fin.join('; ')}.`);
+      // Si la condición se acabó sola en este mismo paso, ya no hay nada que repetir
+      pendientes = pendientes.filter(p => c.estado?.[p.k]?.cond?.includes(p.cond));
+    });
+    for (const p of pendientes) {
+      const y = combatiente(p.k, cp);
+      if (y?.tipo === 'jug') pedirSalvacionDm(cp.id, y.u.personajeId, { de: p.r.de, salv: p.r.salv, cd: p.r.cd, dano: 0, mitad: false, condicion: p.cond, nota: `librarte de ${p.cond}`, librarse: true })
+        .then(() => avisar(`${y.nombre} repite su salvación contra ${p.cond} en su pantalla.`)).catch(e => avisar(`No se pudo pedir la salvación a ${y.nombre}: ${(e as Error).message}`, 'error'));
+      else repeticiones = [...repeticiones, { id: `${p.k}|${p.cond}|${Date.now()}`, campId: cp.id, k: p.k, cond: p.cond, ...p.r }];
+    }
+    if (pendientes.length) render();
+  };
   const terminar = async () => {
     const quitar = cp.monstruos.length > 0 && await confirmar({ titulo: '¿Quitar también a los enemigos?', texto: 'El combate termina igual; puedes dejarlos para el siguiente.', si: 'Quitarlos', no: 'Dejarlos' });
     conCamp(c => { guardarSobrevivientes(c); c.combate = { activo: false, ronda: 1, turno: 0, orden: [] }; if (quitar) c.monstruos = []; });
@@ -988,7 +1243,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
         {nuevos.length > 0 && <Boton onClick={sumarNuevos}>Sumar {nuevos.length === 1 ? `a ${combatiente(nuevos[0], cp)?.nombre}` : `a ${nuevos.length} jugadores`}</Boton>}
         {hayQueDeshacer(cp.id) && <Boton onClick={() => deshacer()}>↶ Deshacer</Boton>}
         <details className="w-full">
-          <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>Descansos e inspiración</summary>
+          <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center gap-1 rounded-lg bg-soft px-3 text-sm font-bold text-ink ring-1 ring-inset ring-muted/60 hover:bg-rule/60 sm:min-h-9 [&::-webkit-details-marker]:hidden', foco)}><Simbolo n="bedtime" />Descansos e inspiración</summary>
           <div className="mt-1 flex flex-wrap gap-2">
             <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'corto')}>Descanso corto</Boton>
             <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'largo')}>Descanso largo</Boton>
@@ -999,6 +1254,8 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
         <Boton variante="primario" onClick={siguiente}>Siguiente turno</Boton>
         <Boton onClick={terminar}>Terminar combate</Boton>
       </div>
+      <RespuestasSalvacion campId={cp.id} respuestas={vivo.respuestas} />
+      <SalvacionesRepetidas cp={cp} />
       {vivo.golpes.filter(g => !golpesAplicados.has(g.id) && !combatiente(g.objetivo, cp)).map(g => (
         <Aviso key={g.id} tipo="aviso" titulo={`${g.de} actuó sobre alguien que ya no está`} accion={<Boton tamano="sm" onClick={() => descartarGolpe(cp.id, g)}>Descartar</Boton>}>{g.nota || 'Sin detalle.'}</Aviso>
       ))}
@@ -1039,7 +1296,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
               {x.tipo === 'm' && <SalvacionesPendientes cp={cp} x={x} salvs={vivo.salvs} />}
               <GolpesPendientes cp={cp} k={x.k} nombre={x.nombre} golpes={vivo.golpes} />
               {x.tipo === 'm' && !x.m.aliado && <InfoParaJugadores cp={cp} x={x} peticiones={vivo.peticiones} />}
-              {x.tipo === 'jug' && <details className="mt-1"><summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>Hoja resumida</summary><Pasivas x={x} /></details>}
+              {x.tipo === 'jug' && <details className="mt-1"><summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center gap-1 rounded-lg bg-soft px-3 text-sm font-bold text-ink ring-1 ring-inset ring-muted/60 hover:bg-rule/60 sm:min-h-9 [&::-webkit-details-marker]:hidden', foco)}><Simbolo n="description" />Hoja resumida</summary><Pasivas x={x} /></details>}
               <PuntosGolpe cp={cp} x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
               {x.tipo === 'm' && x.m.ref && <VerBloque cp={cp} r={x.m.ref} nombre={x.nombre} />}
             </Tarjeta>
@@ -1192,7 +1449,7 @@ function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) 
     <>
       <EncabezadoPagina id="titulo-vista" titulo={cp.nombre} subtitulo={`${total} personaje${total === 1 ? '' : 's'}${unidos.length ? `, ${unidos.length} unido${unidos.length === 1 ? '' : 's'} con el código` : ''}. Condiciones e iniciativa quedan guardadas en la campaña.`}>
         <Boton variante="fantasma" onClick={() => abrirCampana(null)}>← Todas las campañas</Boton>
-        {unidos.length > 0 && <Boton onClick={() => mandarOrden(cp.id, 'largo')}>Descanso largo</Boton>}
+        {unidos.length > 0 && <Boton onClick={() => mandarOrden(cp.id, 'largo')}><Simbolo n="bedtime" />Descanso largo</Boton>}
       </EncabezadoPagina>
       <Pestanas idBase="mesa" etiqueta="Secciones de la campaña" activa={mtab} onCambiar={k => { S.mtab = k; render(); }}
         items={[{ id: 'grupo', texto: 'Grupo' }, { id: 'sesion', texto: encuentros.length ? `Sesión · ${encuentros.length}` : 'Sesión' },

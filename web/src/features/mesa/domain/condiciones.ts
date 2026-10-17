@@ -35,3 +35,11 @@ export function efectoSalvacion(a: { cd?: number; salv?: string; t?: string }): 
     .filter(([i]) => i >= 0).sort((x, y) => x[0] - y[0])[0]?.[1];
   return { cd: a.cd, salv: a.salv, ...(condicion ? { condicion } : {}), mitad: /mitad|half/.test(t) };
 }
+
+/** Si quien queda afectado repite la salvación al final de cada uno de sus turnos (y se libra si la supera). */
+export function repiteSalvacion(texto: string): boolean {
+  const t = String(texto || '').toLowerCase();
+  return /(?:repit|repet)\w*[^.]{0,40}salvaci[oó]n[^.]{0,60}final de (?:cada|su|sus)/.test(t)
+    || /final de (?:cada uno de )?(?:sus|su|cada) turnos?[^.]{0,60}(?:repit|repet)\w*[^.]{0,30}salvaci[oó]n/.test(t)
+    || /salvaci[oó]n[^.]{0,40}al final de cada uno de sus turnos/.test(t);
+}

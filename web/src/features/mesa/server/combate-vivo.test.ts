@@ -129,6 +129,60 @@ describe('combate en vivo', () => {
     assert.equal(o.personajeId, 'pjz'); assert.equal(o.cura, true); assert.equal(o.dano, 4); assert.equal(o.condicion, 'Bendecido');
     assert.ok(v.golpes.some((g: any) => g.objetivo === 'pj:abc' && g.cura));
   });
+  test('el golpe lleva su tipo de daño y cuánto dura lo que deja', async () => {
+    await M.enviarGolpeMesa(null, { ...unido, objetivo: 'm:gob', dano: 5, tipoDano: 'contundente', condicion: 'Bendecido', rondas: 10, hastaRonda: 12, hastaK: 'jm:j:pj1' }, ctx(jug));
+    const v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    const g = v.golpes.find((x: any) => x.objetivo === 'm:gob');
+    assert.equal(g.tipoDano, 'contundente'); assert.equal(g.rondas, 10); assert.deepEqual(g.hasta, { ronda: 12, k: 'jm:j:pj1' });
+  });
+});
+
+describe('salvaciones que el DM pide a un jugador', () => {
+  test('le llega como orden, el jugador responde y el DM la da por vista', async () => {
+    await M.pedirSalvacionDm(null, { campanaId: 'c1', personajeId: 'pj1', de: 'Meenlock', salv: 'CON', cd: 11, dano: 0, mitad: false, condicion: 'Paralizado', nota: 'Garras' }, ctx(dm));
+    let v = await Q.combateMesa(null, unido, ctx(jug));
+    const o = v.ordenes.find((x: any) => x.tipo === 'salvacion');
+    assert.equal(o.salv, 'con'); assert.equal(o.cd, 11); assert.equal(o.condicion, 'Paralizado');
+    await M.responderSalvacionMesa(null, { ...unido, pedido: o.id, total: 8, supero: false, dano: 0, condicion: 'Paralizado' }, ctx(jug));
+    // publicar el combate no las borra
+    await M.fijarCombateVivo(null, { campanaId: 'c1', datos: { activo: true, respuestas: [] } }, ctx(dm));
+    v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    assert.equal(v.respuestas.length, 1); assert.equal(v.respuestas[0].pedido, o.id); assert.equal(v.respuestas[0].supero, false);
+    await M.quitarRespuestas(null, { campanaId: 'c1', ids: [v.respuestas[0].id] }, ctx(dm));
+    v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    assert.equal(v.respuestas.length, 0);
+  });
+  test('la que se repite al final de cada turno: el DM la pide para librarse y la respuesta trae contra qué', async () => {
+    await M.pedirSalvacionDm(null, { campanaId: 'c1', personajeId: 'pj1', de: 'Meenlock', salv: 'con', cd: 11, dano: 0, mitad: false, condicion: 'Paralizado', librarse: true, repite: true }, ctx(dm));
+    let v = await Q.combateMesa(null, unido, ctx(jug));
+    const o = v.ordenes.filter((x: any) => x.tipo === 'salvacion').at(-1);
+    assert.equal(o.librarse, true); assert.equal(o.repite, true);
+    await M.responderSalvacionMesa(null, { ...unido, pedido: o.id, total: 9, supero: false, dano: 0, condicion: 'Paralizado', repite: true, salv: 'CON', cd: 11 }, ctx(jug));
+    v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    const r = v.respuestas.at(-1);
+    assert.equal(r.repite, true); assert.equal(r.salv, 'con'); assert.equal(r.cd, 11);
+  });
+  test('solo el DM la pide, solo el jugador unido responde', async () => {
+    await assert.rejects(M.pedirSalvacionDm(null, { campanaId: 'c1', personajeId: 'pj1', de: 'X', salv: 'con', cd: 11, dano: 0, mitad: false }, ctx(jug)));
+    await assert.rejects(M.pedirSalvacionDm(null, { campanaId: 'c1', personajeId: 'pj1', de: 'X', salv: 'xyz', cd: 11, dano: 0, mitad: false }, ctx(dm)));
+    await assert.rejects(M.responderSalvacionMesa(null, { ...unido, pedido: 'a', total: 8, supero: false, dano: 0 }, ctx(otro)));
+  });
+});
+
+describe('concentración', () => {
+  test('lo que deja un conjuro lleva su concentración, y al perderla le llega a todos', async () => {
+    await M.enviarGolpeMesa(null, { ...unido, objetivo: 'm:orco', dano: 0, condicion: 'Paralizado', rondas: 10, hastaRonda: 12, hastaK: 'jm:j:pj1', conc: 'pj1-abc' }, ctx(jug));
+    await M.terminarConcentracionMesa(null, { ...unido, conc: 'pj1-abc', nombre: 'Inmovilizar persona' }, ctx(jug));
+    const v = await Q.combateMesa(null, unido, ctx(jug));
+    assert.equal(v.golpes.find((x: any) => x.objetivo === 'm:orco').conc, 'pj1-abc');
+    const o = v.ordenes.find((x: any) => x.tipo === 'finConc');
+    assert.equal(o.conc, 'pj1-abc'); assert.equal(o.personajeId, null); assert.equal(o.nota, 'Inmovilizar persona');
+  });
+  test('un jugador solo termina la suya, y la de un enemigo solo la termina el DM', async () => {
+    await assert.rejects(M.terminarConcentracionMesa(null, { ...unido, conc: 'otro-abc', nombre: 'X' }, ctx(jug)));
+    await assert.rejects(M.terminarConcentracionDm(null, { campanaId: 'c1', conc: 'm-orco-1', de: 'Orco', nombre: 'X' }, ctx(jug)));
+    assert.equal(await M.terminarConcentracionDm(null, { campanaId: 'c1', conc: 'm-orco-1', de: 'Orco', nombre: 'X' }, ctx(dm)), true);
+  });
 });
 
 describe('objetos que da el DM', () => {
