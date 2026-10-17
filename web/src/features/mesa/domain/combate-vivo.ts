@@ -9,12 +9,12 @@ import { bestiarioCargado } from '@/features/reglas/data/bestiario';
 const publicados = new Map<string, { firma: string; ronda: number; activo: boolean }>();
 let cola: Promise<unknown> = Promise.resolve();
 
-/** Lo que el DM dejó que los jugadores sepan de un enemigo (nada, lo básico o también sus debilidades). */
+/** Lo que el DM dejó que los jugadores sepan de un enemigo (nada, lo básico o también sus debilidades). La CA nunca: esa solo la ve el DM. */
 function infoEnemigo(cp: any, k: string, x: any) {
   const nivel = cp.estado?.[k]?.rev;
   if (x.tipo !== 'm' || (nivel !== 'b' && nivel !== 'd')) return undefined;
   const f = x.m?.ref ? (cp.bestiario?.[x.m.ref] || bestiarioCargado()?.[x.m.ref]) : null;
-  const base = { nivel, ca: x.ca, ...(f ? { tam: f.tam, tipo: f.tipo } : {}) };
+  const base = { nivel, ...(f ? { tam: f.tam, tipo: f.tipo } : {}) };
   return nivel === 'd' && f ? { ...base, ...(f.resist ? { resist: f.resist } : {}), ...(f.vuln ? { vuln: f.vuln } : {}), ...(f.inmune ? { inmune: f.inmune } : {}), ...(f.condInmune ? { condInmune: f.condInmune } : {}) } : base;
 }
 

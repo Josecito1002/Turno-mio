@@ -12,7 +12,8 @@ import { esc, norm, richT, sign } from '@/shared/utils/texto';
 import { moverPool, setVal } from '../../acciones';
 import { resumen } from '../../domain/modelo';
 import { combateMesa, enviarGolpeMesa, gastarAccionMesa, type CombateVivo, type EconomiaRonda, type TipoAccionRonda } from '@/features/mesa/api';
-import { aplicarOrdenes, pedirConcentracion } from './ordenes-dm';
+import { aplicarOrdenes, avisoGrande, fijarCondicionesMias, pedirConcentracion } from './ordenes-dm';
+import { incapacidad } from '@/features/mesa/domain/condiciones';
 import { INCAPACITANTES, terminarConcentracion } from './concentracion';
 import { EFECTO_CONDICION } from '@/features/mesa/domain/condiciones';
 import { datosConjuro } from '../piezas';
@@ -181,7 +182,7 @@ const RENUNCIA = /renuncia(s|r)? (a la|a tu) ventaja|renunciar a la ventaja/i;
 const DE_MOVIMIENTO = new Set(['Correr', 'Destrabarse']);
 
 /** Lo que se puede hacer con cada tipo de acción, en tres menús: de la clase (ataques, rasgos y conjuros), de movimiento y genéricas. */
-function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any; t: TipoAccionRonda; elegido: Uso | null; elegir: (u: Uso) => void; marcas: any[]; quitarMarca: (id: string) => void }) {
+export function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any; t: TipoAccionRonda; elegido: Uso | null; elegir: (u: Uso) => void; marcas: any[]; quitarMarca: (id: string) => void }) {
   const armas = t === 'accion' ? [...c.armas.filter((a: any) => a.mano), ...(c.naturales || [])] : [];
   const sinArmas = t === 'accion' ? { puno: true, nombre: 'Golpe sin armas', atk: c.unarmed.atk, expr: c.unarmed.expr, dmg: c.unarmed.dmg, atkDesg: c.unarmed.atkDesg, dmgDesg: c.unarmed.dmgDesg, notas: [`También puede Agarrar o Empujar (CD ${c.grappleDC})`] } : null;
   const ents = c.entries.filter((e: any) => e.t === t);
@@ -438,7 +439,9 @@ export function ModoCombate({ c }: { c: any }) {
   // La concentración se pierde al quedar incapacitado o a 0 PG, y termina sola al acabarse su duración
   const yoK = viv?.orden?.find(o => o.pid === personajeId);
   const pgRec = c.recursos.find((r: any) => r.id === 'pg'), pgActual = pgRec ? pgRec.max - Math.min(c.pj.used?.pg || 0, pgRec.max) : 1;
-  const incapacitado = [...(yoK?.cond || []), ...(c.pj.efectos || []).map((x: any) => x.nombre)].find(n => INCAPACITANTES.includes(n));
+  const misCond: string[] = [...(yoK?.cond || []), ...(c.pj.efectos || []).map((x: any) => x.nombre)];
+  const incapacitado = misCond.find(n => INCAPACITANTES.includes(n)), incap = incapacidad(misCond);
+  useEffect(() => { fijarCondicionesMias(misCond); });
   useEffect(() => {
     const conc = c.pj.concentracion;
     if (!conc || !viv?.activo) return;
@@ -458,9 +461,14 @@ export function ModoCombate({ c }: { c: any }) {
   const esMiTurno = !!turnoDe && turnoDe.pid === m.personajeId;
   const enemigos = (viv?.orden || []).filter(o => o.tipo === 'm');
   // A quién se le puede hacer algo: enemigos primero y luego aliados (otros jugadores, mascotas y tú mismo)
-  const objetivos: Objetivo[] = [...enemigos.map(o => ({ k: o.k, nombre: o.nombre })),
-    ...(viv?.orden || []).filter(o => o.tipo !== 'm').map(o => ({ k: o.k, nombre: o.k === yo?.k ? `${o.nombre} (tú)` : o.nombre, aliado: true }))];
+  const objetivos: Objetivo[] = [...enemigos.map(o => ({ k: o.k, nombre: o.nombre, cond: o.cond })),
+    ...(viv?.orden || []).filter(o => o.tipo !== 'm').map(o => ({ k: o.k, nombre: o.k === yo?.k ? `${o.nombre} (tú)` : o.nombre, aliado: true, cond: o.cond }))];
   const ranuras = c.recursos.filter((r: any) => /^slot\d/.test(r.id));
+  // Paralizado (o inconsciente, aturdido…) al empezar tu turno: lo pierdes, y se explica por qué
+  const rondaTurno = viv?.ronda || 1, condIncap = incap?.cond;
+  useEffect(() => {
+    if (activo && esMiTurno && condIncap) avisoGrande(`incap-${campanaId}-${rondaTurno}`, `Estás ${condIncap}: pierdes este turno`, incapacidad([condIncap])!.porque);
+  }, [activo, esMiTurno, condIncap, rondaTurno, campanaId]);
   // Las marcas que dejaste (Rayo de hechicería) dan su acción adicional desde la ronda siguiente a la que las pusiste
   const ronda = viv?.ronda || 1;
   const marcas = activo ? (c.pj.marcas || []).filter((x: any) => x.desde === 'ya' || ronda > x.ronda) : [];
@@ -485,7 +493,8 @@ export function ModoCombate({ c }: { c: any }) {
         {activo ? (
           <>
             <p className="m-0 font-serif text-headline-sm">Ronda {viv?.ronda || 1}</p>
-            <p className="m-0 text-body-md">{esMiTurno ? '¡Es tu turno!' : turnoDe ? `Turno de ${turnoDe.nombre}` : ''}</p>
+            <p className="m-0 text-body-md">{esMiTurno ? (incap ? `Es tu turno, pero estás ${incap.cond}: lo pierdes.` : '¡Es tu turno!') : turnoDe ? `Turno de ${turnoDe.nombre}` : ''}</p>
+            {incap && <p className="m-0 mt-1 text-body-sm">{incap.porque}</p>}
           </>
         ) : <p className="m-0 text-body-md text-on-surface-variant">El DM todavía no ha empezado el combate. Esta pantalla se actualizará sola.</p>}
         {error && <p className="m-0 mt-1 text-body-sm text-error">No se pudo sincronizar: {error}</p>}
@@ -498,11 +507,12 @@ export function ModoCombate({ c }: { c: any }) {
           {TIPOS_BOTON.map(t => {
             const gastada = !!eco[t];
             return (
-              <button key={t} type="button" onClick={() => { setElegido(null); setAbierto(t); }} aria-haspopup="dialog"
+              <button key={t} type="button" aria-haspopup="dialog"
+                onClick={() => incap ? avisoGrande(`incap-${Date.now()}`, `Estás ${incap.cond}: no puedes actuar`, incap.porque) : (setElegido(null), setAbierto(t))}
                 className={cx('flex min-h-14 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-1.5 text-center transition-all', foco,
-                  gastada ? 'bg-surface-container-lowest text-outline opacity-60' : 'bg-primary-container text-on-primary-container hover:brightness-110')}>
+                  gastada || incap ? 'bg-surface-container-lowest text-outline opacity-60' : 'bg-primary-container text-on-primary-container hover:brightness-110')}>
                 <span className="flex items-center gap-1"><FormaTipo t={t} className="size-4" /><span className="text-body-sm font-bold leading-tight">{TIPOS[t][0]}</span></span>
-                <span className="text-[0.65rem] uppercase tracking-wide">{gastada ? 'Gastada' : 'Disponible'}</span>
+                <span className="text-[0.65rem] uppercase tracking-wide">{incap ? incap.cond : gastada ? 'Gastada' : 'Disponible'}</span>
               </button>
             );
           })}

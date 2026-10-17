@@ -11,7 +11,7 @@ type Mesa = { dmId: string; campanaId: string; personajeId: string };
 export type Concentracion = { id: string; nombre: string; rondas?: number; hasta?: Hasta };
 
 /** Condiciones que dejan Incapacitado, y con eso se pierde la concentración. */
-export const INCAPACITANTES = ['Incapacitado', 'Aturdido', 'Paralizado', 'Petrificado', 'Inconsciente'];
+export { INCAPACITANTES } from '@/features/mesa/domain/condiciones';
 /** CD de la salvación de Constitución para mantenerla al recibir daño: 10 o la mitad del daño, la mayor (máximo 30). */
 export const cdConcentracion = (dano: number) => Math.min(30, Math.max(10, Math.floor(dano / 2)));
 

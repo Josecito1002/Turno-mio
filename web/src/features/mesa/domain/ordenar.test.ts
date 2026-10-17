@@ -21,7 +21,8 @@ test('los jugadores solo reciben de un enemigo lo que el DM reveló', async () =
     combate: { activo: true, ronda: 1, turno: 0, orden: [{ k: 'm:g', init: 10, bono: 2 }] } };
   assert.equal(datosVivos(cp).orden[0]!.info, undefined);
   cp.estado['m:g'] = { cond: [], muerte: { e: 0, f: 0 }, rev: 'b' };
-  assert.deepEqual(datosVivos(cp).orden[0]!.info, { nivel: 'b', ca: 13 });
+  // La CA no se manda nunca: solo la ve el DM
+  assert.deepEqual(datosVivos(cp).orden[0]!.info, { nivel: 'b' });
 });
 
 test('si alguien del orden ya no está, los jugadores siguen viendo el turno de la misma persona', async () => {

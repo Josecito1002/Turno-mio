@@ -8,7 +8,7 @@ import { TIPOS } from '@/features/reglas/data/caracteristicas';
 import { CampoTirada, totalTirada } from '@/features/dados/components/CampoTirada';
 import { partesTirada } from '@/features/dados/domain/dados';
 import { CONDICIONES } from '@/features/mesa/domain/combate';
-import { repiteSalvacion } from '@/features/mesa/domain/condiciones';
+import { contraObjetivo, repiteSalvacion } from '@/features/mesa/domain/condiciones';
 import { hastaDe, rondasDe, textoDuracion } from '@/features/mesa/domain/duracion';
 import { empezarConcentracion, terminarConcentracion } from './concentracion';
 import { gastarEspacio, gastarRecurso, setMano } from '../../acciones';
@@ -24,7 +24,7 @@ export type Marca = {
   objetivo: boolean; atk?: number; salv?: string; cd?: number; porNivel?: string; nivelBase?: number;
 };
 /** Alguien del combate a quien se le puede hacer algo: enemigos y aliados (otros jugadores, mascotas, tú mismo) */
-export type Objetivo = { k: string; nombre: string; aliado?: boolean };
+export type Objetivo = { k: string; nombre: string; aliado?: boolean; cond?: string[] };
 export type Ahora = { ronda: number; turno: number; orden: { k: string }[]; k: string };
 
 export type Uso = {
@@ -145,7 +145,7 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
   const [selExtra, setSelExtra] = useState<Record<string, string>>({});
   const [valExtra, setValExtra] = useState<Record<string, string>>({});
   const elegidos = (i: number) => grupos.map(g => g.opciones.find(o => o.nombre === selExtra[`${i}|${g.base}`])).filter(Boolean) as Extra[];
-  const extraDe = (i: number) => nats[i] === '1' ? 0 : elegidos(i).reduce((t, x) => t + Math.max(0, totalTirada(x.expr, valExtra[`${i}|${x.nombre}`] || '', nats[i] === '20') ?? 0), 0);
+  const extraDe = (i: number) => nats[i] === '1' ? 0 : elegidos(i).reduce((t, x) => t + Math.max(0, totalTirada(x.expr, valExtra[`${i}|${x.nombre}`] || '', crit(i)) ?? 0), 0);
   // Pacto del Filo: el arma de pacto se conjura en la mano; se elige una de tus armas cuerpo a cuerpo
   const armasMano: string[] = uso.equipar ? (c.pj.armas || []).map(([k]: any) => k).filter((k: string) => ARMAS[k] && !ARMAS[k].dist) : [];
   const [arma, setArma] = useState(() => (armasMano.includes(c.manos?.a) ? c.manos.a : armasMano[0] || ''));
@@ -181,11 +181,16 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
   const sinDano = !!uso.efecto && !dexpr;
   const etiquetaDano = uso.cura ? 'Curación' : 'Daño';
   const parcial = (x: string) => Math.max(0, Math.round(+x || 0));
-  const adv = ventaja && !renuncia ? (ventaja === 'v' ? 1 : -1) : 0;
+  // Contra alguien paralizado (o inconsciente, aturdido…) se ataca con ventaja, y a 5 pies el golpe que acierta es crítico
+  const contra = contraObjetivo(enemigos.find(e => e.k === objetivos[0])?.cond);
+  const [cerca, setCerca] = useState(true);
+  const advDm = ventaja && !renuncia ? (ventaja === 'v' ? 1 : -1) : 0, adv = Math.max(-1, Math.min(1, advDm + (uso.atk != null && contra.ventaja ? 1 : 0)));
+  /** El daño de ese ataque es crítico: un 20 natural, o acertar a 5 pies a alguien paralizado o inconsciente */
+  const crit = (i: number) => nats[i] === '20' || (!!contra.critCerca && cerca && uso.atk != null && nats[i] !== '' && nats[i] !== '1');
   const modoDano = dexpr && partesTirada(dexpr).conDados ? 'dados' : 'total';
   /** Lo que hace cada golpe: con un 1 natural falla; con un 20 el daño es crítico */
   const danoDe = (i: number) => nats[i] === '1' ? 0
-    : (modoDano === 'dados' ? Math.max(0, totalTirada(dexpr!, danos[i], nats[i] === '20') ?? 0) : parcial(danos[i])) + extraDe(i);
+    : (modoDano === 'dados' ? Math.max(0, totalTirada(dexpr!, danos[i], crit(i)) ?? 0) : parcial(danos[i])) + extraDe(i);
   const masAtk = (i: number) => dadosAtk.map(d => ({ dados: d.dados, por: d.nombre, signo: d.signo, valor: valAtk[`${i}|${d.nombre}`] ? Math.round(+valAtk[`${i}|${d.nombre}`] || 0) : null }));
   const totalAtk = (i: number) => nats[i] === '' || uso.atk == null ? null : Math.round(+nats[i]) + uso.atk + masAtk(i).reduce((t, x) => t + x.signo * (x.valor ?? 0), 0);
   const golpes = Array.from({ length: nGolpes }, (_, i) => i);
@@ -243,6 +248,15 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
       <div className="rounded-lg bg-surface-container-low p-3 text-body-md text-on-surface-variant">
         <span className="text-label-caps uppercase text-outline">Qué hace</span>
         <p className="m-0 mt-1" dangerouslySetInnerHTML={{ __html: uso.raw ? richT(uso.texto) : esc(uso.texto) }} />
+        {uso.atk != null && contra.ventaja && objetivos.length > 0 && (
+          <p className="m-0 mt-1 font-bold text-green-400">{enemigos.find(e => e.k === objetivos[0])?.nombre} está {contra.ventaja}: atacas con ventaja.</p>
+        )}
+        {uso.atk != null && contra.critCerca && objetivos.length > 0 && (
+          <label className="mt-1 flex min-h-11 cursor-pointer items-center gap-2 rounded bg-surface-container-lowest px-2 text-body-sm text-on-surface">
+            <input type="checkbox" checked={cerca} onChange={e => setCerca(e.target.checked)} className="size-4" />
+            <span>Estás a 5 pies o menos: si aciertas, es crítico (el doble de dados)</span>
+          </label>
+        )}
         {uso.atk != null && <p className="m-0 mt-1 font-bold text-on-surface">Ataque: {uso.atk >= 0 ? '+' : ''}{uso.atk} al impacto{ventaja && !renuncia ? <span className={ventaja === 'v' ? ' text-green-400' : ' text-error'}> · {ventaja === 'v' ? 'con ventaja' : 'con desventaja'} (lo puso tu DM)</span> : ''}</p>}
         {uso.renuncia && ventaja === 'v' && (
           <label className="mt-2 flex min-h-11 cursor-pointer items-center gap-2 rounded bg-surface-container-lowest px-2 text-body-sm text-on-surface">
@@ -360,9 +374,9 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
                     </div>
                   )}
                   {modoDano === 'dados' ? (
-                    <CampoTirada tipo="dano" expr={dexpr!} valor={danos[i]} alCambiar={v => setDanos(d => d.map((x, j) => (j === i ? v : x)))} crit={nats[i] === '20'}
+                    <CampoTirada tipo="dano" expr={dexpr!} valor={danos[i]} alCambiar={v => setDanos(d => d.map((x, j) => (j === i ? v : x)))} crit={crit(i)}
                       desglose={uso.dmgDesg} tipoDano={uso.cura ? undefined : uso.tipoDano}
-                      mas={elegidos(i).map(x => ({ dados: partesTirada(x.expr, nats[i] === '20').dados || x.expr, por: x.nombre, valor: totalTirada(x.expr, valExtra[`${i}|${x.nombre}`] || '', nats[i] === '20') }))}
+                      mas={elegidos(i).map(x => ({ dados: partesTirada(x.expr, crit(i)).dados || x.expr, por: x.nombre, valor: totalTirada(x.expr, valExtra[`${i}|${x.nombre}`] || '', crit(i)) }))}
                       etiqueta={`${uso.nombre}: ${uso.cura ? 'curación' : 'daño'}${nGolpes > 1 ? ` (ataque ${i + 1})` : ''}`} unaVez bloqueado={tiradas[i]} alTirar={() => setTiradas(t => t.map((x, j) => (j === i ? true : x)))} claseInput={campo} />
                   ) : (
                     <input aria-label={`${etiquetaDano}${nGolpes > 1 ? ` del ataque ${i + 1}` : ''}`} type="number" inputMode="numeric" min={0} placeholder="El total que hiciste"
@@ -372,7 +386,7 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
                     <div key={x.nombre} className="grid gap-1 border-l-2 border-primary/50 pl-2">
                       <span className="text-body-sm font-bold text-on-surface">{x.nombre}</span>
                       <CampoTirada tipo="dano" expr={x.expr} valor={valExtra[`${i}|${x.nombre}`] || ''} alCambiar={v => setValExtra(y => ({ ...y, [`${i}|${x.nombre}`]: v }))}
-                        crit={nats[i] === '20'} etiqueta={`${x.nombre}${nGolpes > 1 ? ` (ataque ${i + 1})` : ''}`} claseInput={campo} />
+                        crit={crit(i)} etiqueta={`${x.nombre}${nGolpes > 1 ? ` (ataque ${i + 1})` : ''}`} claseInput={campo} />
                     </div>
                   ))}
                   {elegidos(i).length > 0 && danoDe(i) > 0 && <p className="m-0 text-body-md font-bold text-on-surface">Daño de este ataque: {danoDe(i)}</p>}

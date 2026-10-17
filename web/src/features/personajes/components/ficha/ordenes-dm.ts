@@ -23,6 +23,12 @@ export const avisosGrandes = {
   suscribir: (f: () => void) => { oyentes.add(f); return () => { oyentes.delete(f); }; },
   quitar: (id: string) => { cola = cola.filter(x => x.id !== id); avisar_(); },
 };
+/** Las condiciones que tiene ahora el personaje (las que puso el DM y sus efectos), para la salvación que falla sola. */
+let misCondiciones: string[] = [];
+export const condicionesMias = () => misCondiciones;
+export const fijarCondicionesMias = (c: string[]) => { misCondiciones = c; };
+/** Un aviso en grande con título y explicación (una vez por id). */
+export const avisoGrande = (id: string, titulo: string, texto: string) => encolar({ id, tipo: 'aviso', o: { id, tipo: 'aviso', personajeId: null, ts: '', nota: titulo, bono: texto } });
 const encolar = (a: AvisoGrande) => { if (!cola.some(x => x.id === a.id)) { cola = [...cola, a]; avisar_(); } };
 
 /** Lo que dispara una reacción al recibir daño o un ataque (Reprensión infernal, Esquiva asombrosa, Escudo…). */
