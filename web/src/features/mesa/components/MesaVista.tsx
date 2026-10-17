@@ -785,7 +785,7 @@ type VivoDm = { eco: Record<string, EconomiaRonda>; salvs: Salvacion[]; golpes: 
 /** Descanso o inspiración para los jugadores unidos (a uno solo si se da su personaje). */
 async function mandarOrden(campId: string, tipo: 'corto' | 'largo' | 'inspiracion', personajeId?: string) {
   const nombre = { corto: 'Descanso corto', largo: 'Descanso largo', inspiracion: 'Inspiración' }[tipo];
-  if (tipo !== 'inspiracion' && !(await confirmar({ titulo: `¿${nombre} para todos los jugadores?`, texto: 'Sus hojas recuperan lo que corresponde en cuanto abran el combate.', si: nombre }))) return;
+  if (tipo !== 'inspiracion' && !(await confirmar({ titulo: `¿${nombre} para todos los jugadores?`, texto: 'Cada hoja recupera lo que corresponde cuando su jugador la tenga abierta (en menos de un minuto).', si: nombre }))) return;
   try { await enviarOrdenDm(campId, tipo, personajeId); avisar(`${nombre} enviado${personajeId ? '' : ' a todos'}.`); }
   catch (e) { avisar(`No se pudo enviar: ${(e as Error).message}`, 'error'); }
 }
@@ -1249,7 +1249,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
             <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'largo')}>Descanso largo</Boton>
             <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'inspiracion')}>Inspiración a todos</Boton>
           </div>
-          <p className="m-0 mt-1 text-xs text-muted">Cada hoja lo aplica sola cuando su jugador tiene abierto el combate.</p>
+          <p className="m-0 mt-1 text-xs text-muted">Cada hoja lo aplica sola cuando su jugador la tiene abierta.</p>
         </details>
         <Boton variante="primario" onClick={siguiente}>Siguiente turno</Boton>
         <Boton onClick={terminar}>Terminar combate</Boton>
@@ -1475,6 +1475,13 @@ function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) 
             {unidos.length
               ? <ul className="m-0 mt-2 grid list-none grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3 p-0">{unidos.map((x: any) => <TarjetaJugador key={x.k} cp={cp} x={x} alQuitar={() => mesa.leer()} />)}</ul>
               : !mesa.error && <Nota className="mt-2">{mesa.cargando ? 'Buscando jugadores…' : 'Nadie se ha unido todavía. Cuando un jugador escriba el código, su personaje aparece aquí solo.'}</Nota>}
+            {unidos.length > 0 && (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'corto')}>Descanso corto para todos</Boton>
+                <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'largo')}>Descanso largo para todos</Boton>
+                <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'inspiracion')}>Inspiración a todos</Boton>
+              </div>
+            )}
             <h2 className="mb-0 mt-6 font-serif text-2xl font-bold">Tus copias de personajes</h2>
             {grupo.length
               ? <ul className="m-0 mt-2 grid list-none grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3 p-0">{grupo.map((x: any) => <TarjetaPj key={x.k} cp={cp} x={x} />)}</ul>
