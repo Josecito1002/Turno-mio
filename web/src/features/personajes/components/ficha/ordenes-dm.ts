@@ -24,12 +24,21 @@ const encolar = (a: AvisoGrande) => { if (!cola.some(x => x.id === a.id)) { cola
 
 /** Lo que dispara una reacción al recibir daño o un ataque (Reprensión infernal, Esquiva asombrosa, Escudo…). */
 const AL_RECIBIR = /(recib\w* (?:da[ñn]o|un ataque|un golpe)|te (?:da[ñn]a|golpea|impacta|alcanza|ataca)|(?:eres|seas|es) (?:golpead|alcanzad|da[ñn]ad|impactad)\w*|un ataque te|(?:te|le) (?:aciert|impact)\w*)/;
-/** Las reacciones del personaje que se pueden usar al recibir daño. */
-export function reaccionesAlDano(c: any): { nombre: string; texto: string }[] {
+const TIPOS_DANO = ['acido', 'contundente', 'cortante', 'perforante', 'fuego', 'frio', 'fuerza', 'relampago', 'necrotico', 'radiante', 'veneno', 'psiquico', 'trueno'];
+/** Si la reacción solo sirve con ciertos tipos de daño (Absorber elementos), el daño recibido tiene que ser de uno de ellos. */
+function sirveConTipo(texto: string, tipoDano?: string) {
+  const pide = TIPOS_DANO.filter(t => new RegExp(`\\b${t}`).test(texto));
+  if (!pide.length || !tipoDano) return true;
+  const recibido = norm(tipoDano);
+  return pide.some(t => recibido.includes(t));
+}
+/** Las reacciones del personaje que se pueden usar al recibir daño (del tipo recibido, si la reacción pide uno). */
+export function reaccionesAlDano(c: any, tipoDano?: string): { nombre: string; texto: string }[] {
   if (!c) return [];
   const txt = (x: any) => String(typeof x === 'function' ? '' : x || '');
-  const rasgos = (c.entries || []).filter((e: any) => e.t === 'reaccion' && AL_RECIBIR.test(norm(txt(e.texto))));
-  const conjuros = (c.conjuros || []).filter((s: any) => s.tiempo === 'reaccion' && AL_RECIBIR.test(norm(txt(s.desc))));
+  const vale = (t: string) => AL_RECIBIR.test(norm(t)) && sirveConTipo(norm(t), tipoDano);
+  const rasgos = (c.entries || []).filter((e: any) => e.t === 'reaccion' && vale(txt(e.texto)));
+  const conjuros = (c.conjuros || []).filter((s: any) => s.tiempo === 'reaccion' && vale(txt(s.desc)));
   const corta = (t: string) => t.replace(/\*\*|__/g, '').split(/(?<=\.)\s/)[0].slice(0, 160);
   return [...rasgos.map((e: any) => ({ nombre: e.nombre, texto: corta(txt(e.texto)) })), ...conjuros.map((s: any) => ({ nombre: s.nombre, texto: corta(txt(s.desc)) }))];
 }
@@ -44,8 +53,9 @@ export function aplicarEfecto(o: OrdenDm, grande = true) {
     if (t) setVal('pgTemp', temp - t);
     if (n - t) moverPool('pg', -(n - t));
   }
-  if (o.condicion || o.bono) setVal('efectos', [...(pj.efectos || []).filter((x: any) => x.nombre !== (o.condicion || 'Efecto')), { nombre: o.condicion || 'Efecto', texto: o.bono || '', de: o.de || '' }]);
-  if (grande) encolar({ id: o.id, tipo: 'efecto', o, reacciones: n && !o.cura ? reaccionesAlDano(S.c) : [] });
+  if (o.condicion || o.bono) setVal('efectos', [...(pj.efectos || []).filter((x: any) => x.nombre !== (o.condicion || 'Efecto')),
+    { nombre: o.condicion || 'Efecto', texto: o.bono || '', de: o.de || '', ...(o.rondas ? { rondas: o.rondas } : {}), ...(o.hasta ? { hasta: o.hasta } : {}) }]);
+  if (grande) encolar({ id: o.id, tipo: 'efecto', o, reacciones: n && !o.cura ? reaccionesAlDano(S.c, o.tipoDano) : [] });
   else avisar(`${o.de || 'Alguien'}${o.nota ? ` (${o.nota})` : ''}: ${n ? (o.cura ? `te cura ${n} PG` : `te hace ${n} de daño`) : ''}${o.condicion ? `${n ? ', ' : ''}${o.condicion}` : ''}.`);
 }
 

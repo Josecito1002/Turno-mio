@@ -8,6 +8,7 @@ import { TIPOS } from '@/features/reglas/data/caracteristicas';
 import { CampoTirada, totalTirada } from '@/features/dados/components/CampoTirada';
 import { partesTirada } from '@/features/dados/domain/dados';
 import { CONDICIONES } from '@/features/mesa/domain/combate';
+import { hastaDesde, rondasDe, textoDuracion } from '@/features/mesa/domain/duracion';
 import { gastarEspacio, gastarRecurso, setMano } from '../../acciones';
 import { ARMAS } from '@/features/reglas/data/equipo';
 import { escalarDados } from '@/features/reglas/data/efectos-conjuro';
@@ -54,6 +55,8 @@ export type Uso = {
   lista?: { titulo: string; items: { nombre: string; nota: string; texto?: string }[] };
   /** Recurso que gasta al usarlo (un uso del rasgo) */
   gasta?: string;
+  /** Cuántas rondas dura lo que deja (Bendición: 10), si lo dice su duración */
+  duracion?: number;
   /** De dónde sale el bono del ataque ("3 FUE + 2 competencia") y el del daño ("3 FUE"), y el tipo de daño */
   atkDesg?: string; dmgDesg?: string; tipoDano?: string;
   /** Lo que se puede sumar al acertar (Castigo divino, Ataque furtivo…), con lo que gasta */
@@ -72,9 +75,15 @@ export function condicionesEn(texto: string): string[] {
 
 /** Efectos activos que suman (o restan) un dado a tus tiradas de ataque. */
 const DADOS_ATAQUE = [
-  { re: /^bendicion/, nombre: 'Bendición', dados: '1d4', expr: '1d4', signo: 1 },
+  { re: /^(bendicion|bendecid)/, nombre: 'Bendición', dados: '1d4', expr: '1d4', signo: 1 },
   { re: /^perdicion/, nombre: 'Perdición', dados: '1d4', expr: '1d4', signo: -1 },
 ];
+const NUM_OBJ: Record<string, number> = { dos: 2, tres: 3, cuatro: 4, cinco: 5, seis: 6 };
+/** "Hasta tres criaturas": a cuántos se puede elegir (1 si no lo dice). */
+function maxObjetivos(texto: string) {
+  const m = /hasta (dos|tres|cuatro|cinco|seis|\d+) (?:criaturas|objetivos|aliados)/i.exec(texto);
+  return m ? (NUM_OBJ[m[1].toLowerCase()] ?? +m[1]) : 1;
+}
 /** Las opciones de lo que se suma al acertar, juntas por rasgo: Castigo divino gratis o con cada nivel de espacio es una sola elección. */
 function gruposExtras(extras: Extra[]) {
   const g: { base: string; t: string; opciones: Extra[] }[] = [];
@@ -88,7 +97,9 @@ function gruposExtras(extras: Extra[]) {
 }
 
 /** Confirmar el uso de una acción: lee sus efectos, elige a quién afecta y, al confirmar, la gasta y se lo cuenta al DM. */
-export function UsoAccion({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, alMarcar }: {
+export function UsoAccion({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, alMarcar, ahora }: {
+  /** La ronda del combate y tu lugar en el orden, para saber cuándo termina lo que dejas */
+  ahora?: { ronda: number; k: string };
   alMarcar?: (m: Marca, objetivo: string, nombre: string) => void;
   c: any; uso: Uso | null; ventaja?: '' | 'v' | 'd'; enemigos: Objetivo[]; mesa: { dmId: string; campanaId: string; personajeId: string };
   yaGastada: boolean; alCerrar: () => void; alUsar: (t: TipoAccionRonda) => void;
@@ -96,12 +107,12 @@ export function UsoAccion({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar
   return (
     <Dialogo abierto={!!uso} onCerrar={alCerrar} titulo={uso?.nombre || ''} ancho="lg"
       descripcion={uso ? `${TIPOS[uso.tipo][0]}${uso.coste ? ` · ${uso.coste}` : ''}` : undefined}>
-      {uso && <Cuerpo key={uso.nombre + uso.tipo} c={c} uso={uso} ventaja={ventaja} enemigos={enemigos} mesa={mesa} yaGastada={yaGastada} alCerrar={alCerrar} alUsar={alUsar} alMarcar={alMarcar} />}
+      {uso && <Cuerpo key={uso.nombre + uso.tipo} c={c} uso={uso} ventaja={ventaja} enemigos={enemigos} mesa={mesa} yaGastada={yaGastada} alCerrar={alCerrar} alUsar={alUsar} alMarcar={alMarcar} ahora={ahora} />}
     </Dialogo>
   );
 }
 
-function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, alMarcar }: { alMarcar?: (m: Marca, objetivo: string, nombre: string) => void; c: any; uso: Uso; ventaja?: '' | 'v' | 'd'; enemigos: Objetivo[]; mesa: { dmId: string; campanaId: string; personajeId: string }; yaGastada: boolean; alCerrar: () => void; alUsar: (t: TipoAccionRonda) => void }) {
+function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, alMarcar, ahora }: { ahora?: { ronda: number; k: string }; alMarcar?: (m: Marca, objetivo: string, nombre: string) => void; c: any; uso: Uso; ventaja?: '' | 'v' | 'd'; enemigos: Objetivo[]; mesa: { dmId: string; campanaId: string; personajeId: string }; yaGastada: boolean; alCerrar: () => void; alUsar: (t: TipoAccionRonda) => void }) {
   const area = !!uso.salv && AREA.test(uso.texto);
   const conds = condicionesEn(uso.texto);
   const [objetivos, setObjetivos] = useState<string[]>([]);
@@ -147,7 +158,12 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
   const quedaGasta = recGasta ? recGasta.max - Math.min(c.pj.used?.[recGasta.id] || 0, recGasta.max) : 0;
   const mitad = !!uso.salv && /mitad/i.test(uso.texto);
   const campo = 'min-h-11 w-full rounded bg-surface-container-lowest px-2 text-body-md text-on-surface';
-  const alternar = (k: string) => setObjetivos(o => (uso.salv && area ? (o.includes(k) ? o.filter(x => x !== k) : [...o, k]) : o[0] === k ? [] : [k]));
+  // Varios objetivos: un área, o "hasta tres criaturas" (Bendición, Perdición)
+  const maxObj = maxObjetivos(uso.texto + ' ' + (uso.efecto?.bono || '')), varios = (!!uso.salv && area) || maxObj > 1;
+  const alternar = (k: string) => setObjetivos(o => (varios ? (o.includes(k) ? o.filter(x => x !== k) : maxObj > 1 && o.length >= maxObj ? o : [...o, k]) : o[0] === k ? [] : [k]));
+  // Cuánto dura lo que deja en el objetivo (una condición o un efecto)
+  const rondas = uso.duracion ?? rondasDe(`${uso.efecto?.bono || ''} ${uso.texto}`);
+  const duracion = rondas && ahora ? { rondas, hastaRonda: hastaDesde(rondas, ahora.ronda, ahora.k).ronda, hastaK: ahora.k } : rondas ? { rondas } : {};
   const nombres = objetivos.map(k => enemigos.find(e => e.k === k)?.nombre || '').filter(Boolean);
   // Las salvaciones solo se mandan a enemigos; lo demás (ataques, curas, bonos) puede ir a cualquiera, aliados incluidos
   const posibles = uso.salv && !uso.cura ? enemigos.filter(e => !e.aliado) : enemigos;
@@ -188,8 +204,10 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
       const resumen = [pago, nombres.length ? `a ${nombres.join(', ')}` : '', nGolpes > 1 && golpes.some(i => golpeTxt(i)) ? `${golpes.map(i => `ataque ${i + 1}: ${golpeTxt(i) || 'sin tirar'}`).join('; ')}${n ? ` = ${n} ${deDano}` : ''}` : nGolpes > 1 ? '' : golpeTxt(0), uso.salv && objetivos.length ? `salvación de ${uso.salv} CD ${uso.cd}` : '', cond].filter(Boolean).join(' · ');
       await usarAccionMesa(mesa, uso.tipo, uso.nombre, resumen);
       if (objetivos.length && (n || cond || uso.efecto)) {
-        if (uso.salv && uso.cd && !uso.cura) await enviarSalvacionMesa(mesa, { objetivos, salv: uso.salv, cd: uso.cd, dano: n, mitad, ...(cond ? { condicion: cond } : {}), nota: uso.nombre });
-        else for (const objetivo of objetivos) await enviarGolpeMesa(mesa, { objetivo, dano: n, ...(uso.cura ? { cura: true } : {}), ...(cond || uso.efecto ? { condicion: cond || uso.efecto!.condicion } : {}), ...(uso.efecto ? { bono: uso.efecto.bono } : {}), nota: uso.nombre });
+        const tipoDano = n && !uso.cura && uso.tipoDano ? { tipoDano: uso.tipoDano } : {};
+        const dura = cond || uso.efecto ? duracion : {};
+        if (uso.salv && uso.cd && !uso.cura) await enviarSalvacionMesa(mesa, { objetivos, salv: uso.salv, cd: uso.cd, dano: n, mitad, ...(cond ? { condicion: cond } : {}), nota: uso.nombre, ...tipoDano, ...dura });
+        else for (const objetivo of objetivos) await enviarGolpeMesa(mesa, { objetivo, dano: n, ...(uso.cura ? { cura: true } : {}), ...(cond || uso.efecto ? { condicion: cond || uso.efecto!.condicion } : {}), ...(uso.efecto ? { bono: uso.efecto.bono } : {}), nota: uso.nombre, ...tipoDano, ...dura });
       }
       if (uso.equipar && arma) setMano('a', arma);
       alUsar(uso.tipo);
@@ -276,7 +294,7 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
                   {(lista as Objetivo[]).map(e => (
                     <li key={e.k}>
                       <label className="flex min-h-11 cursor-pointer items-center gap-2 rounded bg-surface-container-lowest px-2 text-body-md text-on-surface">
-                        <input type={area ? 'checkbox' : 'radio'} name="objetivo" checked={objetivos.includes(e.k)} onChange={() => alternar(e.k)} className="size-4" />{e.nombre}
+                        <input type={varios ? 'checkbox' : 'radio'} name="objetivo" checked={objetivos.includes(e.k)} onChange={() => alternar(e.k)} className="size-4" />{e.nombre}
                       </label>
                     </li>
                   ))}
@@ -285,6 +303,8 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
             ))
           ) : <p className="m-0 text-body-sm text-outline">No hay a quién elegir en el combate todavía.</p>}
 
+          {maxObj > 1 && <p className="m-0 text-body-sm text-outline">Puedes elegir hasta {maxObj} ({objetivos.length} elegido{objetivos.length === 1 ? '' : 's'}).</p>}
+          {objetivos.length > 0 && rondas && (uso.efecto || uso.salv || conds.length > 0) ? <p className="m-0 text-body-sm font-bold text-on-surface">Dura {textoDuracion(rondas)}: se descuenta solo en cada turno tuyo.</p> : null}
           {!objetivos.length && posibles.length > 0 && <p className="m-0 text-body-sm text-outline">Elige primero a quién{sinDano ? '' : uso.atk != null ? '; después te decimos qué dados tirar' : '; después pones el daño'}.</p>}
           {objetivos.length > 0 && uso.efecto && <p className="m-0 rounded bg-surface-container-lowest p-2 text-body-sm text-on-surface"><b>{uso.efecto.condicion}:</b> {uso.efecto.bono}</p>}
           {objetivos.length > 0 && !sinDano && Array.from({ length: nGolpes }, (_, i) => (

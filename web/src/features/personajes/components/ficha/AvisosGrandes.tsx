@@ -9,6 +9,7 @@ import { AB } from '@/features/reglas/data/caracteristicas';
 import { CampoTirada, totalTirada } from '@/features/dados/components/CampoTirada';
 import { responderSalvacionMesa } from '@/features/mesa/api';
 import { aplicarEfecto, avisosGrandes, type AvisoGrande } from './ordenes-dm';
+import { textoDuracion } from '@/features/mesa/domain/duracion';
 
 const nombreAb = (k: string) => AB.find(([x]) => x === k)?.[3] || k.toUpperCase();
 const abrevAb = (k: string) => AB.find(([x]) => x === k)?.[2] || k.toUpperCase();
@@ -41,10 +42,11 @@ function Efecto({ a }: { a: Extract<AvisoGrande, { tipo: 'efecto' }> }) {
     <>
       <div className={cx('rounded-3xl p-6 text-center', o.cura ? 'bg-pas/20' : n ? 'bg-acc/20' : 'bg-soft')}>
         <Simbolo n={o.cura ? 'healing' : n ? 'heart_broken' : 'info'} className={cx('text-6xl', o.cura ? 'text-pas' : n ? 'text-acc' : 'text-muted')} />
-        <h2 className="m-0 mt-2 font-serif text-4xl font-extrabold">{o.cura ? `Te curan ${n} PG` : n ? `Recibes ${n} de daño` : o.condicion || 'Te hacen algo'}</h2>
+        <h2 className="m-0 mt-2 font-serif text-4xl font-extrabold">{o.cura ? `Te curan ${n} PG` : n ? `Recibes ${n} de daño${o.tipoDano ? ` ${o.tipoDano}` : ''}` : o.condicion || 'Te hacen algo'}</h2>
         <p className="m-0 mt-2 text-lg">{o.de || 'Alguien'}{o.nota ? `: ${o.nota}` : ''}</p>
         {o.condicion && (n || o.cura) ? <p className="m-0 mt-2 text-lg font-bold">Quedas {o.condicion}</p> : null}
         {o.bono && <p className="m-0 mt-2 text-muted">{o.bono}</p>}
+        {o.rondas ? <p className="m-0 mt-2 text-lg font-bold">Dura {textoDuracion(o.rondas)}. Se descuenta sola en cada ronda.</p> : null}
         {n > 0 && !o.cura && <p className="m-0 mt-2 text-sm text-muted">Ya se restó de tus PG (primero de los temporales).</p>}
       </div>
       {a.reacciones.length > 0 && (
@@ -78,7 +80,7 @@ function Aviso({ a }: { a: Extract<AvisoGrande, { tipo: 'aviso' }> }) {
 function Salvacion({ a }: { a: Extract<AvisoGrande, { tipo: 'salvacion' }> }) {
   const o = a.o, salv = String(o.salv || '').toLowerCase(), cd = o.cd || 10, dano = Math.max(0, o.dano || 0);
   const mod = S.c?.saves?.[salv] ?? 0;
-  const bendicion = (S.pj?.efectos || []).some((e: any) => /^bendicion/.test(norm(e.nombre || '')));
+  const bendicion = (S.pj?.efectos || []).some((e: any) => /^(bendicion|bendecid)/.test(norm(e.nombre || '')));
   const [nat, setNat] = useState(''), [bend, setBend] = useState(''), [ocupado, setOcupado] = useState(false);
   const expr = `1d20${modStr(mod)}`;
   const base = totalTirada(expr, nat), total = base == null ? null : base + (bendicion && bend !== '' ? Math.round(+bend || 0) : 0);

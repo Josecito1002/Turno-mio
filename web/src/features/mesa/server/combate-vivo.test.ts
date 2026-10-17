@@ -129,6 +129,12 @@ describe('combate en vivo', () => {
     assert.equal(o.personajeId, 'pjz'); assert.equal(o.cura, true); assert.equal(o.dano, 4); assert.equal(o.condicion, 'Bendecido');
     assert.ok(v.golpes.some((g: any) => g.objetivo === 'pj:abc' && g.cura));
   });
+  test('el golpe lleva su tipo de daño y cuánto dura lo que deja', async () => {
+    await M.enviarGolpeMesa(null, { ...unido, objetivo: 'm:gob', dano: 5, tipoDano: 'contundente', condicion: 'Bendecido', rondas: 10, hastaRonda: 12, hastaK: 'jm:j:pj1' }, ctx(jug));
+    const v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    const g = v.golpes.find((x: any) => x.objetivo === 'm:gob');
+    assert.equal(g.tipoDano, 'contundente'); assert.equal(g.rondas, 10); assert.deepEqual(g.hasta, { ronda: 12, k: 'jm:j:pj1' });
+  });
 });
 
 describe('salvaciones que el DM pide a un jugador', () => {

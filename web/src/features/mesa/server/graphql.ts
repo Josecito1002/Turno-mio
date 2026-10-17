@@ -93,13 +93,13 @@ const typeDefs = /* GraphQL */ `
     "Jugador: gasta o recupera su acción, acción adicional o reacción de esta ronda."
     gastarAccionMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, tipo: String!, gastado: Boolean!): Boolean!
     "Jugador: manda un golpe, curación, condición o bono a un combatiente. A un enemigo o personaje del DM lo aplica el DM con la mesa abierta; a otro jugador le llega a su pantalla."
-    enviarGolpeMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, objetivo: String!, dano: Int!, cura: Boolean, condicion: String, bono: String, nota: String): Boolean!
+    enviarGolpeMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, objetivo: String!, dano: Int!, cura: Boolean, condicion: String, bono: String, nota: String, tipoDano: String, rondas: Int, hastaRonda: Int, hastaK: String): Boolean!
     "DM: marca o recupera la acción, adicional o reacción de cualquier combatiente (jugador, personaje propio o enemigo)."
     fijarAccionDm(campanaId: ID!, clave: String!, tipo: String!, gastado: Boolean!): Boolean!
     "Jugador: usa una acción (la marca como gastada y deja dicho qué hizo)."
     usarAccionMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, tipo: String!, nombre: String!, resumen: String): Boolean!
     "Jugador: pide una tirada de salvación a enemigos; el DM la resuelve en su Mesa."
-    enviarSalvacionMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, objetivos: [String!]!, salv: String!, cd: Int!, dano: Int!, mitad: Boolean!, condicion: String, nota: String): Boolean!
+    enviarSalvacionMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, objetivos: [String!]!, salv: String!, cd: Int!, dano: Int!, mitad: Boolean!, condicion: String, nota: String, tipoDano: String, rondas: Int, hastaRonda: Int, hastaK: String): Boolean!
     "DM: una salvación ya resuelta para ese enemigo."
     resolverSalvacion(campanaId: ID!, id: String!, clave: String!): Boolean!
     "DM: manda a los jugadores un descanso corto o largo, o inspiración (a uno o a todos); cada hoja lo aplica al conectarse."
@@ -109,7 +109,7 @@ const typeDefs = /* GraphQL */ `
     "Jugador: marca como recogidos (ya en su inventario) los objetos que le dio el DM."
     recibirEntregas(dmId: ID!, campanaId: ID!, personajeId: ID!, ids: [String!]!): Boolean!
     "DM: le manda a un jugador unido el daño, la curación o la condición de un enemigo; su hoja lo aplica al conectarse."
-    enviarEfectoDm(campanaId: ID!, personajeId: ID!, de: String!, dano: Int!, cura: Boolean, condicion: String, nota: String): Boolean!
+    enviarEfectoDm(campanaId: ID!, personajeId: ID!, de: String!, dano: Int!, cura: Boolean, condicion: String, nota: String, tipoDano: String): Boolean!
     "Jugador: pide al DM que le cuente lo que sabe de un enemigo (el DM aprueba o no)."
     pedirInfoMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, objetivo: String!): Boolean!
     "DM: da por resueltas las peticiones de información con esos ids."
@@ -136,6 +136,14 @@ async function exigirUnido(ctx: Contexto, a: { dmId: string; campanaId: string; 
     .where(and(eq(mesaJugadores.dmId, a.dmId), eq(mesaJugadores.campanaId, a.campanaId), eq(mesaJugadores.jugadorId, u.id), eq(mesaJugadores.personajeId, a.personajeId)));
   if (!Number(fila?.n)) throw new GraphQLError('Ese personaje no está en esa mesa.');
   return u;
+}
+
+/** El tipo de daño y cuánto dura lo que deja (en rondas, y hasta qué ronda y turno), solo si vienen bien. */
+function extrasGolpe(a: { tipoDano?: string | null; rondas?: number | null; hastaRonda?: number | null; hastaK?: string | null }) {
+  const tipo = a.tipoDano ? String(a.tipoDano).slice(0, 60) : null;
+  const rondas = Number.isInteger(a.rondas) && a.rondas! > 0 && a.rondas! <= 600 ? a.rondas! : null;
+  const hasta = rondas && Number.isInteger(a.hastaRonda) && a.hastaRonda! > 0 && a.hastaRonda! < 10000 && a.hastaK && a.hastaK.length <= 140 ? { ronda: a.hastaRonda!, k: a.hastaK } : null;
+  return { ...(tipo ? { tipoDano: tipo } : {}), ...(rondas ? { rondas } : {}), ...(hasta ? { hasta } : {}) };
 }
 
 /** Agrega una orden del DM para los jugadores (se guardan solo las últimas 30). */
@@ -249,12 +257,13 @@ export const mesaGraphQL: ModuloGraphQL = {
         }).where(and(eq(campanas.usuarioId, a.dmId), eq(campanas.id, a.campanaId)));
         return true;
       },
-      enviarGolpeMesa: async (_: unknown, a: { dmId: string; campanaId: string; personajeId: string; objetivo: string; dano: number; cura?: boolean | null; condicion?: string | null; bono?: string | null; nota?: string | null }, ctx: Contexto) => {
+      enviarGolpeMesa: async (_: unknown, a: { dmId: string; campanaId: string; personajeId: string; objetivo: string; dano: number; cura?: boolean | null; condicion?: string | null; bono?: string | null; nota?: string | null; tipoDano?: string | null; rondas?: number | null; hastaRonda?: number | null; hastaK?: string | null }, ctx: Contexto) => {
         await exigirUnido(ctx, a);
         if (!/^(m:[\w-]{1,40}|pj:[\w-]{1,60}|jm:[\w-]{1,60}:[\w-]{1,60})$/.test(a.objetivo)) throw new GraphQLError('Ese objetivo no es válido.');
         if (!Number.isInteger(a.dano) || a.dano < 0 || a.dano > 999) throw new GraphQLError('Ese daño no es válido.');
         const [p] = await ctx.db.select({ n: personajes.nombre }).from(personajes).where(and(eq(personajes.usuarioId, requiereUsuario(ctx).id), eq(personajes.id, a.personajeId))).limit(1);
-        const comun = { id: randomUUID(), de: p?.n || 'Un jugador', dano: a.dano, cura: !!a.cura, condicion: a.condicion ? String(a.condicion).slice(0, 40) : null, bono: a.bono ? String(a.bono).slice(0, 200) : null, nota: a.nota ? String(a.nota).slice(0, 80) : null, ts: new Date().toISOString() };
+        const comun = { id: randomUUID(), de: p?.n || 'Un jugador', dano: a.dano, cura: !!a.cura, condicion: a.condicion ? String(a.condicion).slice(0, 40) : null, bono: a.bono ? String(a.bono).slice(0, 200) : null, nota: a.nota ? String(a.nota).slice(0, 80) : null, ts: new Date().toISOString(),
+          ...extrasGolpe(a) };
         // A otro jugador le llega a su pantalla (como una orden); lo demás lo aplica el DM
         if (a.objetivo.startsWith('jm:')) {
           const orden = JSON.stringify([{ ...comun, tipo: 'efecto', personajeId: a.objetivo.split(':')[2] }]);
@@ -284,13 +293,13 @@ export const mesaGraphQL: ModuloGraphQL = {
         }).where(and(eq(campanas.usuarioId, a.dmId), eq(campanas.id, a.campanaId)));
         return true;
       },
-      enviarSalvacionMesa: async (_: unknown, a: { dmId: string; campanaId: string; personajeId: string; objetivos: string[]; salv: string; cd: number; dano: number; mitad: boolean; condicion?: string | null; nota?: string | null }, ctx: Contexto) => {
+      enviarSalvacionMesa: async (_: unknown, a: { dmId: string; campanaId: string; personajeId: string; objetivos: string[]; salv: string; cd: number; dano: number; mitad: boolean; condicion?: string | null; nota?: string | null; tipoDano?: string | null; rondas?: number | null; hastaRonda?: number | null; hastaK?: string | null }, ctx: Contexto) => {
         await exigirUnido(ctx, a);
         if (!a.objetivos.length || a.objetivos.length > 30 || !a.objetivos.every(o => /^m:[\w-]{1,40}$/.test(o))) throw new GraphQLError('Esos objetivos no son enemigos.');
         if (!/^(FUE|DES|CON|INT|SAB|CAR)$/.test(a.salv)) throw new GraphQLError('Esa salvación no existe.');
         if (!Number.isInteger(a.cd) || a.cd < 1 || a.cd > 40 || !Number.isInteger(a.dano) || a.dano < 0 || a.dano > 999) throw new GraphQLError('La CD o el daño no son válidos.');
         const [p] = await ctx.db.select({ n: personajes.nombre }).from(personajes).where(and(eq(personajes.usuarioId, requiereUsuario(ctx).id), eq(personajes.id, a.personajeId))).limit(1);
-        const item = { id: randomUUID(), de: p?.n || 'Un jugador', pid: a.personajeId, objetivos: a.objetivos, salv: a.salv, cd: a.cd, dano: a.dano, mitad: !!a.mitad, condicion: a.condicion ? String(a.condicion).slice(0, 40) : null, nota: a.nota ? String(a.nota).slice(0, 80) : null, ts: new Date().toISOString() };
+        const item = { id: randomUUID(), de: p?.n || 'Un jugador', pid: a.personajeId, objetivos: a.objetivos, salv: a.salv, cd: a.cd, dano: a.dano, mitad: !!a.mitad, condicion: a.condicion ? String(a.condicion).slice(0, 40) : null, nota: a.nota ? String(a.nota).slice(0, 80) : null, ts: new Date().toISOString(), ...extrasGolpe(a) };
         const lista = sql`coalesce(${campanas.combateVivo}->'salvaciones', '[]'::jsonb)`;
         await ctx.db.update(campanas).set({
           combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('salvaciones', case when jsonb_array_length(${lista}) < 40 then ${lista} || ${JSON.stringify([item])}::jsonb else ${lista} end)`,
@@ -341,11 +350,11 @@ export const mesaGraphQL: ModuloGraphQL = {
           .where(and(eq(campanas.usuarioId, a.dmId), eq(campanas.id, a.campanaId)));
         return true;
       },
-      enviarEfectoDm: async (_: unknown, a: { campanaId: string; personajeId: string; de: string; dano: number; cura?: boolean | null; condicion?: string | null; nota?: string | null }, ctx: Contexto) => {
+      enviarEfectoDm: async (_: unknown, a: { campanaId: string; personajeId: string; de: string; dano: number; cura?: boolean | null; condicion?: string | null; nota?: string | null; tipoDano?: string | null }, ctx: Contexto) => {
         const u = await exigir(ctx, 'usarMesa', SOLO_DM);
         if (!/^[\w-]{1,60}$/.test(a.personajeId)) throw new GraphQLError('Ese personaje no es válido.');
         if (!Number.isInteger(a.dano) || a.dano < 0 || a.dano > 999) throw new GraphQLError('Ese daño no es válido.');
-        const orden = JSON.stringify([{ id: randomUUID(), tipo: 'efecto', personajeId: a.personajeId, de: String(a.de).slice(0, 60), dano: a.dano, cura: !!a.cura, condicion: a.condicion ? String(a.condicion).slice(0, 40) : null, bono: null, nota: a.nota ? String(a.nota).slice(0, 80) : null, ts: new Date().toISOString() }]);
+        const orden = JSON.stringify([{ id: randomUUID(), tipo: 'efecto', personajeId: a.personajeId, de: String(a.de).slice(0, 60), dano: a.dano, cura: !!a.cura, condicion: a.condicion ? String(a.condicion).slice(0, 40) : null, bono: null, nota: a.nota ? String(a.nota).slice(0, 80) : null, ts: new Date().toISOString(), ...extrasGolpe(a) }]);
         const lista = sql`coalesce(${campanas.combateVivo}->'ordenes', '[]'::jsonb) || ${orden}::jsonb`;
         const ultimas = sql`coalesce((select jsonb_agg(o order by n) from (select o, n from jsonb_array_elements(${lista}) with ordinality t(o, n) order by n desc limit 30) x), '[]'::jsonb)`;
         await ctx.db.update(campanas).set({ combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('ordenes', ${ultimas})` })

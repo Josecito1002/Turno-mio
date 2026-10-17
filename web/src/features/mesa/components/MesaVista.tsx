@@ -21,6 +21,7 @@ import { publicarCombate } from '../domain/combate-vivo';
 import { avisarJugadorDm, combateVivoDm, confirmarGolpes, enviarEfectoDm, enviarOrdenDm, fijarAccionDm, pedirSalvacionDm, quitarPeticiones, quitarRespuestas, resolverSalvacion, type CombateVivo, type EconomiaRonda, type Golpe, type Peticion, type RespuestaSalvacion, type Salvacion, type TipoAccionRonda } from '../api';
 import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
 import { efectoSalvacion } from '../domain/condiciones';
+import { textoRestante, vencerCondiciones, type Hasta } from '../domain/duracion';
 import { combatesOrigen, conservarVinculos, danosDe, enemigosDe, leerSesion, marcarRegresados, origenesDe, puedenVolver, regresanA, sobrevivientesDe, type Encuentro } from '../domain/sesion';
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
 import { BloqueMonstruo, BuscadorEnemigo, VistaBestiario, monstruoDe, useCatalogo } from './Bestiario';
@@ -67,7 +68,7 @@ const hayQueDeshacer = (id: string) => (historial.get(id) || []).length > 0;
 
 function Condiciones({ cp, k, nombre }: { cp: any; k: string; nombre: string }) {
   const e = estadoDe(cp, k);
-  const alternar = (n: string) => conCamp(c => { const x = estadoDe(c, k); x.cond = x.cond.includes(n) ? x.cond.filter((y: string) => y !== n) : [...x.cond, n]; });
+  const alternar = (n: string) => conCamp(c => { const x = estadoDe(c, k); if (x.hasta?.[n]) delete x.hasta[n]; x.cond = x.cond.includes(n) ? x.cond.filter((y: string) => y !== n) : [...x.cond, n]; });
   const chip = (n: string, on: boolean) => (
     <button key={n} type="button" aria-pressed={on} onClick={() => alternar(n)}
       className={cx('min-h-11 cursor-pointer rounded-full px-3 text-sm font-bold sm:min-h-8', foco, on ? 'bg-gol text-bg' : 'bg-soft hover:bg-rule/70')}>
@@ -630,6 +631,12 @@ function ImportarSesion({ cp }: { cp: any }) {
 const golpesAplicados = new Set<string>();
 /** Golpes de los que ya se avisó con un mensaje (para no avisar dos veces). */
 const golpesAvisados = new Set<string>();
+/** Pone una condición; si trae duración, se quita sola cuando termina. */
+function ponerCondicion(c: any, k: string, cond: string, hasta?: Hasta) {
+  const e = estadoDe(c, k);
+  if (!e.cond.includes(cond)) e.cond.push(cond);
+  if (hasta) { e.hasta = { ...(e.hasta || {}), [cond]: hasta }; e.dur = { ...(e.dur || {}), [cond]: textoRestante(hasta, c.combate) }; }
+}
 /** Aplica un golpe de un jugador al objetivo (daño, curación y condición) y avisa al servidor para vaciarlo de la lista. */
 function aplicarGolpe(campId: string, g: Golpe) {
   if (golpesAplicados.has(g.id)) return;
@@ -641,7 +648,7 @@ function aplicarGolpe(campId: string, g: Golpe) {
     const quien = m?.nombre || pjDm?.nombre;
     if (m) m.pg = Math.min(m.pgMax, Math.max(0, m.pg + (g.cura ? g.dano : -g.dano)));
     else if (pjDm) cambiarPg(c, g.objetivo, g.cura ? g.dano : -g.dano);
-    if (quien && g.condicion) { const e = estadoDe(c, g.objetivo); if (!e.cond.includes(g.condicion)) e.cond.push(g.condicion); }
+    if (quien && g.condicion) ponerCondicion(c, g.objetivo, g.condicion, g.hasta);
     const hecho = g.dano ? (g.cura ? `${g.dano} de curación` : `${g.dano} de daño`) : '';
     avisar(quien ? `${[hecho, g.condicion].filter(Boolean).join(', ')} aplicado a ${quien}.` : `${g.de} actuó sobre alguien que ya no está.`);
   });
@@ -778,7 +785,7 @@ function resolverSalv(campId: string, s: Salvacion, k: string, supero: boolean) 
     if (!m) return false;
     const dano = supero ? (s.mitad ? Math.floor(s.dano / 2) : 0) : s.dano;
     m.pg = Math.max(0, m.pg - dano);
-    if (!supero && s.condicion) { const e = estadoDe(c, k); if (!e.cond.includes(s.condicion)) e.cond.push(s.condicion); }
+    if (!supero && s.condicion) ponerCondicion(c, k, s.condicion, s.hasta);
     avisar(`${m.nombre} ${supero ? 'superó' : 'falló'} la salvación de ${s.salv}${dano ? `: ${dano} de daño` : ''}${!supero && s.condicion ? `, ${s.condicion}` : ''}.`);
   });
   resolverSalvacion(campId, s.id, k).catch(() => {});
@@ -863,7 +870,8 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x:
   const aplicar = async (k: string, nombre: string, dano: number, a: any, condicion?: string) => {
     const y = combatiente(k, campActual() || cp);
     if (!y || !(dano || condicion)) return;
-    if (y.tipo === 'jug') await enviarEfectoDm(cp.id, y.u.personajeId, { de: x.nombre, dano, nota: a.n, ...(condicion ? { condicion } : {}) });
+    const tipoDano = dano ? (a.dano || []).map((d: any) => d.tipo).filter(Boolean).join(', ') : '';
+    if (y.tipo === 'jug') await enviarEfectoDm(cp.id, y.u.personajeId, { de: x.nombre, dano, nota: a.n, ...(condicion ? { condicion } : {}), ...(tipoDano ? { tipoDano } : {}) });
     conCamp(c => {
       if (y.tipo !== 'jug' && dano) cambiarPg(c, k, -dano);
       if (condicion) { const e = estadoDe(c, k); if (!e.cond.includes(condicion)) e.cond.push(condicion); }
@@ -1102,7 +1110,14 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
     for (const k of nuevos) { const x = combatiente(k, c); if (x) { c.combate.orden.push({ k, init: rnd(20) + x.bono, bono: x.bono }); sumarCompaneros(c, k, rnd); } }
     ordenar(c);
   });
-  const siguiente = () => conCamp(c => { const b = c.combate; if (!b.orden.length) return false; b.turno++; if (b.turno >= b.orden.length) { b.turno = 0; b.ronda++; } });
+  const siguiente = () => conCamp(c => {
+    const b = c.combate; if (!b.orden.length) return false;
+    b.turno++; if (b.turno >= b.orden.length) { b.turno = 0; b.ronda++; }
+    // Las condiciones con duración se descuentan solas y se quitan al terminar
+    for (const e of Object.values(c.estado || {}) as any[]) for (const [n, h] of Object.entries(e?.hasta || {})) if (e.dur) e.dur[n] = textoRestante(h as Hasta, b);
+    const fin = vencerCondiciones(c.estado, b, k => combatiente(k, c)?.nombre || k);
+    if (fin.length) avisar(`Se acabó: ${fin.join('; ')}.`);
+  });
   const terminar = async () => {
     const quitar = cp.monstruos.length > 0 && await confirmar({ titulo: '¿Quitar también a los enemigos?', texto: 'El combate termina igual; puedes dejarlos para el siguiente.', si: 'Quitarlos', no: 'Dejarlos' });
     conCamp(c => { guardarSobrevivientes(c); c.combate = { activo: false, ronda: 1, turno: 0, orden: [] }; if (quitar) c.monstruos = []; });

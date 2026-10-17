@@ -19,6 +19,7 @@ import { ataquesPorAccion, bonosPara, espaciosPara, extrasAtaque, golpesDeRasgo,
 import { UsoAccion, type Marca, type Objetivo, type Uso } from './UsoAccion';
 import { EFECTOS_ALIADO, SEGUIMIENTOS } from '@/features/reglas/data/efectos-conjuro';
 import { BarraIniciativa } from './BarraIniciativa';
+import { rondasDe, rondasRestantes, textoDuracion, textoRestante } from '@/features/mesa/domain/duracion';
 import { FilaArsenal, Ranuras, RecursosClase } from './Ficha';
 
 const TIPOS_BOTON: TipoAccionRonda[] = ['accion', 'adicional', 'reaccion'];
@@ -234,7 +235,7 @@ function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any
       ...(s.tipo ? { tipoDano: String(s.tipo) } : {}), ...(s.mod && d.mSpell ? { dmgDesg: `${d.mSpell} ${d.ab}` } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: ef ? undefined : d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados || ef || cura),
       ...(sg ? { marca: { id: norm(s.nombre).replace(/\s+/g, '-'), nombre: sg.nombre, texto: sg.texto, dexpr: sg.dado || d.dexpr || '', tipo: sg.tipo, en: sg.en, desde: sg.desde, objetivo: sg.objetivo,
         ...(sg.ataque && d.atk != null ? { atk: d.atk } : {}), ...(sg.salv ? { salv: sg.salv, cd: d.cd } : {}), ...(sg.porNivel ? { porNivel: sg.porNivel, nivelBase: sg.nivelBase } : {}) } as Marca } : {}),
-      ...(ef ? { efecto: ef } : {}), ...(cura ? { cura: true } : {}),
+      ...(ef ? { efecto: ef } : {}), ...(cura ? { cura: true } : {}), ...(rondasDe(s.dur || '') ? { duracion: rondasDe(s.dur || '')! } : {}),
       ...(+s.nivel > 0 ? { conjuro: { nivel: +s.nivel, rasgo: s.recurso, ritual: !!s.ritual, desc: s.desc, base: ef ? '' : d.dexpr, bono: d.dexpr && !ef ? bonosPara(c, s).reduce((x: number, b: any) => x + (+b.valor || 0), 0) : 0 } } : {}) };
   };
   const nom = (u: Uso, k: string | number, sub?: string, icono?: string) => <OpcionNombre key={k} uso={u} elegido={elegido} elegir={elegir} sub={sub} icono={icono} />;
@@ -282,7 +283,7 @@ function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any
 }
 
 /** La tarjeta resumida del personaje (como la que ve el DM): pasivas, PG con daño y curación directos, y los botones de la pantalla. */
-function ResumenCombate({ c, m, conds, dur, ven, esMiTurno }: { c: any; m: { mesa: string; dm: string }; conds: string[]; dur: Record<string, string>; ven: '' | 'v' | 'd'; esMiTurno: boolean }) {
+function ResumenCombate({ c, m, conds, dur, ven, esMiTurno, cb }: { c: any; m: { mesa: string; dm: string }; conds: string[]; dur: Record<string, string>; ven: '' | 'v' | 'd'; esMiTurno: boolean; cb: { ronda?: number; turno?: number; orden?: { k: string }[] } | null }) {
   const pj = c.pj, [n, setN] = useState('');
   const pg = c.recursos.find((r: any) => r.id === 'pg');
   const max = pg?.max ?? c.hpMax, actual = max - Math.min(pj.used?.pg || 0, max);
@@ -329,6 +330,7 @@ function ResumenCombate({ c, m, conds, dur, ven, esMiTurno }: { c: any; m: { mes
         <div className="mt-3 grid gap-1 rounded-lg bg-primary-container/30 p-2" aria-label="Efectos que tienes">
           {(pj.efectos as any[]).map(x => (
             <p key={x.nombre} className="m-0 text-body-sm text-on-surface"><b className="text-primary">{x.nombre}</b>{x.de ? ` (de ${x.de})` : ''}. {x.texto}{' '}
+              {x.hasta && cb ? <b className="text-primary">({textoRestante(x.hasta, cb)}) </b> : x.rondas ? <span className="text-outline">(dura {textoDuracion(x.rondas)}) </span> : null}
               <button type="button" className="cursor-pointer text-outline underline" onClick={() => setVal('efectos', (pj.efectos as any[]).filter(y => y.nombre !== x.nombre))}>Quitar</button></p>
           ))}
         </div>
@@ -410,6 +412,14 @@ export function ModoCombate({ c }: { c: any }) {
   // Al terminar el combate se acaban las marcas
   const terminado = !!viv && !viv.activo;
   useEffect(() => { if (terminado && c.pj.marcas?.length) setVal('marcas', []); if (terminado && c.pj.efectos?.length) setVal('efectos', []); }, [terminado, c.pj.marcas?.length, c.pj.efectos?.length]);
+  // Los efectos con duración se acaban solos al llegar su turno (Bendición: 10 rondas después de lanzarla)
+  useEffect(() => {
+    if (!viv?.activo) return;
+    const acabados = (c.pj.efectos || []).filter((x: any) => x.hasta && rondasRestantes(x.hasta, viv) == null);
+    if (!acabados.length) return;
+    setVal('efectos', (c.pj.efectos as any[]).filter(x => !acabados.includes(x)));
+    avisar(`Se acabó: ${acabados.map((x: any) => x.nombre).join(', ')}.`);
+  }, [viv, c.pj.efectos]);
 
   const gastar = (t: TipoAccionRonda, gastado: boolean) => {
     toques.current[t] = Date.now();
@@ -435,7 +445,7 @@ export function ModoCombate({ c }: { c: any }) {
   return (
     <div className="mx-auto grid max-w-3xl gap-4 pb-24">
       {viv && <BarraIniciativa viv={viv} miPid={personajeId} mesa={m} />}
-      <ResumenCombate c={c} m={m} conds={mias} dur={yo?.dur || {}} ven={yo?.ven || ''} esMiTurno={esMiTurno} />
+      <ResumenCombate c={c} m={m} conds={mias} dur={yo?.dur || {}} ven={yo?.ven || ''} esMiTurno={esMiTurno} cb={viv} />
 
       {(ranuras.length > 0 || c.recursos.some((r: any) => r.id !== 'pg' && !/^slot\d/.test(r.id))) && (
         <section className="grid gap-3" aria-label="Recursos">
@@ -491,7 +501,7 @@ export function ModoCombate({ c }: { c: any }) {
       </Dialogo>
 
       <UsoAccion c={c} uso={uso} ventaja={yo?.ven || ''} enemigos={objetivos} mesa={{ dmId, campanaId, personajeId }} yaGastada={!!(uso && eco[uso.tipo])} alCerrar={() => setUso(null)}
-        alUsar={t => { toques.current[t] = Date.now(); setEco(p => ({ ...p, [t]: true })); }} alMarcar={marcar} />
+        alUsar={t => { toques.current[t] = Date.now(); setEco(p => ({ ...p, [t]: true })); }} alMarcar={marcar} ahora={yo ? { ronda: viv?.ronda || 1, k: yo.k } : undefined} />
     </div>
   );
 }
