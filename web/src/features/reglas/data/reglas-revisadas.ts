@@ -160,6 +160,23 @@ const DOMINIOS_CLERIGO = {
   guerra: [[3, ['Rayo guía', 'Arma mágica', 'Escudo de fe', 'Arma espiritual']], [5, ['Manto del cruzado', 'Espíritus guardianes']], [7, ['Escudo de fuego', 'Libertad de movimiento']], [9, ['Inmovilizar monstruo', 'Golpe de Viento Acerado']]],
 };
 
+/* Explosión Agonizante y Lanza Sobrenatural: trucos de brujo que hacen daño (los que conoces primero). `lejos`: solo los de 10 pies o más */
+const piesDe = a => +(/^(\d+)\s*pies/i.exec(String(a || ''))?.[1] || 0);
+const trucosDanoBrujo = (c, lejos = false) => { const sabe = new Set((c.pj?.conjuros || []).map(s => norm(s.nombre)));
+  return todosConjuros().filter(s => !+s.nivel && s.dados && conjuroDeLaLista(s, 'brujo') && (!lejos || piesDe(s.alcance) >= 10))
+    .map(s => ({...s, conoce: sabe.has(norm(s.nombre))}))
+    .sort((a, b) => (+b.conoce - +a.conoce) || a.nombre.localeCompare(b.nombre)); };
+/* El truco elegido para una invocación; sin elegir, el primero que conoces (Explosión sobrenatural si la tienes). La segunda no tiene valor por defecto */
+const trucoInvoc = (c, id, lejos = false) => { const ops = trucosDanoBrujo(c, lejos), k = elegido(c, id);
+  if (k) return ops.find(s => norm(s.nombre) === k)?.nombre || '';
+  if (id.endsWith('-2')) return '';
+  const sabe = ops.filter(s => s.conoce);
+  return (sabe.find(s => norm(s.nombre) === 'explosion sobrenatural') || sabe[0])?.nombre || ''; };
+const TRUCO_INVOC = [['explosion-agonizante', 'agonizante-truco', 'Explosión Agonizante', false], ['explosion-agonizante-2', 'agonizante-truco-2', 'Explosión Agonizante (otro truco)', false],
+  ['lanza-sobrenatural', 'lanza-truco', 'Lanza Sobrenatural', true], ['lanza-sobrenatural-2', 'lanza-truco-2', 'Lanza Sobrenatural (otro truco)', true]];
+const OTRO_TRUCO = {'agonizante-truco': 'agonizante-truco-2', 'agonizante-truco-2': 'agonizante-truco', 'lanza-truco': 'lanza-truco-2', 'lanza-truco-2': 'lanza-truco'};
+const sinTruco = 'Todavía no conoces un truco de brujo que haga daño: agrégalo en Conjuros y elígelo en el paso Clase.';
+
 /* Brujo: Invocaciones Sobrenaturales del Manual del Jugador 2024 (las antiguas de Xanathar y Tasha no se reimprimieron).
    `req`: otra invocación que hay que tener. Las que se pueden repetir llevan una segunda opción que pide la primera. */
 const INVOC: {key: string, conjuro?: string, n: string, nivel: number, req?: string, t: string, texto: (c: any) => string, usos?: number}[] = [
@@ -168,11 +185,11 @@ const INVOC: {key: string, conjuro?: string, n: string, nivel: number, req?: str
   {key:'pacto-filo', n:'Pacto del Filo', nivel:1, t:'adicional', texto: c => `Conjuras en tu mano un arma de pacto cuerpo a cuerpo, sencilla o marcial, o te vinculas a un arma mágica que toques. Eres competente con ella, atacas y haces daño con CAR (${sign(c.m.car)}) en vez de FUE o DES (ya en Ataques), su daño puede ser necrótico, psíquico o radiante, y te sirve de foco de conjuros.`},
   {key:'pacto-cadena', conjuro:'Encontrar familiar', n:'Pacto de la Cadena', nivel:1, t:'accion', texto: () => 'Lanzas Encontrar familiar como acción mágica sin gastar espacio, con formas especiales (sale en tus rasgos).'},
   {key:'pacto-tomo', n:'Pacto del Tomo', nivel:1, t:'pasiva', texto: () => 'Tu Libro de las Sombras te da tres trucos y dos conjuros rituales de nivel 1 de cualquier lista, siempre preparados (agrégalos en Conjuros marcando que no cuentan en el límite), y te sirve de foco de conjuros. Si lo pierdes, un rito de 1 hora te da otro.'},
-  {key:'explosion-agonizante', n:'Explosión Agonizante', nivel:2, t:'pasiva', texto: c => `Eliges un truco de brujo que haga daño (como Explosión sobrenatural): sumas tu CAR (${sign(c.m.car)}) a su daño. Pide conocer un truco de brujo que haga daño.`},
-  {key:'explosion-agonizante-2', n:'Explosión Agonizante (otro truco)', nivel:2, req:'explosion-agonizante', t:'pasiva', texto: c => `Sumas tu CAR (${sign(c.m.car)}) al daño de un segundo truco de brujo que haga daño.`},
+  {key:'explosion-agonizante', n:'Explosión Agonizante', nivel:2, t:'pasiva', texto: c => { const t = trucoInvoc(c, 'agonizante-truco'); return t ? `Sumas tu CAR (${sign(c.m.car)}) al daño de ${t} (ya sumado al lanzarlo). Puedes cambiar el truco en el paso Clase.` : `Sumas tu CAR (${sign(c.m.car)}) al daño de un truco de brujo que haga daño. ${sinTruco}`; }},
+  {key:'explosion-agonizante-2', n:'Explosión Agonizante (otro truco)', nivel:2, req:'explosion-agonizante', t:'pasiva', texto: c => { const t = trucoInvoc(c, 'agonizante-truco-2'); return t ? `Sumas tu CAR (${sign(c.m.car)}) al daño de ${t} (ya sumado al lanzarlo).` : `Sumas tu CAR (${sign(c.m.car)}) al daño de un segundo truco de brujo que haga daño; elígelo en el paso Clase.`; }},
   {key:'vision-diablo', n:'Visión del Diablo', nivel:2, t:'pasiva', texto: () => 'Ves con normalidad en luz tenue y en oscuridad, mágica o no, a 120 pies (ya en tus sentidos).'},
-  {key:'lanza-sobrenatural', n:'Lanza Sobrenatural', nivel:2, t:'pasiva', texto: c => `Un truco de brujo que haga daño y tenga alcance de 10 pies o más gana ${30 * c.lvl} pies de alcance. Pide conocer un truco de brujo que haga daño.`},
-  {key:'lanza-sobrenatural-2', n:'Lanza Sobrenatural (otro truco)', nivel:2, req:'lanza-sobrenatural', t:'pasiva', texto: c => `Un segundo truco de brujo que haga daño gana ${30 * c.lvl} pies de alcance.`},
+  {key:'lanza-sobrenatural', n:'Lanza Sobrenatural', nivel:2, t:'pasiva', texto: c => { const t = trucoInvoc(c, 'lanza-truco', true); return t ? `${t} gana ${30 * c.lvl} pies de alcance (ya sumado en tus conjuros). Puedes cambiar el truco en el paso Clase.` : `Un truco de brujo que haga daño y tenga alcance de 10 pies o más gana ${30 * c.lvl} pies de alcance. ${sinTruco}`; }},
+  {key:'lanza-sobrenatural-2', n:'Lanza Sobrenatural (otro truco)', nivel:2, req:'lanza-sobrenatural', t:'pasiva', texto: c => { const t = trucoInvoc(c, 'lanza-truco-2', true); return t ? `${t} gana ${30 * c.lvl} pies de alcance (ya sumado en tus conjuros).` : `Un segundo truco de brujo que haga daño gana ${30 * c.lvl} pies de alcance; elígelo en el paso Clase.`; }},
   {key:'vigor-infernal', conjuro:'Falsa vida', n:'Vigor Infernal', nivel:2, t:'accion', texto: () => 'Lanzas Falsa vida sobre ti sin gastar espacio y, en vez de tirar, ganas el máximo de PG temporales.'},
   {key:'lecciones-primeros', n:'Lecciones de los Primeros', nivel:2, t:'pasiva', texto: () => 'Ganas una dote de origen que no tengas (agrégala en el paso Características).'},
   {key:'lecciones-primeros-2', n:'Lecciones de los Primeros (otra dote)', nivel:2, req:'lecciones-primeros', t:'pasiva', texto: () => 'Ganas otra dote de origen que no tengas (agrégala en el paso Características).'},
@@ -957,11 +974,23 @@ export const REGLAS: any[] = [
       {id:'arma-pacto', titulo:'Arma de pacto', si: c => invocaciones(c).includes('pacto-filo'),
         opciones: c => [...new Set([...Object.keys(ARMAS).filter(k => !k.includes(':')), ...(c.pj.armas || []).map(([k]) => k)])]
           .filter(k => ARMAS[k] && !ARMAS[k].dist && (ARMAS[k].cat === 'sencilla' || ARMAS[k].cat === 'marcial'))
-          .map(k => ({key: k, nombre: ARMAS[k].n, desc: `${ARMAS[k].d} ${ARMAS[k].tipo}, ${ARMAS[k].cat}${(c.pj.armas || []).some(([x]) => x === k) ? ' (la llevas)' : ' (conjurada)'}`}))}],
+          .map(k => ({key: k, nombre: ARMAS[k].n, desc: `${ARMAS[k].d} ${ARMAS[k].tipo}, ${ARMAS[k].cat}${(c.pj.armas || []).some(([x]) => x === k) ? ' (la llevas)' : ' (conjurada)'}`}))},
+      // Explosión Agonizante y Lanza Sobrenatural: a qué truco se aplican (sin elegir, al primero que conoces)
+      ...TRUCO_INVOC.map(([inv, id, titulo, lejos]) => ({id, titulo: `${titulo}: truco`, si: c => invocaciones(c).includes(inv),
+        opciones: c => trucosDanoBrujo(c, lejos).filter(s => norm(s.nombre) !== elegido(c, OTRO_TRUCO[id]))
+          .map(s => ({key: norm(s.nombre), nombre: s.nombre, desc: `${s.dados}${s.tipo ? ' ' + s.tipo : ''}${s.alcance ? `, alcance ${s.alcance}` : ''}${s.conoce ? ' (lo conoces)' : ''}`}))}))],
     efecto: c => {
       const s = invocaciones(c);
       if (s.includes('armadura-sombras') && !c.armor) c.ac = Math.max(c.ac, 13 + c.m.des + (c.shield ? 2 : 0));
       if (s.includes('vision-diablo')) c.vision = Math.max(c.vision || 0, 120);
+      // Explosión Agonizante suma CAR al daño del truco elegido; Lanza Sobrenatural le suma 30 pies por nivel de alcance
+      for (const [inv, id, nombre, lejos] of TRUCO_INVOC) {
+        const t = s.includes(inv) && trucoInvoc(c, id, lejos);
+        if (!t) continue;
+        const si = x => norm(x?.nombre || '') === norm(t);
+        if (lejos) (c.alcanceConjuro = c.alcanceConjuro || []).push({nombre, pies: 30 * c.lvl, si});
+        else (c.bonosConjuro = c.bonosConjuro || []).push({nombre, valor: c.m.car, si});
+      }
       if (s.includes('pacto-filo')) {
         const k = elegido(c, 'arma-pacto'), arma = ARMAS[k] && !ARMAS[k].dist ? ARMAS[k] : null;
         c.pactoFilo = true; c.rehacerArmas = true;

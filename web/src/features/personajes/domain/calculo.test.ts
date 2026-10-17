@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { setLib, getSubs, clasesParaElegir } from '@/features/biblioteca/domain/biblioteca';
 import { compute } from './calculo';
 import { resolver } from '@/features/dados/domain/dados';
-import { ataquesPorAccion, bonosPara, dadosAlLanzar, espaciosPara, extrasAtaque, golpesDeRasgo } from './lanzar';
+import { alcanceDe, ataquesPorAccion, bonosPara, dadosAlLanzar, espaciosPara, extrasAtaque, golpesDeRasgo } from './lanzar';
 import { sinDuplicado } from '@/features/biblioteca/domain/mapeo';
 import { nuevoPj } from './modelo';
 import { pendientes, pendientesAlSubir } from './pendientes';
@@ -533,6 +533,17 @@ describe('Brujo 2024 (Lote 7)', () => {
     assert.equal(c.ac, 15);
     assert.equal(c.vision, 120);
     assert.ok(entrada(c, 'Armadura de Sombras'));
+  });
+  test('Explosión Agonizante y Lanza Sobrenatural se aplican al truco que conoces', () => {
+    const eb = { nombre: 'Explosión sobrenatural', nivel: 0, alcance: '120 pies', dados: '1d10' };
+    const c = bru(3, '', { car: 18 }, { conjuros: [eb], elecciones: { invocaciones: ['explosion-agonizante', 'lanza-sobrenatural'] } });
+    assert.deepEqual(bonosPara(c, eb).map((b: any) => b.valor), [4]);
+    assert.equal(bonosPara(c, { nombre: 'Toque helado' }).length, 0);
+    assert.equal(alcanceDe(c, eb), '210 pies');
+    assert.ok(c.elecciones.some((e: any) => e.id === 'agonizante-truco'));
+    assert.match(entrada(c, 'Explosión Agonizante').texto, /Explosión sobrenatural/);
+    // Sin la invocación no suma nada
+    assert.equal(bonosPara(bru(3, '', {}, { conjuros: [eb] }), eb).length, 0);
   });
   test('Pacto del Filo: solo el arma de pacto elegida usa CAR y da competencia', () => {
     const filo = (arma: string) => ({ armas: [['espada_larga', 1], ['daga', 1]], elecciones: { invocaciones: ['pacto-filo'], 'arma-pacto': arma } });

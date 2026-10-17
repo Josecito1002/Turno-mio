@@ -12,7 +12,7 @@ import { useDados } from '@/features/dados/components/Bandeja';
 import { avisar } from '@/shared/ui/avisos';
 import { Herramienta, tieneHerramienta } from './ficha/Herramientas';
 import { agregarCriatura, descansar, producirObjetoColeccion, fijarPool, gastarEspacio, gastarRecurso, moverPool, moverRasgo, setVal, tocarPip } from '../acciones';
-import { bonosPara, dadosAlLanzar, espaciosPara, extrasAtaque } from '../domain/lanzar';
+import { alcanceDe, bonosPara, dadosAlLanzar, espaciosPara, extrasAtaque } from '../domain/lanzar';
 import { desglose } from '../domain/calculo';
 
 /** Compatibilidad: forma del tipo de acción. */
@@ -188,7 +188,7 @@ export function datosConjuro(s: any, c: any) {
   const mSpell = s.cd != null ? s.cd - 8 - c.pb : c.mSpell;
   const dexpr = dados ? dados + (s.mod && mSpell ? modStr(mSpell) : '') : '';
   if (s.conc) bits.push('Concentración'); if (s.ritual) bits.push('Ritual');
-  const meta = [s.alcance && `Alcance: ${s.alcance}`, s.dur].filter(Boolean).join('. ');
+  const alcance = alcanceDe(c, s), meta = [alcance && `Alcance: ${alcance}`, s.dur].filter(Boolean).join('. ');
   // Cómo se lanza, si lo da un rasgo
   const origen = s.rasgo ? [s.nota, s.abNota && `Usa ${s.abNota}`].filter(Boolean).join('. ') : '';
   const atk = s.atk ?? c.atkSpell, ab = s.abNota || String(c.casterAb || '').toUpperCase();
