@@ -2,8 +2,18 @@ export class ErrorGraphQL extends Error {
   constructor(message: string, public code?: string) { super(message); }
 }
 
-/** Llama a /api/graphql. `keepalive` permite terminar el envío aunque se cierre la pestaña. */
+/** Llama a /api/graphql. `keepalive` permite terminar el envío aunque se cierre la pestaña. Las lecturas que fallan
+    porque la base estaba ocupada se repiten una vez (no cambian nada); las mutaciones no, para no aplicarlas dos veces. */
 export async function gql<T = unknown>(query: string, variables?: Record<string, unknown>, opts: { keepalive?: boolean } = {}): Promise<T> {
+  try { return await gqlUnaVez<T>(query, variables, opts); }
+  catch (e) {
+    if (!(e instanceof ErrorGraphQL) || e.code !== 'BASE_OCUPADA' || /^\s*mutation\b/.test(query)) throw e;
+    await new Promise(r => setTimeout(r, 700 + Math.random() * 600));
+    return gqlUnaVez<T>(query, variables, opts);
+  }
+}
+
+async function gqlUnaVez<T>(query: string, variables: Record<string, unknown> | undefined, opts: { keepalive?: boolean }): Promise<T> {
   const body = JSON.stringify({ query, variables });
   const res = await fetch('/api/graphql', {
     method: 'POST',

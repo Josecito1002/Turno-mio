@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { useCallback, useEffect, useId, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { S, render, irArriba } from '@/app-shell/estado';
 import { almacen } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
@@ -258,9 +258,11 @@ function TarjetaJugador({ cp, x, alQuitar }: { cp: any; x: any; alQuitar: () => 
 /** Los personajes que los jugadores unieron con el código; se sincronizan en tiempo real por WebSocket/SSE y de respaldo cada 15 s. */
 function useUnidos(campId: string) {
   const [estado, setEstado] = useState({ cargando: true, error: '', enVivo: false, transporte: '' as 'ws' | 'sse' | '' });
+  // Si ya hay hojas en pantalla, un fallo suelto de la lectura periódica no se muestra: solo si se repite
+  const fallos = useRef(0);
   const leer = useCallback(() => jugadoresMesa(campId).then(
-    l => { fijarUnidos(campId, l); almacen.fijarInfoMesa(campId, { unidos: l.length }); setEstado(prev => ({ ...prev, cargando: false, error: '' })); render(); },
-    (e: Error) => setEstado(prev => ({ ...prev, cargando: false, error: e.message }))), [campId]);
+    l => { fallos.current = 0; fijarUnidos(campId, l); almacen.fijarInfoMesa(campId, { unidos: l.length }); setEstado(prev => ({ ...prev, cargando: false, error: '' })); render(); },
+    (e: Error) => { const mostrar = ++fallos.current >= 2; setEstado(prev => mostrar || prev.cargando ? { ...prev, cargando: false, error: e.message } : prev); }), [campId]);
 
   useEffect(() => {
     leer();

@@ -9,6 +9,22 @@ import * as esquema from './esquema';
 
 export type DB = ReturnType<typeof drizzlePg<typeof esquema>>;
 
+/**
+ * El pooler de Supabase atiende el mismo usuario y contraseña en dos puertos: 5432 (modo sesión) y 6543 (modo
+ * transacción). En modo sesión cada conexión abierta ocupa una de las pocas del plan gratuito (15) mientras exista:
+ * con la mesa en vivo (hojas y DM preguntando cada pocos segundos) Vercel abre varias instancias, se acaban y llega
+ * «max clients reached». En modo transacción la conexión real solo se presta mientras dura cada consulta, así que
+ * aguanta muchas más. La app en el servidor usa siempre el 6543; los scripts (migraciones, despliegue) siguen con la URL tal cual.
+ */
+export function urlServidor(url: string | undefined) {
+  if (!url) return url;
+  try {
+    const u = new URL(url);
+    if (/\.pooler\.supabase\.com$/i.test(u.hostname) && (u.port === '5432' || u.port === '')) { u.port = '6543'; return u.toString(); }
+  } catch { /* no es una URL: se deja como está */ }
+  return url;
+}
+
 /*
  * DATABASE_URL:
  *   postgres://...    -> Neon / Supabase / cualquier Postgres (postgres.js)
@@ -22,12 +38,10 @@ export function crearDb(url = process.env.DATABASE_URL || 'pglite:./.data/pg') {
     const db = drizzleLite(cliente, { schema: esquema });
     return { db: db as unknown as DB, migrar: (carpeta: string) => migrateLite(db, { migrationsFolder: carpeta }), cerrar: () => cliente.close() };
   }
-  // Con Supabase usar el pooler en modo sesión (5432). prepare:false sirve también para Neon y poolers.
-  // El modo sesión del plan gratuito admite pocas conexiones (15): en Vercel cada función abre las suyas,
-  // así que ahí se usa una sola por función y se suelta a los 5 s sin uso (cada imagen de la biblioteca abre una
-  // función aparte: si la guardan 20 s, al entrar con muchas imágenes se acaban las 15). Fuera de Vercel, 5 y 20 s.
+  // prepare:false sirve para Neon y para los poolers. En Vercel cada instancia de función abre sus conexiones: se
+  // guardan pocas y se sueltan pronto para no acaparar el pooler. Fuera de Vercel, 5 y 20 s.
   const enVercel = !!process.env.VERCEL;
-  const cliente = postgres(url, { prepare: false, max: enVercel ? 1 : 5, idle_timeout: enVercel ? 5 : 20, connect_timeout: 15 });
+  const cliente = postgres(url, { prepare: false, max: enVercel ? 2 : 5, idle_timeout: enVercel ? 5 : 20, connect_timeout: 15 });
   const db = drizzlePg(cliente, { schema: esquema });
   return { db, migrar: (carpeta: string) => migratePg(db, { migrationsFolder: carpeta }), cerrar: () => cliente.end() };
 }
