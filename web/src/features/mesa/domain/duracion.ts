@@ -21,6 +21,33 @@ export function rondasDe(texto: string): number | null {
 /** El momento en que termina un efecto que dura `rondas`, puesto ahora por `k`. */
 export const hastaDesde = (rondas: number, ronda: number, k: string): Hasta => ({ ronda: ronda + rondas, k });
 
+/** Al empezar el próximo turno de `k` (el de esta ronda si todavía no le tocó). */
+export function inicioTurno(k: string, cb: Combate): Hasta {
+  const ronda = cb.ronda || 1, i = (cb.orden || []).findIndex(o => o.k === k);
+  return { ronda: i > (cb.turno || 0) ? ronda : ronda + 1, k };
+}
+/** Al terminar el próximo turno de `k`, es decir, al empezar el turno de quien le sigue. */
+export function finTurno(k: string, cb: Combate): Hasta {
+  const orden = cb.orden || [], ronda = cb.ronda || 1, i = orden.findIndex(o => o.k === k);
+  if (i < 0 || !orden.length) return { ronda: ronda + 1, k };
+  const suTurno = i > (cb.turno || 0) ? ronda : ronda + 1, j = (i + 1) % orden.length;
+  return { ronda: j === 0 ? suTurno + 1 : suTurno, k: orden[j].k };
+}
+/** Cuánto dura lo que dice el texto, puesto ahora por `autor` sobre `objetivo`: "1 minuto" son 10 rondas desde el turno
+ *  de quien lo lanzó; "hasta el final de tu siguiente turno" termina con el turno de quien lo lanzó, y "de su siguiente
+ *  turno", con el del objetivo. */
+export function hastaDe(texto: string, cb: Combate, autor: string, objetivo?: string): { rondas: number; hasta: Hasta } | null {
+  const t = String(texto || '').toLowerCase(), ronda = cb.ronda || 1;
+  const m = /(final|fin|inicio|comienzo|principio) del? (?:(tu|su) )?(?:siguiente|pr[oó]ximo) turno(?: del? (?:la |el )?(objetivo|criatura))?/.exec(t);
+  if (m) {
+    const quien = (m[2] === 'su' || m[3]) && objetivo ? objetivo : autor;
+    const hasta = /^(final|fin)$/.test(m[1]) ? finTurno(quien, cb) : inicioTurno(quien, cb);
+    return { rondas: Math.max(1, hasta.ronda - ronda), hasta };
+  }
+  const rondas = rondasDe(t);
+  return rondas ? { rondas, hasta: hastaDesde(rondas, ronda, autor) } : null;
+}
+
 /** Rondas que le quedan (0: termina al empezar el turno de quien lo causó en esta ronda); null si ya terminó. */
 export function rondasRestantes(h: Hasta, cb: Combate): number | null {
   const ronda = cb.ronda || 1, orden = cb.orden || [];
@@ -50,6 +77,24 @@ export function vencerCondiciones(estado: Record<string, any>, cb: Combate, nomb
       if (rondasRestantes(h, cb) != null) continue;
       e.cond = (e.cond || []).filter((x: string) => x !== cond);
       delete e.hasta[cond];
+      if (e.dur) delete e.dur[cond];
+      if (e.conc) delete e.conc[cond];
+      fin.push(`${nombre(k)}: ${cond}`);
+    }
+  }
+  return fin;
+}
+
+/** Quita lo que dependía de la concentración `conc` (la de quien dejó de concentrarse); devuelve "Nombre: condición" de cada una. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function quitarConcentracion(estado: Record<string, any>, conc: string, nombre: (k: string) => string = k => k): string[] {
+  const fin: string[] = [];
+  for (const [k, e] of Object.entries(estado || {})) {
+    for (const [cond, c] of Object.entries((e?.conc || {}) as Record<string, string>)) {
+      if (c !== conc) continue;
+      e.cond = (e.cond || []).filter((x: string) => x !== cond);
+      delete e.conc[cond];
+      if (e.hasta) delete e.hasta[cond];
       if (e.dur) delete e.dur[cond];
       fin.push(`${nombre(k)}: ${cond}`);
     }

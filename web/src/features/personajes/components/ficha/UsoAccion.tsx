@@ -8,7 +8,8 @@ import { TIPOS } from '@/features/reglas/data/caracteristicas';
 import { CampoTirada, totalTirada } from '@/features/dados/components/CampoTirada';
 import { partesTirada } from '@/features/dados/domain/dados';
 import { CONDICIONES } from '@/features/mesa/domain/combate';
-import { hastaDesde, rondasDe, textoDuracion } from '@/features/mesa/domain/duracion';
+import { hastaDe, rondasDe, textoDuracion } from '@/features/mesa/domain/duracion';
+import { empezarConcentracion, terminarConcentracion } from './concentracion';
 import { gastarEspacio, gastarRecurso, setMano } from '../../acciones';
 import { ARMAS } from '@/features/reglas/data/equipo';
 import { escalarDados } from '@/features/reglas/data/efectos-conjuro';
@@ -23,6 +24,7 @@ export type Marca = {
 };
 /** Alguien del combate a quien se le puede hacer algo: enemigos y aliados (otros jugadores, mascotas, tú mismo) */
 export type Objetivo = { k: string; nombre: string; aliado?: boolean };
+export type Ahora = { ronda: number; turno: number; orden: { k: string }[]; k: string };
 
 export type Uso = {
   tipo: TipoAccionRonda; nombre: string; coste?: string;
@@ -55,8 +57,10 @@ export type Uso = {
   lista?: { titulo: string; items: { nombre: string; nota: string; texto?: string }[] };
   /** Recurso que gasta al usarlo (un uso del rasgo) */
   gasta?: string;
-  /** Cuántas rondas dura lo que deja (Bendición: 10), si lo dice su duración */
-  duracion?: number;
+  /** Cuántas rondas dura lo que deja (Bendición: 10), si lo dice su duración, y el texto de esa duración */
+  duracion?: number; durTexto?: string;
+  /** Pide concentración: al usarlo se deja la anterior, y lo que deja en otros se acaba si se pierde */
+  concentracion?: boolean;
   /** De dónde sale el bono del ataque ("3 FUE + 2 competencia") y el del daño ("3 FUE"), y el tipo de daño */
   atkDesg?: string; dmgDesg?: string; tipoDano?: string;
   /** Lo que se puede sumar al acertar (Castigo divino, Ataque furtivo…), con lo que gasta */
@@ -98,8 +102,8 @@ function gruposExtras(extras: Extra[]) {
 
 /** Confirmar el uso de una acción: lee sus efectos, elige a quién afecta y, al confirmar, la gasta y se lo cuenta al DM. */
 export function UsoAccion({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, alMarcar, ahora }: {
-  /** La ronda del combate y tu lugar en el orden, para saber cuándo termina lo que dejas */
-  ahora?: { ronda: number; k: string };
+  /** El combate ahora (ronda, turno y orden) y tu lugar en él, para saber cuándo termina lo que dejas */
+  ahora?: Ahora;
   alMarcar?: (m: Marca, objetivo: string, nombre: string) => void;
   c: any; uso: Uso | null; ventaja?: '' | 'v' | 'd'; enemigos: Objetivo[]; mesa: { dmId: string; campanaId: string; personajeId: string };
   yaGastada: boolean; alCerrar: () => void; alUsar: (t: TipoAccionRonda) => void;
@@ -112,7 +116,7 @@ export function UsoAccion({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar
   );
 }
 
-function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, alMarcar, ahora }: { ahora?: { ronda: number; k: string }; alMarcar?: (m: Marca, objetivo: string, nombre: string) => void; c: any; uso: Uso; ventaja?: '' | 'v' | 'd'; enemigos: Objetivo[]; mesa: { dmId: string; campanaId: string; personajeId: string }; yaGastada: boolean; alCerrar: () => void; alUsar: (t: TipoAccionRonda) => void }) {
+function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, alMarcar, ahora }: { ahora?: Ahora; alMarcar?: (m: Marca, objetivo: string, nombre: string) => void; c: any; uso: Uso; ventaja?: '' | 'v' | 'd'; enemigos: Objetivo[]; mesa: { dmId: string; campanaId: string; personajeId: string }; yaGastada: boolean; alCerrar: () => void; alUsar: (t: TipoAccionRonda) => void }) {
   const area = !!uso.salv && AREA.test(uso.texto);
   const conds = condicionesEn(uso.texto);
   const [objetivos, setObjetivos] = useState<string[]>([]);
@@ -162,8 +166,14 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
   const maxObj = maxObjetivos(uso.texto + ' ' + (uso.efecto?.bono || '')), varios = (!!uso.salv && area) || maxObj > 1;
   const alternar = (k: string) => setObjetivos(o => (varios ? (o.includes(k) ? o.filter(x => x !== k) : maxObj > 1 && o.length >= maxObj ? o : [...o, k]) : o[0] === k ? [] : [k]));
   // Cuánto dura lo que deja en el objetivo (una condición o un efecto)
-  const rondas = uso.duracion ?? rondasDe(`${uso.efecto?.bono || ''} ${uso.texto}`);
-  const duracion = rondas && ahora ? { rondas, hastaRonda: hastaDesde(rondas, ahora.ronda, ahora.k).ronda, hastaK: ahora.k } : rondas ? { rondas } : {};
+  const textoDur = uso.durTexto || `${uso.efecto?.bono || ''} ${uso.texto}`;
+  const rondas = uso.duracion ?? rondasDe(textoDur);
+  /** Hasta cuándo le dura a ese objetivo ("hasta el final de su siguiente turno" depende de cuándo juega él) */
+  const hastaPara = (objetivo?: string) => (ahora ? hastaDe(textoDur, ahora, ahora.k, objetivo) : null);
+  const duracionPara = (objetivo?: string) => {
+    const h = hastaPara(objetivo);
+    return h ? { rondas: h.rondas, hastaRonda: h.hasta.ronda, hastaK: h.hasta.k } : rondas ? { rondas } : {};
+  };
   const nombres = objetivos.map(k => enemigos.find(e => e.k === k)?.nombre || '').filter(Boolean);
   // Las salvaciones solo se mandan a enemigos; lo demás (ataques, curas, bonos) puede ir a cualquiera, aliados incluidos
   const posibles = uso.salv && !uso.cura ? enemigos.filter(e => !e.aliado) : enemigos;
@@ -203,11 +213,17 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
       const pago = via === 'rasgo' ? `con ${rasgoRec?.nombre}` : via.startsWith('slot') ? `con espacio de nivel ${nivelUsado}` : cj?.ritual ? 'como ritual' : '';
       const resumen = [pago, nombres.length ? `a ${nombres.join(', ')}` : '', nGolpes > 1 && golpes.some(i => golpeTxt(i)) ? `${golpes.map(i => `ataque ${i + 1}: ${golpeTxt(i) || 'sin tirar'}`).join('; ')}${n ? ` = ${n} ${deDano}` : ''}` : nGolpes > 1 ? '' : golpeTxt(0), uso.salv && objetivos.length ? `salvación de ${uso.salv} CD ${uso.cd}` : '', cond].filter(Boolean).join(' · ');
       await usarAccionMesa(mesa, uso.tipo, uso.nombre, resumen);
+      // Un conjuro de concentración deja el anterior; lo que deja en otros lleva su id para acabarse si la pierdes
+      let conc: string | undefined;
+      if (uso.concentracion) {
+        await terminarConcentracion(mesa, `ahora te concentras en ${uso.nombre}`);
+        conc = empezarConcentracion(mesa, uso.nombre, hastaPara() ?? (rondas ? { rondas } : null));
+      }
       if (objetivos.length && (n || cond || uso.efecto)) {
         const tipoDano = n && !uso.cura && uso.tipoDano ? { tipoDano: uso.tipoDano } : {};
-        const dura = cond || uso.efecto ? duracion : {};
-        if (uso.salv && uso.cd && !uso.cura) await enviarSalvacionMesa(mesa, { objetivos, salv: uso.salv, cd: uso.cd, dano: n, mitad, ...(cond ? { condicion: cond } : {}), nota: uso.nombre, ...tipoDano, ...dura });
-        else for (const objetivo of objetivos) await enviarGolpeMesa(mesa, { objetivo, dano: n, ...(uso.cura ? { cura: true } : {}), ...(cond || uso.efecto ? { condicion: cond || uso.efecto!.condicion } : {}), ...(uso.efecto ? { bono: uso.efecto.bono } : {}), nota: uso.nombre, ...tipoDano, ...dura });
+        const dura = (objetivo?: string) => (cond || uso.efecto ? { ...duracionPara(objetivo), ...(conc ? { conc } : {}) } : {});
+        if (uso.salv && uso.cd && !uso.cura) await enviarSalvacionMesa(mesa, { objetivos, salv: uso.salv, cd: uso.cd, dano: n, mitad, ...(cond ? { condicion: cond } : {}), nota: uso.nombre, ...tipoDano, ...dura(objetivos[0]) });
+        else for (const objetivo of objetivos) await enviarGolpeMesa(mesa, { objetivo, dano: n, ...(uso.cura ? { cura: true } : {}), ...(cond || uso.efecto ? { condicion: cond || uso.efecto!.condicion } : {}), ...(uso.efecto ? { bono: uso.efecto.bono } : {}), nota: uso.nombre, ...tipoDano, ...dura(objetivo) });
       }
       if (uso.equipar && arma) setMano('a', arma);
       alUsar(uso.tipo);
@@ -304,7 +320,7 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
           ) : <p className="m-0 text-body-sm text-outline">No hay a quién elegir en el combate todavía.</p>}
 
           {maxObj > 1 && <p className="m-0 text-body-sm text-outline">Puedes elegir hasta {maxObj} ({objetivos.length} elegido{objetivos.length === 1 ? '' : 's'}).</p>}
-          {objetivos.length > 0 && rondas && (uso.efecto || uso.salv || conds.length > 0) ? <p className="m-0 text-body-sm font-bold text-on-surface">Dura {textoDuracion(rondas)}: se descuenta solo en cada turno tuyo.</p> : null}
+          {objetivos.length > 0 && rondas && (uso.efecto || uso.salv || conds.length > 0) ? <p className="m-0 text-body-sm font-bold text-on-surface">Dura {textoDuracion(rondas)}: se descuenta solo en cada turno.{uso.concentracion ? ' Si pierdes la concentración, se acaba antes.' : ''}</p> : null}
           {!objetivos.length && posibles.length > 0 && <p className="m-0 text-body-sm text-outline">Elige primero a quién{sinDano ? '' : uso.atk != null ? '; después te decimos qué dados tirar' : '; después pones el daño'}.</p>}
           {objetivos.length > 0 && uso.efecto && <p className="m-0 rounded bg-surface-container-lowest p-2 text-body-sm text-on-surface"><b>{uso.efecto.condicion}:</b> {uso.efecto.bono}</p>}
           {objetivos.length > 0 && !sinDano && Array.from({ length: nGolpes }, (_, i) => (
@@ -379,6 +395,11 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
         </div>
       )}
 
+      {uso.concentracion && (
+        <p className="m-0 rounded-lg bg-surface-container-low p-3 text-body-md text-on-surface">
+          <b>Pide concentración.</b> {c.pj.concentracion ? `Al confirmar dejas de concentrarte en ${c.pj.concentracion.nombre}, y se acaba lo que dejó.` : 'Si te hacen daño, tendrás que tirar una salvación de Constitución para mantenerla.'}
+        </p>
+      )}
       {yaGastada && <p className="m-0 text-body-sm text-error">Ya marcaste esta acción como gastada esta ronda.</p>}
       <Boton variante="primario" disabled={ocupado} onClick={confirmar}>Confirmar</Boton>
     </div>

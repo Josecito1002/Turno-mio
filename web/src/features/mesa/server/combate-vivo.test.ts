@@ -159,6 +159,22 @@ describe('salvaciones que el DM pide a un jugador', () => {
   });
 });
 
+describe('concentración', () => {
+  test('lo que deja un conjuro lleva su concentración, y al perderla le llega a todos', async () => {
+    await M.enviarGolpeMesa(null, { ...unido, objetivo: 'm:orco', dano: 0, condicion: 'Paralizado', rondas: 10, hastaRonda: 12, hastaK: 'jm:j:pj1', conc: 'pj1-abc' }, ctx(jug));
+    await M.terminarConcentracionMesa(null, { ...unido, conc: 'pj1-abc', nombre: 'Inmovilizar persona' }, ctx(jug));
+    const v = await Q.combateMesa(null, unido, ctx(jug));
+    assert.equal(v.golpes.find((x: any) => x.objetivo === 'm:orco').conc, 'pj1-abc');
+    const o = v.ordenes.find((x: any) => x.tipo === 'finConc');
+    assert.equal(o.conc, 'pj1-abc'); assert.equal(o.personajeId, null); assert.equal(o.nota, 'Inmovilizar persona');
+  });
+  test('un jugador solo termina la suya, y la de un enemigo solo la termina el DM', async () => {
+    await assert.rejects(M.terminarConcentracionMesa(null, { ...unido, conc: 'otro-abc', nombre: 'X' }, ctx(jug)));
+    await assert.rejects(M.terminarConcentracionDm(null, { campanaId: 'c1', conc: 'm-orco-1', de: 'Orco', nombre: 'X' }, ctx(jug)));
+    assert.equal(await M.terminarConcentracionDm(null, { campanaId: 'c1', conc: 'm-orco-1', de: 'Orco', nombre: 'X' }, ctx(dm)), true);
+  });
+});
+
 describe('objetos que da el DM', () => {
   test('el DM da un objeto, solo le llega a ese personaje y desaparece al recogerlo', async () => {
     await M.darObjetoDm(null, { campanaId: 'c1', personajeId: 'pj1', objeto: { tipo: 'objeto', n: '  El libro verde ', q: 0, t: 'Huele a lirios.' } }, ctx(dm));

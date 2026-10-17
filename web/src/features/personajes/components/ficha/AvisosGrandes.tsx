@@ -10,6 +10,7 @@ import { CampoTirada, totalTirada } from '@/features/dados/components/CampoTirad
 import { responderSalvacionMesa } from '@/features/mesa/api';
 import { aplicarEfecto, avisosGrandes, type AvisoGrande } from './ordenes-dm';
 import { textoDuracion } from '@/features/mesa/domain/duracion';
+import { concentracionActual, terminarConcentracion, ventajaConcentracion } from './concentracion';
 
 const nombreAb = (k: string) => AB.find(([x]) => x === k)?.[3] || k.toUpperCase();
 const abrevAb = (k: string) => AB.find(([x]) => x === k)?.[2] || k.toUpperCase();
@@ -29,7 +30,7 @@ export function AvisosGrandes() {
     <dialog ref={ref} aria-label="Aviso del combate" onCancel={e => e.preventDefault()}
       className="m-0 h-dvh max-h-none w-screen max-w-none overflow-auto bg-bg p-0 text-ink backdrop:bg-black/70 print:hidden">
       {a && <div className="mx-auto grid min-h-full max-w-xl content-center gap-4 p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
-        {a.tipo === 'salvacion' ? <Salvacion key={a.id} a={a} /> : a.tipo === 'efecto' ? <Efecto a={a} /> : <Aviso a={a} />}
+        {a.tipo === 'salvacion' ? <Salvacion key={a.id} a={a} /> : a.tipo === 'concentracion' ? <Concentracion key={a.id} a={a} /> : a.tipo === 'efecto' ? <Efecto a={a} /> : <Aviso a={a} />}
         {lista.length > 1 && <p className="m-0 text-center text-sm text-muted">Hay {lista.length - 1} aviso{lista.length > 2 ? 's' : ''} más después de este.</p>}
       </div>}
     </dialog>
@@ -91,10 +92,11 @@ function Salvacion({ a }: { a: Extract<AvisoGrande, { tipo: 'salvacion' }> }) {
     if (total == null) return;
     setOcupado(true);
     const final = supera ? (o.mitad ? Math.floor(dano / 2) : 0) : dano, cond = supera ? null : o.condicion || null;
-    if (final || cond) aplicarEfecto({ ...o, tipo: 'efecto', dano: final, condicion: cond }, false);
+    if (final || cond) aplicarEfecto({ ...o, tipo: 'efecto', dano: final, condicion: cond }, false, a.mesa);
     else avisar(`Superaste la salvación de ${nombreAb(salv)}.`);
     try {
-      if (a.mesa) await responderSalvacionMesa(a.mesa, { pedido: o.id, total, supero: supera, dano: final, ...(cond ? { condicion: cond } : {}) });
+      const dura = cond && o.rondas ? { rondas: o.rondas, ...(o.hasta ? { hastaRonda: o.hasta.ronda, hastaK: o.hasta.k } : {}), ...(o.conc ? { conc: o.conc } : {}) } : {};
+      if (a.mesa) await responderSalvacionMesa(a.mesa, { pedido: o.id, total, supero: supera, dano: final, ...(cond ? { condicion: cond } : {}), ...dura });
     } catch (e) { avisar(`Tu DM no recibió el resultado: ${(e as Error).message}. Díselo en voz alta.`, 'error'); }
     setOcupado(false);
     avisosGrandes.quitar(a.id);
@@ -116,6 +118,50 @@ function Salvacion({ a }: { a: Extract<AvisoGrande, { tipo: 'salvacion' }> }) {
         {total != null && <p className={cx('m-0 text-center font-serif text-2xl font-extrabold', supera ? 'text-pas' : 'text-acc')}>{total} contra CD {cd}: {supera ? '¡La superas!' : 'Fallas'}</p>}
         <Boton variante="primario" className="min-h-14 text-lg" disabled={total == null || ocupado} onClick={confirmar}>
           {total == null ? 'Escribe primero lo que salió' : 'Confirmar y avisar a tu DM'}
+        </Boton>
+      </div>
+    </>
+  );
+}
+
+/** Le hicieron daño mientras se concentraba: salvación de Constitución (CD 10 o la mitad del daño) para no perderla. */
+function Concentracion({ a }: { a: Extract<AvisoGrande, { tipo: 'concentracion' }> }) {
+  const conc = concentracionActual(), mod = S.c?.saves?.con ?? 0, ventaja = ventajaConcentracion(S.c);
+  const bendicion = (S.pj?.efectos || []).some((e: any) => /^(bendicion|bendecid)/.test(norm(e.nombre || '')));
+  const [nat, setNat] = useState(''), [bend, setBend] = useState('');
+  const expr = `1d20${modStr(mod)}`;
+  const base = totalTirada(expr, nat), total = base == null ? null : base + (bendicion && bend !== '' ? Math.round(+bend || 0) : 0);
+  const supera = total != null && total >= a.cd;
+  const confirmar = () => {
+    if (total == null) return;
+    if (supera) avisar(`Mantienes la concentración en ${conc?.nombre || 'tu conjuro'}.`);
+    else void terminarConcentracion(a.mesa, 'fallaste la salvación');
+    avisosGrandes.quitar(a.id);
+  };
+  if (!conc) return (
+    <>
+      <p className="m-0 rounded-3xl bg-soft p-6 text-center text-lg">Ya no te estabas concentrando en nada.</p>
+      <Boton variante="primario" className="min-h-14 text-lg" onClick={() => avisosGrandes.quitar(a.id)}>Entendido</Boton>
+    </>
+  );
+  return (
+    <>
+      <div className="rounded-3xl bg-gol/20 p-6 text-center">
+        <Simbolo n="psychology" className="text-6xl text-gol" />
+        <h2 className="m-0 mt-2 font-serif text-3xl font-extrabold">¿Mantienes la concentración?</h2>
+        <p className="m-0 mt-2 font-serif text-4xl font-extrabold">Constitución CD {a.cd}</p>
+        <p className="m-0 mt-2 text-lg">Te concentras en {conc.nombre} y recibiste {a.dano} de daño.</p>
+        <p className="m-0 mt-2 text-sm text-muted">Si fallas, {conc.nombre} se acaba para todos los que lo tenían.</p>
+      </div>
+      <div className="grid gap-3 rounded-2xl bg-surface p-4">
+        <CampoTirada tipo="ataque" expr={expr} valor={nat} alCambiar={setNat} etiqueta={`Concentración (CD ${a.cd})`} sinCritico adv={ventaja ? 1 : 0}
+          desglose="tu salvación de CON" claseInput={claseCampo}
+          mas={bendicion ? [{ dados: '1d4', por: 'Bendición', valor: bend === '' ? null : Math.round(+bend || 0) }] : []} />
+        {ventaja && <p className="m-0 text-sm text-muted">Tienes ventaja por {ventaja}.</p>}
+        {bendicion && <CampoTirada tipo="dano" expr="1d4" valor={bend} alCambiar={setBend} etiqueta="Bendición" claseInput={claseCampo} />}
+        {total != null && <p className={cx('m-0 text-center font-serif text-2xl font-extrabold', supera ? 'text-pas' : 'text-acc')}>{total} contra CD {a.cd}: {supera ? 'la mantienes' : 'la pierdes'}</p>}
+        <Boton variante="primario" className="min-h-14 text-lg" disabled={total == null} onClick={confirmar}>
+          {total == null ? 'Escribe primero lo que salió' : 'Confirmar'}
         </Boton>
       </div>
     </>

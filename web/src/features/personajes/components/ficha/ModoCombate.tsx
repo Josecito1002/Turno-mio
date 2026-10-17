@@ -12,7 +12,8 @@ import { esc, norm, richT, sign } from '@/shared/utils/texto';
 import { moverPool, setVal } from '../../acciones';
 import { resumen } from '../../domain/modelo';
 import { combateMesa, enviarGolpeMesa, gastarAccionMesa, type CombateVivo, type EconomiaRonda, type TipoAccionRonda } from '@/features/mesa/api';
-import { aplicarOrdenes } from './ordenes-dm';
+import { aplicarOrdenes, pedirConcentracion } from './ordenes-dm';
+import { INCAPACITANTES, terminarConcentracion } from './concentracion';
 import { EFECTO_CONDICION } from '@/features/mesa/domain/condiciones';
 import { datosConjuro } from '../piezas';
 import { ataquesPorAccion, bonosPara, espaciosPara, extrasAtaque, golpesDeRasgo, restanteConjuro, restanteDe } from '../../domain/lanzar';
@@ -223,7 +224,7 @@ function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any
     const efecto = EFECTOS_ALIADO[norm(e.nombre)] || amuEfecto, equipar = norm(e.nombre) === 'pacto del filo';
     // Conjuro Apresurado: se lanza como acción adicional un conjuro del grimorio que tarde una acción o una acción adicional
     const lista = norm(e.nombre) === 'conjuro apresurado' ? { titulo: 'Conjuros de tu grimorio que puedes lanzar así', items: (c.conjuros || []).filter((x: any) => ['accion', 'adicional'].includes(x.tiempo || 'accion') && !/ritual/i.test(x.nota || '')).sort((a: any, b: any) => +a.nivel - +b.nivel).map((x: any) => ({ nombre: x.nombre, nota: +x.nivel > 0 ? `nivel ${x.nivel}` : 'truco', texto: String(x.desc || '') })) } : undefined;
-    return { tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, ...(lista ? { lista } : {}), ...(efecto ? { efecto } : {}), ...(amuCura ? { cura: true, fijo: +amuCura[1] } : {}), ...(amuSalv ? { salv: amuSalv[1].toUpperCase(), cd: +amuSalv[2] } : {}), ...(amuAtq ? { atk: +amuAtq[1] } : {}), ...(amuDano && atk == null ? { dexpr: amuDano[1].replace(/\s/g, '') } : {}), ...(equipar ? { equipar } : {}), ...(golpes ? { golpes } : {}), ...(atk != null ? { atk, dexpr: e.roll[1] } : {}), afecta: ataca || !!efecto || !!amuCura || !!amuSalv || !!amuAtq, ...(gasta ? { gasta } : {}) };
+    return { tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, ...(/\(concentraci[oó]n/i.test(String(e.texto || '')) ? { concentracion: true } : {}), ...(lista ? { lista } : {}), ...(efecto ? { efecto } : {}), ...(amuCura ? { cura: true, fijo: +amuCura[1] } : {}), ...(amuSalv ? { salv: amuSalv[1].toUpperCase(), cd: +amuSalv[2] } : {}), ...(amuAtq ? { atk: +amuAtq[1] } : {}), ...(amuDano && atk == null ? { dexpr: amuDano[1].replace(/\s/g, '') } : {}), ...(equipar ? { equipar } : {}), ...(golpes ? { golpes } : {}), ...(atk != null ? { atk, dexpr: e.roll[1] } : {}), afecta: ataca || !!efecto || !!amuCura || !!amuSalv || !!amuAtq, ...(gasta ? { gasta } : {}) };
   };
   const comoArma = (e: any) => ({ puno: /sin armas|golpe|pu[ñn]/i.test(`${e.nombre} ${e.texto}`), nombre: e.nombre, atk: +(/([+-]\d+)\s*$/.exec(e.roll[0])?.[1] ?? 0), expr: e.roll[1], dmg: String(e.roll[1]).replace(/\s/g, ''), notas: [] as string[] });
   const deConjuro = (s: any): Uso => {
@@ -235,7 +236,7 @@ function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any
       ...(s.tipo ? { tipoDano: String(s.tipo) } : {}), ...(s.mod && d.mSpell ? { dmgDesg: `${d.mSpell} ${d.ab}` } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: ef ? undefined : d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados || ef || cura),
       ...(sg ? { marca: { id: norm(s.nombre).replace(/\s+/g, '-'), nombre: sg.nombre, texto: sg.texto, dexpr: sg.dado || d.dexpr || '', tipo: sg.tipo, en: sg.en, desde: sg.desde, objetivo: sg.objetivo,
         ...(sg.ataque && d.atk != null ? { atk: d.atk } : {}), ...(sg.salv ? { salv: sg.salv, cd: d.cd } : {}), ...(sg.porNivel ? { porNivel: sg.porNivel, nivelBase: sg.nivelBase } : {}) } as Marca } : {}),
-      ...(ef ? { efecto: ef } : {}), ...(cura ? { cura: true } : {}), ...(rondasDe(s.dur || '') ? { duracion: rondasDe(s.dur || '')! } : {}),
+      ...(ef ? { efecto: ef } : {}), ...(cura ? { cura: true } : {}), ...(rondasDe(s.dur || '') ? { duracion: rondasDe(s.dur || '')!, durTexto: String(s.dur) } : {}), ...(s.conc || /concentraci/i.test(s.dur || '') ? { concentracion: true } : {}),
       ...(+s.nivel > 0 ? { conjuro: { nivel: +s.nivel, rasgo: s.recurso, ritual: !!s.ritual, desc: s.desc, base: ef ? '' : d.dexpr, bono: d.dexpr && !ef ? bonosPara(c, s).reduce((x: number, b: any) => x + (+b.valor || 0), 0) : 0 } } : {}) };
   };
   const nom = (u: Uso, k: string | number, sub?: string, icono?: string) => <OpcionNombre key={k} uso={u} elegido={elegido} elegir={elegir} sub={sub} icono={icono} />;
@@ -283,8 +284,9 @@ function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any
 }
 
 /** La tarjeta resumida del personaje (como la que ve el DM): pasivas, PG con daño y curación directos, y los botones de la pantalla. */
-function ResumenCombate({ c, m, conds, dur, ven, esMiTurno, cb }: { c: any; m: { mesa: string; dm: string }; conds: string[]; dur: Record<string, string>; ven: '' | 'v' | 'd'; esMiTurno: boolean; cb: { ronda?: number; turno?: number; orden?: { k: string }[] } | null }) {
+function ResumenCombate({ c, m, conds, dur, ven, esMiTurno, cb }: { c: any; m: { mesa: string; dm: string; dmId: string; campanaId: string; personajeId: string }; conds: string[]; dur: Record<string, string>; ven: '' | 'v' | 'd'; esMiTurno: boolean; cb: { ronda?: number; turno?: number; orden?: { k: string }[] } | null }) {
   const pj = c.pj, [n, setN] = useState('');
+  const mesa = { dmId: m.dmId, campanaId: m.campanaId, personajeId: m.personajeId }, conc = pj.concentracion;
   const pg = c.recursos.find((r: any) => r.id === 'pg');
   const max = pg?.max ?? c.hpMax, actual = max - Math.min(pj.used?.pg || 0, max);
   const temp = Math.max(0, +pj.pgTemp || 0), pct = max ? (actual / max) * 100 : 0;
@@ -297,6 +299,7 @@ function ResumenCombate({ c, m, conds, dur, ven, esMiTurno, cb }: { c: any; m: {
     if (t) setVal('pgTemp', temp - t);
     if (x - t) moverPool('pg', -(x - t));
     setN('');
+    pedirConcentracion(x, mesa);
   };
   const curar = (x: number) => { if (x && pg) { moverPool('pg', x); setN(''); } };
   const stats: [string | number, string][] = [
@@ -324,6 +327,14 @@ function ResumenCombate({ c, m, conds, dur, ven, esMiTurno, cb }: { c: any; m: {
           {conds.map(n => (
             <p key={n} className="m-0 text-body-sm text-on-surface"><b className="text-error">{n}.</b> {EFECTO_CONDICION[n] || ''}{n === 'Derribado' && esMiTurno ? ' (Es tu turno: lo notarás al moverte.)' : ''} <span className="text-outline">{dur[n] ? `Dura: ${dur[n]}.` : 'Dura hasta que tu DM la quite.'}</span></p>
           ))}
+        </div>
+      )}
+      {conc && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg bg-primary-container/30 p-2" aria-label="Tu concentración">
+          <p className="m-0 flex-1 text-body-sm text-on-surface"><b className="text-primary">Concentrado en {conc.nombre}</b>
+            {conc.hasta && cb ? <b className="text-primary"> ({textoRestante(conc.hasta, cb)})</b> : conc.rondas ? <span className="text-outline"> (dura {textoDuracion(conc.rondas)})</span> : null}.
+            <span className="text-outline"> Si te hacen daño, te pediremos la salvación de Constitución.</span></p>
+          <Boton tamano="sm" onClick={() => void terminarConcentracion(mesa, 'la dejaste')}>Dejar de concentrarme</Boton>
         </div>
       )}
       {(pj.efectos || []).length > 0 && (
@@ -411,7 +422,11 @@ export function ModoCombate({ c }: { c: any }) {
 
   // Al terminar el combate se acaban las marcas
   const terminado = !!viv && !viv.activo;
-  useEffect(() => { if (terminado && c.pj.marcas?.length) setVal('marcas', []); if (terminado && c.pj.efectos?.length) setVal('efectos', []); }, [terminado, c.pj.marcas?.length, c.pj.efectos?.length]);
+  useEffect(() => {
+    if (terminado && c.pj.marcas?.length) setVal('marcas', []);
+    if (terminado && c.pj.efectos?.length) setVal('efectos', []);
+    if (terminado && c.pj.concentracion) setVal('concentracion', null);
+  }, [terminado, c.pj.marcas?.length, c.pj.efectos?.length, c.pj.concentracion]);
   // Los efectos con duración se acaban solos al llegar su turno (Bendición: 10 rondas después de lanzarla)
   useEffect(() => {
     if (!viv?.activo) return;
@@ -420,6 +435,17 @@ export function ModoCombate({ c }: { c: any }) {
     setVal('efectos', (c.pj.efectos as any[]).filter(x => !acabados.includes(x)));
     avisar(`Se acabó: ${acabados.map((x: any) => x.nombre).join(', ')}.`);
   }, [viv, c.pj.efectos]);
+  // La concentración se pierde al quedar incapacitado o a 0 PG, y termina sola al acabarse su duración
+  const yoK = viv?.orden?.find(o => o.pid === personajeId);
+  const pgRec = c.recursos.find((r: any) => r.id === 'pg'), pgActual = pgRec ? pgRec.max - Math.min(c.pj.used?.pg || 0, pgRec.max) : 1;
+  const incapacitado = [...(yoK?.cond || []), ...(c.pj.efectos || []).map((x: any) => x.nombre)].find(n => INCAPACITANTES.includes(n));
+  useEffect(() => {
+    const conc = c.pj.concentracion;
+    if (!conc || !viv?.activo) return;
+    if (incapacitado) void terminarConcentracion({ dmId, campanaId, personajeId }, `quedaste ${incapacitado}`);
+    else if (pgActual <= 0) void terminarConcentracion({ dmId, campanaId, personajeId }, 'caíste a 0 PG');
+    else if (conc.hasta && rondasRestantes(conc.hasta, viv) == null) { setVal('concentracion', null); avisar(`Se acabó ${conc.nombre}.`); }
+  }, [viv, c.pj.concentracion, incapacitado, pgActual, dmId, campanaId, personajeId]);
 
   const gastar = (t: TipoAccionRonda, gastado: boolean) => {
     toques.current[t] = Date.now();
@@ -501,7 +527,7 @@ export function ModoCombate({ c }: { c: any }) {
       </Dialogo>
 
       <UsoAccion c={c} uso={uso} ventaja={yo?.ven || ''} enemigos={objetivos} mesa={{ dmId, campanaId, personajeId }} yaGastada={!!(uso && eco[uso.tipo])} alCerrar={() => setUso(null)}
-        alUsar={t => { toques.current[t] = Date.now(); setEco(p => ({ ...p, [t]: true })); }} alMarcar={marcar} ahora={yo ? { ronda: viv?.ronda || 1, k: yo.k } : undefined} />
+        alUsar={t => { toques.current[t] = Date.now(); setEco(p => ({ ...p, [t]: true })); }} alMarcar={marcar} ahora={yo && viv ? { ronda: viv.ronda || 1, turno: viv.turno || 0, orden: viv.orden || [], k: yo.k } : undefined} />
     </div>
   );
 }

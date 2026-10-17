@@ -18,10 +18,10 @@ import { CONDICIONES, actualizarPgUnido, cambiarPg, campActual, camps, claveUnid
 import { codigoMesa, guardarCampana, jugadoresMesa, quitarDeMesa } from '../api';
 import { conectarMesaRealtime } from '../realtime-cliente';
 import { publicarCombate } from '../domain/combate-vivo';
-import { avisarJugadorDm, combateVivoDm, confirmarGolpes, enviarEfectoDm, enviarOrdenDm, fijarAccionDm, pedirSalvacionDm, quitarPeticiones, quitarRespuestas, resolverSalvacion, type CombateVivo, type EconomiaRonda, type Golpe, type Peticion, type RespuestaSalvacion, type Salvacion, type TipoAccionRonda } from '../api';
+import { avisarJugadorDm, combateVivoDm, confirmarGolpes, enviarEfectoDm, enviarOrdenDm, fijarAccionDm, pedirSalvacionDm, quitarPeticiones, quitarRespuestas, resolverSalvacion, terminarConcentracionDm, type CombateVivo, type EconomiaRonda, type Golpe, type Peticion, type RespuestaSalvacion, type Salvacion, type TipoAccionRonda } from '../api';
 import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
 import { efectoSalvacion } from '../domain/condiciones';
-import { textoRestante, vencerCondiciones, type Hasta } from '../domain/duracion';
+import { hastaDe, quitarConcentracion, textoRestante, vencerCondiciones, type Hasta } from '../domain/duracion';
 import { combatesOrigen, conservarVinculos, danosDe, enemigosDe, leerSesion, marcarRegresados, origenesDe, puedenVolver, regresanA, sobrevivientesDe, type Encuentro } from '../domain/sesion';
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
 import { BloqueMonstruo, BuscadorEnemigo, VistaBestiario, monstruoDe, useCatalogo } from './Bestiario';
@@ -68,7 +68,16 @@ const hayQueDeshacer = (id: string) => (historial.get(id) || []).length > 0;
 
 function Condiciones({ cp, k, nombre }: { cp: any; k: string; nombre: string }) {
   const e = estadoDe(cp, k);
-  const alternar = (n: string) => conCamp(c => { const x = estadoDe(c, k); if (x.hasta?.[n]) delete x.hasta[n]; x.cond = x.cond.includes(n) ? x.cond.filter((y: string) => y !== n) : [...x.cond, n]; });
+  const alternar = (n: string) => {
+    const propia = n === 'Concentrado' && e.cond.includes(n) ? e.concPropia : null;
+    conCamp(c => {
+      const x = estadoDe(c, k); if (x.hasta?.[n]) delete x.hasta[n];
+      x.cond = x.cond.includes(n) ? x.cond.filter((y: string) => y !== n) : [...x.cond, n];
+      // Si deja de concentrarse, se acaba lo que había dejado su conjuro
+      if (propia) { delete x.concPropia; acabarConcentracion(c, propia.id, nombre, propia.nombre); }
+    });
+    if (propia) terminarConcentracionDm(cp.id, propia.id, nombre, propia.nombre).catch(() => avisar('Los jugadores no se enteraron: díselo en voz alta.', 'error'));
+  };
   const chip = (n: string, on: boolean) => (
     <button key={n} type="button" aria-pressed={on} onClick={() => alternar(n)}
       className={cx('min-h-11 cursor-pointer rounded-full px-3 text-sm font-bold sm:min-h-8', foco, on ? 'bg-gol text-bg' : 'bg-soft hover:bg-rule/70')}>
@@ -631,11 +640,29 @@ function ImportarSesion({ cp }: { cp: any }) {
 const golpesAplicados = new Set<string>();
 /** Golpes de los que ya se avisó con un mensaje (para no avisar dos veces). */
 const golpesAvisados = new Set<string>();
-/** Pone una condición; si trae duración, se quita sola cuando termina. */
-function ponerCondicion(c: any, k: string, cond: string, hasta?: Hasta) {
+/** Concentraciones que ya se perdieron: lo que llegue después con ellas no se aplica. */
+const concTerminadas = new Set<string>();
+/** Pone una condición; si trae duración, se quita sola cuando termina, y si depende de una concentración, al perderla. */
+function ponerCondicion(c: any, k: string, cond: string, hasta?: Hasta, conc?: string) {
+  if (conc && concTerminadas.has(conc)) return;
   const e = estadoDe(c, k);
   if (!e.cond.includes(cond)) e.cond.push(cond);
   if (hasta) { e.hasta = { ...(e.hasta || {}), [cond]: hasta }; e.dur = { ...(e.dur || {}), [cond]: textoRestante(hasta, c.combate) }; }
+  if (conc) e.conc = { ...(e.conc || {}), [cond]: conc };
+}
+/** El id de una concentración nueva de `k` (lo llevan sus efectos). */
+const idConcentracion = (k: string) => `${k.replace(/[^\w-]/g, '-')}-${Date.now().toString(36)}`;
+/** Un enemigo concentrado que recibe daño hace una salvación de Constitución para no perderla. */
+function avisoConcentracion(c: any, k: string, dano: number, nombre: string) {
+  if (dano > 0 && estadoDe(c, k).cond.includes('Concentrado'))
+    avisar(`${nombre} está concentrado: salvación de Constitución CD ${Math.min(30, Math.max(10, Math.floor(dano / 2)))}. Si falla, quítale «Concentrado».`, 'aviso');
+}
+/** Se acaba lo que dependía de esa concentración, en esta mesa (las hojas de los jugadores se enteran por su lado). */
+function acabarConcentracion(c: any, conc: string, quien: string, que: string) {
+  concTerminadas.add(conc);
+  const fin = quitarConcentracion(c.estado, conc, k => combatiente(k, c)?.nombre || k);
+  if (fin.length) avisar(`${quien} dejó de concentrarse en ${que}: se acabó ${fin.join('; ')}.`);
+  return fin.length > 0;
 }
 /** Aplica un golpe de un jugador al objetivo (daño, curación y condición) y avisa al servidor para vaciarlo de la lista. */
 function aplicarGolpe(campId: string, g: Golpe) {
@@ -648,7 +675,8 @@ function aplicarGolpe(campId: string, g: Golpe) {
     const quien = m?.nombre || pjDm?.nombre;
     if (m) m.pg = Math.min(m.pgMax, Math.max(0, m.pg + (g.cura ? g.dano : -g.dano)));
     else if (pjDm) cambiarPg(c, g.objetivo, g.cura ? g.dano : -g.dano);
-    if (quien && g.condicion) ponerCondicion(c, g.objetivo, g.condicion, g.hasta);
+    if (quien && g.condicion) ponerCondicion(c, g.objetivo, g.condicion, g.hasta, g.conc);
+    if (quien && !g.cura) avisoConcentracion(c, g.objetivo, g.dano, quien);
     const hecho = g.dano ? (g.cura ? `${g.dano} de curación` : `${g.dano} de daño`) : '';
     avisar(quien ? `${[hecho, g.condicion].filter(Boolean).join(', ')} aplicado a ${quien}.` : `${g.de} actuó sobre alguien que ya no está.`);
   });
@@ -737,8 +765,13 @@ function useEconomiaVivo(campId: string, activo: boolean): VivoDm {
         respuestasVistas.add(r.id);
         if (r.condicion) conCamp(c => {
           const o = (c.combate.orden || []).find((x: any) => combatiente(x.k, c)?.u?.personajeId === r.pid); if (!o) return false;
-          const e = estadoDe(c, o.k); if (e.cond.includes(r.condicion)) return false; e.cond.push(r.condicion);
+          if (estadoDe(c, o.k).cond.includes(r.condicion)) return false; ponerCondicion(c, o.k, r.condicion!, r.hasta, r.conc);
         });
+      }
+      // Alguien perdió la concentración: se quita lo que dependía de ella
+      for (const o of v?.ordenes || []) if (o.tipo === 'finConc' && o.conc && !concTerminadas.has(o.conc)) {
+        const conc = o.conc;
+        conCamp(c => { if (!acabarConcentracion(c, conc, o.de || 'Alguien', o.nota || 'su conjuro')) return false; });
       }
       for (const q of v?.peticiones || []) if (!golpesAvisados.has(q.id) && !peticionesResueltas.has(q.id)) {
         golpesAvisados.add(q.id);
@@ -785,7 +818,8 @@ function resolverSalv(campId: string, s: Salvacion, k: string, supero: boolean) 
     if (!m) return false;
     const dano = supero ? (s.mitad ? Math.floor(s.dano / 2) : 0) : s.dano;
     m.pg = Math.max(0, m.pg - dano);
-    if (!supero && s.condicion) ponerCondicion(c, k, s.condicion, s.hasta);
+    if (!supero && s.condicion) ponerCondicion(c, k, s.condicion, s.hasta, s.conc);
+    avisoConcentracion(c, k, dano, m.nombre);
     avisar(`${m.nombre} ${supero ? 'superó' : 'falló'} la salvación de ${s.salv}${dano ? `: ${dano} de daño` : ''}${!supero && s.condicion ? `, ${s.condicion}` : ''}.`);
   });
   resolverSalvacion(campId, s.id, k).catch(() => {});
@@ -871,12 +905,36 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x:
     const y = combatiente(k, campActual() || cp);
     if (!y || !(dano || condicion)) return;
     const tipoDano = dano ? (a.dano || []).map((d: any) => d.tipo).filter(Boolean).join(', ') : '';
-    if (y.tipo === 'jug') await enviarEfectoDm(cp.id, y.u.personajeId, { de: x.nombre, dano, nota: a.n, ...(condicion ? { condicion } : {}), ...(tipoDano ? { tipoDano } : {}) });
+    const dura = condicion ? duracionDe(a, k) : null;
+    if (y.tipo === 'jug') await enviarEfectoDm(cp.id, y.u.personajeId, { de: x.nombre, dano, nota: a.n, ...(condicion ? { condicion } : {}), ...(tipoDano ? { tipoDano } : {}), ...(dura?.extras || {}) });
     conCamp(c => {
       if (y.tipo !== 'jug' && dano) cambiarPg(c, k, -dano);
-      if (condicion) { const e = estadoDe(c, k); if (!e.cond.includes(condicion)) e.cond.push(condicion); }
+      if (condicion) ponerCondicion(c, k, condicion, dura?.hasta, dura?.conc);
+      if (y.tipo !== 'jug') avisoConcentracion(c, k, dano, nombre);
     });
     avisar(`${x.nombre}: ${nombre}${dano ? ` recibe ${dano} de daño` : ''}${dano && condicion ? ' y' : ''}${condicion ? ` queda ${condicion}` : ''}${y.tipo === 'jug' ? '. Le llega a su hoja.' : '.'}`);
+  };
+  /** Cuánto dura la condición que deja la acción (según su texto) y, si pide concentración, el enemigo se concentra en ella. */
+  const duracionDe = (a: any, objetivo: string) => {
+    const c0 = campActual() || cp, h = hastaDe(a.t || '', c0.combate, x.k, objetivo);
+    let conc: string | undefined;
+    if (/concentraci/i.test(a.t || '')) {
+      const e = estadoDe(c0, x.k);
+      // Una sola concentración: la nueva reemplaza a la anterior
+      if (e.concPropia?.nombre !== a.n) {
+        const antes = e.concPropia;
+        conc = idConcentracion(x.k);
+        conCamp(c => {
+          const ee = estadoDe(c, x.k);
+          if (antes) acabarConcentracion(c, antes.id, x.nombre, antes.nombre);
+          ee.concPropia = { id: conc, nombre: a.n };
+          ponerCondicion(c, x.k, 'Concentrado', h?.hasta);
+        });
+        if (antes) terminarConcentracionDm(cp.id, antes.id, x.nombre, antes.nombre).catch(() => {});
+      } else conc = e.concPropia.id;
+    }
+    const extras = { ...(h ? { rondas: h.rondas, hastaRonda: h.hasta.ronda, hastaK: h.hasta.k } : {}), ...(conc ? { conc } : {}) };
+    return { hasta: h?.hasta, conc, extras };
   };
   /** El daño ya tirado (a mano o en la app): con salvación en lugar del ataque, primero se pide la salvación;
       tras un ataque que acierta, entra entero y después llega la salvación de su condición. */
@@ -920,7 +978,8 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x:
     if (!pend) return;
     const y = combatiente(pend.k, cp); if (y?.tipo !== 'jug') return;
     try {
-      await pedirSalvacionDm(cp.id, y.u.personajeId, { de: x.nombre, salv: pend.salv, cd: pend.cd, dano: pend.dano, mitad: pend.mitad, ...(pend.condicion ? { condicion: pend.condicion } : {}), nota: pend.a.n });
+      const dura = pend.condicion ? duracionDe(pend.a, pend.k) : null;
+      await pedirSalvacionDm(cp.id, y.u.personajeId, { de: x.nombre, salv: pend.salv, cd: pend.cd, dano: pend.dano, mitad: pend.mitad, ...(pend.condicion ? { condicion: pend.condicion } : {}), nota: pend.a.n, ...(dura?.extras || {}) });
       avisar(`A ${pend.nombre} le salió la salvación en su pantalla. Su resultado aparece arriba del combate.`);
       setPend(null);
     } catch (e) { avisar(`No se pudo enviar: ${(e as Error).message}`, 'error'); }

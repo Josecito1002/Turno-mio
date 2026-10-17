@@ -4,6 +4,7 @@ import { avisar } from '@/shared/ui/avisos';
 import type { OrdenDm } from '@/features/mesa/api';
 import { norm } from '@/shared/utils/texto';
 import { descansar, moverPool, setVal } from '../../acciones';
+import { cdConcentracion, concentracionActual, quitarEfectosDe } from './concentracion';
 
 /* Avisos en grande (pantalla completa) para lo que le pasa al personaje en combate: el daño que recibe (con las
    reacciones que podría usar), una salvación que debe tirar y lo que su DM le cuenta. Se muestran de a uno. */
@@ -11,7 +12,9 @@ export type Mesa = { dmId: string; campanaId: string; personajeId: string };
 export type AvisoGrande =
   | { id: string; tipo: 'efecto'; o: OrdenDm; reacciones: { nombre: string; texto: string }[] }
   | { id: string; tipo: 'salvacion'; o: OrdenDm; mesa: Mesa | null }
-  | { id: string; tipo: 'aviso'; o: OrdenDm };
+  | { id: string; tipo: 'aviso'; o: OrdenDm }
+  /** Le hicieron daño mientras se concentraba: salvación de Constitución para mantenerla */
+  | { id: string; tipo: 'concentracion'; dano: number; cd: number; mesa: Mesa | null };
 let cola: AvisoGrande[] = [];
 const oyentes = new Set<() => void>();
 const avisar_ = () => oyentes.forEach(f => f());
@@ -43,8 +46,16 @@ export function reaccionesAlDano(c: any, tipoDano?: string): { nombre: string; t
   return [...rasgos.map((e: any) => ({ nombre: e.nombre, texto: corta(txt(e.texto)) })), ...conjuros.map((s: any) => ({ nombre: s.nombre, texto: corta(txt(s.desc)) }))];
 }
 
+/** Si se está concentrando y sigue en pie, pide la salvación para mantener la concentración (a 0 PG se pierde sola). */
+export function pedirConcentracion(dano: number, mesa: Mesa | null, id = 'conc-' + Date.now()) {
+  if (!dano || !concentracionActual()) return;
+  const r = S.c?.recursos?.find((x: any) => x.id === 'pg');
+  if (r && r.max - Math.min(S.pj.used?.pg || 0, r.max) <= 0) return;
+  encolar({ id, tipo: 'concentracion', dano, cd: cdConcentracion(dano), mesa });
+}
+
 /** Lo que otro jugador o el DM te hizo: daño (primero a los PG temporales), curación, y un efecto que queda a la vista hasta que lo quites. */
-export function aplicarEfecto(o: OrdenDm, grande = true) {
+export function aplicarEfecto(o: OrdenDm, grande = true, mesa: Mesa | null = null) {
   const pj = S.pj; if (!pj) return;
   const n = Math.max(0, Math.round(o.dano || 0));
   if (n && o.cura) moverPool('pg', n);
@@ -54,9 +65,10 @@ export function aplicarEfecto(o: OrdenDm, grande = true) {
     if (n - t) moverPool('pg', -(n - t));
   }
   if (o.condicion || o.bono) setVal('efectos', [...(pj.efectos || []).filter((x: any) => x.nombre !== (o.condicion || 'Efecto')),
-    { nombre: o.condicion || 'Efecto', texto: o.bono || '', de: o.de || '', ...(o.rondas ? { rondas: o.rondas } : {}), ...(o.hasta ? { hasta: o.hasta } : {}) }]);
+    { nombre: o.condicion || 'Efecto', texto: o.bono || '', de: o.de || '', ...(o.rondas ? { rondas: o.rondas } : {}), ...(o.hasta ? { hasta: o.hasta } : {}), ...(o.conc ? { conc: o.conc } : {}) }]);
   if (grande) encolar({ id: o.id, tipo: 'efecto', o, reacciones: n && !o.cura ? reaccionesAlDano(S.c, o.tipoDano) : [] });
   else avisar(`${o.de || 'Alguien'}${o.nota ? ` (${o.nota})` : ''}: ${n ? (o.cura ? `te cura ${n} PG` : `te hace ${n} de daño`) : ''}${o.condicion ? `${n ? ', ' : ''}${o.condicion}` : ''}.`);
+  if (n && !o.cura) pedirConcentracion(n, mesa, o.id + '-conc');
 }
 
 /** Aplica a esta hoja los descansos y la inspiración que mandó el DM. Se recuerda cuáles ya se aplicaron (por personaje);
@@ -71,7 +83,9 @@ export function aplicarOrdenes(ordenes: OrdenDm[] | undefined, pid: string, mesa
   try { localStorage.setItem(clave, JSON.stringify([...(vistos || []), ...ordenes.map(o => o.id)].slice(-80))); } catch { /* idem */ }
   for (const o of nuevas) {
     if (o.tipo === 'inspiracion') { setVal('inspiracion', true); avisar('Tu DM te dio inspiración.'); }
-    else if (o.tipo === 'efecto') aplicarEfecto(o);
+    else if (o.tipo === 'efecto') aplicarEfecto(o, true, mesa);
+    // Alguien dejó de concentrarse: se acaba lo que te había dejado ese conjuro
+    else if (o.tipo === 'finConc') { const fuera = o.conc ? quitarEfectosDe(o.conc) : []; if (fuera.length) avisar(`${o.de || 'Alguien'} dejó de concentrarse en ${o.nota || 'su conjuro'}: se acabó ${fuera.join(', ')}.`); }
     // La salvación la resuelve el jugador en el aviso grande: ahí se aplica lo que corresponda
     else if (o.tipo === 'salvacion') encolar({ id: o.id, tipo: 'salvacion', o, mesa });
     else if (o.tipo === 'aviso') encolar({ id: o.id, tipo: 'aviso', o });

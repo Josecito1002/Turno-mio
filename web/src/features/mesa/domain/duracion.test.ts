@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { hastaDesde, rondasDe, rondasRestantes, textoDuracion, vencerCondiciones } from './duracion';
+import { hastaDesde, rondasDe, rondasRestantes, textoDuracion, vencerCondiciones, hastaDe, quitarConcentracion } from './duracion';
 
 test('lee cuántas rondas dura un efecto', () => {
   assert.equal(rondasDe('Concentración, hasta 1 minuto'), 10);
@@ -37,4 +37,27 @@ test('quita las condiciones que ya terminaron', () => {
   assert.deepEqual(vencerCondiciones(estado, cb, k => k === 'm:1' ? 'Goblin' : k), ['Goblin: Paralizado']);
   assert.deepEqual(estado['m:1'].cond, ['Derribado']);
   assert.equal(estado['m:1'].dur.Paralizado, undefined);
+});
+
+test('hasta el final o el inicio de un turno', () => {
+  const cb = { ronda: 3, turno: 1, orden: [{ k: 'a' }, { k: 'b' }, { k: 'c' }] };
+  // b lanza en su turno: "1 minuto" termina al empezar su turno 10 rondas después
+  assert.deepEqual(hastaDe('Concentración, hasta 1 minuto', cb, 'b'), { rondas: 10, hasta: { ronda: 13, k: 'b' } });
+  // "el final de tu siguiente turno": cuando empieza c en la ronda siguiente
+  assert.deepEqual(hastaDe('hasta el final de tu siguiente turno', cb, 'b', 'a'), { rondas: 1, hasta: { ronda: 4, k: 'c' } });
+  // "de su siguiente turno" es el del objetivo: c todavía no jugó esta ronda, así que termina al empezar a en la siguiente
+  assert.deepEqual(hastaDe('queda Asustada hasta el final de su siguiente turno', cb, 'b', 'c')?.hasta, { ronda: 4, k: 'a' });
+  // "el inicio de tu siguiente turno": al empezar b en la ronda siguiente
+  assert.deepEqual(hastaDe('hasta el inicio de tu siguiente turno', cb, 'b', 'a')?.hasta, { ronda: 4, k: 'b' });
+  assert.equal(hastaDe('instantáneo', cb, 'b'), null);
+});
+
+test('al perder la concentración se quita lo que dependía de ella', () => {
+  const estado: Record<string, any> = {
+    'm:1': { cond: ['Paralizado', 'Derribado'], conc: { Paralizado: 'p1-x' }, hasta: { Paralizado: { ronda: 9, k: 'a' } } },
+    'm:2': { cond: ['Paralizado'], conc: { Paralizado: 'p2-y' } },
+  };
+  assert.deepEqual(quitarConcentracion(estado, 'p1-x'), ['m:1: Paralizado']);
+  assert.deepEqual(estado['m:1'].cond, ['Derribado']);
+  assert.deepEqual(estado['m:2'].cond, ['Paralizado']);
 });
