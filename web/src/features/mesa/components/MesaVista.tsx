@@ -129,19 +129,36 @@ function RasgosCondicionales({ cp, k }: { cp: any; k: string }) {
   );
 }
 
-function PuntosGolpe({ x }: { x: any }) {
+function PuntosGolpe({ cp, x }: { cp: any; x: any }) {
   const id = useId();
   const pct = x.pgMax ? Math.max(0, Math.min(100, Math.round(100 * x.pg / x.pgMax))) : 0;
-  // Los PG de un personaje unido los lleva su jugador en su hoja: aquí solo se ven
+  // Los PG de un personaje unido los lleva su jugador en su hoja: el daño o la curación del DM se le manda y su hoja lo
+  // aplica (el daño primero a los temporales) la próxima vez que mire la mesa, en segundos si la tiene abierta
   if (x.tipo === 'jug') {
     const temp = x.pj.pgTemp || 0;
+    const mandar = async (cura: boolean) => {
+      const v = Math.min(999, parseInt(val(id)) || 0);
+      if (v <= 0) { avisar('Escribe cuántos PG.', 'aviso'); document.getElementById(id)?.focus(); return; }
+      try {
+        await enviarEfectoDm(cp.id, x.u.personajeId, { de: 'Tu DM', dano: v, cura });
+        const campo = document.getElementById(id) as HTMLInputElement | null; if (campo) campo.value = '';
+        avisar(`${cura ? `Curación de ${v} PG` : `${v} de daño`} enviado a ${x.nombre}: se aplica en su hoja${cura || !temp ? '' : ' (primero a los temporales)'} en cuanto la tenga abierta.`);
+      } catch (e) { avisar(`No se pudo enviar: ${(e as Error).message}`, 'error'); }
+    };
     return (
       <div className="mt-2">
         <div role="meter" aria-label={`Puntos de golpe de ${x.nombre}`} aria-valuemin={0} aria-valuemax={x.pgMax} aria-valuenow={x.pg} aria-valuetext={`${x.pg} de ${x.pgMax}`}
           className="h-2 overflow-hidden rounded-full bg-soft">
           <span className={cx('block h-full transition-[width,background-color] duration-300 ease-out', pct <= 25 ? 'bg-acc' : pct <= 50 ? 'bg-adi' : 'bg-pas')} style={{ width: `${pct}%` }} />
         </div>
-        <p className="m-0 mt-2"><b className="font-serif text-2xl">{x.pg}</b> <span className="text-sm text-muted">/ {x.pgMax} PG{temp ? ` · +${temp} temporales` : ''} · los lleva el jugador</span></p>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <span><b className="font-serif text-2xl">{x.pg}</b> <span className="text-sm text-muted">/ {x.pgMax} PG{temp ? ` · +${temp} temporales` : ''}</span></span>
+          <label htmlFor={id} className="sr-only">Cantidad de PG para {x.nombre}</label>
+          <input id={id} type="number" inputMode="numeric" min={1} max={999} placeholder="PG" className={cx(claseCampo, 'w-20!')}
+            onKeyDown={e => { if (e.key === 'Enter') void mandar(false); }} />
+          <Boton tamano="sm" variante="primario" onClick={() => mandar(false)}>Daño</Boton>
+          <Boton tamano="sm" onClick={() => mandar(true)}>Curar</Boton>
+        </div>
       </div>
     );
   }
@@ -228,7 +245,7 @@ function TarjetaJugador({ cp, x, alQuitar }: { cp: any; x: any; alQuitar: () => 
         <Boton tamano="sm" variante="primario" className="shrink-0 whitespace-nowrap" onClick={() => verHoja(x.k)} aria-label={`Ver la hoja de ${x.nombre}`}>Ver hoja</Boton>
       </header>
       <Pasivas x={x} />
-      <PuntosGolpe x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
+      <PuntosGolpe cp={cp} x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
       <DarObjeto campId={cp.id} personajeId={x.u.personajeId} nombre={x.nombre} />
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
         <span className="text-xs text-muted">Hoja actualizada {hora(x.u.actualizadoEn)}</span>
@@ -389,7 +406,7 @@ function TarjetaPj({ cp, x }: { cp: any; x: any }) {
         <Boton tamano="sm" onClick={() => abrir(pj.id)} aria-label={`Abrir la hoja de ${x.nombre}`}>Hoja</Boton>
       </header>
       <Pasivas x={x} />
-      <PuntosGolpe x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
+      <PuntosGolpe cp={cp} x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
       <Boton tamano="sm" variante="fantasma" className="mt-2" onClick={() => conCamp(c2 => { c2.pjs = c2.pjs.filter((i: string) => i !== pj.id); c2.combate.orden = (c2.combate.orden || []).filter((o: any) => o.k !== 'pj:' + pj.id); })}>Sacar de la campaña</Boton>
     </Tarjeta>
   );
@@ -954,7 +971,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
               <GolpesPendientes cp={cp} k={x.k} nombre={x.nombre} golpes={vivo.golpes} />
               {x.tipo === 'm' && !x.m.aliado && <InfoParaJugadores cp={cp} x={x} peticiones={vivo.peticiones} />}
               {x.tipo === 'jug' && <details className="mt-1"><summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>Hoja resumida</summary><Pasivas x={x} /></details>}
-              <PuntosGolpe x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
+              <PuntosGolpe cp={cp} x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
               {x.tipo === 'm' && x.m.ref && <VerBloque cp={cp} r={x.m.ref} nombre={x.nombre} />}
             </Tarjeta>
           );
