@@ -877,8 +877,14 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
   }
   quitarDelOrdenLosQueNoEstan(cb, cp);
   const actual = cb.orden[cb.turno];
-  // Jugadores que se unieron con el código después de tirar iniciativa
-  const nuevos = unidosDe(cp.id).map(claveUnido).filter(k => !cb.orden.some((o: any) => o.k === k));
+  // Jugadores que se unieron con el código después de tirar iniciativa, o que el DM sacó del combate
+  const nuevos = [...cp.pjs.map((id: string) => 'pj:' + id), ...unidosDe(cp.id).map(claveUnido)].filter(k => !cb.orden.some((o: any) => o.k === k) && combatiente(k, cp));
+  /** Saca a un jugador del orden de iniciativa; sigue en la campaña y puede volver con «Sumar». */
+  const sacarJugador = async (x: any) => {
+    if (!(await confirmar({ titulo: `¿Quitar a ${x.nombre} del combate?`, texto: 'Sigue en la campaña; puedes volver a sumarlo con el botón de arriba.', si: 'Quitar del combate' }))) return;
+    conCamp(c => { c.combate.orden = c.combate.orden.filter((o: any) => o.k !== x.k); });
+    avisar(`${x.nombre} salió del combate.`);
+  };
   const sumarNuevos = () => conCamp(c => {
     for (const k of nuevos) { const x = combatiente(k, c); if (x) { c.combate.orden.push({ k, init: rnd(20) + x.bono, bono: x.bono }); sumarCompaneros(c, k, rnd); } }
     ordenar(c);
@@ -893,7 +899,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
     <>
       <div className="sticky top-[calc(var(--alto-cabecera,0px)+3.75rem)] z-[5] -mx-4 mt-2 flex flex-wrap items-center gap-2 bg-bg px-4 py-2 backdrop-blur">
         <p className="m-0 flex-1" aria-live="polite">Ronda {cb.ronda}. Turno de <b>{(actual && combatiente(actual.k, cp)?.nombre) || '—'}</b>.</p>
-        {nuevos.length > 0 && <Boton onClick={sumarNuevos}>Sumar {nuevos.length === 1 ? 'al jugador nuevo' : `a ${nuevos.length} jugadores nuevos`}</Boton>}
+        {nuevos.length > 0 && <Boton onClick={sumarNuevos}>Sumar {nuevos.length === 1 ? `a ${combatiente(nuevos[0], cp)?.nombre}` : `a ${nuevos.length} jugadores`}</Boton>}
         {hayQueDeshacer(cp.id) && <Boton onClick={() => deshacer()}>↶ Deshacer</Boton>}
         <details className="w-full">
           <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>Descansos e inspiración</summary>
@@ -930,9 +936,12 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
                   <b className="block font-serif text-lg">{x.nombre}</b>
                   <span className="block text-sm text-muted">CA {x.ca}{x.tipo === 'm' ? (x.m.aliado ? ', compañero' : ', enemigo') : `, percepción pasiva ${x.c.passive}`}{x.tipo === 'jug' ? `, juega ${x.jugador}` : ''}{caido ? ', caído' : ''}</span>
                 </div>
-                {x.tipo === 'pj' ? <Boton tamano="sm" onClick={() => abrir(x.pj.id)}>Hoja</Boton>
-                  : x.tipo === 'jug' ? <Boton tamano="sm" onClick={() => verHoja(x.k)} aria-label={`Ver la hoja de ${x.nombre}`}>Hoja</Boton>
-                    : <div className="flex flex-wrap justify-end gap-2">
+                {x.tipo !== 'm' ? <div className="flex flex-wrap justify-end gap-2">
+                  {x.tipo === 'pj' ? <Boton tamano="sm" onClick={() => abrir(x.pj.id)}>Hoja</Boton>
+                    : <Boton tamano="sm" onClick={() => verHoja(x.k)} aria-label={`Ver la hoja de ${x.nombre}`}>Hoja</Boton>}
+                  <Boton tamano="sm" onClick={() => sacarJugador(x)} aria-label={`Quitar a ${x.nombre} del combate`}>Quitar</Boton>
+                </div>
+                  : <div className="flex flex-wrap justify-end gap-2">
                       {cp.encuentroActual && !x.m.aliado && !caido && <Boton tamano="sm" onClick={() => { quitarMon(x.m.id, true); avisar(`${x.nombre} huyó con ${x.m.pg} PG: volverá así en el combate que lo traiga.`); }}
                         aria-label={`${x.nombre} huyó`}>Huyó</Boton>}
                       <Boton tamano="sm" onClick={() => quitarMon(x.m.id)} aria-label={`Quitar ${x.nombre}`}>Quitar</Boton>
