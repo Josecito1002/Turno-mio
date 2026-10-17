@@ -138,3 +138,10 @@ export const esEvocacion = (s: any) => EVOCACION.has(norm(s?.nombre || ''));
 
 /** Bonos de rasgos que se suman solos al daño del conjuro (c.bonosConjuro: {nombre, valor, si(s)}). */
 export const bonosPara = (c: any, s: any) => (c.bonosConjuro || []).filter((b: any) => !b.si || b.si(s));
+
+/** Alcance del conjuro con los pies que le suman los rasgos (c.alcanceConjuro: {nombre, pies, si(s)}), como Lanza Sobrenatural. */
+export function alcanceDe(c: any, s: any): string {
+  const a = String(s?.alcance || ''), m = /^(\d+)\s*pies/i.exec(a);
+  const mas = (c.alcanceConjuro || []).filter((b: any) => !b.si || b.si(s)).reduce((t: number, b: any) => t + (+b.pies || 0), 0);
+  return m && mas ? a.replace(m[0], `${+m[1] + mas} pies`) : a;
+}
