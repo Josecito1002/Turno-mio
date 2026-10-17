@@ -57,7 +57,7 @@ const EXTRAS_VARS = ', $tipoDano: String, $rondas: Int, $hastaRonda: Int, $hasta
 const EXTRAS_ARGS = ', tipoDano: $tipoDano, rondas: $rondas, hastaRonda: $hastaRonda, hastaK: $hastaK, conc: $conc, repite: $repite';
 export type Golpe = { id: string; de: string; objetivo: string; dano: number; cura?: boolean; condicion: string | null; bono?: string | null; nota: string | null; ts: string } & ExtrasGolpe;
 /** Lo que los jugadores saben de un enemigo: lo básico, o también sus resistencias y debilidades. */
-export type InfoEnemigo = { nivel: 'b' | 'd'; ca: number; tam?: string; tipo?: string; resist?: string; vuln?: string; inmune?: string; condInmune?: string };
+export type InfoEnemigo = { nivel: 'b' | 'd'; tam?: string; tipo?: string; resist?: string; vuln?: string; inmune?: string; condInmune?: string };
 export type Peticion = { id: string; de: string; pid: string; objetivo: string; ts: string };
 export type Salvacion = { id: string; de: string; pid?: string; objetivos: string[]; salv: string; cd: number; dano: number; mitad: boolean; condicion: string | null; nota: string | null; ts: string } & ExtrasGolpe;
 /** Un descanso o inspiración del DM, o un efecto que otro jugador deja en este personaje (daño, curación, condición o bono). */

@@ -6,7 +6,7 @@ import { almacen } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
 import { confirmar } from '@/shared/ui/confirmar';
 import { modStr, norm, sign, slug } from '@/shared/utils/texto';
-import { Aviso, Boton, Campo, EncabezadoPagina, Fila, Lista, Nota, PanelPestana, Pestanas, Plegable, Seccion, Simbolo, Tarjeta, claseCampo, cx, foco } from '@/shared/ui/kit';
+import { Aviso, Boton, Campo, Dialogo, EncabezadoPagina, Fila, Lista, Nota, PanelPestana, Pestanas, Plegable, Seccion, Simbolo, Tarjeta, claseCampo, cx, foco } from '@/shared/ui/kit';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { BotonTirada } from '@/features/dados/components/BotonTirada';
 import { CampoTirada, totalTirada } from '@/features/dados/components/CampoTirada';
@@ -14,13 +14,15 @@ import { partesTirada, rnd } from '@/features/dados/domain/dados';
 import { resumen } from '@/features/personajes/domain/modelo';
 import { abrir, bajarArchivo } from '@/features/personajes/acciones';
 import { Ficha } from '@/features/personajes/components/ficha/Ficha';
+import { OpcionesDeTipo } from '@/features/personajes/components/ficha/ModoCombate';
+import type { Uso } from '@/features/personajes/components/ficha/UsoAccion';
 import { CONDICIONES, actualizarPgUnido, cambiarPg, campActual, camps, claveUnido, combatiente, estadoDe, fijarUnidos, guardarCamp, ordenar, sumarCompaneros, unidosCargados, unidosDe } from '../domain/combate';
 import { codigoMesa, guardarCampana, jugadoresMesa, quitarDeMesa } from '../api';
 import { conectarMesaRealtime } from '../realtime-cliente';
 import { publicarCombate } from '../domain/combate-vivo';
 import { avisarJugadorDm, combateVivoDm, confirmarGolpes, enviarEfectoDm, enviarOrdenDm, fijarAccionDm, pedirSalvacionDm, quitarPeticiones, quitarRespuestas, resolverSalvacion, terminarConcentracionDm, type CombateVivo, type EconomiaRonda, type Golpe, type Peticion, type RespuestaSalvacion, type Salvacion, type TipoAccionRonda } from '../api';
 import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
-import { efectoSalvacion, repiteSalvacion } from '../domain/condiciones';
+import { contraObjetivo, efectoSalvacion, fallaSola, incapacidad, repiteSalvacion } from '../domain/condiciones';
 import { hastaDe, quitarConcentracion, quitarCondicion, repeticionesDe, textoRestante, vencerCondiciones, type Hasta, type Repite } from '../domain/duracion';
 import { combatesOrigen, conservarVinculos, danosDe, enemigosDe, leerSesion, marcarRegresados, origenesDe, puedenVolver, regresanA, sobrevivientesDe, type Encuentro } from '../domain/sesion';
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
@@ -728,7 +730,7 @@ function descartarGolpe(campId: string, g: Golpe) {
 }
 
 const peticionesResueltas = new Set<string>();
-const NIVELES_INFO: [string, string][] = [['', 'No saben nada'], ['b', 'Lo básico (CA y tipo)'], ['d', 'También debilidades']];
+const NIVELES_INFO: [string, string][] = [['', 'No saben nada'], ['b', 'Lo básico (tamaño y tipo)'], ['d', 'También debilidades']];
 /** Lo que los jugadores saben de un enemigo y sus peticiones: el DM decide cuánto se revela. */
 function InfoParaJugadores({ cp, x, peticiones }: { cp: any; x: any; peticiones: Peticion[] }) {
   const nivel: string = cp.estado?.[x.k]?.rev || '';
@@ -885,6 +887,7 @@ function SalvacionesPendientes({ cp, x, salvs }: { cp: any; x: any; salvs: Salva
         return (
           <div key={s.id} className="rounded-xl bg-gol/20 p-2 text-sm">
             <p className="m-0"><b>{x.nombre}</b> debe tirar salvación de <b>{s.salv}</b> contra <b>CD {s.cd}</b>. <span className="text-muted">{s.de}{s.nota ? ` (${s.nota})` : ''}: {s.dano} de daño{s.mitad ? ', mitad si la supera' : ''}{s.condicion ? `, ${s.condicion} si falla` : ''}.</span></p>
+            {fallaSola(cp.estado?.[x.k]?.cond, s.salv) && <p className="m-0 font-bold text-acc">Está {fallaSola(cp.estado?.[x.k]?.cond, s.salv)}: la falla sola.</p>}
             <div className="mt-1 flex flex-wrap items-center gap-2">
               {mod != null && <BotonTirada expr={`1d20${modStr(mod)}`} label={`Salvación de ${s.salv} de ${x.nombre}`}>Tirar ({sign(mod)})</BotonTirada>}
               <Boton tamano="sm" variante="primario" onClick={() => resolverSalv(cp.id, s, x.k, false)}>Falló</Boton>
@@ -901,8 +904,10 @@ const ETIQUETAS_ACCION: [TipoAccionRonda, string][] = [['accion', 'Acción'], ['
 /** Las tres acciones de la ronda: tachadas las que ya gastó. El DM las marca o las recupera tocándolas
  *  (para quien no usa la app, y para los enemigos). */
 function AccionesRonda({ cp, x, campId, clave, eco, nombre }: { cp: any; x: any; campId: string; clave: string; eco: EconomiaRonda | undefined; nombre: string }) {
-  const cat = useCatalogo(), [abierto, setAbierto] = useState<TipoAccionRonda | null>(null);
+  const cat = useCatalogo(), [abierto, setAbierto] = useState<TipoAccionRonda | null>(null), [igual, setIgual] = useState(false);
   const ficha = x.tipo === 'm' && x.m?.ref && (cat || cp.bestiario?.[x.m.ref]) ? monstruoDe(cp, x.m.ref) : null;
+  // Los personajes (de los jugadores o del DM) usan su hoja, como en el teléfono
+  const hoja = x.tipo !== 'm' && x.c ? x.c : null;
   const [local, setLocal] = useState<Partial<Record<TipoAccionRonda, { v: boolean; t: number }>>>({});
   const tocar = (t: TipoAccionRonda, gastado: boolean) => {
     setLocal(p => ({ ...p, [t]: { v: gastado, t: Date.now() } }));
@@ -910,26 +915,75 @@ function AccionesRonda({ cp, x, campId, clave, eco, nombre }: { cp: any; x: any;
   };
   // Lo tocado hace un momento manda hasta que el servidor lo devuelva igual
   const ahora = (t: TipoAccionRonda) => { const l = local[t]; return l && Date.now() - l.t < 3000 ? l.v : eco?.[t]; };
+  const incap = incapacidad(cp.estado?.[x.k]?.cond);
+  const abre = !!ficha || !!hoja;
+  const cerrar = () => { setAbierto(null); setIgual(false); };
   return (
     <>
       <p className="m-0 mt-1 flex flex-wrap gap-1" aria-label={`Acciones de ${nombre} en esta ronda`}>
         {ETIQUETAS_ACCION.map(([t, n]) => {
           const gastada = !!ahora(t);
-          // Los enemigos y compañeros con ficha abren sus acciones; lo demás solo marca
-          const abre = !!ficha;
           return (
-            <button key={t} type="button" aria-pressed={abre ? abierto === t : gastada} aria-expanded={abre ? abierto === t : undefined}
-              onClick={() => abre ? setAbierto(abierto === t ? null : t) : tocar(t, !gastada)}
-              title={abre ? 'Toca para ver sus acciones' : gastada ? 'Toca para recuperarla' : 'Toca para marcarla como gastada'}
-              className={cx('min-h-9 cursor-pointer rounded-full px-3 text-xs font-bold', foco, gastada ? 'bg-soft text-muted line-through' : 'bg-pas/20 text-pas', abierto === t && 'ring-2 ring-adi')}>
-              {n}{gastada ? ' · gastada' : ''}
+            <button key={t} type="button" aria-haspopup={abre ? 'dialog' : undefined} aria-pressed={abre ? undefined : gastada}
+              onClick={() => abre ? setAbierto(t) : tocar(t, !gastada)}
+              title={abre ? 'Toca para ver qué puede hacer' : gastada ? 'Toca para recuperarla' : 'Toca para marcarla como gastada'}
+              className={cx('min-h-9 cursor-pointer rounded-full px-3 text-xs font-bold', foco, gastada ? 'bg-soft text-muted line-through' : incap ? 'bg-acc/15 text-acc' : 'bg-pas/20 text-pas')}>
+              {n}{gastada ? ' · gastada' : incap ? ` · ${incap.cond.toLowerCase()}` : ''}
             </button>
           );
         })}
       </p>
-      {ficha && abierto && <AccionesMonstruo cp={cp} x={x} ficha={ficha} tipo={abierto} gastada={!!ahora(abierto)} marcar={g => tocar(abierto, g)} />}
+      <Dialogo abierto={!!abierto} onCerrar={cerrar} titulo={abierto ? `${ETIQUETAS_ACCION.find(([t]) => t === abierto)![1]} de ${nombre}` : ''} ancho="lg"
+        descripcion={abierto && ahora(abierto) ? 'Ya la gastó esta ronda.' : undefined}>
+        {abierto && (incap && !igual ? (
+          <div className="grid gap-3">
+            <Aviso tipo="aviso" titulo={`${nombre} está ${incap.cond}: no puede actuar`}>{incap.porque}</Aviso>
+            <div className="flex flex-wrap gap-2">
+              <Boton variante="primario" onClick={cerrar}>Entendido</Boton>
+              <Boton onClick={() => setIgual(true)}>Actuar igual (lo decides tú)</Boton>
+            </div>
+          </div>
+        ) : ficha ? <AccionesMonstruo cp={cp} x={x} ficha={ficha} tipo={abierto} gastada={!!ahora(abierto)} marcar={g => tocar(abierto, g)} />
+          : <AccionesPersonaje cp={cp} x={x} tipo={abierto} gastada={!!ahora(abierto)} marcar={g => tocar(abierto, g)} />)}
+      </Dialogo>
     </>
   );
+}
+
+/** Lo que el personaje puede hacer, como en su teléfono: el DM elige y lo tira por él (ataque contra la CA, daño y salvaciones).
+ *  Los espacios y usos que gaste los descuenta el jugador en su hoja. */
+function AccionesPersonaje({ cp, x, tipo, gastada, marcar }: { cp: any; x: any; tipo: TipoAccionRonda; gastada: boolean; marcar: (g: boolean) => void }) {
+  const [elegido, setElegido] = useState<Uso | null>(null), [usando, setUsando] = useState<any>(null);
+  if (usando) return (
+    <div className="grid gap-2">
+      <Boton variante="fantasma" className="justify-self-start" onClick={() => setUsando(null)}>← Elegir otra cosa</Boton>
+      <AccionesMonstruo cp={cp} x={x} ficha={{ acciones: [usando], adicionales: [usando], reacciones: [usando] }} tipo={tipo} gastada={gastada} marcar={marcar} />
+    </div>
+  );
+  const usar = () => {
+    if (!elegido) return;
+    const a = accionDeUso(elegido);
+    if (a.atk != null || a.cd != null || a.dano) { setUsando(a); return; }
+    if (!gastada) marcar(true);
+    avisar(`${x.nombre}: ${elegido.nombre}. Si deja algo en otro, aplícalo en su tarjeta.`);
+    setElegido(null);
+  };
+  return (
+    <div className="grid gap-3">
+      <OpcionesDeTipo c={x.c} t={tipo} elegido={elegido} elegir={setElegido} marcas={[]} quitarMarca={() => {}} />
+      <p className="m-0 text-sm text-muted">Los espacios de conjuro y usos que gaste los descuenta {x.tipo === 'jug' ? 'su jugador en su hoja' : 'su hoja'}.</p>
+      <div className="sticky bottom-0 flex flex-wrap gap-2 bg-bg/95 py-2">
+        <Boton variante="primario" className="flex-1" disabled={!elegido} onClick={usar}>{elegido ? `Usar ${elegido.nombre}` : 'Toca una opción para elegirla'}</Boton>
+        <Boton onClick={() => marcar(!gastada)}>{gastada ? 'Recuperar' : 'Solo marcarla gastada'}</Boton>
+      </div>
+    </div>
+  );
+}
+/** Lo que eligió en su hoja, como una acción de bloque: ataque, salvación y daño. */
+function accionDeUso(u: Uso) {
+  const t = u.raw ? u.texto.replace(/<[^>]+>|\*\*|__/g, '') : u.texto, d = u.dexpr || u.conjuro?.base;
+  return { n: u.nombre, t, ...(u.atk != null ? { atk: u.atk } : {}), ...(u.salv && u.cd ? { salv: u.salv.toLowerCase(), cd: u.cd } : {}),
+    ...(d ? { dano: [{ d: d.replace(/\s+/g, ''), tipo: u.tipoDano || '' }] } : {}) } as { n: string; t: string; atk?: number; salv?: string; cd?: number; dano?: { d: string; tipo: string }[] };
 }
 
 /** Las acciones del bloque de un enemigo o compañero para el tipo elegido: el DM escoge objetivo, tira (en la app o con sus dados) y aplica el daño. */
@@ -1041,14 +1095,14 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x:
         </select>
         <Boton tamano="sm" onClick={() => marcar(!gastada)}>{gastada ? 'Recuperar' : 'Marcar gastada'}</Boton>
       </div>
-      {lista.length ? lista.map((a, i) => <AccionMonstruo key={`${x.k}-${tipo}-${i}`} a={a} x={x} elegido={elegido} danar={danar} pedirSalv={pedirSalv} />)
-        : <p className="m-0 mt-2 text-muted">No tiene acciones de este tipo en su bloque.</p>}
-      {pend && (() => {
+      {pend ? (() => {
         const mod = modSalv(pend.k, pend.salv), nombreSalv = NOMBRE_SALV[pend.salv] || pend.salv;
-        const jug = combatiente(pend.k, cp)?.tipo === 'jug';
+        const jug = combatiente(pend.k, cp)?.tipo === 'jug', sola = fallaSola((campActual() || cp).estado?.[pend.k]?.cond, pend.salv);
         return (
-          <div className="mt-2 rounded-xl bg-gol/20 p-2" role="status">
-            <p className="m-0"><b>{pend.nombre}</b> hace una salvación de <b>{nombreSalv} CD {pend.cd}</b> ({pend.a.n}).{' '}
+          <div className="mt-2 rounded-xl bg-gol/25 p-3 ring-2 ring-gol" role="alert">
+            <p className="m-0 font-serif text-xl font-extrabold">{pend.nombre} debe hacer una salvación de {nombreSalv} CD {pend.cd}</p>
+            {sola && <p className="m-0 mt-1 font-bold text-acc">Está {sola}: la falla sola.</p>}
+            <p className="m-0 mt-1">({pend.a.n}){' '}
               <span className="text-muted">{[pend.dano ? `Si falla, ${pend.dano} de daño${pend.mitad ? `; si la supera, ${Math.floor(pend.dano / 2)}` : '; si la supera, nada'}` : '', pend.condicion ? `si falla queda ${pend.condicion}` : ''].filter(Boolean).join(', ')}.
               {jug ? ' Pídesela en su pantalla, o tira tú.' : ''}</span></p>
             <div className="mt-1 flex flex-wrap items-center gap-2">
@@ -1060,20 +1114,25 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x:
             </div>
           </div>
         );
-      })()}
+      })() : lista.length ? lista.map((a, i) => <AccionMonstruo key={`${x.k}-${tipo}-${i}`} a={a} x={x} elegido={elegido} danar={danar} pedirSalv={pedirSalv} />)
+        : <p className="m-0 mt-2 text-muted">No tiene acciones de este tipo en su bloque.</p>}
     </div>
   );
 }
 
 /** Una acción del bloque, paso a paso: el d20 (natural, el bono se suma solo) contra la CA del objetivo, y después el daño. */
 function AccionMonstruo({ x, a, elegido, danar, pedirSalv }: { x: any; a: any; elegido: any; danar: (a: any, dano: number) => Promise<boolean>; pedirSalv: (a: any) => void }) {
-  const [nat, setNat] = useState(''), [dados, setDados] = useState(''), [adv, setAdv] = useState(0);
+  const [nat, setNat] = useState(''), [dados, setDados] = useState(''), [advElegida, setAdv] = useState<number | null>(null), [cerca, setCerca] = useState(true);
   const atkExpr = a.atk != null ? `1d20${modStr(a.atk)}` : '';
+  // Contra alguien paralizado (o inconsciente, aturdido…) se ataca con ventaja, y a 5 pies el golpe es crítico
+  const contra = contraObjetivo(elegido ? (campActual()?.estado?.[elegido.k]?.cond || []) : []);
+  const adv = advElegida ?? (contra.ventaja ? 1 : 0);
+  const critico = nat === '20' || (!!contra.critCerca && cerca && nat !== '' && nat !== '1');
   const dexpr = (a.dano || []).map((d: any) => d.d).join('+');
   const conDados = !!dexpr && partesTirada(dexpr).conDados;
   const total = atkExpr ? totalTirada(atkExpr, nat) : null;
   const acierta = total == null || !elegido ? null : nat === '20' || (nat !== '1' && total >= elegido.ca);
-  const dano = !dexpr ? null : conDados ? totalTirada(dexpr, dados, nat === '20') : partesTirada(dexpr).mod;
+  const dano = !dexpr ? null : conDados ? totalTirada(dexpr, dados, !!acierta && critico) : partesTirada(dexpr).mod;
   const salvPrimero = a.atk == null && !!efectoSalvacion(a);
   const aplicar = async (cuanto: number) => { if (await danar(a, cuanto)) { setNat(''); setDados(''); } };
   return (
@@ -1092,10 +1151,15 @@ function AccionMonstruo({ x, a, elegido, danar, pedirSalv }: { x: any; a: any; e
               <option value={0}>Normal</option><option value={1}>Con ventaja</option><option value={-1}>Con desventaja</option>
             </select>
           </div>
+          {contra.ventaja && <p className="m-0 text-sm font-bold text-adi">{elegido?.nombre} está {contra.ventaja}: el ataque va con ventaja.</p>}
+          {contra.critCerca && (
+            <label className="flex min-h-9 items-center gap-2 text-sm"><input type="checkbox" checked={cerca} onChange={e => setCerca(e.target.checked)} className="size-4" />
+              Ataca a 5 pies o menos: si acierta, es crítico</label>
+          )}
           <CampoTirada tipo="ataque" expr={atkExpr} valor={nat} alCambiar={setNat} adv={adv} claseInput={claseCampo}
             etiqueta={`${x.nombre}: ${a.n}${elegido ? ` contra ${elegido.nombre} (CA ${elegido.ca})` : ''}`} />
           {total != null && (elegido
-            ? <p className={cx('m-0 font-bold', acierta ? 'text-pas' : 'text-acc')}>{total} contra CA {elegido.ca}: {acierta ? (nat === '20' ? 'acierta con crítico' : 'acierta') : 'falla, no hace daño'}.</p>
+            ? <p className={cx('m-0 font-bold', acierta ? 'text-pas' : 'text-acc')}>{total} contra CA {elegido.ca}: {acierta ? (critico ? 'acierta con crítico' : 'acierta') : 'falla, no hace daño'}.</p>
             : <p className="m-0 text-muted">Elige el objetivo para saber si acierta.</p>)}
         </div>
       )}
@@ -1103,7 +1167,7 @@ function AccionMonstruo({ x, a, elegido, danar, pedirSalv }: { x: any; a: any; e
         <div className="grid gap-1 rounded-lg bg-surface p-2">
           <span className="text-xs font-bold uppercase tracking-wide text-muted">{atkExpr ? '2. Daño' : a.cd != null ? 'Daño (si falla la salvación)' : 'Daño'}</span>
           {conDados
-            ? <CampoTirada tipo="dano" expr={dexpr} valor={dados} alCambiar={setDados} crit={nat === '20'} claseInput={claseCampo} etiqueta={`${x.nombre}: ${a.n} (daño${elegido ? ` a ${elegido.nombre}` : ''})`} />
+            ? <CampoTirada tipo="dano" expr={dexpr} valor={dados} alCambiar={setDados} crit={!!acierta && critico} claseInput={claseCampo} etiqueta={`${x.nombre}: ${a.n} (daño${elegido ? ` a ${elegido.nombre}` : ''})`} />
             : <p className="m-0">Daño fijo: <b>{dano}</b>.</p>}
           {dano != null && (
             <div className="flex flex-wrap gap-2">
@@ -1222,6 +1286,9 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
       if (fin.length) avisar(`Se acabó: ${fin.join('; ')}.`);
       // Si la condición se acabó sola en este mismo paso, ya no hay nada que repetir
       pendientes = pendientes.filter(p => c.estado?.[p.k]?.cond?.includes(p.cond));
+      // A quien le toca y no puede actuar (paralizado, inconsciente…) pierde el turno
+      const empieza = b.orden[b.turno]?.k, incap = empieza ? incapacidad(c.estado?.[empieza]?.cond) : null;
+      if (incap) avisar(`${combatiente(empieza, c)?.nombre || 'Le toca a alguien que'} está ${incap.cond}: pierde el turno. ${incap.porque}`, 'aviso');
     });
     for (const p of pendientes) {
       const y = combatiente(p.k, cp);
@@ -1449,7 +1516,6 @@ function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) 
     <>
       <EncabezadoPagina id="titulo-vista" titulo={cp.nombre} subtitulo={`${total} personaje${total === 1 ? '' : 's'}${unidos.length ? `, ${unidos.length} unido${unidos.length === 1 ? '' : 's'} con el código` : ''}. Condiciones e iniciativa quedan guardadas en la campaña.`}>
         <Boton variante="fantasma" onClick={() => abrirCampana(null)}>← Todas las campañas</Boton>
-        {unidos.length > 0 && <Boton onClick={() => mandarOrden(cp.id, 'largo')}><Simbolo n="bedtime" />Descanso largo</Boton>}
       </EncabezadoPagina>
       <Pestanas idBase="mesa" etiqueta="Secciones de la campaña" activa={mtab} onCambiar={k => { S.mtab = k; render(); }}
         items={[{ id: 'grupo', texto: 'Grupo' }, { id: 'sesion', texto: encuentros.length ? `Sesión · ${encuentros.length}` : 'Sesión' },

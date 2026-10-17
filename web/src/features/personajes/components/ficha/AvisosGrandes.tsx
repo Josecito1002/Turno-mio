@@ -8,7 +8,8 @@ import { modStr, norm } from '@/shared/utils/texto';
 import { AB } from '@/features/reglas/data/caracteristicas';
 import { CampoTirada, totalTirada } from '@/features/dados/components/CampoTirada';
 import { responderSalvacionMesa } from '@/features/mesa/api';
-import { aplicarEfecto, avisosGrandes, type AvisoGrande } from './ordenes-dm';
+import { aplicarEfecto, avisosGrandes, condicionesMias, type AvisoGrande } from './ordenes-dm';
+import { fallaSola } from '@/features/mesa/domain/condiciones';
 import { setVal } from '../../acciones';
 import { textoDuracion } from '@/features/mesa/domain/duracion';
 import { concentracionActual, terminarConcentracion, ventajaConcentracion } from './concentracion';
@@ -71,6 +72,7 @@ function Aviso({ a }: { a: Extract<AvisoGrande, { tipo: 'aviso' }> }) {
       <div className="rounded-3xl bg-soft p-6 text-center">
         <Simbolo n="campaign" className="text-6xl text-adi" />
         <h2 className="m-0 mt-2 font-serif text-3xl font-extrabold">{a.o.nota}</h2>
+        {a.o.bono && <p className="m-0 mt-2 text-lg">{a.o.bono}</p>}
       </div>
       <Boton variante="primario" className="min-h-14 text-lg" onClick={() => avisosGrandes.quitar(a.id)}>Entendido</Boton>
     </>
@@ -85,8 +87,10 @@ function Salvacion({ a }: { a: Extract<AvisoGrande, { tipo: 'salvacion' }> }) {
   const bendicion = (S.pj?.efectos || []).some((e: any) => /^(bendicion|bendecid)/.test(norm(e.nombre || '')));
   const [nat, setNat] = useState(''), [bend, setBend] = useState(''), [ocupado, setOcupado] = useState(false);
   const expr = `1d20${modStr(mod)}`;
-  const base = totalTirada(expr, nat), total = base == null ? null : base + (bendicion && bend !== '' ? Math.round(+bend || 0) : 0);
-  const supera = total != null && total >= cd;
+  // Paralizado, aturdido, inconsciente o petrificado: las de Fuerza y Destreza se fallan solas
+  const sola = fallaSola(condicionesMias(), salv);
+  const base = sola ? 0 : totalTirada(expr, nat), total = base == null ? null : base + (bendicion && bend !== '' && !sola ? Math.round(+bend || 0) : 0);
+  const supera = !sola && total != null && total >= cd;
   // Repetirla al final de tu turno: si la superas, te libras de la condición
   const libra = !!o.librarse && !!o.condicion;
   const siFalla = libra ? `sigues ${o.condicion}` : [dano ? `${dano} de daño` : '', o.condicion ? `quedas ${o.condicion}` : ''].filter(Boolean).join(' y ');
@@ -118,7 +122,12 @@ function Salvacion({ a }: { a: Extract<AvisoGrande, { tipo: 'salvacion' }> }) {
         <p className="m-0 mt-2 text-lg">{o.de || 'Tu DM'}{o.nota ? `: ${o.nota}` : ''}</p>
         <p className="m-0 mt-2 text-sm text-muted">{siFalla ? `Si fallas, ${siFalla}. ` : ''}Si la superas, {siSupera}.{o.repite && !libra && o.condicion ? ` Si quedas ${o.condicion}, repites la salvación al final de cada turno tuyo.` : ''}</p>
       </div>
-      <div className="grid gap-3 rounded-2xl bg-surface p-4">
+      {sola ? (
+        <div className="grid gap-3 rounded-2xl bg-surface p-4">
+          <p className="m-0 text-center font-serif text-2xl font-extrabold text-acc">Estás {sola}: la fallas sin tirar</p>
+          <Boton variante="primario" className="min-h-14 text-lg" disabled={ocupado} onClick={confirmar}>Confirmar y avisar a tu DM</Boton>
+        </div>
+      ) : <div className="grid gap-3 rounded-2xl bg-surface p-4">
         <CampoTirada tipo="ataque" expr={expr} valor={nat} alCambiar={setNat} etiqueta={`Salvación de ${nombreAb(salv)} (CD ${cd})`} sinCritico
           desglose={`tu salvación de ${abrevAb(salv)}`} claseInput={claseCampo}
           mas={bendicion ? [{ dados: '1d4', por: 'Bendición', valor: bend === '' ? null : Math.round(+bend || 0) }] : []} />
@@ -127,7 +136,7 @@ function Salvacion({ a }: { a: Extract<AvisoGrande, { tipo: 'salvacion' }> }) {
         <Boton variante="primario" className="min-h-14 text-lg" disabled={total == null || ocupado} onClick={confirmar}>
           {total == null ? 'Escribe primero lo que salió' : 'Confirmar y avisar a tu DM'}
         </Boton>
-      </div>
+      </div>}
     </>
   );
 }

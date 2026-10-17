@@ -43,3 +43,29 @@ export function repiteSalvacion(texto: string): boolean {
     || /final de (?:cada uno de )?(?:sus|su|cada) turnos?[^.]{0,60}(?:repit|repet)\w*[^.]{0,30}salvaci[oó]n/.test(t)
     || /salvaci[oó]n[^.]{0,40}al final de cada uno de sus turnos/.test(t);
 }
+
+/** Condiciones que dejan a la criatura sin acciones, acciones adicionales ni reacciones. */
+export const INCAPACITANTES = ['Paralizado', 'Petrificado', 'Inconsciente', 'Aturdido', 'Incapacitado'];
+const POR_QUE: Record<string, string> = {
+  Paralizado: 'No puede moverse, hablar ni hacer acciones, acciones adicionales ni reacciones. Falla sola las salvaciones de Fuerza y Destreza. Quien lo ataca tiene ventaja, y un golpe que acierta a 5 pies o menos es crítico.',
+  Petrificado: 'Es de piedra: no puede moverse, hablar ni hacer acciones, acciones adicionales ni reacciones. Falla sola las salvaciones de Fuerza y Destreza, resiste todo el daño y quien lo ataca tiene ventaja.',
+  Inconsciente: 'Está en el suelo sin enterarse de nada: no puede moverse, hablar ni hacer acciones, acciones adicionales ni reacciones. Falla sola las salvaciones de Fuerza y Destreza. Quien lo ataca tiene ventaja, y un golpe que acierta a 5 pies o menos es crítico.',
+  Aturdido: 'No puede hacer acciones, acciones adicionales ni reacciones. Falla sola las salvaciones de Fuerza y Destreza, y quien lo ataca tiene ventaja.',
+  Incapacitado: 'No puede hacer acciones, acciones adicionales ni reacciones, ni hablar.',
+};
+/** La condición que le quita el turno (la más fuerte que tenga) y por qué; null si puede actuar. */
+export function incapacidad(cond: string[] = []): { cond: string; porque: string } | null {
+  const c = INCAPACITANTES.find(n => cond.includes(n));
+  return c ? { cond: c, porque: POR_QUE[c] } : null;
+}
+/** Lo que gana quien ataca a alguien con estas condiciones: ventaja (y por qué) y si el golpe a 5 pies es crítico. */
+export function contraObjetivo(cond: string[] = []): { ventaja: string | null; critCerca: string | null } {
+  return {
+    ventaja: ['Paralizado', 'Inconsciente', 'Aturdido', 'Petrificado', 'Apresado', 'Cegado'].find(n => cond.includes(n)) || null,
+    critCerca: ['Paralizado', 'Inconsciente'].find(n => cond.includes(n)) || null,
+  };
+}
+/** Falla sola la salvación de Fuerza o Destreza (paralizado, aturdido, inconsciente o petrificado): la condición que lo causa. */
+export function fallaSola(cond: string[] = [], salv: string): string | null {
+  return /^(fue|des)/i.test(salv) ? ['Paralizado', 'Aturdido', 'Inconsciente', 'Petrificado'].find(n => cond.includes(n)) || null : null;
+}

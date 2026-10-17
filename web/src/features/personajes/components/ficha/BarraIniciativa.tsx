@@ -48,7 +48,7 @@ export function BarraIniciativa({ viv, miPid, mesa }: { viv: NonNullable<Combate
             {abierto.cond?.length ? <p className="m-0"><b>Estados:</b> {abierto.cond.map(c => abierto.dur?.[c] ? `${c} (${abierto.dur[c]})` : c).join(', ')}.</p> : <p className="m-0 text-on-surface-variant">Sin estados ni efectos a la vista.</p>}
             {abierto.tipo === 'm' && (info ? (
               <div className="rounded-lg bg-surface-container-low p-2">
-                <p className="m-0"><b>CA {info.ca}</b>{info.tipo ? ` · ${info.tam ? info.tam + ' ' : ''}${info.tipo}` : ''}</p>
+                <p className="m-0">{info.tipo ? <b>{info.tam ? info.tam + ' ' : ''}{info.tipo}</b> : 'Sabes lo básico.'}</p>
                 {info.nivel === 'd' && (info.resist || info.vuln || info.inmune || info.condInmune
                   ? <ul className="m-0 mt-1 list-none p-0 text-body-sm">
                     {info.vuln && <li><b>Vulnerable:</b> {info.vuln}</li>}{info.resist && <li><b>Resiste:</b> {info.resist}</li>}
