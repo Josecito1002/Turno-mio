@@ -17,3 +17,21 @@ export const EFECTO_CONDICION: Record<string, string> = {
   Agotamiento: 'Cada nivel resta a tus tiradas D20 y a tu velocidad.',
   Concentrado: 'Mantienes un conjuro: si te hieren, haz una salvación de Constitución o lo pierdes.',
 };
+
+const RAIZ_CONDICION: [RegExp, string][] = [
+  [/agarrad/, 'Agarrado'], [/apresad/, 'Apresado'], [/asustad/, 'Asustado'], [/aturdid/, 'Aturdido'], [/cegad/, 'Cegado'],
+  [/derribad/, 'Derribado'], [/ensordecid/, 'Ensordecido'], [/envenenad/, 'Envenenado'], [/hechizad/, 'Hechizado'],
+  [/incapacitad/, 'Incapacitado'], [/inconsciente/, 'Inconsciente'], [/paralizad/, 'Paralizado'], [/petrificad/, 'Petrificado'],
+];
+
+/** Lo que pide la salvación de una acción de enemigo (de su CD y su texto): qué condición deja si falla y si la mitad
+    del daño entra aunque la supere. "…superar una salvación de Constitución CD 11 o queda Paralizado" → Paralizado. */
+export function efectoSalvacion(a: { cd?: number; salv?: string; t?: string }): { cd: number; salv: string; condicion?: string; mitad: boolean } | null {
+  if (a.cd == null || !a.salv) return null;
+  const t = (a.t || '').toLowerCase();
+  // La condición que sigue a "queda", "o queda", "queda… y": la primera que se nombre después de la salvación
+  const tras = t.slice(Math.max(0, t.search(/salvaci[oó]n/)));
+  const condicion = RAIZ_CONDICION.map(([re, n]) => [tras.search(new RegExp(`qued\\w*\\s+(?:\\w+\\s+)?${re.source}`)), n] as const)
+    .filter(([i]) => i >= 0).sort((x, y) => x[0] - y[0])[0]?.[1];
+  return { cd: a.cd, salv: a.salv, ...(condicion ? { condicion } : {}), mitad: /mitad|half/.test(t) };
+}

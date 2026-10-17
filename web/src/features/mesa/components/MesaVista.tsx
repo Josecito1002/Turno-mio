@@ -19,7 +19,8 @@ import { conectarMesaRealtime } from '../realtime-cliente';
 import { publicarCombate } from '../domain/combate-vivo';
 import { combateVivoDm, confirmarGolpes, enviarEfectoDm, enviarOrdenDm, fijarAccionDm, quitarPeticiones, resolverSalvacion, type CombateVivo, type EconomiaRonda, type Golpe, type Peticion, type Salvacion, type TipoAccionRonda } from '../api';
 import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
-import { combatesOrigen, conservarVinculos, enemigosDe, leerSesion, marcarRegresados, origenesDe, puedenVolver, regresanA, sobrevivientesDe, type Encuentro } from '../domain/sesion';
+import { efectoSalvacion } from '../domain/condiciones';
+import { combatesOrigen, conservarVinculos, danosDe, enemigosDe, leerSesion, marcarRegresados, origenesDe, puedenVolver, regresanA, sobrevivientesDe, type Encuentro } from '../domain/sesion';
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
 import { BloqueMonstruo, BuscadorEnemigo, VistaBestiario, monstruoDe, useCatalogo } from './Bestiario';
 import { SubirHomebrewery } from '@/features/homebrewery/components/SubirHomebrewery';
@@ -756,6 +757,7 @@ function resolverSalv(campId: string, s: Salvacion, k: string, supero: boolean) 
 }
 
 const CLAVE_SALV: Record<string, string> = { FUE: 'fue', DES: 'des', CON: 'con', INT: 'int', SAB: 'sab', CAR: 'car' };
+const NOMBRE_SALV: Record<string, string> = { fue: 'Fuerza', des: 'Destreza', con: 'Constitución', int: 'Inteligencia', sab: 'Sabiduría', car: 'Carisma' };
 /** Lo que un enemigo debe tirar por culpa de un jugador: el DM tira (o pregunta) y marca si lo superó. */
 function SalvacionesPendientes({ cp, x, salvs }: { cp: any; x: any; salvs: Salvacion[] }) {
   const cat = useCatalogo(), ficha = x.m?.ref && (cat || cp.bestiario?.[x.m.ref]) ? monstruoDe(cp, x.m.ref) : null;
@@ -819,23 +821,70 @@ function AccionesRonda({ cp, x, campId, clave, eco, nombre }: { cp: any; x: any;
 function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x: any; ficha: any; tipo: TipoAccionRonda; gastada: boolean; marcar: (g: boolean) => void }) {
   const tirar = useDados();
   const [obj, setObj] = useState('');
-  const lista = ({ accion: ficha.acciones, adicional: ficha.adicionales, reaccion: ficha.reacciones }[tipo] || []) as any[];
+  // Los daños como lista aunque un archivo de sesión viejo los haya guardado como texto
+  const lista = (({ accion: ficha.acciones, adicional: ficha.adicionales, reaccion: ficha.reacciones }[tipo] || []) as any[]).map(a => ({ ...a, dano: danosDe(a.dano) }));
   const blancos = (cp.combate.orden || []).map((o: any) => combatiente(o.k, cp)).filter((y: any) => y && y.k !== x.k);
   const elegido = blancos.find((y: any) => y.k === obj);
   const atacar = (a: any) => {
     if (!elegido) { avisar('Elige primero el objetivo.', 'aviso'); return; }
     tirar(`1d20${modStr(a.atk)}`, `${x.nombre}: ${a.n} contra ${elegido.nombre} (CA ${elegido.ca})`, { noRepeat: true }).catch(() => {});
   };
+  /** Salvación que debe hacer el objetivo: tras acertar (la parálisis de las garras) o en lugar del ataque (con el daño
+      ya tirado, que entra entero, a la mitad o nada según la supere). */
+  const [pend, setPend] = useState<{ a: any; k: string; nombre: string; dano: number; cd: number; salv: string; condicion?: string; mitad: boolean } | null>(null);
+  /** Aplica el daño a un objetivo: a un jugador unido le llega a su hoja (con la condición, si la hay). */
+  const aplicar = async (k: string, nombre: string, dano: number, a: any, condicion?: string) => {
+    const y = combatiente(k, campActual() || cp);
+    if (!y || !(dano || condicion)) return;
+    if (y.tipo === 'jug') await enviarEfectoDm(cp.id, y.u.personajeId, { de: x.nombre, dano, nota: a.n, ...(condicion ? { condicion } : {}) });
+    conCamp(c => {
+      if (y.tipo !== 'jug' && dano) cambiarPg(c, k, -dano);
+      if (condicion) { const e = estadoDe(c, k); if (!e.cond.includes(condicion)) e.cond.push(condicion); }
+    });
+    avisar(`${x.nombre}: ${nombre}${dano ? ` recibe ${dano} de daño` : ''}${dano && condicion ? ' y' : ''}${condicion ? ` queda ${condicion}` : ''}${y.tipo === 'jug' ? '. Le llega a su hoja.' : '.'}`);
+  };
   const danar = async (a: any) => {
     if (!elegido) { avisar('Elige primero el objetivo.', 'aviso'); return; }
-    const expr = (a.dano || []).map((d: any) => d.d).join('+');
+    const expr = (a.dano || []).map((d: any) => d.d).join('+'), ef = efectoSalvacion(a);
     try {
       const r = await tirar(expr, `${x.nombre}: ${a.n} (daño a ${elegido.nombre})`, { noRepeat: true });
-      if (elegido.tipo === 'jug') await enviarEfectoDm(cp.id, elegido.u.personajeId, { de: x.nombre, dano: r.total, nota: a.n });
-      else conCamp(c => { cambiarPg(c, elegido.k, -r.total); });
-      avisar(`${x.nombre} hace ${r.total} de daño a ${elegido.nombre}${elegido.tipo === 'jug' ? '. Le llega a su hoja.' : '.'}`);
+      if (ef && a.atk == null) setPend({ a, k: elegido.k, nombre: elegido.nombre, dano: r.total, ...ef });
+      else {
+        await aplicar(elegido.k, elegido.nombre, r.total, a);
+        if (ef) setPend({ a, k: elegido.k, nombre: elegido.nombre, dano: 0, ...ef, mitad: false });
+      }
       if (!gastada) marcar(true);
     } catch (e) { if ((e as Error).message && !/dados|cancel/i.test((e as Error).message)) avisar(`No se pudo aplicar: ${(e as Error).message}`, 'error'); }
+  };
+  /** Una acción que solo pide salvación (sin daño): la condición entra si la falla. */
+  const pedirSalv = (a: any) => {
+    const ef = efectoSalvacion(a);
+    if (!elegido) { avisar('Elige primero el objetivo.', 'aviso'); return; }
+    if (ef) { setPend({ a, k: elegido.k, nombre: elegido.nombre, dano: 0, ...ef }); if (!gastada) marcar(true); }
+  };
+  const resolver = async (supero: boolean) => {
+    if (!pend) return;
+    setPend(null);
+    const dano = supero ? (pend.mitad ? Math.floor(pend.dano / 2) : 0) : pend.dano;
+    try {
+      await aplicar(pend.k, pend.nombre, dano, pend.a, supero ? undefined : pend.condicion);
+      if (supero && !dano) avisar(`${pend.nombre} superó la salvación de ${pend.a.n}.`);
+    } catch (e) { avisar(`No se pudo aplicar: ${(e as Error).message}`, 'error'); }
+  };
+  /** El modificador de salvación del objetivo, si se sabe (enemigo con bloque o personaje con hoja). */
+  const modSalv = (k: string, salv: string): number | null => {
+    const y = combatiente(k, cp); if (!y) return null;
+    if (y.c?.saves) return y.c.saves[salv] ?? null;
+    const f = y.m?.ref ? monstruoDe(cp, y.m.ref) : null;
+    return f ? f.salv?.[salv] ?? Math.floor((((f.ab as any)?.[salv] ?? 10) - 10) / 2) : null;
+  };
+  const tirarSalv = async () => {
+    if (!pend) return;
+    const mod = modSalv(pend.k, pend.salv) ?? 0;
+    try {
+      const r = await tirar(`1d20${modStr(mod)}`, `Salvación de ${NOMBRE_SALV[pend.salv] || pend.salv} de ${pend.nombre} (CD ${pend.cd})`, { noRepeat: true });
+      await resolver(r.total >= pend.cd);
+    } catch { /* tirada cancelada */ }
   };
   return (
     <div className="mt-2 rounded-xl bg-soft p-2 text-sm">
@@ -852,14 +901,32 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x:
           <b>{a.n}.</b> {a.atk != null && <span>{sign(a.atk)} al golpe. </span>}{a.cd != null && <span>Salvación de {a.salv} CD {a.cd}. </span>}
           {a.dano?.length ? <span>Daño: {a.dano.map((d: any) => `${d.d} ${d.tipo}`).join(' + ')}. </span> : null}
           {a.t && <p className="m-0 mt-0.5 text-muted">{a.t}</p>}
-          {(a.atk != null || a.dano?.length) && (
+          {(a.atk != null || a.dano?.length || efectoSalvacion(a)) && (
             <div className="mt-1 flex flex-wrap gap-2">
               {a.atk != null && <Boton tamano="sm" onClick={() => atacar(a)}>Tirar ataque</Boton>}
-              {a.dano?.length ? <Boton tamano="sm" variante="primario" onClick={() => danar(a)}>Tirar daño y aplicar</Boton> : null}
+              {a.dano?.length ? <Boton tamano="sm" variante="primario" onClick={() => danar(a)}>{a.atk != null ? 'Acertó: tirar daño y aplicar' : 'Tirar daño'}</Boton> : null}
+              {!a.dano?.length && efectoSalvacion(a) && <Boton tamano="sm" variante="primario" onClick={() => pedirSalv(a)}>Pedir salvación</Boton>}
             </div>
           )}
         </div>
       )) : <p className="m-0 mt-2 text-muted">No tiene acciones de este tipo en su bloque.</p>}
+      {pend && (() => {
+        const mod = modSalv(pend.k, pend.salv), nombreSalv = NOMBRE_SALV[pend.salv] || pend.salv;
+        const jug = combatiente(pend.k, cp)?.tipo === 'jug';
+        return (
+          <div className="mt-2 rounded-xl bg-gol/20 p-2" role="status">
+            <p className="m-0"><b>{pend.nombre}</b> hace una salvación de <b>{nombreSalv} CD {pend.cd}</b> ({pend.a.n}).{' '}
+              <span className="text-muted">{[pend.dano ? `Si falla, ${pend.dano} de daño${pend.mitad ? `; si la supera, ${Math.floor(pend.dano / 2)}` : '; si la supera, nada'}` : '', pend.condicion ? `si falla queda ${pend.condicion}` : ''].filter(Boolean).join(', ')}.
+              {jug ? ' Pídele que tire, o tira tú.' : ''}</span></p>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <Boton tamano="sm" onClick={tirarSalv}>Tirar salvación{mod != null ? ` (${sign(mod)})` : ''} y aplicar</Boton>
+              <Boton tamano="sm" variante="primario" onClick={() => resolver(false)}>Falló</Boton>
+              <Boton tamano="sm" onClick={() => resolver(true)}>Superó</Boton>
+              <Boton tamano="sm" variante="fantasma" onClick={() => setPend(null)}>Cancelar</Boton>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
