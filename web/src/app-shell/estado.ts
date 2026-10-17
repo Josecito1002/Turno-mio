@@ -40,6 +40,8 @@ export const S = {
   campJ: null as null | { dmId: string; campanaId: string },
   campJTab: 'personajes' as 'personajes' | 'combate',
   mtab: 'grupo',
+  /** Mesa del DM: la campaña que está en la pantalla «Tirar iniciativas», antes de empezar el combate, o null. */
+  iniPendiente: null as string | null,
   /** Mesa del DM: el monstruo abierto en el bestiario (su clave), o null. */
   monstruoSel: null as string | null,
   importCamp: null as string | null,

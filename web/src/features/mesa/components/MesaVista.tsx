@@ -467,19 +467,22 @@ function guardarSobrevivientes(c: any) {
   delete c.huidos;
 }
 
-/** Tira iniciativa para todos (grupo, jugadores unidos y enemigos) y empieza el combate. */
-function iniciarCombate(c: any) {
-  const orden = [...c.pjs.map((id: string) => 'pj:' + id), ...unidosDe(c.id).map(claveUnido), ...c.monstruos.map((m: any) => 'm:' + m.id)].map(k => combatiente(k, c)).filter(Boolean).map((x: any) => ({ k: x.k, init: rnd(20) + x.bono, bono: x.bono }));
+/** Quienes entran al combate al empezarlo: el grupo, los jugadores unidos y los enemigos. */
+const participantes = (c: any) => [...c.pjs.map((id: string) => 'pj:' + id), ...unidosDe(c.id).map(claveUnido), ...c.monstruos.map((m: any) => 'm:' + m.id)].map(k => combatiente(k, c)).filter(Boolean);
+
+/** Empieza el combate con las iniciativas que escribió el DM (`fijas`, por clave); las que faltan se tiran solas. */
+function iniciarCombate(c: any, fijas: Record<string, number> = {}) {
+  const orden = participantes(c).map((x: any) => ({ k: x.k, init: fijas[x.k] ?? rnd(20) + x.bono, bono: x.bono }));
   c.combate = { activo: true, ronda: 1, turno: 0, orden }; delete c.huidos;
   for (const o of [...orden]) if (!o.k.startsWith('m:')) sumarCompaneros(c, o.k, rnd);
   ordenar(c); c.combate.turno = 0;
 }
 
-/** Activa un combate de la sesión: pone sus enemigos y tira iniciativa. Si hay otro en curso, lo termina antes (con
+/** Activa un combate de la sesión: pone sus enemigos y abre la pantalla de iniciativas. Si hay otro en curso, lo termina antes (con
     `sumar`, en cambio, los enemigos entran al combate en curso con su propia iniciativa). */
 async function activarEncuentro(cp: any, e: Encuentro, sumar = false) {
   if (cp.combate.activo && !sumar && !(await confirmar({ titulo: `¿Empezar ${e.nombre}?`, si: 'Terminar y empezar este',
-    texto: `Hay un combate en curso (ronda ${cp.combate.ronda}). Se termina, se quitan sus enemigos y se tira iniciativa para este.` }))) return;
+    texto: `Hay un combate en curso (ronda ${cp.combate.ronda}). Se termina, se quitan sus enemigos y pasas a tirar las iniciativas de este.` }))) return;
   conCamp(c => {
     // Los que vuelven de otro combate de la sesión entran con los PG que tenían al terminarlo
     if (!sumar) guardarSobrevivientes(c);
@@ -490,11 +493,13 @@ async function activarEncuentro(cp: any, e: Encuentro, sumar = false) {
       c.monstruos.push(...nuevos);
       for (const m of nuevos) c.combate.orden.push({ k: 'm:' + m.id, init: rnd(20) + m.bono, bono: m.bono });
       ordenar(c);
-    } else { c.monstruos = nuevos; iniciarCombate(c); }
+    } else { c.monstruos = nuevos; c.combate = { activo: false, ronda: 1, turno: 0, orden: [] }; }
     c.encuentroActual = e.id;
   });
+  // Lo primero de un combate nuevo es la pantalla para tirar o escribir las iniciativas
+  if (!sumar) S.iniPendiente = cp.id;
   S.mtab = 'combate'; render(); irArriba();
-  avisar(sumar ? `${e.nombre}: enemigos sumados al combate.` : `${e.nombre}: iniciativa tirada para todos.`);
+  if (sumar) avisar(`${e.nombre}: enemigos sumados al combate.`);
 }
 
 /** Un combate preparado de la sesión, con su botón para activarlo. */
@@ -895,6 +900,51 @@ function AccionMonstruo({ cp, x, a, elegido, gastada, marcar }: { cp: any; x: an
   );
 }
 
+/** Lo primero al empezar un combate: la iniciativa de cada uno, escrita a mano o tirada en la app. */
+function TirarIniciativas({ cp }: { cp: any }) {
+  const tirar = useDados();
+  const lista = participantes(cp);
+  const [vals, setVals] = useState<Record<string, string>>({});
+  const poner = (k: string, v: string) => setVals(x => ({ ...x, [k]: v }));
+  const faltan = lista.filter((x: any) => (vals[x.k] ?? '') === '');
+  const tirarFaltan = () => setVals(x => ({ ...x, ...Object.fromEntries(faltan.map((y: any) => [y.k, String(rnd(20) + y.bono)])) }));
+  const empezar = () => {
+    const fijas = Object.fromEntries(Object.entries(vals).filter(([, v]) => v.trim() !== '').map(([k, v]) => [k, Math.round(+v || 0)]));
+    conCamp(c => { iniciarCombate(c, fijas); });
+    S.iniPendiente = null; render(); irArriba();
+    avisar(faltan.length ? `Combate empezado. ${faltan.length === 1 ? 'Una iniciativa vacía se tiró sola' : `${faltan.length} iniciativas vacías se tiraron solas`}.` : 'Combate empezado.');
+  };
+  const cancelar = () => { S.iniPendiente = null; render(); };
+  return (
+    <Seccion titulo="Tirar iniciativas" descripcion="Escribe el total de cada uno (el d20 más su bono) o tócale el d20 para tirarlo en la app. Las que dejes vacías se tiran solas al empezar.">
+      <Lista etiqueta="Iniciativas">
+        {lista.length ? lista.map((x: any) => (
+          <Fila key={x.k}>
+            <span className="min-w-0 flex-1">
+              <b className="block">{x.nombre}</b>
+              <span className="text-sm text-muted">{x.tipo === 'm' ? (x.m.aliado ? 'Compañero' : 'Enemigo') : 'Jugador'} · tira 1d20 {x.bono < 0 ? '−' : '+'} {Math.abs(x.bono)}</span>
+            </span>
+            <span className="flex items-center gap-2">
+              <label className="sr-only" htmlFor={`ini0-${x.k}`}>Iniciativa de {x.nombre}</label>
+              <input id={`ini0-${x.k}`} type="number" inputMode="numeric" placeholder="Total" value={vals[x.k] ?? ''} onChange={e => poner(x.k, e.target.value)}
+                className={cx(claseCampo, 'w-20! px-1 text-center font-serif text-xl font-bold')} />
+              <Boton tamano="sm" aria-label={`Tirar iniciativa de ${x.nombre}`}
+                onClick={() => tirar(`1d20${modStr(x.bono)}`, `Iniciativa de ${x.nombre}`, { noRepeat: true }).then(r => poner(x.k, String(r.total)))}>
+                <Simbolo n="casino" />d20
+              </Boton>
+            </span>
+          </Fila>
+        )) : <Fila><span className="text-sm text-muted">No hay nadie en el combate todavía.</span></Fila>}
+      </Lista>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Boton variante="primario" disabled={!lista.length} onClick={empezar}>Empezar combate</Boton>
+        {faltan.length > 0 && <Boton onClick={tirarFaltan}>Tirar las que faltan ({faltan.length})</Boton>}
+        <Boton variante="fantasma" onClick={cancelar}>Cancelar</Boton>
+      </div>
+    </Seccion>
+  );
+}
+
 function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
   const tirar = useDados();
   const cb = cp.combate;
@@ -906,13 +956,14 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
     c.monstruos = c.monstruos.filter((x: any) => x.id !== id); c.combate.orden = (c.combate.orden || []).filter((o: any) => o.k !== 'm:' + id);
   });
   if (!cb.activo) {
+    if (S.iniPendiente === cp.id) return <TirarIniciativas cp={cp} />;
     const empezar = () => {
-      conCamp(c => { c.encuentroActual = null; iniciarCombate(c); });
-      irArriba(); avisar('Iniciativa tirada para todos.');
+      conCamp(c => { c.encuentroActual = null; });
+      S.iniPendiente = cp.id; render(); irArriba();
     };
     return (
       <>
-        <p className="mt-2">Se tira iniciativa para el grupo y los enemigos, y se ordena sola. Después puedes corregir cualquier valor.</p>
+        <p className="mt-2">Al empezar, escribes la iniciativa de cada uno o la tiras en la app, y el orden se arma solo. Después puedes corregir cualquier valor.</p>
         <Seccion titulo="Enemigos">
           <Lista>{cp.monstruos.length ? cp.monstruos.map((m: any) => (
             <Fila key={m.id}><span>{m.nombre} <span className="text-sm text-muted">CA {m.ca}, {m.pg}/{m.pgMax} PG, iniciativa {sign(m.bono)}</span></span>
