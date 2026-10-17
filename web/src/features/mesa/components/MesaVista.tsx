@@ -19,7 +19,7 @@ import { conectarMesaRealtime } from '../realtime-cliente';
 import { publicarCombate } from '../domain/combate-vivo';
 import { combateVivoDm, confirmarGolpes, enviarEfectoDm, enviarOrdenDm, fijarAccionDm, quitarPeticiones, resolverSalvacion, type CombateVivo, type EconomiaRonda, type Golpe, type Peticion, type Salvacion, type TipoAccionRonda } from '../api';
 import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
-import { combatesOrigen, conservarVinculos, enemigosDe, leerSesion, marcarRegresados, origenesDe, puedenVolver, regresanA, sobrevivientesDe, type Encuentro } from '../domain/sesion';
+import { combatesOrigen, conservarVinculos, danosDe, enemigosDe, leerSesion, marcarRegresados, origenesDe, puedenVolver, regresanA, sobrevivientesDe, type Encuentro } from '../domain/sesion';
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
 import { BloqueMonstruo, BuscadorEnemigo, VistaBestiario, monstruoDe, useCatalogo } from './Bestiario';
 import { SubirHomebrewery } from '@/features/homebrewery/components/SubirHomebrewery';
@@ -817,7 +817,8 @@ function AccionesRonda({ cp, x, campId, clave, eco, nombre }: { cp: any; x: any;
 function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x: any; ficha: any; tipo: TipoAccionRonda; gastada: boolean; marcar: (g: boolean) => void }) {
   const tirar = useDados();
   const [obj, setObj] = useState('');
-  const lista = ({ accion: ficha.acciones, adicional: ficha.adicionales, reaccion: ficha.reacciones }[tipo] || []) as any[];
+  // Los daños como lista aunque un archivo de sesión viejo los haya guardado como texto
+  const lista = (({ accion: ficha.acciones, adicional: ficha.adicionales, reaccion: ficha.reacciones }[tipo] || []) as any[]).map(a => ({ ...a, dano: danosDe(a.dano) }));
   const blancos = (cp.combate.orden || []).map((o: any) => combatiente(o.k, cp)).filter((y: any) => y && y.k !== x.k);
   const elegido = blancos.find((y: any) => y.k === obj);
   const atacar = (a: any) => {

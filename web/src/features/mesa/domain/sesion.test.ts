@@ -38,6 +38,55 @@ describe('Info sesión (Mesa del DM)', () => {
   });
 });
 
+describe('Info sesión: los datos del archivo mandan', () => {
+  const leer = (d: object) => leerSesion(JSON.stringify({ tipo: 'miturno-sesion', ...d }), 's.json', CAT);
+  const ficha = (s: ReturnType<typeof leer>, i = 0, j = 0) => s.monstruos[s.encuentros[i].enemigos[j].ref] || CAT[s.encuentros[i].enemigos[j].ref];
+
+  test('PG y CA del enemigo cambian los del bestiario sin perder sus ataques ni tocar el original', () => {
+    const s = leer({ combates: [{ nombre: 'C', enemigos: [{ monstruo: 'Goblin Boss', pg: 30, ca: 15 }, { monstruo: 'Goblin Boss' }] }] });
+    const [jefe, normal] = s.encuentros[0].enemigos;
+    assert.notEqual(jefe.ref, 'goblin-boss');
+    assert.equal(normal.ref, 'goblin-boss');
+    assert.equal(s.monstruos[jefe.ref].pg, 30);
+    assert.equal(s.monstruos[jefe.ref].ca, 15);
+    assert.deepEqual(s.monstruos[jefe.ref].acciones, CAT['goblin-boss'].acciones);
+    assert.deepEqual(s.sinDatos, []);
+  });
+
+  test('un bloque parcial con el nombre de un monstruo del bestiario completa lo que falta', () => {
+    const s = leer({ combates: [{ nombre: 'C', enemigos: [{ monstruo: 'Goblin Boss' }] }], monstruos: { 'Goblin Boss': { pg: 40 } } });
+    const m = ficha(s);
+    assert.equal(m.pg, 40);
+    assert.equal(m.ca, CAT['goblin-boss'].ca);
+    assert.equal(m.acciones.length, CAT['goblin-boss'].acciones.length);
+  });
+
+  test('números como texto, daños como texto y ataques que solo vienen en el texto', () => {
+    const s = leer({
+      combates: [{ nombre: 'C', enemigos: [{ monstruo: 'Sacerdote rojo' }] }],
+      monstruos: { 'Sacerdote rojo': { ca: '16 (cota de malla)', pg: '45 (7d8 + 14)', acciones: [
+        { nombre: 'Maza', ataque: '+5', daño: '1d6+3 contundente' },
+        { n: 'Llama', t: 'Ataque de conjuro a distancia: +6 al ataque, alcance 60 pies. Impacto: 10 (3d6) de daño de fuego.' },
+      ] } },
+    });
+    const m = ficha(s);
+    assert.equal(m.ca, 16);
+    assert.equal(m.pg, 45);
+    assert.equal(m.pgF, '7d8 + 14');
+    assert.deepEqual(m.acciones.map(a => [a.atk, a.dano]), [[5, [{ d: '1d6+3', tipo: 'contundente' }]], [6, [{ d: '3d6', tipo: 'fuego' }]]]);
+  });
+
+  test('el bloque con el nombre a mostrar manda sobre el monstruo que nombra', () => {
+    const s = leer({ combates: [{ nombre: 'C', enemigos: [{ monstruo: 'Bandit', alias: 'Bandido de Varr' }] }], monstruos: { 'Bandido de Varr': { pg: 25, ca: 13 } } });
+    assert.equal(ficha(s).pg, 25);
+  });
+
+  test('nombre con el inglés entre paréntesis', () => {
+    const s = leer({ combates: [{ nombre: 'C', enemigos: [{ monstruo: 'Jefe goblin (Goblin Boss)' }] }] });
+    assert.equal(s.encuentros[0].enemigos[0].ref, 'goblin-boss');
+  });
+});
+
 describe('Combates vinculados de la sesión', () => {
   const base = (nombre: string, extra = {}) => ({ id: nombre, nombre, enemigos: [], ...extra });
   test('vuelven los vivos del combate elegido, con sus PG; no los aliados ni los muertos', () => {
