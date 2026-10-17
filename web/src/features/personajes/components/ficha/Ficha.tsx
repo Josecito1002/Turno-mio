@@ -12,7 +12,7 @@ import { EtiquetaTipo, FormaTipo } from '@/features/reglas/components/TipoAccion
 import { BotonTirada, TextoConDados } from '@/features/dados/components/BotonTirada';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { Entrada, LanzarConjuro, Mover, datosConjuro } from '../piezas';
-import { fijarPool, irAPaso, moverPool, setVal, tocarPip } from '../../acciones';
+import { descansar, fijarPool, irAPaso, moverPool, setVal, tocarPip } from '../../acciones';
 import { desglose } from '../../domain/calculo';
 import { usosDeRecurso, type UsoRecurso } from '../../domain/usos-recurso';
 import { ataquesPorAccion, extrasAtaque } from '../../domain/lanzar';
@@ -312,6 +312,14 @@ function Vitales({ c }: { c: any }) {
           </div>
         </div>
       </div>
+
+      {/* En pantallas chicas la cabecera no tiene sitio para los descansos: van aquí */}
+      {!lectura && (
+        <div className="col-span-2 grid grid-cols-2 gap-2 md:hidden">
+          <Boton onClick={() => descansar('corto')}><Simbolo n="hourglass_empty" className="text-body-md" />Descanso corto</Boton>
+          <Boton onClick={() => descansar('largo')}><Simbolo n="bedtime" className="text-body-md" />Descanso largo</Boton>
+        </div>
+      )}
     </div>
   );
 }
