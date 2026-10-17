@@ -18,7 +18,7 @@ import { CONDICIONES, actualizarPgUnido, cambiarPg, campActual, camps, claveUnid
 import { codigoMesa, guardarCampana, jugadoresMesa, quitarDeMesa } from '../api';
 import { conectarMesaRealtime } from '../realtime-cliente';
 import { publicarCombate } from '../domain/combate-vivo';
-import { combateVivoDm, confirmarGolpes, enviarEfectoDm, enviarOrdenDm, fijarAccionDm, quitarPeticiones, resolverSalvacion, type CombateVivo, type EconomiaRonda, type Golpe, type Peticion, type Salvacion, type TipoAccionRonda } from '../api';
+import { avisarJugadorDm, combateVivoDm, confirmarGolpes, enviarEfectoDm, enviarOrdenDm, fijarAccionDm, pedirSalvacionDm, quitarPeticiones, quitarRespuestas, resolverSalvacion, type CombateVivo, type EconomiaRonda, type Golpe, type Peticion, type RespuestaSalvacion, type Salvacion, type TipoAccionRonda } from '../api';
 import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
 import { efectoSalvacion } from '../domain/condiciones';
 import { combatesOrigen, conservarVinculos, danosDe, enemigosDe, leerSesion, marcarRegresados, origenesDe, puedenVolver, regresanA, sobrevivientesDe, type Encuentro } from '../domain/sesion';
@@ -707,7 +707,7 @@ function GolpesPendientes({ cp, k, nombre, golpes }: { cp: any; k: string; nombr
   );
 }
 
-type VivoDm = { eco: Record<string, EconomiaRonda>; salvs: Salvacion[]; golpes: Golpe[]; peticiones: Peticion[]; ultimas: NonNullable<CombateVivo>['ultimas'] };
+type VivoDm = { eco: Record<string, EconomiaRonda>; salvs: Salvacion[]; golpes: Golpe[]; peticiones: Peticion[]; ultimas: NonNullable<CombateVivo>['ultimas']; respuestas: RespuestaSalvacion[] };
 /** Descanso o inspiración para los jugadores unidos (a uno solo si se da su personaje). */
 async function mandarOrden(campId: string, tipo: 'corto' | 'largo' | 'inspiracion', personajeId?: string) {
   const nombre = { corto: 'Descanso corto', largo: 'Descanso largo', inspiracion: 'Inspiración' }[tipo];
@@ -717,14 +717,22 @@ async function mandarOrden(campId: string, tipo: 'corto' | 'largo' | 'inspiracio
 }
 
 function useEconomiaVivo(campId: string, activo: boolean): VivoDm {
-  const [vivo, setVivo] = useState<VivoDm>({ eco: {}, salvs: [], golpes: [], peticiones: [], ultimas: {} });
+  const [vivo, setVivo] = useState<VivoDm>({ eco: {}, salvs: [], golpes: [], peticiones: [], ultimas: {}, respuestas: [] });
   useEffect(() => {
     if (!activo) return;
     let sigue = true;
     const leer = () => combateVivoDm(campId).then(v => {
       if (!sigue) return;
       const golpes = v?.golpes || [];
-      setVivo({ eco: v?.economia || {}, salvs: v?.salvaciones || [], golpes, peticiones: v?.peticiones || [], ultimas: v?.ultimas || {} });
+      setVivo({ eco: v?.economia || {}, salvs: v?.salvaciones || [], golpes, peticiones: v?.peticiones || [], ultimas: v?.ultimas || {}, respuestas: v?.respuestas || [] });
+      // La condición que le quedó a un jugador al fallar la salvación que le pediste también se anota en su tarjeta
+      for (const r of v?.respuestas || []) if (!respuestasVistas.has(r.id)) {
+        respuestasVistas.add(r.id);
+        if (r.condicion) conCamp(c => {
+          const o = (c.combate.orden || []).find((x: any) => combatiente(x.k, c)?.u?.personajeId === r.pid); if (!o) return false;
+          const e = estadoDe(c, o.k); if (e.cond.includes(r.condicion)) return false; e.cond.push(r.condicion);
+        });
+      }
       for (const q of v?.peticiones || []) if (!golpesAvisados.has(q.id) && !peticionesResueltas.has(q.id)) {
         golpesAvisados.add(q.id);
         const cp = campActual(), obj = cp && combatiente(q.objetivo, cp);
@@ -744,6 +752,20 @@ function useEconomiaVivo(campId: string, activo: boolean): VivoDm {
   return vivo;
 }
 
+/** Respuestas de salvación de los jugadores ya vistas (para anotar su condición una sola vez) y las que el DM ya cerró. */
+const respuestasVistas = new Set<string>(), respuestasCerradas = new Set<string>();
+/** Lo que respondieron los jugadores a las salvaciones que les pediste, hasta que lo des por visto. */
+function RespuestasSalvacion({ campId, respuestas }: { campId: string; respuestas: RespuestaSalvacion[] }) {
+  const [, setN] = useState(0);
+  const cerrar = (r: RespuestaSalvacion) => { respuestasCerradas.add(r.id); setN(n => n + 1); quitarRespuestas(campId, [r.id]).catch(() => {}); };
+  return <>{respuestas.filter(r => !respuestasCerradas.has(r.id)).map(r => (
+    <Aviso key={r.id} tipo={r.supero ? 'info' : 'aviso'} titulo={`${r.de} ${r.supero ? 'superó' : 'falló'} la salvación (sacó ${r.total})`}
+      accion={<Boton tamano="sm" onClick={() => cerrar(r)}>Entendido</Boton>}>
+      {[r.dano ? `Recibió ${r.dano} de daño` : r.supero ? 'No le pasa nada' : '', r.condicion ? `queda ${r.condicion}` : ''].filter(Boolean).join(' y ') || 'Ya se aplicó en su hoja'}.
+    </Aviso>
+  ))}</>;
+}
+
 /** Salvaciones ya resueltas en esta pantalla (la lista del servidor tarda un rato en vaciarse). */
 const salvacionesResueltas = new Set<string>();
 /** El DM dice si el enemigo superó o falló la salvación: se aplica el daño (completo, mitad o nada) y la condición. */
@@ -760,6 +782,9 @@ function resolverSalv(campId: string, s: Salvacion, k: string, supero: boolean) 
     avisar(`${m.nombre} ${supero ? 'superó' : 'falló'} la salvación de ${s.salv}${dano ? `: ${dano} de daño` : ''}${!supero && s.condicion ? `, ${s.condicion}` : ''}.`);
   });
   resolverSalvacion(campId, s.id, k).catch(() => {});
+  // Quien la pidió se entera en su pantalla
+  const m = campActual()?.monstruos.find((x: any) => 'm:' + x.id === k);
+  if (s.pid) avisarJugadorDm(campId, s.pid, `${m?.nombre || 'El enemigo'} ${supero ? 'superó' : 'falló'} la salvación de ${s.salv}${s.nota ? ` contra tu ${s.nota}` : ''}${supero ? (s.mitad && s.dano ? ': recibe la mitad del daño' : '') : s.condicion ? `: queda ${s.condicion}` : ''}.`).catch(() => {});
 }
 
 const CLAVE_SALV: Record<string, string> = { FUE: 'fue', DES: 'des', CON: 'con', INT: 'int', SAB: 'sab', CAR: 'car' };
@@ -882,6 +907,16 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x:
     const f = y.m?.ref ? monstruoDe(cp, y.m.ref) : null;
     return f ? f.salv?.[salv] ?? Math.floor((((f.ab as any)?.[salv] ?? 10) - 10) / 2) : null;
   };
+  /** A un jugador unido le sale la salvación en grande; él la tira, se aplica en su hoja y su resultado llega aquí. */
+  const mandarSalv = async () => {
+    if (!pend) return;
+    const y = combatiente(pend.k, cp); if (y?.tipo !== 'jug') return;
+    try {
+      await pedirSalvacionDm(cp.id, y.u.personajeId, { de: x.nombre, salv: pend.salv, cd: pend.cd, dano: pend.dano, mitad: pend.mitad, ...(pend.condicion ? { condicion: pend.condicion } : {}), nota: pend.a.n });
+      avisar(`A ${pend.nombre} le salió la salvación en su pantalla. Su resultado aparece arriba del combate.`);
+      setPend(null);
+    } catch (e) { avisar(`No se pudo enviar: ${(e as Error).message}`, 'error'); }
+  };
   const tirarSalv = async () => {
     if (!pend) return;
     const mod = modSalv(pend.k, pend.salv) ?? 0;
@@ -909,8 +944,9 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x:
           <div className="mt-2 rounded-xl bg-gol/20 p-2" role="status">
             <p className="m-0"><b>{pend.nombre}</b> hace una salvación de <b>{nombreSalv} CD {pend.cd}</b> ({pend.a.n}).{' '}
               <span className="text-muted">{[pend.dano ? `Si falla, ${pend.dano} de daño${pend.mitad ? `; si la supera, ${Math.floor(pend.dano / 2)}` : '; si la supera, nada'}` : '', pend.condicion ? `si falla queda ${pend.condicion}` : ''].filter(Boolean).join(', ')}.
-              {jug ? ' Pídele que tire, o tira tú.' : ''}</span></p>
+              {jug ? ' Pídesela en su pantalla, o tira tú.' : ''}</span></p>
             <div className="mt-1 flex flex-wrap items-center gap-2">
+              {jug && <Boton tamano="sm" variante="primario" onClick={mandarSalv}>Pedírsela en su pantalla</Boton>}
               <Boton tamano="sm" onClick={tirarSalv}>Tirar salvación{mod != null ? ` (${sign(mod)})` : ''} y aplicar</Boton>
               <Boton tamano="sm" variante="primario" onClick={() => resolver(false)}>Falló</Boton>
               <Boton tamano="sm" onClick={() => resolver(true)}>Superó</Boton>
@@ -1090,6 +1126,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
         <Boton variante="primario" onClick={siguiente}>Siguiente turno</Boton>
         <Boton onClick={terminar}>Terminar combate</Boton>
       </div>
+      <RespuestasSalvacion campId={cp.id} respuestas={vivo.respuestas} />
       {vivo.golpes.filter(g => !golpesAplicados.has(g.id) && !combatiente(g.objetivo, cp)).map(g => (
         <Aviso key={g.id} tipo="aviso" titulo={`${g.de} actuó sobre alguien que ya no está`} accion={<Boton tamano="sm" onClick={() => descartarGolpe(cp.id, g)}>Descartar</Boton>}>{g.nota || 'Sin detalle.'}</Aviso>
       ))}

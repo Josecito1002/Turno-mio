@@ -50,10 +50,14 @@ export type Golpe = { id: string; de: string; objetivo: string; dano: number; cu
 /** Lo que los jugadores saben de un enemigo: lo básico, o también sus resistencias y debilidades. */
 export type InfoEnemigo = { nivel: 'b' | 'd'; ca: number; tam?: string; tipo?: string; resist?: string; vuln?: string; inmune?: string; condInmune?: string };
 export type Peticion = { id: string; de: string; pid: string; objetivo: string; ts: string };
-export type Salvacion = { id: string; de: string; objetivos: string[]; salv: string; cd: number; dano: number; mitad: boolean; condicion: string | null; nota: string | null; ts: string };
+export type Salvacion = { id: string; de: string; pid?: string; objetivos: string[]; salv: string; cd: number; dano: number; mitad: boolean; condicion: string | null; nota: string | null; ts: string };
 /** Un descanso o inspiración del DM, o un efecto que otro jugador deja en este personaje (daño, curación, condición o bono). */
-export type OrdenDm = { id: string; tipo: 'corto' | 'largo' | 'inspiracion' | 'efecto'; personajeId: string | null; ts: string;
-  de?: string; dano?: number; cura?: boolean; condicion?: string | null; bono?: string | null; nota?: string | null };
+export type OrdenDm = { id: string; tipo: 'corto' | 'largo' | 'inspiracion' | 'efecto' | 'salvacion' | 'aviso'; personajeId: string | null; ts: string;
+  de?: string; dano?: number; cura?: boolean; condicion?: string | null; bono?: string | null; nota?: string | null;
+  /** Una salvación que pide el DM: característica (fue, des…), CD y si el daño se reduce a la mitad al superarla */
+  salv?: string; cd?: number; mitad?: boolean };
+/** Lo que respondió un jugador a la salvación que le pidió el DM (ya aplicado en su hoja). */
+export type RespuestaSalvacion = { id: string; pedido: string; pid: string; de: string; total: number; supero: boolean; dano: number; condicion: string | null; ts: string };
 export type CombateVivo = {
   activo?: boolean; ronda?: number; turno?: number;
   /** Quién actúa y en qué orden; `pid` es el id del personaje cuando es de un jugador unido. */
@@ -67,6 +71,8 @@ export type CombateVivo = {
   salvaciones?: Salvacion[];
   /** Descansos e inspiración que mandó el DM. */
   ordenes?: OrdenDm[];
+  /** Salvaciones que el DM pidió a los jugadores, ya resueltas por ellos. */
+  respuestas?: RespuestaSalvacion[];
   /** Lo último que hizo cada jugador (por id de personaje). */
   ultimas?: Record<string, { tipo: TipoAccionRonda; nombre: string; resumen: string; ts: string }>;
   actualizadoEn?: string;
@@ -123,3 +129,13 @@ export const entregasMesa = (m: { dmId: string; campanaId: string; personajeId: 
 
 export const recibirEntregas = (m: { dmId: string; campanaId: string; personajeId: string }, ids: string[]) =>
   gql(`mutation ($dmId: ID!, $campanaId: ID!, $personajeId: ID!, $ids: [String!]!) { recibirEntregas(dmId: $dmId, campanaId: $campanaId, personajeId: $personajeId, ids: $ids) }`, { ...m, ids });
+
+/* ---- Salvaciones que el DM pide a un jugador: le salen en grande y él responde ---- */
+export const pedirSalvacionDm = (campanaId: string, personajeId: string, p: { de: string; salv: string; cd: number; dano: number; mitad: boolean; condicion?: string; nota?: string }) =>
+  gql(`mutation ($campanaId: ID!, $personajeId: ID!, $de: String!, $salv: String!, $cd: Int!, $dano: Int!, $mitad: Boolean!, $condicion: String, $nota: String) { pedirSalvacionDm(campanaId: $campanaId, personajeId: $personajeId, de: $de, salv: $salv, cd: $cd, dano: $dano, mitad: $mitad, condicion: $condicion, nota: $nota) }`, { campanaId, personajeId, ...p });
+export const avisarJugadorDm = (campanaId: string, personajeId: string, texto: string) =>
+  gql(`mutation ($campanaId: ID!, $personajeId: ID!, $texto: String!) { avisarJugadorDm(campanaId: $campanaId, personajeId: $personajeId, texto: $texto) }`, { campanaId, personajeId, texto });
+export const responderSalvacionMesa = (m: { dmId: string; campanaId: string; personajeId: string }, r: { pedido: string; total: number; supero: boolean; dano: number; condicion?: string }) =>
+  gql(`mutation ($dmId: ID!, $campanaId: ID!, $personajeId: ID!, $pedido: String!, $total: Int!, $supero: Boolean!, $dano: Int!, $condicion: String) { responderSalvacionMesa(dmId: $dmId, campanaId: $campanaId, personajeId: $personajeId, pedido: $pedido, total: $total, supero: $supero, dano: $dano, condicion: $condicion) }`, { ...m, ...r });
+export const quitarRespuestas = (campanaId: string, ids: string[]) =>
+  gql(`mutation ($campanaId: ID!, $ids: [String!]!) { quitarRespuestas(campanaId: $campanaId, ids: $ids) }`, { campanaId, ids });

@@ -4,6 +4,7 @@ import { S } from '@/app-shell/estado';
 import { combateMesa, entregasMesa, misMesas, recibirEntregas, type MesaUnida } from '@/features/mesa/api';
 import { recibirObjeto } from '../acciones';
 import { aplicarOrdenes } from './ficha/ordenes-dm';
+import { AvisosGrandes } from './ficha/AvisosGrandes';
 
 /** Las mesas del jugador se piden una vez cada pocos minutos, no en cada vuelta. */
 let mesas: { ts: number; lista: MesaUnida[] } | null = null;
@@ -27,7 +28,7 @@ export function RecibirEntregas({ personajeId }: { personajeId: string }) {
           const ref = { dmId: m.dmId, campanaId: m.campanaId, personajeId };
           if (S.combateMesa?.personajeId !== personajeId) {
             const viv = await combateMesa(ref);
-            if (vivo && S.pj?.id === personajeId) aplicarOrdenes(viv?.ordenes, personajeId);
+            if (vivo && S.pj?.id === personajeId) aplicarOrdenes(viv?.ordenes, personajeId, ref);
           }
           const nuevas = await entregasMesa(ref);
           // Si en medio cambió de hoja, se recogen la próxima vez que abra esta
@@ -42,5 +43,6 @@ export function RecibirEntregas({ personajeId }: { personajeId: string }) {
     const t = setInterval(mirar, CADA_MS);
     return () => { vivo = false; clearInterval(t); };
   }, [personajeId]);
-  return null;
+  // Lo que le pasa al personaje en combate (daño, salvaciones que pide el DM) sale en grande en cualquier pantalla
+  return <AvisosGrandes />;
 }

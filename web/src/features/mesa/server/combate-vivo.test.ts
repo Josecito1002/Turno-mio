@@ -131,6 +131,28 @@ describe('combate en vivo', () => {
   });
 });
 
+describe('salvaciones que el DM pide a un jugador', () => {
+  test('le llega como orden, el jugador responde y el DM la da por vista', async () => {
+    await M.pedirSalvacionDm(null, { campanaId: 'c1', personajeId: 'pj1', de: 'Meenlock', salv: 'CON', cd: 11, dano: 0, mitad: false, condicion: 'Paralizado', nota: 'Garras' }, ctx(dm));
+    let v = await Q.combateMesa(null, unido, ctx(jug));
+    const o = v.ordenes.find((x: any) => x.tipo === 'salvacion');
+    assert.equal(o.salv, 'con'); assert.equal(o.cd, 11); assert.equal(o.condicion, 'Paralizado');
+    await M.responderSalvacionMesa(null, { ...unido, pedido: o.id, total: 8, supero: false, dano: 0, condicion: 'Paralizado' }, ctx(jug));
+    // publicar el combate no las borra
+    await M.fijarCombateVivo(null, { campanaId: 'c1', datos: { activo: true, respuestas: [] } }, ctx(dm));
+    v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    assert.equal(v.respuestas.length, 1); assert.equal(v.respuestas[0].pedido, o.id); assert.equal(v.respuestas[0].supero, false);
+    await M.quitarRespuestas(null, { campanaId: 'c1', ids: [v.respuestas[0].id] }, ctx(dm));
+    v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    assert.equal(v.respuestas.length, 0);
+  });
+  test('solo el DM la pide, solo el jugador unido responde', async () => {
+    await assert.rejects(M.pedirSalvacionDm(null, { campanaId: 'c1', personajeId: 'pj1', de: 'X', salv: 'con', cd: 11, dano: 0, mitad: false }, ctx(jug)));
+    await assert.rejects(M.pedirSalvacionDm(null, { campanaId: 'c1', personajeId: 'pj1', de: 'X', salv: 'xyz', cd: 11, dano: 0, mitad: false }, ctx(dm)));
+    await assert.rejects(M.responderSalvacionMesa(null, { ...unido, pedido: 'a', total: 8, supero: false, dano: 0 }, ctx(otro)));
+  });
+});
+
 describe('objetos que da el DM', () => {
   test('el DM da un objeto, solo le llega a ese personaje y desaparece al recogerlo', async () => {
     await M.darObjetoDm(null, { campanaId: 'c1', personajeId: 'pj1', objeto: { tipo: 'objeto', n: '  El libro verde ', q: 0, t: 'Huele a lirios.' } }, ctx(dm));

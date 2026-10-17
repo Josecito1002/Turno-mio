@@ -15,7 +15,7 @@ import { combateMesa, enviarGolpeMesa, gastarAccionMesa, type CombateVivo, type 
 import { aplicarOrdenes } from './ordenes-dm';
 import { EFECTO_CONDICION } from '@/features/mesa/domain/condiciones';
 import { datosConjuro } from '../piezas';
-import { ataquesPorAccion, bonosPara, golpesDeRasgo, restanteConjuro, restanteDe } from '../../domain/lanzar';
+import { ataquesPorAccion, bonosPara, espaciosPara, extrasAtaque, golpesDeRasgo, restanteConjuro, restanteDe } from '../../domain/lanzar';
 import { UsoAccion, type Marca, type Objetivo, type Uso } from './UsoAccion';
 import { EFECTOS_ALIADO, SEGUIMIENTOS } from '@/features/reglas/data/efectos-conjuro';
 import { BarraIniciativa } from './BarraIniciativa';
@@ -72,6 +72,7 @@ function FilaMagia({ s, c, uso, elegido, elegir }: { s: any; c: any; uso: Uso; e
             {salv && <span>Salvación: <strong className="text-secondary">CD {d.cd} de {salv}</strong></span>}
             {d.dexpr && <span>Daño: <strong className="text-secondary">{d.dexpr}{s.tipo ? ' ' + s.tipo : ''}</strong></span>}
           </div>
+          {truco ? <p className="m-0 mt-1 text-body-sm text-outline">Truco: no gasta nada</p> : <Coste k={costeDe(c, { nivel: +s.nivel, recurso: s.recurso, ritual: !!s.ritual })} />}
           {marcada && uso.texto && <p className="m-0 mt-2 border-t border-outline-variant/30 pt-2 text-body-sm text-on-surface-variant" dangerouslySetInnerHTML={{ __html: richT(uso.texto) }} />}
         </div>
         <Restante r={restanteConjuro(c, s)} />
@@ -126,7 +127,8 @@ function FilaRasgo({ e, c, uso, elegido, elegir }: { e: any; c: any; uso: Uso; e
         <div className="grid size-12 shrink-0 place-items-center rounded-lg bg-surface-container-lowest text-primary shadow-inner">{iconoDe(e) === 'mascara-luchador' ? <MascaraLuchador className="text-headline-md" /> : <Simbolo n={iconoDe(e)} className="text-headline-md" />}</div>
         <div className="min-w-0 flex-1">
           <h3 className="m-0 font-serif text-headline-sm text-on-surface">{e.nombre}</h3>
-          <p className="m-0 mt-0.5 text-body-sm text-outline">{[e.coste, !marcada && corta].filter(Boolean).join(' • ')}</p>
+          <Coste k={costeDe(c, { recurso: e.recurso, coste: e.coste })} />
+          {!marcada && corta && <p className="m-0 mt-0.5 text-body-sm text-outline">{corta}</p>}
           {marcada && uso.texto && <p className="m-0 mt-2 border-t border-outline-variant/30 pt-2 text-body-sm text-on-surface-variant" dangerouslySetInnerHTML={{ __html: uso.raw ? richT(uso.texto) : esc(uso.texto) }} />}
         </div>
         <Restante r={restanteDe(c, e.recurso)} />
@@ -144,6 +146,24 @@ function Restante({ r }: { r: { quedan: number; max: number; nombre: string } | 
       <div className="max-w-24 truncate text-[0.65rem] uppercase text-outline">{r.nombre}</div>
     </div>
   );
+}
+
+/** Qué cuesta usar algo y si te alcanza, en una línea: verde si puedes pagarlo, rojo si ya no te queda. */
+export function costeDe(c: any, o: { nivel?: number; recurso?: string; ritual?: boolean; coste?: string }): { texto: string; falta: boolean } | null {
+  const r = o.recurso ? restanteDe(c, o.recurso) : null;
+  if (r) return r.quedan ? { texto: `Cuesta 1 de ${r.nombre} (te quedan ${r.quedan})`, falta: false } : { texto: `Sin ${r.nombre} disponible`, falta: true };
+  if (o.nivel && o.nivel > 0) {
+    const es = espaciosPara(c, o.nivel), libre = es.find((e: any) => e.quedan > 0);
+    const ritual = o.ritual ? ' (o lánzalo como ritual, sin gastar)' : '';
+    if (!libre) return { texto: `Sin espacios de nivel ${o.nivel} o más disponibles${ritual}`, falta: !o.ritual };
+    if (libre.nivel > o.nivel) return { texto: `Sin espacios de nivel ${o.nivel}: puedes usar uno de nivel ${libre.nivel} (te quedan ${libre.quedan})`, falta: false };
+    return { texto: `Cuesta 1 espacio de nivel ${o.nivel} (te quedan ${libre.quedan})${ritual}`, falta: false };
+  }
+  return o.coste ? { texto: `Cuesta: ${o.coste}`, falta: false } : null;
+}
+function Coste({ k }: { k: { texto: string; falta: boolean } | null }) {
+  if (!k) return null;
+  return <p className={cx('m-0 mt-1 flex items-center gap-1 text-body-sm font-bold', k.falta ? 'text-error' : 'text-green-400')}><Simbolo n={k.falta ? 'block' : 'toll'} className="text-body-md" />{k.texto}</p>;
 }
 
 /** Rasgos que dan más ataques con la acción Atacar solo mientras están activos. */
@@ -179,7 +199,9 @@ function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any
   // Efectos que suman ataques solo mientras se cumplen: una casilla dice si valen ahora
   const puedeRenunciar = (c.entries || []).some((e: any) => RENUNCIA.test(String(typeof e.texto === 'function' ? '' : e.texto || '')) || /golpe brutal|maniobra/i.test(e.nombre || ''));
   const condicionales = t === 'accion' ? CONDICIONALES.filter(x => c.entries.some((e: any) => norm(e.nombre) === norm(x.rasgo))) : [];
-  const deArma = (a: any): Uso => ({ tipo: t, nombre: a.nombre, ...(nAtaques > 1 && t === 'accion' ? { golpes: nAtaques } : {}), ...(condicionales.length ? { condiciones: condicionales } : {}), ...(puedeRenunciar ? { renuncia: true } : {}), texto: [a.w?.dist ? 'Ataque a distancia' : 'Ataque cuerpo a cuerpo', ...(nAtaques > 1 && t === 'accion' ? [`Con Ataque Extra haces ${nAtaques} ataques con la acción Atacar`] : []), a.dmg && `Daño: ${a.dmg}`, a.maestria && `Maestría: ${a.maestria}`, ...(a.notas || [])].filter(Boolean).join('. ') || 'Ataque', ...(a.cd == null ? { atk: a.atk } : { salv: a.salv, cd: a.cd }), dexpr: a.expr, afecta: true });
+  const deArma = (a: any): Uso => ({ tipo: t, nombre: a.nombre, ...(nAtaques > 1 && t === 'accion' ? { golpes: nAtaques } : {}), ...(condicionales.length ? { condiciones: condicionales } : {}), ...(puedeRenunciar ? { renuncia: true } : {}), texto: [a.w?.dist ? 'Ataque a distancia' : 'Ataque cuerpo a cuerpo', ...(nAtaques > 1 && t === 'accion' ? [`Con Ataque Extra haces ${nAtaques} ataques con la acción Atacar`] : []), a.dmg && `Daño: ${a.dmg}`, a.maestria && `Maestría: ${a.maestria}`, ...(a.notas || [])].filter(Boolean).join('. ') || 'Ataque', ...(a.cd == null ? { atk: a.atk } : { salv: a.salv, cd: a.cd }), dexpr: a.expr, afecta: true,
+    ...(a.atkDesg ? { atkDesg: a.atkDesg } : {}), ...(a.dmgDesg ? { dmgDesg: a.dmgDesg } : {}), ...(a.w?.tipo ? { tipoDano: a.w.tipo } : /contundente/.test(a.dmg || '') ? { tipoDano: 'contundente' } : {}),
+    ...(t === 'accion' ? { extras: extrasAtaque(c, a) } : {}) });
   // Un rasgo que ataca sin armas (Golpe sin armas extra) se ve como un ataque, con su puño
   const comoAtaque = (e: any) => !!e.roll?.[0];
   const deRasgo = (e: any): Uso => {
@@ -208,7 +230,8 @@ function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any
     const sg = SEGUIMIENTOS[norm(s.nombre)], ef = EFECTOS_ALIADO[norm(s.nombre)];
     // Un conjuro que cura: devuelve puntos de golpe y no ataca ni pide salvación
     const cura = !s.ataque && !salv && /recuper\w* (?:\w+ ){0,3}puntos de golpe|recuper\w* \d+d\d+/i.test(String(s.desc || ''));
-    return { tipo: t, nombre: s.nombre, coste: s.coste || (+s.nivel ? `Nivel ${s.nivel}` : 'Truco'), texto: String(s.desc || '').trim(), raw: true, ...(s.ataque && d.atk != null ? { atk: d.atk } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: ef ? undefined : d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados || ef || cura),
+    return { tipo: t, nombre: s.nombre, coste: s.coste || (+s.nivel ? `Nivel ${s.nivel}` : 'Truco'), texto: String(s.desc || '').trim(), raw: true, ...(s.ataque && d.atk != null ? { atk: d.atk, atkDesg: d.atkDesg } : {}),
+      ...(s.tipo ? { tipoDano: String(s.tipo) } : {}), ...(s.mod && d.mSpell ? { dmgDesg: `${d.mSpell} ${d.ab}` } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: ef ? undefined : d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados || ef || cura),
       ...(sg ? { marca: { id: norm(s.nombre).replace(/\s+/g, '-'), nombre: sg.nombre, texto: sg.texto, dexpr: sg.dado || d.dexpr || '', tipo: sg.tipo, en: sg.en, desde: sg.desde, objetivo: sg.objetivo,
         ...(sg.ataque && d.atk != null ? { atk: d.atk } : {}), ...(sg.salv ? { salv: sg.salv, cd: d.cd } : {}), ...(sg.porNivel ? { porNivel: sg.porNivel, nivelBase: sg.nivelBase } : {}) } as Marca } : {}),
       ...(ef ? { efecto: ef } : {}), ...(cura ? { cura: true } : {}),
@@ -369,7 +392,7 @@ export function ModoCombate({ c }: { c: any }) {
     const leer = () => { if (ocupado || document.hidden) return; ocupado = true; combateMesa(ref).then(d => {
       if (!vivo) return;
       fallos = 0; setViv(d); setError('');
-      aplicarOrdenes(d?.ordenes, personajeId);
+      aplicarOrdenes(d?.ordenes, personajeId, ref);
       const e = d?.economia?.[personajeId] || {};
       // Un toque reciente manda sobre lo que devuelva el servidor, para que el botón no parpadee
       setEco(prev => {

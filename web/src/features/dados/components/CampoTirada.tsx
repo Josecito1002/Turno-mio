@@ -13,17 +13,24 @@ export function totalTirada(expr: string, valor: string, crit = false) {
 
 /** Un paso de tirada explicado: qué dados tirar, dónde escribir lo que salió (solo los dados: el número fijo
  *  se suma solo) y el total. También deja tirarlos en la app. `ataque`: el valor es el d20 natural. */
-export function CampoTirada({ tipo, expr, valor, alCambiar, etiqueta, crit, adv = 0, unaVez, bloqueado, alTirar, claseInput, nota }: {
+export function CampoTirada({ tipo, expr, valor, alCambiar, etiqueta, crit, adv = 0, unaVez, bloqueado, alTirar, claseInput, nota, desglose, tipoDano, mas = [], sinCritico }: {
   tipo: 'ataque' | 'dano'; expr: string; valor: string; alCambiar: (v: string) => void; etiqueta: string;
   crit?: boolean; adv?: number; claseInput?: string; nota?: string;
+  /** De dónde sale el número fijo ("3 FUE + 2 competencia") y el tipo de daño */
+  desglose?: string; tipoDano?: string;
+  /** Otros dados que se suman a esta tirada (Bendición, Castigo divino), cada uno con su resultado si ya se escribió */
+  mas?: { dados: string; por: string; valor: number | null; signo?: number }[];
+  /** Una salvación: el 20 y el 1 naturales no aciertan ni fallan solos */
+  sinCritico?: boolean;
   /** El jugador tira en la app una sola vez: después el valor queda fijo */
   unaVez?: boolean; bloqueado?: boolean; alTirar?: () => void;
 }) {
   const tirar = useDados(), id = useId();
   const { dados, mod } = partesTirada(expr, crit);
   const que = tipo === 'ataque' && adv ? `2d20${mod ? ` ${mod > 0 ? '+' : '−'} ${Math.abs(mod)}` : ''}` : textoTirada(dados, mod);
-  const total = totalTirada(expr, valor, crit);
-  const nat = tipo === 'ataque' && valor !== '' ? Math.round(+valor) : null;
+  const base = totalTirada(expr, valor, crit);
+  const total = base == null ? null : base + mas.reduce((t, x) => t + (x.signo ?? 1) * (x.valor ?? 0), 0);
+  const nat = tipo === 'ataque' && !sinCritico && valor !== '' ? Math.round(+valor) : null;
   const virtual = () => {
     alTirar?.();
     tirar(expr, etiqueta, { noRepeat: true, ...(adv ? { adv } : {}), ...(crit ? { crit: true } : {}) })
@@ -33,7 +40,8 @@ export function CampoTirada({ tipo, expr, valor, alCambiar, etiqueta, crit, adv 
   return (
     <div className="grid gap-1.5">
       <p className="m-0 text-base">
-        Tira <b className="whitespace-nowrap">{que}</b>
+        Tira <b className="whitespace-nowrap">{que}</b>{desglose && mod ? <span className="text-muted"> ({desglose})</span> : null}{tipoDano ? <> de daño {tipoDano}</> : null}
+        {mas.map(x => <span key={x.por}> {(x.signo ?? 1) < 0 ? '−' : '+'} <b className="whitespace-nowrap">{x.dados}</b> por {x.por}</span>)}
         {tipo === 'ataque' && adv ? <span className="text-muted">{adv > 0 ? ' (con ventaja: quédate con el d20 más alto)' : ' (con desventaja: quédate con el d20 más bajo)'}</span> : null}
         {crit && tipo === 'dano' ? <span className="text-muted"> (crítico: el doble de dados)</span> : null}
       </p>
@@ -48,7 +56,7 @@ export function CampoTirada({ tipo, expr, valor, alCambiar, etiqueta, crit, adv 
         {!(unaVez && (bloqueado || valor !== '')) && <Boton tamano="sm" onClick={virtual}>{valor === '' ? 'O tíralos en la app' : 'Tirar en la app'}</Boton>}
         {total != null && (
           <span className="text-base">
-            {mod ? <>{Math.round(+valor || 0)} {mod > 0 ? '+' : '−'} {Math.abs(mod)} = </> : 'Total: '}<b className="font-serif text-2xl">{tipo === 'dano' ? Math.max(0, total) : total}</b>
+            {mod || mas.length ? <>{Math.round(+valor || 0)}{mod ? ` ${mod > 0 ? '+' : '−'} ${Math.abs(mod)}` : ''}{mas.map(x => ` ${(x.signo ?? 1) < 0 ? '−' : '+'} ${x.valor ?? '?'}`).join('')} = </> : 'Total: '}<b className="font-serif text-2xl">{tipo === 'dano' ? Math.max(0, total) : total}</b>
           </span>
         )}
       </div>
