@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { useCallback, useEffect, useId, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { S, render, irArriba } from '@/app-shell/estado';
 import { almacen } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
@@ -20,7 +20,8 @@ import { conectarMesaRealtime } from '../realtime-cliente';
 import { publicarCombate } from '../domain/combate-vivo';
 import { combateVivoDm, confirmarGolpes, enviarEfectoDm, enviarOrdenDm, fijarAccionDm, quitarPeticiones, resolverSalvacion, type CombateVivo, type EconomiaRonda, type Golpe, type Peticion, type Salvacion, type TipoAccionRonda } from '../api';
 import { datosMesa, resumenMesa, type PersonajeExportado } from '../domain/exportar';
-import { combatesOrigen, conservarVinculos, enemigosDe, leerSesion, marcarRegresados, origenesDe, puedenVolver, regresanA, sobrevivientesDe, type Encuentro } from '../domain/sesion';
+import { efectoSalvacion } from '../domain/condiciones';
+import { combatesOrigen, conservarVinculos, danosDe, enemigosDe, leerSesion, marcarRegresados, origenesDe, puedenVolver, regresanA, sobrevivientesDe, type Encuentro } from '../domain/sesion';
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
 import { BloqueMonstruo, BuscadorEnemigo, VistaBestiario, monstruoDe, useCatalogo } from './Bestiario';
 import { SubirHomebrewery } from '@/features/homebrewery/components/SubirHomebrewery';
@@ -259,9 +260,11 @@ function TarjetaJugador({ cp, x, alQuitar }: { cp: any; x: any; alQuitar: () => 
 /** Los personajes que los jugadores unieron con el código; se sincronizan en tiempo real por WebSocket/SSE y de respaldo cada 15 s. */
 function useUnidos(campId: string) {
   const [estado, setEstado] = useState({ cargando: true, error: '', enVivo: false, transporte: '' as 'ws' | 'sse' | '' });
+  // Si ya hay hojas en pantalla, un fallo suelto de la lectura periódica no se muestra: solo si se repite
+  const fallos = useRef(0);
   const leer = useCallback(() => jugadoresMesa(campId).then(
-    l => { fijarUnidos(campId, l); almacen.fijarInfoMesa(campId, { unidos: l.length }); setEstado(prev => ({ ...prev, cargando: false, error: '' })); render(); },
-    (e: Error) => setEstado(prev => ({ ...prev, cargando: false, error: e.message }))), [campId]);
+    l => { fallos.current = 0; fijarUnidos(campId, l); almacen.fijarInfoMesa(campId, { unidos: l.length }); setEstado(prev => ({ ...prev, cargando: false, error: '' })); render(); },
+    (e: Error) => { const mostrar = ++fallos.current >= 2; setEstado(prev => mostrar || prev.cargando ? { ...prev, cargando: false, error: e.message } : prev); }), [campId]);
 
   useEffect(() => {
     leer();
@@ -760,6 +763,7 @@ function resolverSalv(campId: string, s: Salvacion, k: string, supero: boolean) 
 }
 
 const CLAVE_SALV: Record<string, string> = { FUE: 'fue', DES: 'des', CON: 'con', INT: 'int', SAB: 'sab', CAR: 'car' };
+const NOMBRE_SALV: Record<string, string> = { fue: 'Fuerza', des: 'Destreza', con: 'Constitución', int: 'Inteligencia', sab: 'Sabiduría', car: 'Carisma' };
 /** Lo que un enemigo debe tirar por culpa de un jugador: el DM tira (o pregunta) y marca si lo superó. */
 function SalvacionesPendientes({ cp, x, salvs }: { cp: any; x: any; salvs: Salvacion[] }) {
   const cat = useCatalogo(), ficha = x.m?.ref && (cat || cp.bestiario?.[x.m.ref]) ? monstruoDe(cp, x.m.ref) : null;
@@ -822,9 +826,70 @@ function AccionesRonda({ cp, x, campId, clave, eco, nombre }: { cp: any; x: any;
 /** Las acciones del bloque de un enemigo o compañero para el tipo elegido: el DM escoge objetivo, tira (en la app o con sus dados) y aplica el daño. */
 function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x: any; ficha: any; tipo: TipoAccionRonda; gastada: boolean; marcar: (g: boolean) => void }) {
   const [obj, setObj] = useState('');
-  const lista = ({ accion: ficha.acciones, adicional: ficha.adicionales, reaccion: ficha.reacciones }[tipo] || []) as any[];
+  // Los daños como lista aunque un archivo de sesión viejo los haya guardado como texto
+  const lista = (({ accion: ficha.acciones, adicional: ficha.adicionales, reaccion: ficha.reacciones }[tipo] || []) as any[]).map(a => ({ ...a, dano: danosDe(a.dano) }));
   const blancos = (cp.combate.orden || []).map((o: any) => combatiente(o.k, cp)).filter((y: any) => y && y.k !== x.k);
   const elegido = blancos.find((y: any) => y.k === obj);
+  const tirar = useDados();
+  /** Salvación que debe hacer el objetivo: tras acertar (la parálisis de las garras) o en lugar del ataque (con el daño
+      ya tirado, que entra entero, a la mitad o nada según la supere). */
+  const [pend, setPend] = useState<{ a: any; k: string; nombre: string; dano: number; cd: number; salv: string; condicion?: string; mitad: boolean } | null>(null);
+  /** Aplica el daño a un objetivo: a un jugador unido le llega a su hoja (con la condición, si la hay). */
+  const aplicar = async (k: string, nombre: string, dano: number, a: any, condicion?: string) => {
+    const y = combatiente(k, campActual() || cp);
+    if (!y || !(dano || condicion)) return;
+    if (y.tipo === 'jug') await enviarEfectoDm(cp.id, y.u.personajeId, { de: x.nombre, dano, nota: a.n, ...(condicion ? { condicion } : {}) });
+    conCamp(c => {
+      if (y.tipo !== 'jug' && dano) cambiarPg(c, k, -dano);
+      if (condicion) { const e = estadoDe(c, k); if (!e.cond.includes(condicion)) e.cond.push(condicion); }
+    });
+    avisar(`${x.nombre}: ${nombre}${dano ? ` recibe ${dano} de daño` : ''}${dano && condicion ? ' y' : ''}${condicion ? ` queda ${condicion}` : ''}${y.tipo === 'jug' ? '. Le llega a su hoja.' : '.'}`);
+  };
+  /** El daño ya tirado (a mano o en la app): con salvación en lugar del ataque, primero se pide la salvación;
+      tras un ataque que acierta, entra entero y después llega la salvación de su condición. */
+  const danar = async (a: any, dano: number) => {
+    if (!elegido) { avisar('Elige primero el objetivo.', 'aviso'); return false; }
+    const ef = efectoSalvacion(a);
+    try {
+      if (ef && a.atk == null) setPend({ a, k: elegido.k, nombre: elegido.nombre, dano, ...ef });
+      else {
+        await aplicar(elegido.k, elegido.nombre, dano, a);
+        if (ef) setPend({ a, k: elegido.k, nombre: elegido.nombre, dano: 0, ...ef, mitad: false });
+      }
+      if (!gastada) marcar(true);
+      return true;
+    } catch (e) { avisar(`No se pudo aplicar: ${(e as Error).message}`, 'error'); return false; }
+  };
+  /** Una acción que solo pide salvación (sin daño): la condición entra si la falla. */
+  const pedirSalv = (a: any) => {
+    const ef = efectoSalvacion(a);
+    if (!elegido) { avisar('Elige primero el objetivo.', 'aviso'); return; }
+    if (ef) { setPend({ a, k: elegido.k, nombre: elegido.nombre, dano: 0, ...ef }); if (!gastada) marcar(true); }
+  };
+  const resolver = async (supero: boolean) => {
+    if (!pend) return;
+    setPend(null);
+    const dano = supero ? (pend.mitad ? Math.floor(pend.dano / 2) : 0) : pend.dano;
+    try {
+      await aplicar(pend.k, pend.nombre, dano, pend.a, supero ? undefined : pend.condicion);
+      if (supero && !dano) avisar(`${pend.nombre} superó la salvación de ${pend.a.n}.`);
+    } catch (e) { avisar(`No se pudo aplicar: ${(e as Error).message}`, 'error'); }
+  };
+  /** El modificador de salvación del objetivo, si se sabe (enemigo con bloque o personaje con hoja). */
+  const modSalv = (k: string, salv: string): number | null => {
+    const y = combatiente(k, cp); if (!y) return null;
+    if (y.c?.saves) return y.c.saves[salv] ?? null;
+    const f = y.m?.ref ? monstruoDe(cp, y.m.ref) : null;
+    return f ? f.salv?.[salv] ?? Math.floor((((f.ab as any)?.[salv] ?? 10) - 10) / 2) : null;
+  };
+  const tirarSalv = async () => {
+    if (!pend) return;
+    const mod = modSalv(pend.k, pend.salv) ?? 0;
+    try {
+      const r = await tirar(`1d20${modStr(mod)}`, `Salvación de ${NOMBRE_SALV[pend.salv] || pend.salv} de ${pend.nombre} (CD ${pend.cd})`, { noRepeat: true });
+      await resolver(r.total >= pend.cd);
+    } catch { /* tirada cancelada */ }
+  };
   return (
     <div className="mt-2 rounded-xl bg-soft p-2 text-sm">
       <div className="flex flex-wrap items-center gap-2">
@@ -835,14 +900,31 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x:
         </select>
         <Boton tamano="sm" onClick={() => marcar(!gastada)}>{gastada ? 'Recuperar' : 'Marcar gastada'}</Boton>
       </div>
-      {lista.length ? lista.map((a, i) => <AccionMonstruo key={`${x.k}-${tipo}-${i}`} cp={cp} x={x} a={a} elegido={elegido} gastada={gastada} marcar={marcar} />)
+      {lista.length ? lista.map((a, i) => <AccionMonstruo key={`${x.k}-${tipo}-${i}`} a={a} x={x} elegido={elegido} danar={danar} pedirSalv={pedirSalv} />)
         : <p className="m-0 mt-2 text-muted">No tiene acciones de este tipo en su bloque.</p>}
+      {pend && (() => {
+        const mod = modSalv(pend.k, pend.salv), nombreSalv = NOMBRE_SALV[pend.salv] || pend.salv;
+        const jug = combatiente(pend.k, cp)?.tipo === 'jug';
+        return (
+          <div className="mt-2 rounded-xl bg-gol/20 p-2" role="status">
+            <p className="m-0"><b>{pend.nombre}</b> hace una salvación de <b>{nombreSalv} CD {pend.cd}</b> ({pend.a.n}).{' '}
+              <span className="text-muted">{[pend.dano ? `Si falla, ${pend.dano} de daño${pend.mitad ? `; si la supera, ${Math.floor(pend.dano / 2)}` : '; si la supera, nada'}` : '', pend.condicion ? `si falla queda ${pend.condicion}` : ''].filter(Boolean).join(', ')}.
+              {jug ? ' Pídele que tire, o tira tú.' : ''}</span></p>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <Boton tamano="sm" onClick={tirarSalv}>Tirar salvación{mod != null ? ` (${sign(mod)})` : ''} y aplicar</Boton>
+              <Boton tamano="sm" variante="primario" onClick={() => resolver(false)}>Falló</Boton>
+              <Boton tamano="sm" onClick={() => resolver(true)}>Superó</Boton>
+              <Boton tamano="sm" variante="fantasma" onClick={() => setPend(null)}>Cancelar</Boton>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
 
 /** Una acción del bloque, paso a paso: el d20 (natural, el bono se suma solo) contra la CA del objetivo, y después el daño. */
-function AccionMonstruo({ cp, x, a, elegido, gastada, marcar }: { cp: any; x: any; a: any; elegido: any; gastada: boolean; marcar: (g: boolean) => void }) {
+function AccionMonstruo({ x, a, elegido, danar, pedirSalv }: { x: any; a: any; elegido: any; danar: (a: any, dano: number) => Promise<boolean>; pedirSalv: (a: any) => void }) {
   const [nat, setNat] = useState(''), [dados, setDados] = useState(''), [adv, setAdv] = useState(0);
   const atkExpr = a.atk != null ? `1d20${modStr(a.atk)}` : '';
   const dexpr = (a.dano || []).map((d: any) => d.d).join('+');
@@ -850,16 +932,8 @@ function AccionMonstruo({ cp, x, a, elegido, gastada, marcar }: { cp: any; x: an
   const total = atkExpr ? totalTirada(atkExpr, nat) : null;
   const acierta = total == null || !elegido ? null : nat === '20' || (nat !== '1' && total >= elegido.ca);
   const dano = !dexpr ? null : conDados ? totalTirada(dexpr, dados, nat === '20') : partesTirada(dexpr).mod;
-  const aplicar = async (cuanto: number) => {
-    if (!elegido) { avisar('Elige primero el objetivo.', 'aviso'); return; }
-    try {
-      if (elegido.tipo === 'jug') await enviarEfectoDm(cp.id, elegido.u.personajeId, { de: x.nombre, dano: cuanto, nota: a.n });
-      else conCamp(c => { cambiarPg(c, elegido.k, -cuanto); });
-      avisar(`${x.nombre} hace ${cuanto} de daño a ${elegido.nombre}${elegido.tipo === 'jug' ? '. Le llega a su hoja.' : '.'}`);
-      if (!gastada) marcar(true);
-      setNat(''); setDados('');
-    } catch (e) { avisar(`No se pudo aplicar: ${(e as Error).message}`, 'error'); }
-  };
+  const salvPrimero = a.atk == null && !!efectoSalvacion(a);
+  const aplicar = async (cuanto: number) => { if (await danar(a, cuanto)) { setNat(''); setDados(''); } };
   return (
     <div className="mt-2 grid gap-2 border-t border-rule pt-2">
       <div>
@@ -867,6 +941,7 @@ function AccionMonstruo({ cp, x, a, elegido, gastada, marcar }: { cp: any; x: an
         {a.dano?.length ? <span>Daño: {a.dano.map((d: any) => `${d.d} ${d.tipo}`).join(' + ')}. </span> : null}
         {a.t && <p className="m-0 mt-0.5 text-muted">{a.t}</p>}
       </div>
+      {!dexpr && !atkExpr && efectoSalvacion(a) && <Boton tamano="sm" variante="primario" className="justify-self-start" onClick={() => pedirSalv(a)}>Pedir salvación</Boton>}
       {atkExpr && (
         <div className="grid gap-1 rounded-lg bg-surface p-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -890,8 +965,9 @@ function AccionMonstruo({ cp, x, a, elegido, gastada, marcar }: { cp: any; x: an
             : <p className="m-0">Daño fijo: <b>{dano}</b>.</p>}
           {dano != null && (
             <div className="flex flex-wrap gap-2">
-              <Boton tamano="sm" variante="primario" onClick={() => aplicar(Math.max(0, dano))}>Aplicar {Math.max(0, dano)} de daño{elegido ? ` a ${elegido.nombre}` : ''}</Boton>
-              {a.cd != null && <Boton tamano="sm" onClick={() => aplicar(Math.floor(Math.max(0, dano) / 2))}>Superó: aplicar la mitad ({Math.floor(Math.max(0, dano) / 2)})</Boton>}
+              <Boton tamano="sm" variante="primario" onClick={() => aplicar(Math.max(0, dano))}>
+                {salvPrimero ? `Pedir salvación (${Math.max(0, dano)} de daño si falla)` : `Aplicar ${Math.max(0, dano)} de daño${elegido ? ` a ${elegido.nombre}` : ''}`}
+              </Boton>
             </div>
           )}
         </div>

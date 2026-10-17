@@ -20,7 +20,16 @@ con la siguiente.
 ## Cómo se busca cada enemigo
 
 Por la clave del bestiario (`goblin-warrior`), por su nombre en inglés (`Goblin Warrior`) o por su nombre en español en
-la app, sin importar mayúsculas ni acentos. Si no aparece, se crea uno propio de la campaña.
+la app, sin importar mayúsculas ni acentos. Muchos monstruos del bestiario todavía tienen solo el nombre en inglés, así
+que lo más seguro es escribir el nombre en inglés, o los dos con el inglés entre paréntesis: `Jefe goblin (Goblin Boss)`.
+Si no aparece, se crea uno propio de la campaña (con CA 12 y 10 PG si el archivo no trae datos; la app avisa al importar).
+
+**Lo que trae el archivo manda sobre el bestiario**:
+
+- un enemigo de `combates` con `ca`, `pg`, `iniciativa` o `acciones` propios queda como una versión de la campaña del
+  monstruo que nombra: cambia solo eso y conserva el resto (ataques, rasgos…). Los demás del mismo monstruo no cambian;
+- un bloque de `monstruos` con el nombre de un monstruo del bestiario lo completa: un bloque con solo `"pg": 40` cambia
+  los PG y deja la CA y los ataques del Manual. El `alias` solo cambia el nombre a mostrar.
 
 ## JSON (recomendado: aguanta bloques completos)
 
@@ -76,15 +85,22 @@ Campos de un bloque en `monstruos` (todos opcionales salvo `n`): `n`, `tam`, `ti
 `ab` (fue, des, con, int, sab, car), `ini`, `cr`, `xp`, `pb`, `salv` ({"des": 5}), `habs` ({"Sigilo": 6}), `sentidos`,
 `idiomas`, `inmune`, `resist`, `vuln`, `condInmune`, `texto` (descripción), y listas `rasgos`, `acciones`,
 `adicionales`, `reacciones`, `legendarias` con `{ n, t, atk, alcance, dano: [{ d, tipo }], cd, salv }`
-(`salv` = fue/des/con/int/sab/car). Lo que tenga `atk` o `dano` se puede tirar en la app.
+(`salv` = fue/des/con/int/sab/car). Lo que tenga `atk` o `dano` se puede tirar en la app. Si además trae `cd` y `salv`,
+la app pide la salvación al objetivo: tras acertar el ataque, o en lugar del ataque si no hay `atk`. La condición que
+deja si falla sale del texto ("o queda Paralizado") y, si el texto dice "la mitad", la mitad del daño entra aunque la supere.
+
+La app también entiende: números con texto (`"pg": "45 (7d8 + 14)"`, `"ca": "16 (cota de malla)"`, `"atk": "+5"`),
+`nombre`/`texto` en lugar de `n`/`t`, `ataque` en lugar de `atk`, `daño` como texto (`"1d6+3 cortante"`) y acciones que
+solo traen texto: de `"+5 al ataque … 7 (1d8 + 3) de daño cortante"` saca el ataque y el daño. Aun así, lo mejor es
+escribir `atk` y `dano` aparte.
 
 ## CSV (para listas sencillas)
 
 Una fila por enemigo; separado por coma o punto y coma. Columnas: `combate`, `enemigo`, `cantidad`, `ca`, `pg`,
 `iniciativa`, `cr`, `notas` y, opcional, `vuelvenDe` (como en JSON; varios combates se separan con `|`,
 p. ej. `Laberinto de Tiris | Huida del pueblo`, o se reparten en varias filas del mismo combate). Las filas con el
-mismo `combate` van juntas. `ca`, `pg` e `iniciativa` solo hacen falta
-para enemigos que no están en el bestiario de la app. El nombre del archivo es el nombre de la sesión.
+mismo `combate` van juntas. `ca`, `pg` e `iniciativa` hacen falta
+para enemigos que no están en el bestiario de la app; en uno que sí está, cambian los del bestiario solo para esa fila. El nombre del archivo es el nombre de la sesión.
 
 ```csv
 combate;enemigo;cantidad;ca;pg;iniciativa;cr;notas

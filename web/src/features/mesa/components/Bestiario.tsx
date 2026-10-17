@@ -7,6 +7,7 @@ import { modStr, norm, sign } from '@/shared/utils/texto';
 import { BotonTirada } from '@/features/dados/components/BotonTirada';
 import { PanelMedia } from '@/features/biblioteca/components/PanelMedia';
 import { getLib } from '@/features/biblioteca/domain/biblioteca';
+import { danosDe } from '../domain/sesion';
 import { bestiarioCargado, buscarMonstruos, cargarBestiario, valorCr, type AccionMonstruo, type Monstruo } from '@/features/reglas/data/bestiario';
 
 const AB: [string, string][] = [['fue', 'FUE'], ['des', 'DES'], ['con', 'CON'], ['int', 'INT'], ['sab', 'SAB'], ['car', 'CAR']];
@@ -28,7 +29,7 @@ export const monstruoDe = (cp: any, ref: string) => cp?.bestiario?.[ref] || best
 const descDe = (k: string, m: Monstruo) => getLib().desc?.['m:' + k] ?? m.texto ?? '';
 
 function LineaAccion({ a, nombre }: { a: AccionMonstruo; nombre: string }) {
-  const danos = a.dano || [];
+  const danos = danosDe(a.dano) || [];
   return (
     <div className="py-1.5">
       <b>{a.n}.</b>{' '}
