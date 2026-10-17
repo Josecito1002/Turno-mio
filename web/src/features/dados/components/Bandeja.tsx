@@ -100,7 +100,8 @@ export function BandejaDados({ children, gastar, quedan }: { children: ReactNode
     if (r.consts) partes.push((r.consts < 0 ? '− ' : '') + Math.abs(r.consts) + (o.mods && sumaMods === r.consts ? ` (${o.mods})` : ''));
     desc = partes.join(' + ').replace(/\+ −/g, '−') + (partes.length > 1 || r.consts ? ` = ${r.total}` : '');
     const single20 = r.groups.length === 1 && r.groups[0].d === 20 && !o.keep;
-    if (single20) botones.push(['adv', 'Con ventaja'], ['dis', 'Con desventaja']);
+    // Con noRepeat el valor ya lo tomó quien pidió la tirada: volver a tirar con ventaja no lo cambiaría
+    if (single20 && !o.noRepeat) botones.push(['adv', 'Con ventaja'], ['dis', 'Con desventaja']);
     // Con un 20 natural el ataque es crítico: el daño tira el doble de dados (el modificador no se duplica)
     if (o.dmg) botones.push(r.nat === 20 ? ['crit', 'Tirar daño crítico'] : ['dmg', 'Tirar daño']);
     if (!single20 && !o.noRepeat) botones.push(['again', 'Otra vez']);

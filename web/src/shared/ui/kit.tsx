@@ -26,7 +26,8 @@ export const claseCampo = cx(
 type Variante = 'primario' | 'secundario' | 'fantasma' | 'peligro';
 const VARIANTE: Record<Variante, string> = {
   primario: 'bg-adi text-bg shadow-[0_0_16px_color-mix(in_srgb,var(--adi)_35%,transparent)] hover:brightness-110',
-  secundario: 'bg-surface text-ink ring-1 ring-inset ring-rule hover:bg-soft',
+  // Fondo más claro que la página y borde visible: en el teléfono tiene que leerse como botón, no como texto
+  secundario: 'bg-soft text-ink shadow-sm ring-1 ring-inset ring-muted/60 hover:bg-rule/60',
   fantasma: 'bg-transparent text-ink hover:bg-soft',
   peligro: 'bg-surface text-acc ring-1 ring-inset ring-acc/50 hover:bg-acc hover:text-bg',
 };

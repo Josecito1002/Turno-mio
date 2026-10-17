@@ -6,10 +6,11 @@ import { almacen } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
 import { confirmar } from '@/shared/ui/confirmar';
 import { modStr, norm, sign, slug } from '@/shared/utils/texto';
-import { Aviso, Boton, Campo, EncabezadoPagina, Fila, Lista, Nota, PanelPestana, Pestanas, Plegable, Seccion, Tarjeta, claseCampo, cx, foco } from '@/shared/ui/kit';
+import { Aviso, Boton, Campo, EncabezadoPagina, Fila, Lista, Nota, PanelPestana, Pestanas, Plegable, Seccion, Simbolo, Tarjeta, claseCampo, cx, foco } from '@/shared/ui/kit';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { BotonTirada } from '@/features/dados/components/BotonTirada';
-import { rnd } from '@/features/dados/domain/dados';
+import { CampoTirada, totalTirada } from '@/features/dados/components/CampoTirada';
+import { partesTirada, rnd } from '@/features/dados/domain/dados';
 import { resumen } from '@/features/personajes/domain/modelo';
 import { abrir, bajarArchivo } from '@/features/personajes/acciones';
 import { Ficha } from '@/features/personajes/components/ficha/Ficha';
@@ -98,7 +99,7 @@ function Condiciones({ cp, k, nombre }: { cp: any; k: string; nombre: string }) 
       )}
       <div className="flex flex-wrap items-center gap-x-3">
         <details className="mt-1">
-          <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>+ Agregar condición</summary>
+          <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center gap-1 rounded-lg bg-soft px-3 text-sm font-bold text-ink ring-1 ring-inset ring-muted/60 hover:bg-rule/60 sm:min-h-9 [&::-webkit-details-marker]:hidden', foco)}>+ Agregar condición</summary>
           <div className="mt-1 flex flex-wrap gap-1.5">{CONDICIONES.filter(n => !e.cond.includes(n)).map(n => chip(n, false))}</div>
         </details>
         {hayQueDeshacer(cp.id) && <button type="button" onClick={() => deshacer(k)} className={cx('min-h-11 cursor-pointer rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8', foco)}>↶ Deshacer lo último de {nombre}</button>}
@@ -813,28 +814,12 @@ function AccionesRonda({ cp, x, campId, clave, eco, nombre }: { cp: any; x: any;
   );
 }
 
-/** Las acciones del bloque de un enemigo o compañero para el tipo elegido: el DM escoge objetivo, tira y aplica el daño. */
+/** Las acciones del bloque de un enemigo o compañero para el tipo elegido: el DM escoge objetivo, tira (en la app o con sus dados) y aplica el daño. */
 function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x: any; ficha: any; tipo: TipoAccionRonda; gastada: boolean; marcar: (g: boolean) => void }) {
-  const tirar = useDados();
   const [obj, setObj] = useState('');
   const lista = ({ accion: ficha.acciones, adicional: ficha.adicionales, reaccion: ficha.reacciones }[tipo] || []) as any[];
   const blancos = (cp.combate.orden || []).map((o: any) => combatiente(o.k, cp)).filter((y: any) => y && y.k !== x.k);
   const elegido = blancos.find((y: any) => y.k === obj);
-  const atacar = (a: any) => {
-    if (!elegido) { avisar('Elige primero el objetivo.', 'aviso'); return; }
-    tirar(`1d20${modStr(a.atk)}`, `${x.nombre}: ${a.n} contra ${elegido.nombre} (CA ${elegido.ca})`, { noRepeat: true }).catch(() => {});
-  };
-  const danar = async (a: any) => {
-    if (!elegido) { avisar('Elige primero el objetivo.', 'aviso'); return; }
-    const expr = (a.dano || []).map((d: any) => d.d).join('+');
-    try {
-      const r = await tirar(expr, `${x.nombre}: ${a.n} (daño a ${elegido.nombre})`, { noRepeat: true });
-      if (elegido.tipo === 'jug') await enviarEfectoDm(cp.id, elegido.u.personajeId, { de: x.nombre, dano: r.total, nota: a.n });
-      else conCamp(c => { cambiarPg(c, elegido.k, -r.total); });
-      avisar(`${x.nombre} hace ${r.total} de daño a ${elegido.nombre}${elegido.tipo === 'jug' ? '. Le llega a su hoja.' : '.'}`);
-      if (!gastada) marcar(true);
-    } catch (e) { if ((e as Error).message && !/dados|cancel/i.test((e as Error).message)) avisar(`No se pudo aplicar: ${(e as Error).message}`, 'error'); }
-  };
   return (
     <div className="mt-2 rounded-xl bg-soft p-2 text-sm">
       <div className="flex flex-wrap items-center gap-2">
@@ -845,19 +830,67 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar }: { cp: any; x:
         </select>
         <Boton tamano="sm" onClick={() => marcar(!gastada)}>{gastada ? 'Recuperar' : 'Marcar gastada'}</Boton>
       </div>
-      {lista.length ? lista.map((a, i) => (
-        <div key={i} className="mt-2 border-t border-rule pt-2">
-          <b>{a.n}.</b> {a.atk != null && <span>{sign(a.atk)} al golpe. </span>}{a.cd != null && <span>Salvación de {a.salv} CD {a.cd}. </span>}
-          {a.dano?.length ? <span>Daño: {a.dano.map((d: any) => `${d.d} ${d.tipo}`).join(' + ')}. </span> : null}
-          {a.t && <p className="m-0 mt-0.5 text-muted">{a.t}</p>}
-          {(a.atk != null || a.dano?.length) && (
-            <div className="mt-1 flex flex-wrap gap-2">
-              {a.atk != null && <Boton tamano="sm" onClick={() => atacar(a)}>Tirar ataque</Boton>}
-              {a.dano?.length ? <Boton tamano="sm" variante="primario" onClick={() => danar(a)}>Tirar daño y aplicar</Boton> : null}
+      {lista.length ? lista.map((a, i) => <AccionMonstruo key={`${x.k}-${tipo}-${i}`} cp={cp} x={x} a={a} elegido={elegido} gastada={gastada} marcar={marcar} />)
+        : <p className="m-0 mt-2 text-muted">No tiene acciones de este tipo en su bloque.</p>}
+    </div>
+  );
+}
+
+/** Una acción del bloque, paso a paso: el d20 (natural, el bono se suma solo) contra la CA del objetivo, y después el daño. */
+function AccionMonstruo({ cp, x, a, elegido, gastada, marcar }: { cp: any; x: any; a: any; elegido: any; gastada: boolean; marcar: (g: boolean) => void }) {
+  const [nat, setNat] = useState(''), [dados, setDados] = useState(''), [adv, setAdv] = useState(0);
+  const atkExpr = a.atk != null ? `1d20${modStr(a.atk)}` : '';
+  const dexpr = (a.dano || []).map((d: any) => d.d).join('+');
+  const conDados = !!dexpr && partesTirada(dexpr).conDados;
+  const total = atkExpr ? totalTirada(atkExpr, nat) : null;
+  const acierta = total == null || !elegido ? null : nat === '20' || (nat !== '1' && total >= elegido.ca);
+  const dano = !dexpr ? null : conDados ? totalTirada(dexpr, dados, nat === '20') : partesTirada(dexpr).mod;
+  const aplicar = async (cuanto: number) => {
+    if (!elegido) { avisar('Elige primero el objetivo.', 'aviso'); return; }
+    try {
+      if (elegido.tipo === 'jug') await enviarEfectoDm(cp.id, elegido.u.personajeId, { de: x.nombre, dano: cuanto, nota: a.n });
+      else conCamp(c => { cambiarPg(c, elegido.k, -cuanto); });
+      avisar(`${x.nombre} hace ${cuanto} de daño a ${elegido.nombre}${elegido.tipo === 'jug' ? '. Le llega a su hoja.' : '.'}`);
+      if (!gastada) marcar(true);
+      setNat(''); setDados('');
+    } catch (e) { avisar(`No se pudo aplicar: ${(e as Error).message}`, 'error'); }
+  };
+  return (
+    <div className="mt-2 grid gap-2 border-t border-rule pt-2">
+      <div>
+        <b>{a.n}.</b> {a.atk != null && <span>{sign(a.atk)} al golpe. </span>}{a.cd != null && <span>Salvación de {a.salv} CD {a.cd}. </span>}
+        {a.dano?.length ? <span>Daño: {a.dano.map((d: any) => `${d.d} ${d.tipo}`).join(' + ')}. </span> : null}
+        {a.t && <p className="m-0 mt-0.5 text-muted">{a.t}</p>}
+      </div>
+      {atkExpr && (
+        <div className="grid gap-1 rounded-lg bg-surface p-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-xs font-bold uppercase tracking-wide text-muted">1. Ataque</span>
+            <select aria-label={`Ventaja en ${a.n}`} value={adv} onChange={e => setAdv(+e.target.value)} className={cx(claseCampo, 'min-h-9! w-auto! text-sm')}>
+              <option value={0}>Normal</option><option value={1}>Con ventaja</option><option value={-1}>Con desventaja</option>
+            </select>
+          </div>
+          <CampoTirada tipo="ataque" expr={atkExpr} valor={nat} alCambiar={setNat} adv={adv} claseInput={claseCampo}
+            etiqueta={`${x.nombre}: ${a.n}${elegido ? ` contra ${elegido.nombre} (CA ${elegido.ca})` : ''}`} />
+          {total != null && (elegido
+            ? <p className={cx('m-0 font-bold', acierta ? 'text-pas' : 'text-acc')}>{total} contra CA {elegido.ca}: {acierta ? (nat === '20' ? 'acierta con crítico' : 'acierta') : 'falla, no hace daño'}.</p>
+            : <p className="m-0 text-muted">Elige el objetivo para saber si acierta.</p>)}
+        </div>
+      )}
+      {dexpr && acierta !== false && (
+        <div className="grid gap-1 rounded-lg bg-surface p-2">
+          <span className="text-xs font-bold uppercase tracking-wide text-muted">{atkExpr ? '2. Daño' : a.cd != null ? 'Daño (si falla la salvación)' : 'Daño'}</span>
+          {conDados
+            ? <CampoTirada tipo="dano" expr={dexpr} valor={dados} alCambiar={setDados} crit={nat === '20'} claseInput={claseCampo} etiqueta={`${x.nombre}: ${a.n} (daño${elegido ? ` a ${elegido.nombre}` : ''})`} />
+            : <p className="m-0">Daño fijo: <b>{dano}</b>.</p>}
+          {dano != null && (
+            <div className="flex flex-wrap gap-2">
+              <Boton tamano="sm" variante="primario" onClick={() => aplicar(Math.max(0, dano))}>Aplicar {Math.max(0, dano)} de daño{elegido ? ` a ${elegido.nombre}` : ''}</Boton>
+              {a.cd != null && <Boton tamano="sm" onClick={() => aplicar(Math.floor(Math.max(0, dano) / 2))}>Superó: aplicar la mitad ({Math.floor(Math.max(0, dano) / 2)})</Boton>}
             </div>
           )}
         </div>
-      )) : <p className="m-0 mt-2 text-muted">No tiene acciones de este tipo en su bloque.</p>}
+      )}
     </div>
   );
 }
@@ -919,7 +952,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
         {nuevos.length > 0 && <Boton onClick={sumarNuevos}>Sumar {nuevos.length === 1 ? `a ${combatiente(nuevos[0], cp)?.nombre}` : `a ${nuevos.length} jugadores`}</Boton>}
         {hayQueDeshacer(cp.id) && <Boton onClick={() => deshacer()}>↶ Deshacer</Boton>}
         <details className="w-full">
-          <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>Descansos e inspiración</summary>
+          <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center gap-1 rounded-lg bg-soft px-3 text-sm font-bold text-ink ring-1 ring-inset ring-muted/60 hover:bg-rule/60 sm:min-h-9 [&::-webkit-details-marker]:hidden', foco)}><Simbolo n="bedtime" />Descansos e inspiración</summary>
           <div className="mt-1 flex flex-wrap gap-2">
             <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'corto')}>Descanso corto</Boton>
             <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'largo')}>Descanso largo</Boton>
@@ -970,7 +1003,7 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
               {x.tipo === 'm' && <SalvacionesPendientes cp={cp} x={x} salvs={vivo.salvs} />}
               <GolpesPendientes cp={cp} k={x.k} nombre={x.nombre} golpes={vivo.golpes} />
               {x.tipo === 'm' && !x.m.aliado && <InfoParaJugadores cp={cp} x={x} peticiones={vivo.peticiones} />}
-              {x.tipo === 'jug' && <details className="mt-1"><summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center rounded-lg px-1 text-sm text-muted hover:text-ink sm:min-h-8 [&::-webkit-details-marker]:hidden', foco)}>Hoja resumida</summary><Pasivas x={x} /></details>}
+              {x.tipo === 'jug' && <details className="mt-1"><summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center gap-1 rounded-lg bg-soft px-3 text-sm font-bold text-ink ring-1 ring-inset ring-muted/60 hover:bg-rule/60 sm:min-h-9 [&::-webkit-details-marker]:hidden', foco)}><Simbolo n="description" />Hoja resumida</summary><Pasivas x={x} /></details>}
               <PuntosGolpe cp={cp} x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
               {x.tipo === 'm' && x.m.ref && <VerBloque cp={cp} r={x.m.ref} nombre={x.nombre} />}
             </Tarjeta>
@@ -1123,7 +1156,7 @@ function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) 
     <>
       <EncabezadoPagina id="titulo-vista" titulo={cp.nombre} subtitulo={`${total} personaje${total === 1 ? '' : 's'}${unidos.length ? `, ${unidos.length} unido${unidos.length === 1 ? '' : 's'} con el código` : ''}. Condiciones e iniciativa quedan guardadas en la campaña.`}>
         <Boton variante="fantasma" onClick={() => abrirCampana(null)}>← Todas las campañas</Boton>
-        {unidos.length > 0 && <Boton onClick={() => mandarOrden(cp.id, 'largo')}>Descanso largo</Boton>}
+        {unidos.length > 0 && <Boton onClick={() => mandarOrden(cp.id, 'largo')}><Simbolo n="bedtime" />Descanso largo</Boton>}
       </EncabezadoPagina>
       <Pestanas idBase="mesa" etiqueta="Secciones de la campaña" activa={mtab} onCambiar={k => { S.mtab = k; render(); }}
         items={[{ id: 'grupo', texto: 'Grupo' }, { id: 'sesion', texto: encuentros.length ? `Sesión · ${encuentros.length}` : 'Sesión' },
