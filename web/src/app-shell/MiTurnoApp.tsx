@@ -195,6 +195,8 @@ function MenuCompleto({ invitado, onCerrar, onClave, onNombre, onCompartir }: { 
           <TituloMenu>{pj.nombre || 'Personaje'}</TituloMenu>
           {enEditor && <ItemMenu icono="description" onClick={hacer(verHoja)}>Listo</ItemMenu>}
           {enFicha && <ItemMenu icono="edit" onClick={hacer(editar)}>Editar personaje</ItemMenu>}
+          {enFicha && <ItemMenu icono="hourglass_empty" onClick={hacer(() => descansar('corto'))}>Descanso corto</ItemMenu>}
+          {enFicha && <ItemMenu icono="bedtime" onClick={hacer(() => descansar('largo'))}>Descanso largo</ItemMenu>}
           {c.C && c.lvl < 20 && <ItemMenu icono="arrow_upward" onClick={hacer(subir)} extra={falta.length ? <span className="text-label-caps uppercase text-outline">Falta elegir</span> : undefined}>Subir a nivel {c.lvl + 1}</ItemMenu>}
           {c.C && c.lvl > 1 && <ItemMenu icono="arrow_downward" onClick={hacer(bajarNivel)}>Bajar a nivel {c.lvl - 1}</ItemMenu>}
           <ItemMenu icono="backpack" onClick={hacer(() => abrirDialogo('equipo'))}>Equipo e inventario</ItemMenu>
