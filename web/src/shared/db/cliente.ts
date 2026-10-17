@@ -1,10 +1,10 @@
 import 'server-only';
-import { crearDb, type DB } from './conectar';
+import { crearDb, urlServidor, type DB } from './conectar';
 
 /* La conexión se abre en la primera consulta, no al importar el módulo
    (así `next build` no intenta conectarse a la base). */
 const g = globalThis as unknown as { __miturnoDb?: ReturnType<typeof crearDb> };
-const conexion = () => g.__miturnoDb ?? (g.__miturnoDb = crearDb());
+const conexion = () => g.__miturnoDb ?? (g.__miturnoDb = crearDb(urlServidor(process.env.DATABASE_URL)));
 
 export const db = new Proxy({} as DB, {
   get(_, prop) {

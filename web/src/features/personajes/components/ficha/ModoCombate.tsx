@@ -363,11 +363,12 @@ export function ModoCombate({ c }: { c: any }) {
   const toques = useRef<Partial<Record<TipoAccionRonda, number>>>({});
 
   useEffect(() => {
-    let vivo = true;
+    let vivo = true, fallos = 0, ocupado = false;
     const ref = { dmId, campanaId, personajeId };
-    const leer = () => combateMesa(ref).then(d => {
+    // Con la pestaña oculta no se pregunta, y nunca hay dos lecturas a la vez si el servidor tarda
+    const leer = () => { if (ocupado || document.hidden) return; ocupado = true; combateMesa(ref).then(d => {
       if (!vivo) return;
-      setViv(d); setError('');
+      fallos = 0; setViv(d); setError('');
       aplicarOrdenes(d?.ordenes, personajeId);
       const e = d?.economia?.[personajeId] || {};
       // Un toque reciente manda sobre lo que devuelva el servidor, para que el botón no parpadee
@@ -376,9 +377,10 @@ export function ModoCombate({ c }: { c: any }) {
         for (const t of TIPOS_BOTON) if (Date.now() - (toques.current[t] || 0) < 3000) sig[t] = prev[t];
         return sig;
       });
-    }).catch((err: Error) => { if (vivo) setError(err.message); });
+    // Un fallo suelto se arregla en la siguiente vuelta: solo se avisa si se repite
+    }).catch((err: Error) => { if (vivo && ++fallos >= 3) setError(err.message); }).finally(() => { ocupado = false; }); };
     leer();
-    const id = setInterval(leer, 2000);
+    const id = setInterval(leer, 2500);
     return () => { vivo = false; clearInterval(id); };
   }, [dmId, campanaId, personajeId]);
 
