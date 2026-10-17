@@ -9,6 +9,7 @@ import { AB } from '@/features/reglas/data/caracteristicas';
 import { CampoTirada, totalTirada } from '@/features/dados/components/CampoTirada';
 import { responderSalvacionMesa } from '@/features/mesa/api';
 import { aplicarEfecto, avisosGrandes, type AvisoGrande } from './ordenes-dm';
+import { setVal } from '../../acciones';
 import { textoDuracion } from '@/features/mesa/domain/duracion';
 import { concentracionActual, terminarConcentracion, ventajaConcentracion } from './concentracion';
 
@@ -86,17 +87,24 @@ function Salvacion({ a }: { a: Extract<AvisoGrande, { tipo: 'salvacion' }> }) {
   const expr = `1d20${modStr(mod)}`;
   const base = totalTirada(expr, nat), total = base == null ? null : base + (bendicion && bend !== '' ? Math.round(+bend || 0) : 0);
   const supera = total != null && total >= cd;
-  const siFalla = [dano ? `${dano} de daño` : '', o.condicion ? `quedas ${o.condicion}` : ''].filter(Boolean).join(' y ');
-  const siSupera = dano && o.mitad ? `la mitad del daño (${Math.floor(dano / 2)})` : 'no te pasa nada';
+  // Repetirla al final de tu turno: si la superas, te libras de la condición
+  const libra = !!o.librarse && !!o.condicion;
+  const siFalla = libra ? `sigues ${o.condicion}` : [dano ? `${dano} de daño` : '', o.condicion ? `quedas ${o.condicion}` : ''].filter(Boolean).join(' y ');
+  const siSupera = libra ? `te libras de ${o.condicion}` : dano && o.mitad ? `la mitad del daño (${Math.floor(dano / 2)})` : 'no te pasa nada';
   const confirmar = async () => {
     if (total == null) return;
     setOcupado(true);
-    const final = supera ? (o.mitad ? Math.floor(dano / 2) : 0) : dano, cond = supera ? null : o.condicion || null;
-    if (final || cond) aplicarEfecto({ ...o, tipo: 'efecto', dano: final, condicion: cond }, false, a.mesa);
+    const final = libra ? 0 : supera ? (o.mitad ? Math.floor(dano / 2) : 0) : dano, cond = libra ? o.condicion! : supera ? null : o.condicion || null;
+    if (libra) {
+      if (supera) setVal('efectos', (S.pj?.efectos || []).filter((x: any) => x.nombre !== cond));
+      avisar(supera ? `Te libras de ${cond}.` : `Sigues ${cond}: vuelves a tirar al final de tu próximo turno.`);
+    } else if (final || cond) aplicarEfecto({ ...o, tipo: 'efecto', dano: final, condicion: cond }, false, a.mesa);
     else avisar(`Superaste la salvación de ${nombreAb(salv)}.`);
     try {
-      const dura = cond && o.rondas ? { rondas: o.rondas, ...(o.hasta ? { hastaRonda: o.hasta.ronda, hastaK: o.hasta.k } : {}), ...(o.conc ? { conc: o.conc } : {}) } : {};
-      if (a.mesa) await responderSalvacionMesa(a.mesa, { pedido: o.id, total, supero: supera, dano: final, ...(cond ? { condicion: cond } : {}), ...dura });
+      const dura = cond && !libra && o.rondas ? { rondas: o.rondas, ...(o.hasta ? { hastaRonda: o.hasta.ronda, hastaK: o.hasta.k } : {}), ...(o.conc ? { conc: o.conc } : {}) } : {};
+      // Si la condición se puede quitar repitiendo la salvación, el DM sabe cuál y contra qué CD
+      const repite = cond && (o.repite || libra) ? { repite: true, salv, cd } : {};
+      if (a.mesa) await responderSalvacionMesa(a.mesa, { pedido: o.id, total, supero: supera, dano: final, ...(cond ? { condicion: cond } : {}), ...dura, ...repite });
     } catch (e) { avisar(`Tu DM no recibió el resultado: ${(e as Error).message}. Díselo en voz alta.`, 'error'); }
     setOcupado(false);
     avisosGrandes.quitar(a.id);
@@ -105,10 +113,10 @@ function Salvacion({ a }: { a: Extract<AvisoGrande, { tipo: 'salvacion' }> }) {
     <>
       <div className="rounded-3xl bg-gol/20 p-6 text-center">
         <Simbolo n="shield" className="text-6xl text-gol" />
-        <h2 className="m-0 mt-2 font-serif text-3xl font-extrabold">Debes hacer una tirada de salvación</h2>
+        <h2 className="m-0 mt-2 font-serif text-3xl font-extrabold">{libra ? `Termina tu turno: repite la salvación contra ${o.condicion}` : 'Debes hacer una tirada de salvación'}</h2>
         <p className="m-0 mt-2 font-serif text-4xl font-extrabold">{nombreAb(salv)} CD {cd}</p>
         <p className="m-0 mt-2 text-lg">{o.de || 'Tu DM'}{o.nota ? `: ${o.nota}` : ''}</p>
-        <p className="m-0 mt-2 text-sm text-muted">{siFalla ? `Si fallas, ${siFalla}. ` : ''}Si la superas, {siSupera}.</p>
+        <p className="m-0 mt-2 text-sm text-muted">{siFalla ? `Si fallas, ${siFalla}. ` : ''}Si la superas, {siSupera}.{o.repite && !libra && o.condicion ? ` Si quedas ${o.condicion}, repites la salvación al final de cada turno tuyo.` : ''}</p>
       </div>
       <div className="grid gap-3 rounded-2xl bg-surface p-4">
         <CampoTirada tipo="ataque" expr={expr} valor={nat} alCambiar={setNat} etiqueta={`Salvación de ${nombreAb(salv)} (CD ${cd})`} sinCritico

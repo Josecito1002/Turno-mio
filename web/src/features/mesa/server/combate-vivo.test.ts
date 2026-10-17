@@ -152,6 +152,16 @@ describe('salvaciones que el DM pide a un jugador', () => {
     v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
     assert.equal(v.respuestas.length, 0);
   });
+  test('la que se repite al final de cada turno: el DM la pide para librarse y la respuesta trae contra qué', async () => {
+    await M.pedirSalvacionDm(null, { campanaId: 'c1', personajeId: 'pj1', de: 'Meenlock', salv: 'con', cd: 11, dano: 0, mitad: false, condicion: 'Paralizado', librarse: true, repite: true }, ctx(dm));
+    let v = await Q.combateMesa(null, unido, ctx(jug));
+    const o = v.ordenes.filter((x: any) => x.tipo === 'salvacion').at(-1);
+    assert.equal(o.librarse, true); assert.equal(o.repite, true);
+    await M.responderSalvacionMesa(null, { ...unido, pedido: o.id, total: 9, supero: false, dano: 0, condicion: 'Paralizado', repite: true, salv: 'CON', cd: 11 }, ctx(jug));
+    v = await Q.combateVivo(null, { campanaId: 'c1' }, ctx(dm));
+    const r = v.respuestas.at(-1);
+    assert.equal(r.repite, true); assert.equal(r.salv, 'con'); assert.equal(r.cd, 11);
+  });
   test('solo el DM la pide, solo el jugador unido responde', async () => {
     await assert.rejects(M.pedirSalvacionDm(null, { campanaId: 'c1', personajeId: 'pj1', de: 'X', salv: 'con', cd: 11, dano: 0, mitad: false }, ctx(jug)));
     await assert.rejects(M.pedirSalvacionDm(null, { campanaId: 'c1', personajeId: 'pj1', de: 'X', salv: 'xyz', cd: 11, dano: 0, mitad: false }, ctx(dm)));

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { hastaDesde, rondasDe, rondasRestantes, textoDuracion, vencerCondiciones, hastaDe, quitarConcentracion } from './duracion';
+import { hastaDesde, rondasDe, rondasRestantes, textoDuracion, vencerCondiciones, hastaDe, quitarConcentracion, repeticionesDe, quitarCondicion } from './duracion';
 
 test('lee cuántas rondas dura un efecto', () => {
   assert.equal(rondasDe('Concentración, hasta 1 minuto'), 10);
@@ -60,4 +60,11 @@ test('al perder la concentración se quita lo que dependía de ella', () => {
   assert.deepEqual(quitarConcentracion(estado, 'p1-x'), ['m:1: Paralizado']);
   assert.deepEqual(estado['m:1'].cond, ['Derribado']);
   assert.deepEqual(estado['m:2'].cond, ['Paralizado']);
+});
+
+test('las salvaciones que se repiten son solo de las condiciones que siguen', () => {
+  const e: any = { cond: ['Paralizado'], hasta: { Paralizado: { ronda: 5, k: 'a' } }, repite: { Paralizado: { salv: 'sab', cd: 13, de: 'Ana' }, Asustado: { salv: 'sab', cd: 13, de: 'Ana' } } };
+  assert.deepEqual(repeticionesDe(e), [{ cond: 'Paralizado', r: { salv: 'sab', cd: 13, de: 'Ana' } }]);
+  quitarCondicion(e, 'Paralizado');
+  assert.deepEqual(e.cond, []); assert.equal(e.hasta.Paralizado, undefined); assert.equal(e.repite.Paralizado, undefined);
 });

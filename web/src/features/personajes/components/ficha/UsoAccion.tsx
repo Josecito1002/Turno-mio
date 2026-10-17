@@ -8,6 +8,7 @@ import { TIPOS } from '@/features/reglas/data/caracteristicas';
 import { CampoTirada, totalTirada } from '@/features/dados/components/CampoTirada';
 import { partesTirada } from '@/features/dados/domain/dados';
 import { CONDICIONES } from '@/features/mesa/domain/combate';
+import { repiteSalvacion } from '@/features/mesa/domain/condiciones';
 import { hastaDe, rondasDe, textoDuracion } from '@/features/mesa/domain/duracion';
 import { empezarConcentracion, terminarConcentracion } from './concentracion';
 import { gastarEspacio, gastarRecurso, setMano } from '../../acciones';
@@ -222,7 +223,7 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
       if (objetivos.length && (n || cond || uso.efecto)) {
         const tipoDano = n && !uso.cura && uso.tipoDano ? { tipoDano: uso.tipoDano } : {};
         const dura = (objetivo?: string) => (cond || uso.efecto ? { ...duracionPara(objetivo), ...(conc ? { conc } : {}) } : {});
-        if (uso.salv && uso.cd && !uso.cura) await enviarSalvacionMesa(mesa, { objetivos, salv: uso.salv, cd: uso.cd, dano: n, mitad, ...(cond ? { condicion: cond } : {}), nota: uso.nombre, ...tipoDano, ...dura(objetivos[0]) });
+        if (uso.salv && uso.cd && !uso.cura) await enviarSalvacionMesa(mesa, { objetivos, salv: uso.salv, cd: uso.cd, dano: n, mitad, ...(cond ? { condicion: cond } : {}), nota: uso.nombre, ...tipoDano, ...dura(objetivos[0]), ...(cond && repiteSalvacion(uso.texto) ? { repite: true } : {}) });
         else for (const objetivo of objetivos) await enviarGolpeMesa(mesa, { objetivo, dano: n, ...(uso.cura ? { cura: true } : {}), ...(cond || uso.efecto ? { condicion: cond || uso.efecto!.condicion } : {}), ...(uso.efecto ? { bono: uso.efecto.bono } : {}), nota: uso.nombre, ...tipoDano, ...dura(objetivo) });
       }
       if (uso.equipar && arma) setMano('a', arma);

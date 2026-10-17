@@ -79,6 +79,7 @@ export function vencerCondiciones(estado: Record<string, any>, cb: Combate, nomb
       delete e.hasta[cond];
       if (e.dur) delete e.dur[cond];
       if (e.conc) delete e.conc[cond];
+      if (e.repite) delete e.repite[cond];
       fin.push(`${nombre(k)}: ${cond}`);
     }
   }
@@ -96,8 +97,23 @@ export function quitarConcentracion(estado: Record<string, any>, conc: string, n
       delete e.conc[cond];
       if (e.hasta) delete e.hasta[cond];
       if (e.dur) delete e.dur[cond];
+      if (e.repite) delete e.repite[cond];
       fin.push(`${nombre(k)}: ${cond}`);
     }
   }
   return fin;
+}
+
+/** Una condición de la que se puede librar repitiendo la salvación al final de cada uno de sus turnos. */
+export type Repite = { salv: string; cd: number; de: string; pid?: string };
+/** Las salvaciones que repite `k` al terminar su turno (solo de las condiciones que todavía tiene). */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function repeticionesDe(e: any): { cond: string; r: Repite }[] {
+  return Object.entries((e?.repite || {}) as Record<string, Repite>).filter(([cond]) => (e.cond || []).includes(cond)).map(([cond, r]) => ({ cond, r }));
+}
+/** Se libra de la condición: se quita con su duración, su concentración y su repetición. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function quitarCondicion(e: any, cond: string) {
+  e.cond = (e.cond || []).filter((x: string) => x !== cond);
+  for (const campo of ['hasta', 'dur', 'conc', 'repite']) if (e[campo]) delete e[campo][cond];
 }
