@@ -76,9 +76,10 @@ describe('Info sesión: los datos del archivo mandan', () => {
     assert.deepEqual(m.acciones.map(a => [a.atk, a.dano]), [[5, [{ d: '1d6+3', tipo: 'contundente' }]], [6, [{ d: '3d6', tipo: 'fuego' }]]]);
   });
 
-  test('el bloque con el nombre a mostrar manda sobre el monstruo que nombra', () => {
-    const s = leer({ combates: [{ nombre: 'C', enemigos: [{ monstruo: 'Bandit', alias: 'Bandido de Varr' }] }], monstruos: { 'Bandido de Varr': { pg: 25, ca: 13 } } });
-    assert.equal(ficha(s).pg, 25);
+  test('el alias solo cambia el nombre: Sabela en la mansión es un meenlock normal aunque haya un bloque Sabela', () => {
+    const s = leer({ combates: [{ nombre: 'C', enemigos: [{ monstruo: 'Meenlock', alias: 'Sabela' }] }],
+      monstruos: { Meenlock: { n: 'Meenlock', ca: 15, pg: 31 }, Sabela: { n: 'Sabela', ca: 15, pg: 45 } } });
+    assert.equal(ficha(s).pg, 31);
   });
 
   test('nombre con el inglés entre paréntesis', () => {

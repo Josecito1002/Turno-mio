@@ -136,9 +136,6 @@ export function leerSesion(texto: string, nombreArchivo: string, catalogo: Recor
   /** La clave del enemigo. Si trae datos propios (CA, PG, ataques), queda una versión de la campaña: sobre el monstruo
       del bestiario si lo hay, o nueva si no existe en ninguno. */
   const resolver = (nombre: string, datos: any, alias = ''): string => {
-    // Un bloque de `monstruos` con el nombre a mostrar ("Bandido de Varr") manda sobre el monstruo base que nombra
-    const porAlias = alias && !datos ? encontrarMonstruo(alias, nuevos) || (variantes[claveMonstruo(alias)] ? claveMonstruo(alias) : '') : '';
-    if (porAlias) return porAlias;
     const k = buscar(nombre);
     if (k && !datos) return k;
     const baseK = k || buscar(String(datos?.en || ''));
