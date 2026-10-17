@@ -1106,6 +1106,7 @@ function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) 
     <>
       <EncabezadoPagina id="titulo-vista" titulo={cp.nombre} subtitulo={`${total} personaje${total === 1 ? '' : 's'}${unidos.length ? `, ${unidos.length} unido${unidos.length === 1 ? '' : 's'} con el código` : ''}. Condiciones e iniciativa quedan guardadas en la campaña.`}>
         <Boton variante="fantasma" onClick={() => abrirCampana(null)}>← Todas las campañas</Boton>
+        {unidos.length > 0 && <Boton onClick={() => mandarOrden(cp.id, 'largo')}>Descanso largo</Boton>}
       </EncabezadoPagina>
       <Pestanas idBase="mesa" etiqueta="Secciones de la campaña" activa={mtab} onCambiar={k => { S.mtab = k; render(); }}
         items={[{ id: 'grupo', texto: 'Grupo' }, { id: 'sesion', texto: encuentros.length ? `Sesión · ${encuentros.length}` : 'Sesión' },
