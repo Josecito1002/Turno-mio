@@ -6,6 +6,7 @@ import { almacen } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
 import { confirmar } from '@/shared/ui/confirmar';
 import { modStr, norm, sign, slug } from '@/shared/utils/texto';
+import { PopupGrande } from '@/shared/ui/PopupGrande';
 import { Aviso, Boton, Campo, Dialogo, EncabezadoPagina, Fila, Lista, Nota, PanelPestana, Pestanas, Plegable, Seccion, Simbolo, Tarjeta, claseCampo, cx, foco } from '@/shared/ui/kit';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { BotonTirada } from '@/features/dados/components/BotonTirada';
@@ -840,16 +841,20 @@ function useEconomiaVivo(campId: string, activo: boolean): VivoDm {
 
 /** Respuestas de salvación de los jugadores ya vistas (para anotar su condición una sola vez) y las que el DM ya cerró. */
 const respuestasVistas = new Set<string>(), respuestasCerradas = new Set<string>();
-/** Lo que respondieron los jugadores a las salvaciones que les pediste, hasta que lo des por visto. */
+/** Lo que respondieron los jugadores a las salvaciones que les pediste: un aviso amarillo de a uno, hasta que lo des por visto. */
 function RespuestasSalvacion({ campId, respuestas }: { campId: string; respuestas: RespuestaSalvacion[] }) {
   const [, setN] = useState(0);
   const cerrar = (r: RespuestaSalvacion) => { respuestasCerradas.add(r.id); setN(n => n + 1); quitarRespuestas(campId, [r.id]).catch(() => {}); };
-  return <>{respuestas.filter(r => !respuestasCerradas.has(r.id)).map(r => (
-    <Aviso key={r.id} tipo={r.supero ? 'info' : 'aviso'} titulo={`${r.de} ${r.supero ? 'superó' : 'falló'} la salvación (sacó ${r.total})`}
-      accion={<Boton tamano="sm" onClick={() => cerrar(r)}>Entendido</Boton>}>
-      {r.supero && r.condicion ? `Se libra de ${r.condicion}` : [r.dano ? `Recibió ${r.dano} de daño` : r.supero ? 'No le pasa nada' : '', r.condicion ? `queda ${r.condicion}` : ''].filter(Boolean).join(' y ') || 'Ya se aplicó en su hoja'}.
-    </Aviso>
-  ))}</>;
+  const lista = respuestas.filter(r => !respuestasCerradas.has(r.id)), r = lista[0];
+  return (
+    <PopupGrande abierto={!!r} tono="salvacion" titulo={r ? `${r.de} ${r.supero ? 'superó' : 'falló'} la salvación` : ''} texto={r ? `Sacó ${r.total}.` : undefined}>
+      {r && <>
+        <p className="m-0 text-center text-lg">{r.supero && r.condicion ? `Se libra de ${r.condicion}` : [r.dano ? `Recibió ${r.dano} de daño` : r.supero ? 'No le pasa nada' : '', r.condicion ? `queda ${r.condicion}` : ''].filter(Boolean).join(' y ') || 'Ya se aplicó en su hoja'}.</p>
+        {lista.length > 1 && <p className="m-0 text-center text-sm text-muted">Hay {lista.length - 1} aviso{lista.length > 2 ? 's' : ''} más después de este.</p>}
+        <Boton variante="primario" className="min-h-14 text-lg" onClick={() => cerrar(r)}>Entendido</Boton>
+      </>}
+    </PopupGrande>
+  );
 }
 
 /** Salvaciones ya resueltas en esta pantalla (la lista del servidor tarda un rato en vaciarse). */
@@ -944,8 +949,8 @@ function AccionesRonda({ cp, x, campId, clave, eco, nombre }: { cp: any; x: any;
               <Boton onClick={() => setIgual(true)}>Actuar igual (lo decides tú)</Boton>
             </div>
           </div>
-        ) : ficha ? <AccionesMonstruo cp={cp} x={x} ficha={ficha} tipo={abierto} gastada={!!ahora(abierto)} marcar={g => tocar(abierto, g)} alTerminar={cerrar} />
-          : <AccionesPersonaje cp={cp} x={x} tipo={abierto} gastada={!!ahora(abierto)} marcar={g => tocar(abierto, g)} alTerminar={cerrar} />)}
+        ) : ficha ? <AccionesMonstruo cp={cp} x={x} ficha={ficha} tipo={abierto} gastada={!!ahora(abierto)} marcar={g => tocar(abierto, g)} alTerminar={cerrar} alSeguir={setAbierto} />
+          : <AccionesPersonaje cp={cp} x={x} tipo={abierto} gastada={!!ahora(abierto)} marcar={g => tocar(abierto, g)} alTerminar={cerrar} alSeguir={setAbierto} />)}
       </Dialogo>
     </>
   );
@@ -953,12 +958,12 @@ function AccionesRonda({ cp, x, campId, clave, eco, nombre }: { cp: any; x: any;
 
 /** Lo que el personaje puede hacer, como en su teléfono: el DM elige y lo tira por él (ataque contra la CA, daño y salvaciones).
  *  Los espacios y usos que gaste los descuenta el jugador en su hoja. */
-function AccionesPersonaje({ cp, x, tipo, gastada, marcar, alTerminar }: { cp: any; x: any; tipo: TipoAccionRonda; gastada: boolean; marcar: (g: boolean) => void; alTerminar?: () => void }) {
+function AccionesPersonaje({ cp, x, tipo, gastada, marcar, alTerminar, alSeguir }: { cp: any; x: any; tipo: TipoAccionRonda; gastada: boolean; marcar: (g: boolean) => void; alTerminar?: () => void; alSeguir?: (t: TipoAccionRonda) => void }) {
   const [elegido, setElegido] = useState<Uso | null>(null), [usando, setUsando] = useState<any>(null);
   if (usando) return (
     <div className="grid gap-2">
       <Boton variante="fantasma" className="justify-self-start" onClick={() => setUsando(null)}>← Elegir otra cosa</Boton>
-      <AccionesMonstruo cp={cp} x={x} ficha={{ acciones: [usando], adicionales: [usando], reacciones: [usando] }} tipo={tipo} gastada={gastada} marcar={marcar} alTerminar={alTerminar} />
+      <AccionesMonstruo cp={cp} x={x} ficha={{ acciones: [usando], adicionales: [usando], reacciones: [usando] }} tipo={tipo} gastada={gastada} marcar={marcar} alTerminar={alTerminar} alSeguir={alSeguir} />
     </div>
   );
   const usar = () => {
@@ -988,10 +993,10 @@ function accionDeUso(u: Uso) {
 }
 
 /** Las acciones del bloque de un enemigo o compañero para el tipo elegido: el DM escoge objetivo, tira (en la app o con sus dados) y aplica el daño. */
-function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar, alTerminar }: { cp: any; x: any; ficha: any; tipo: TipoAccionRonda; gastada: boolean; marcar: (g: boolean) => void; alTerminar?: () => void }) {
+function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar, alTerminar, alSeguir }: { cp: any; x: any; ficha: any; tipo: TipoAccionRonda; gastada: boolean; marcar: (g: boolean) => void; alTerminar?: () => void; alSeguir?: (t: TipoAccionRonda) => void }) {
   const [obj, setObj] = useState('');
   // Terminó de hacer todo lo que pedía la acción: la ventana se cierra sola cuando no queda nada por resolver
-  const [listo, setListo] = useState(false);
+  const [listo, setListo] = useState(false), [seguir, setSeguir] = useState<Extra[]>([]), [descartado, setDescartado] = useState(false);
   // Los daños como lista aunque un archivo de sesión viejo los haya guardado como texto
   const lista = (({ accion: ficha.acciones, adicional: ficha.adicionales, reaccion: ficha.reacciones }[tipo] || []) as any[]).map(a => ({ ...a, dano: danosDe(a.dano) }));
   const blancos = (cp.combate.orden || []).map((o: any) => combatiente(o.k, cp)).filter((y: any) => y && y.k !== x.k);
@@ -1095,9 +1100,18 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar, alTerminar }: {
       await resolver(r.total >= pend.cd);
     } catch { /* tirada cancelada */ }
   };
-  useEffect(() => { if (listo && !pend) alTerminar?.(); }, [listo, pend]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Al terminar: si el ataque acertó y hay otro con el que seguir (acción adicional), un aviso celeste; si no, la ventana se cierra sola
+  const sigue = listo && !pend && seguir.length > 0 && !!alSeguir && !descartado;
+  useEffect(() => { if (listo && !pend && !(seguir.length && alSeguir)) alTerminar?.(); }, [listo, pend]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div className="mt-2 rounded-xl bg-soft p-2 text-sm">
+      <PopupGrande abierto={sigue} tono="seguimiento" titulo={`¡${x.nombre} acertó!`} texto="Puede seguir con:">
+        <ul className="m-0 grid list-none gap-2 p-0">
+          {seguir.map(e => <li key={e.nombre} className="rounded-2xl bg-surface p-4 ring-1 ring-rea"><b>{e.nombre}</b><span className="block text-sm text-muted">Otro ataque ({e.atk}{e.expr ? `, ${e.expr}` : ''}) con su acción adicional.</span></li>)}
+        </ul>
+        <Boton variante="primario" className="min-h-14 text-lg" onClick={() => { setDescartado(true); alSeguir?.('adicional'); }}>Ir a Acción adicional</Boton>
+        <Boton className="min-h-14 text-lg" onClick={() => { setDescartado(true); alTerminar?.(); }}>Terminar sin seguir</Boton>
+      </PopupGrande>
       <div className="flex flex-wrap items-center gap-2">
         <label className="font-bold" htmlFor={`obj-${x.k}`}>Objetivo</label>
         <select id={`obj-${x.k}`} value={obj} onChange={e => setObj(e.target.value)} className={cx(claseCampo, 'w-auto! min-w-40')}>
@@ -1125,18 +1139,18 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar, alTerminar }: {
             </div>
           </div>
         );
-      })() : lista.length ? lista.map((a, i) => <AccionMonstruo key={`${x.k}-${tipo}-${i}`} a={a} x={x} blancos={blancos} obj={obj} danar={danar} pedirSalv={pedirSalv} alListo={() => setListo(true)} />)
+      })() : lista.length ? lista.map((a, i) => <AccionMonstruo key={`${x.k}-${tipo}-${i}`} a={a} x={x} blancos={blancos} obj={obj} danar={danar} pedirSalv={pedirSalv} alListo={s => { setSeguir(s); setListo(true); }} />)
         : <p className="m-0 mt-2 text-muted">No tiene acciones de este tipo en su bloque.</p>}
     </div>
   );
 }
 
 /** Una acción del bloque. Si tiene varios ataques (dos rayos, Ataque Extra), cada uno se hace por separado con su objetivo. */
-function AccionMonstruo({ x, a, blancos, obj, danar, pedirSalv, alListo }: { x: any; a: any; blancos: any[]; obj: string; danar: (a: any, dano: number, k?: string) => Promise<boolean>; pedirSalv: (a: any) => void; alListo: () => void }) {
-  const n = Math.max(1, +a.golpes || 1), [hechos, setHechos] = useState<boolean[]>(() => Array(n).fill(false));
+function AccionMonstruo({ x, a, blancos, obj, danar, pedirSalv, alListo }: { x: any; a: any; blancos: any[]; obj: string; danar: (a: any, dano: number, k?: string) => Promise<boolean>; pedirSalv: (a: any) => void; alListo: (seguir: Extra[]) => void }) {
+  const n = Math.max(1, +a.golpes || 1), [hechos, setHechos] = useState<boolean[]>(() => Array(n).fill(false)), seguir = useRef<Extra[]>([]);
   const dexpr = (a.dano || []).map((d: any) => d.d).join('+');
   const atkExpr = a.atk != null ? `1d20${modStr(a.atk)}` : '';
-  useEffect(() => { if (hechos.every(Boolean)) alListo(); }, [hechos]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (hechos.every(Boolean)) alListo(seguir.current); }, [hechos]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div className="mt-2 grid gap-2 border-t border-rule pt-2">
       <div>
@@ -1148,14 +1162,14 @@ function AccionMonstruo({ x, a, blancos, obj, danar, pedirSalv, alListo }: { x: 
       {!dexpr && !atkExpr && efectoSalvacion(a) && <Boton tamano="sm" variante="primario" className="justify-self-start" onClick={() => pedirSalv(a)}>Pedir salvación</Boton>}
       {(dexpr || atkExpr) && Array.from({ length: n }, (_, i) => (
         <GolpeAccion key={i} i={i} n={n} x={x} a={a} blancos={blancos} obj={obj} hecho={hechos[i]} danar={danar}
-          alHecho={() => setHechos(h => h.map((v, j) => (j === i ? true : v)))} />
+          alHecho={s => { if (s?.length) seguir.current = s; setHechos(h => h.map((v, j) => (j === i ? true : v))); }} />
       ))}
     </div>
   );
 }
 
 /** Un ataque (o el daño de una acción): objetivo, el d20 (natural, el bono se suma solo) contra su CA, lo que se suma al acertar y el daño. */
-function GolpeAccion({ i, n, x, a, blancos, obj, hecho, danar, alHecho }: { i: number; n: number; x: any; a: any; blancos: any[]; obj: string; hecho: boolean; danar: (a: any, dano: number, k?: string) => Promise<boolean>; alHecho: () => void }) {
+function GolpeAccion({ i, n, x, a, blancos, obj, hecho, danar, alHecho }: { i: number; n: number; x: any; a: any; blancos: any[]; obj: string; hecho: boolean; danar: (a: any, dano: number, k?: string) => Promise<boolean>; alHecho: (seguir?: Extra[]) => void }) {
   const [k, setK] = useState<string | null>(null), [nat, setNat] = useState(''), [dados, setDados] = useState(''), [advElegida, setAdv] = useState<number | null>(null), [cerca, setCerca] = useState(true);
   const [sel, setSel] = useState<Record<string, string>>({}), [valX, setValX] = useState<Record<string, string>>({});
   const kElegido = k ?? obj, elegido = blancos.find((y: any) => y.k === kElegido);
@@ -1180,12 +1194,27 @@ function GolpeAccion({ i, n, x, a, blancos, obj, hecho, danar, alHecho }: { i: n
     const conExtras = extras.length ? { ...a, n: `${a.n} + ${extras.map(e => e.nombre).join(' y ')}` } : a;
     if (await danar(conExtras, cuanto, kElegido)) {
       if (extras.length) avisar(`Descuenta ${extras.map(e => e.nombre).join(' y ')} en la hoja de ${x.nombre}.`);
-      alHecho();
+      alHecho((a.extras || []).filter((e: Extra) => e.atk));
     }
   };
+  // Al acertar, un aviso celeste con lo que se puede sumar al daño (una vez por ataque, cuando el d20 ya quedó escrito)
+  const sumables = grupos.filter(g => !sel[g.base]);
+  const [visto, setVisto] = useState(false), [estable, setEstable] = useState(false);
+  useEffect(() => { if (acierta !== true) return; const t = setTimeout(() => setEstable(true), 900); return () => { clearTimeout(t); setEstable(false); }; }, [acierta, nat]);
   if (hecho) return <p className="m-0 rounded-lg bg-surface p-2 font-bold text-pas">{nombreGolpe ? `${nombreGolpe}: ` : ''}listo{elegido ? ` (${elegido.nombre})` : ''}.</p>;
   return (
     <div className="grid gap-2 rounded-lg bg-surface p-2">
+      <PopupGrande abierto={estable && !visto && sumables.length > 0} tono="seguimiento" titulo="¡Acertó!" texto={`${x.nombre} puede sumarle al daño${elegido ? ` contra ${elegido.nombre}` : ''}:`}>
+        <ul className="m-0 grid list-none gap-2 p-0">
+          {sumables.map(g => (
+            <li key={g.base} className="rounded-2xl bg-surface p-4 ring-1 ring-rea">
+              <b>{g.base}</b><span className="block text-sm text-muted">{g.opciones[0].expr} de daño extra{g.t === 'adicional' ? ' · gasta su acción adicional' : g.t === 'pasiva' ? ' · pasiva' : ''}.</span>
+              <Boton variante="primario" className="mt-2 min-h-12" onClick={() => { setSel(y => ({ ...y, [g.base]: g.opciones[0].nombre })); setVisto(true); }}>Sumarlo</Boton>
+            </li>
+          ))}
+        </ul>
+        <Boton className="min-h-14 text-lg" onClick={() => setVisto(true)}>Seguir sin sumar</Boton>
+      </PopupGrande>
       {nombreGolpe && <p className="m-0 font-serif text-lg font-extrabold">{nombreGolpe}</p>}
       {n > 1 && (
         <label className="flex flex-wrap items-center gap-2 font-bold">Objetivo
@@ -1213,7 +1242,7 @@ function GolpeAccion({ i, n, x, a, blancos, obj, hecho, danar, alHecho }: { i: n
           {total != null && (elegido
             ? <p className={cx('m-0 font-bold', acierta ? 'text-pas' : 'text-acc')}>{total} contra CA {elegido.ca}: {acierta ? (critico ? 'acierta con crítico' : 'acierta') : 'falla, no hace daño'}.</p>
             : <p className="m-0 text-muted">Elige el objetivo para saber si acierta.</p>)}
-          {acierta === false && <Boton tamano="sm" className="justify-self-start" onClick={alHecho}>{n > 1 ? 'Falló: pasar al siguiente' : 'Falló: terminar'}</Boton>}
+          {acierta === false && <Boton tamano="sm" className="justify-self-start" onClick={() => alHecho()}>{n > 1 ? 'Falló: pasar al siguiente' : 'Falló: terminar'}</Boton>}
         </div>
       )}
       {dexpr && acierta !== false && (

@@ -540,7 +540,7 @@ export function ModoCombate({ c }: { c: any }) {
         )}
       </Dialogo>
 
-      <UsoAccion c={c} uso={uso} ventaja={yo?.ven || ''} enemigos={objetivos} mesa={{ dmId, campanaId, personajeId }} yaGastada={!!(uso && eco[uso.tipo])} alCerrar={() => setUso(null)}
+      <UsoAccion c={c} uso={uso} ventaja={yo?.ven || ''} enemigos={objetivos} mesa={{ dmId, campanaId, personajeId }} yaGastada={!!(uso && eco[uso.tipo])} alCerrar={() => setUso(null)} alSeguir={t => { setElegido(null); setAbierto(t); }}
         alUsar={t => { toques.current[t] = Date.now(); setEco(p => ({ ...p, [t]: true })); }} alMarcar={marcar} ahora={yo && viv ? { ronda: viv.ronda || 1, turno: viv.turno || 0, orden: viv.orden || [], k: yo.k } : undefined} />
     </div>
   );
