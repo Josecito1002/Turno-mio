@@ -15,6 +15,7 @@ import { gastarEspacio, gastarRecurso, setMano } from '../../acciones';
 import { ARMAS } from '@/features/reglas/data/equipo';
 import { escalarDados } from '@/features/reglas/data/efectos-conjuro';
 import { dadosAlLanzar, espaciosPara, type Extra } from '../../domain/lanzar';
+import { avisoSeguimiento } from './ordenes-dm';
 import { enviarGolpeMesa, enviarSalvacionMesa, usarAccionMesa, type TipoAccionRonda } from '@/features/mesa/api';
 
 /** Algo que el jugador puede hacer con una acción: un ataque, un conjuro, un rasgo o una acción básica. */
@@ -90,7 +91,7 @@ function maxObjetivos(texto: string) {
   return m ? (NUM_OBJ[m[1].toLowerCase()] ?? +m[1]) : 1;
 }
 /** Las opciones de lo que se suma al acertar, juntas por rasgo: Castigo divino gratis o con cada nivel de espacio es una sola elección. */
-function gruposExtras(extras: Extra[]) {
+export function gruposExtras(extras: Extra[]) {
   const g: { base: string; t: string; opciones: Extra[] }[] = [];
   for (const x of extras) {
     if (x.atk || !x.expr) continue; // otro ataque (la otra arma) se usa aparte
@@ -102,7 +103,9 @@ function gruposExtras(extras: Extra[]) {
 }
 
 /** Confirmar el uso de una acción: lee sus efectos, elige a quién afecta y, al confirmar, la gasta y se lo cuenta al DM. */
-export function UsoAccion({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, alMarcar, ahora }: {
+export function UsoAccion({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, alMarcar, alSeguir, ahora }: {
+  /** Abre otro tipo de acción (la adicional) para seguir un ataque que acertó */
+  alSeguir?: (t: TipoAccionRonda) => void;
   /** El combate ahora (ronda, turno y orden) y tu lugar en él, para saber cuándo termina lo que dejas */
   ahora?: Ahora;
   alMarcar?: (m: Marca, objetivo: string, nombre: string) => void;
@@ -112,12 +115,12 @@ export function UsoAccion({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar
   return (
     <Dialogo abierto={!!uso} onCerrar={alCerrar} titulo={uso?.nombre || ''} ancho="lg"
       descripcion={uso ? `${TIPOS[uso.tipo][0]}${uso.coste ? ` · ${uso.coste}` : ''}` : undefined}>
-      {uso && <Cuerpo key={uso.nombre + uso.tipo} c={c} uso={uso} ventaja={ventaja} enemigos={enemigos} mesa={mesa} yaGastada={yaGastada} alCerrar={alCerrar} alUsar={alUsar} alMarcar={alMarcar} ahora={ahora} />}
+      {uso && <Cuerpo key={uso.nombre + uso.tipo} c={c} uso={uso} ventaja={ventaja} enemigos={enemigos} mesa={mesa} yaGastada={yaGastada} alCerrar={alCerrar} alUsar={alUsar} alMarcar={alMarcar} alSeguir={alSeguir} ahora={ahora} />}
     </Dialogo>
   );
 }
 
-function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, alMarcar, ahora }: { ahora?: Ahora; alMarcar?: (m: Marca, objetivo: string, nombre: string) => void; c: any; uso: Uso; ventaja?: '' | 'v' | 'd'; enemigos: Objetivo[]; mesa: { dmId: string; campanaId: string; personajeId: string }; yaGastada: boolean; alCerrar: () => void; alUsar: (t: TipoAccionRonda) => void }) {
+function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, alMarcar, alSeguir, ahora }: { alSeguir?: (t: TipoAccionRonda) => void; ahora?: Ahora; alMarcar?: (m: Marca, objetivo: string, nombre: string) => void; c: any; uso: Uso; ventaja?: '' | 'v' | 'd'; enemigos: Objetivo[]; mesa: { dmId: string; campanaId: string; personajeId: string }; yaGastada: boolean; alCerrar: () => void; alUsar: (t: TipoAccionRonda) => void }) {
   const area = !!uso.salv && AREA.test(uso.texto);
   const conds = condicionesEn(uso.texto);
   const [objetivos, setObjetivos] = useState<string[]>([]);
@@ -238,6 +241,15 @@ function Cuerpo({ c, uso, ventaja, enemigos, mesa, yaGastada, alCerrar, alUsar, 
       if (adicional && uso.tipo !== 'adicional') { await usarAccionMesa(mesa, 'adicional', adicional.nombre, `con ${uso.nombre}`); alUsar('adicional'); }
       if (uso.marca) alMarcar?.({ ...uso.marca, dexpr: escalarDados(uso.marca.dexpr, uso.marca.porNivel, nivelUsado - (uso.marca.nivelBase || nivelUsado)) }, objetivos[0] || '', nombres[0] || '');
       avisar(`${uso.nombre}: listo${nGolpes > 1 && n ? `, ${golpes.map(danoDe).join(' + ')} = ${n} ${deDano}` : ''}. ${objetivos.length && uso.salv ? 'Tu DM verá qué enemigos deben tirar la salvación.' : 'Tu DM ya lo ve.'}`);
+      // Si el ataque acertó, se avisa en celeste con qué se puede seguir (otro ataque o lo que va con la acción adicional)
+      if (uso.atk != null && golpes.some(i => nats[i] !== '1')) {
+        const ir = alSeguir ? () => alSeguir('adicional') : undefined;
+        const opciones = [
+          ...grupos.filter(g => g.t === 'adicional' && !golpes.some(i => selExtra[`${i}|${g.base}`])).map(g => ({ nombre: g.base, texto: `${g.opciones[0].expr} de daño extra al objetivo que acertaste. Gasta tu acción adicional.`, alIr: ir, etiqueta: 'Ir a Acción adicional' })),
+          ...(uso.extras || []).filter(x => x.atk).map(x => ({ nombre: x.nombre, texto: `Otro ataque (${x.atk}${x.expr ? `, ${x.expr}` : ''}) con tu acción adicional.`, alIr: ir, etiqueta: 'Ir a Acción adicional' })),
+        ];
+        avisoSeguimiento(`¡Acertaste con ${uso.nombre}!`, opciones, 'Puedes seguir con:');
+      }
       alCerrar();
     } catch (e) { avisar(`No se pudo confirmar: ${(e as Error).message}`, 'error'); }
     finally { setOcupado(false); }

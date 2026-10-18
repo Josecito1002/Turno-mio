@@ -13,6 +13,8 @@ export type AvisoGrande =
   | { id: string; tipo: 'efecto'; o: OrdenDm; reacciones: { nombre: string; texto: string }[] }
   | { id: string; tipo: 'salvacion'; o: OrdenDm; mesa: Mesa | null }
   | { id: string; tipo: 'aviso'; o: OrdenDm }
+  /** Un ataque acertó y se puede seguir: lo que se suma o la acción que sigue (celeste) */
+  | { id: string; tipo: 'seguimiento'; titulo: string; texto?: string; opciones: { nombre: string; texto: string; alIr?: () => void; etiqueta?: string }[] }
   /** Le hicieron daño mientras se concentraba: salvación de Constitución para mantenerla */
   | { id: string; tipo: 'concentracion'; dano: number; cd: number; mesa: Mesa | null };
 let cola: AvisoGrande[] = [];
@@ -29,6 +31,9 @@ export const condicionesMias = () => misCondiciones;
 export const fijarCondicionesMias = (c: string[]) => { misCondiciones = c; };
 /** Un aviso en grande con título y explicación (una vez por id). */
 export const avisoGrande = (id: string, titulo: string, texto: string) => encolar({ id, tipo: 'aviso', o: { id, tipo: 'aviso', personajeId: null, ts: '', nota: titulo, bono: texto } });
+/** Un ataque acertó: avisa con qué se puede seguir (una acción adicional, otro ataque, lo que se suma al daño). */
+export const avisoSeguimiento = (titulo: string, opciones: { nombre: string; texto: string; alIr?: () => void; etiqueta?: string }[], texto?: string) =>
+  { if (opciones.length) encolar({ id: `seg-${Date.now()}`, tipo: 'seguimiento', titulo, texto, opciones }); };
 const encolar = (a: AvisoGrande) => { if (!cola.some(x => x.id === a.id)) { cola = [...cola, a]; avisar_(); } };
 
 /** Lo que dispara una reacción al recibir daño o un ataque (Reprensión infernal, Esquiva asombrosa, Escudo…). */

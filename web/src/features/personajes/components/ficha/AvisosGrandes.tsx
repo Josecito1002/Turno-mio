@@ -32,7 +32,7 @@ export function AvisosGrandes() {
     <dialog ref={ref} aria-label="Aviso del combate" onCancel={e => e.preventDefault()}
       className="m-0 h-dvh max-h-none w-screen max-w-none overflow-auto bg-bg p-0 text-ink backdrop:bg-black/70 print:hidden">
       {a && <div className="mx-auto grid min-h-full max-w-xl content-center gap-4 p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
-        {a.tipo === 'salvacion' ? <Salvacion key={a.id} a={a} /> : a.tipo === 'concentracion' ? <Concentracion key={a.id} a={a} /> : a.tipo === 'efecto' ? <Efecto a={a} /> : <Aviso a={a} />}
+        {a.tipo === 'salvacion' ? <Salvacion key={a.id} a={a} /> : a.tipo === 'concentracion' ? <Concentracion key={a.id} a={a} /> : a.tipo === 'seguimiento' ? <Seguimiento a={a} /> : a.tipo === 'efecto' ? <Efecto a={a} /> : <Aviso a={a} />}
         {lista.length > 1 && <p className="m-0 text-center text-sm text-muted">Hay {lista.length - 1} aviso{lista.length > 2 ? 's' : ''} más después de este.</p>}
       </div>}
     </dialog>
@@ -66,11 +66,35 @@ function Efecto({ a }: { a: Extract<AvisoGrande, { tipo: 'efecto' }> }) {
   );
 }
 
-function Aviso({ a }: { a: Extract<AvisoGrande, { tipo: 'aviso' }> }) {
+/** Con qué se puede seguir después de acertar: celeste, con un botón por cada opción que se puede ir a usar. */
+function Seguimiento({ a }: { a: Extract<AvisoGrande, { tipo: 'seguimiento' }> }) {
   return (
     <>
-      <div className="rounded-3xl bg-soft p-6 text-center">
-        <Simbolo n="campaign" className="text-6xl text-adi" />
+      <div className="rounded-3xl bg-rea/20 p-6 text-center">
+        <Simbolo n="bolt" className="text-6xl text-rea" />
+        <h2 className="m-0 mt-2 font-serif text-3xl font-extrabold">{a.titulo}</h2>
+        <p className="m-0 mt-2 text-lg">{a.texto || 'Puedes seguir con:'}</p>
+      </div>
+      <ul className="m-0 grid list-none gap-2 p-0">
+        {a.opciones.map(o => (
+          <li key={o.nombre} className="rounded-2xl bg-surface p-4 ring-1 ring-rea">
+            <b>{o.nombre}</b><span className="block text-sm text-muted">{o.texto}</span>
+            {o.alIr && <Boton variante="primario" className="mt-2 min-h-12" onClick={() => { avisosGrandes.quitar(a.id); o.alIr!(); }}>{o.etiqueta || 'Ir a usarla'}</Boton>}
+          </li>
+        ))}
+      </ul>
+      <Boton className="min-h-14 text-lg" onClick={() => avisosGrandes.quitar(a.id)}>Seguir sin usarlas</Boton>
+    </>
+  );
+}
+
+function Aviso({ a }: { a: Extract<AvisoGrande, { tipo: 'aviso' }> }) {
+  // El resultado de una salvación que pediste: amarillo, como las salvaciones
+  const salv = /salvaci[oó]n/i.test(a.o.nota || '');
+  return (
+    <>
+      <div className={cx('rounded-3xl p-6 text-center', salv ? 'bg-adi/20' : 'bg-soft')}>
+        <Simbolo n={salv ? 'shield' : 'campaign'} className="text-6xl text-adi" />
         <h2 className="m-0 mt-2 font-serif text-3xl font-extrabold">{a.o.nota}</h2>
         {a.o.bono && <p className="m-0 mt-2 text-lg">{a.o.bono}</p>}
       </div>
@@ -115,8 +139,8 @@ function Salvacion({ a }: { a: Extract<AvisoGrande, { tipo: 'salvacion' }> }) {
   };
   return (
     <>
-      <div className="rounded-3xl bg-gol/20 p-6 text-center">
-        <Simbolo n="shield" className="text-6xl text-gol" />
+      <div className="rounded-3xl bg-adi/20 p-6 text-center">
+        <Simbolo n="shield" className="text-6xl text-adi" />
         <h2 className="m-0 mt-2 font-serif text-3xl font-extrabold">{libra ? `Termina tu turno: repite la salvación contra ${o.condicion}` : 'Debes hacer una tirada de salvación'}</h2>
         <p className="m-0 mt-2 font-serif text-4xl font-extrabold">{nombreAb(salv)} CD {cd}</p>
         <p className="m-0 mt-2 text-lg">{o.de || 'Tu DM'}{o.nota ? `: ${o.nota}` : ''}</p>
@@ -163,8 +187,8 @@ function Concentracion({ a }: { a: Extract<AvisoGrande, { tipo: 'concentracion' 
   );
   return (
     <>
-      <div className="rounded-3xl bg-gol/20 p-6 text-center">
-        <Simbolo n="psychology" className="text-6xl text-gol" />
+      <div className="rounded-3xl bg-adi/20 p-6 text-center">
+        <Simbolo n="psychology" className="text-6xl text-adi" />
         <h2 className="m-0 mt-2 font-serif text-3xl font-extrabold">¿Mantienes la concentración?</h2>
         <p className="m-0 mt-2 font-serif text-4xl font-extrabold">Constitución CD {a.cd}</p>
         <p className="m-0 mt-2 text-lg">Te concentras en {conc.nombre} y recibiste {a.dano} de daño.</p>
