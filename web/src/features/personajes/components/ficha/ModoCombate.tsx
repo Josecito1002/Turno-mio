@@ -184,7 +184,7 @@ const DE_MOVIMIENTO = new Set(['Correr', 'Destrabarse']);
 /** Lo que se puede hacer con cada tipo de acción, en tres menús: de la clase (ataques, rasgos y conjuros), de movimiento y genéricas. */
 export function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: { c: any; t: TipoAccionRonda; elegido: Uso | null; elegir: (u: Uso) => void; marcas: any[]; quitarMarca: (id: string) => void }) {
   const armas = t === 'accion' ? [...c.armas.filter((a: any) => a.mano), ...(c.naturales || [])] : [];
-  const sinArmas = t === 'accion' ? { puno: true, nombre: 'Golpe sin armas', atk: c.unarmed.atk, expr: c.unarmed.expr, dmg: c.unarmed.dmg, atkDesg: c.unarmed.atkDesg, dmgDesg: c.unarmed.dmgDesg, notas: [`También puede Agarrar o Empujar (CD ${c.grappleDC})`] } : null;
+  const sinArmas = t === 'accion' ? { puno: true, nombre: 'Golpe sin armas', atk: c.unarmed.atk, expr: c.unarmed.expr, dmg: c.unarmed.dmg, atkDesg: c.unarmed.atkDesg, dmgDesg: c.unarmed.dmgDesg, notas: [] } : null;
   const ents = c.entries.filter((e: any) => e.t === t);
   const conjuros = (c.conjuros || []).filter((s: any) => (s.tiempo || 'accion') === t);
   // «Atacar» ya está en los ataques de arriba; los demás van a movimiento o a genéricas
@@ -228,13 +228,15 @@ export function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: {
     return { tipo: t, nombre: e.nombre, coste: e.coste, texto: e.texto || '', raw: !!e.raw, ...(/\(concentraci[oó]n/i.test(String(e.texto || '')) ? { concentracion: true } : {}), ...(lista ? { lista } : {}), ...(efecto ? { efecto } : {}), ...(amuCura ? { cura: true, fijo: +amuCura[1] } : {}), ...(amuSalv ? { salv: amuSalv[1].toUpperCase(), cd: +amuSalv[2] } : {}), ...(amuAtq ? { atk: +amuAtq[1] } : {}), ...(amuDano && atk == null ? { dexpr: amuDano[1].replace(/\s/g, '') } : {}), ...(equipar ? { equipar } : {}), ...(golpes ? { golpes } : {}), ...(atk != null ? { atk, dexpr: e.roll[1] } : {}), afecta: ataca || !!efecto || !!amuCura || !!amuSalv || !!amuAtq, ...(gasta ? { gasta } : {}) };
   };
   const comoArma = (e: any) => ({ puno: /sin armas|golpe|pu[ñn]/i.test(`${e.nombre} ${e.texto}`), nombre: e.nombre, atk: +(/([+-]\d+)\s*$/.exec(e.roll[0])?.[1] ?? 0), expr: e.roll[1], dmg: String(e.roll[1]).replace(/\s/g, ''), notas: [] as string[] });
+  // Conjuros que lanzan varios rayos, cada uno con su propia tirada (y su propio objetivo)
+  const rayos = (s: any) => norm(s.nombre) === 'explosion sobrenatural' ? (c.lvl >= 17 ? 4 : c.lvl >= 11 ? 3 : c.lvl >= 5 ? 2 : 1) : norm(s.nombre) === 'rayo abrasador' ? 3 : 1;
   const deConjuro = (s: any): Uso => {
     const d = datosConjuro(s, c), salv = s.salv ? String(s.salv).toUpperCase() : undefined;
     const sg = SEGUIMIENTOS[norm(s.nombre)], ef = EFECTOS_ALIADO[norm(s.nombre)];
     // Un conjuro que cura: devuelve puntos de golpe y no ataca ni pide salvación
     const cura = !s.ataque && !salv && /recuper\w* (?:\w+ ){0,3}puntos de golpe|recuper\w* \d+d\d+/i.test(String(s.desc || ''));
     return { tipo: t, nombre: s.nombre, coste: s.coste || (+s.nivel ? `Nivel ${s.nivel}` : 'Truco'), texto: String(s.desc || '').trim(), raw: true, ...(s.ataque && d.atk != null ? { atk: d.atk, atkDesg: d.atkDesg } : {}),
-      ...(s.tipo ? { tipoDano: String(s.tipo) } : {}), ...(s.mod && d.mSpell ? { dmgDesg: `${d.mSpell} ${d.ab}` } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: ef ? undefined : d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados || ef || cura),
+      ...(s.tipo ? { tipoDano: String(s.tipo) } : {}), ...(rayos(s) > 1 ? { golpes: rayos(s) } : {}), ...(s.mod && d.mSpell ? { dmgDesg: `${d.mSpell} ${d.ab}` } : {}), ...(salv ? { salv, cd: d.cd } : {}), dexpr: ef ? undefined : d.dexpr || undefined, afecta: !!(s.ataque || salv || s.dados || ef || cura),
       ...(sg ? { marca: { id: norm(s.nombre).replace(/\s+/g, '-'), nombre: sg.nombre, texto: sg.texto, dexpr: sg.dado || d.dexpr || '', tipo: sg.tipo, en: sg.en, desde: sg.desde, objetivo: sg.objetivo,
         ...(sg.ataque && d.atk != null ? { atk: d.atk } : {}), ...(sg.salv ? { salv: sg.salv, cd: d.cd } : {}), ...(sg.porNivel ? { porNivel: sg.porNivel, nivelBase: sg.nivelBase } : {}) } as Marca } : {}),
       ...(ef ? { efecto: ef } : {}), ...(cura ? { cura: true } : {}), ...(rondasDe(s.dur || '') ? { duracion: rondasDe(s.dur || '')!, durTexto: String(s.dur) } : {}), ...(s.conc || /concentraci/i.test(s.dur || '') ? { concentracion: true } : {}),
@@ -249,6 +251,8 @@ export function OpcionesDeTipo({ c, t, elegido, elegir, marcas, quitarMarca }: {
       <MenuAcciones titulo="Ataques" abierto hijos={delaClase}>
         {armas.map((a: any, i: number) => op(deArma(a), <FilaArsenal a={a} c={c} sinTirar />, 'a' + a.nombre + i))}
         {sinArmas && op(deArma(sinArmas), <FilaArsenal a={sinArmas} c={c} sinTirar />, 'sa')}
+        {sinArmas && nom({ tipo: t, nombre: 'Agarrar', texto: `Con una mano libre, en lugar de un ataque: una criatura Grande o menor a tu alcance hace salvación de FUE o DES (la que elija) contra CD ${c.grappleDC}. Si falla, queda Agarrada.`, salv: 'FUE', cd: c.grappleDC, afecta: true }, 'agarrar', `CD ${c.grappleDC}`, 'back_hand')}
+        {sinArmas && nom({ tipo: t, nombre: 'Empujar', texto: `En lugar de un ataque: una criatura Grande o menor a tu alcance hace salvación de FUE o DES (la que elija) contra CD ${c.grappleDC}. Si falla, la empujas 5 pies lejos de ti o queda Derribada (tú eliges).`, salv: 'FUE', cd: c.grappleDC, afecta: true }, 'empujar', `CD ${c.grappleDC}`, 'open_with')}
         {ataques.map((e: any, i: number) => {
           const fila = <FilaArsenal a={comoArma(e)} c={c} sinTirar />, r = restanteDe(c, e.recurso);
           return op(deRasgo(e), r ? <div className="flex items-center gap-2"><div className="min-w-0 flex-1">{fila}</div><Restante r={r} /></div> : fila, 'r' + i);

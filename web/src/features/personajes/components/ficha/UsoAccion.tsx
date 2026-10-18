@@ -90,7 +90,7 @@ function maxObjetivos(texto: string) {
   return m ? (NUM_OBJ[m[1].toLowerCase()] ?? +m[1]) : 1;
 }
 /** Las opciones de lo que se suma al acertar, juntas por rasgo: Castigo divino gratis o con cada nivel de espacio es una sola elección. */
-function gruposExtras(extras: Extra[]) {
+export function gruposExtras(extras: Extra[]) {
   const g: { base: string; t: string; opciones: Extra[] }[] = [];
   for (const x of extras) {
     if (x.atk || !x.expr) continue; // otro ataque (la otra arma) se usa aparte
