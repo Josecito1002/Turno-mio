@@ -6,6 +6,7 @@ import { Desplegable } from '@/shared/ui/desplegable';
 import { norm } from '@/shared/utils/texto';
 import { ARMAS, ARMADURAS } from '@/features/reglas/data/equipo';
 import { OBJETOS_MAGICOS, RAREZAS } from '@/features/reglas/data/objetos-magicos';
+import { EQUIPO_AVENTURA, OBJETOS_CON_FICHA } from '@/features/reglas/data/equipo-aventura';
 import { esPropia } from '@/features/personajes/domain/inventario';
 import { darObjetoDm } from '../api';
 import type { ObjetoEntregado } from '../domain/entregas';
@@ -45,6 +46,13 @@ export function DarObjeto({ campId, personajeId, nombre }: { campId: string; per
           opciones={[['objeto', 'Objeto'], ['magico', 'Mágico'], ['arma', 'Arma'], ['armadura', 'Armadura']]} />
         {tipo === 'objeto' && (
           <>
+            <Campo etiqueta="Uno con ficha y dibujo (opcional)">
+              <Desplegable value="" onChange={e => { if (e.target.value) { setN(e.target.value); setT(''); } }}>
+                <option value="">Elige…</option>
+                <optgroup label="De la campaña">{OBJETOS_CON_FICHA.map(o => <option key={o.n} value={o.n}>{o.n}</option>)}</optgroup>
+                <optgroup label="Equipo de aventura">{EQUIPO_AVENTURA.filter(o => o.img).map(o => <option key={o.n} value={o.n}>{o.n}</option>)}</optgroup>
+              </Desplegable>
+            </Campo>
             <div className="flex flex-wrap items-end gap-2">
               <Campo etiqueta="Nombre" className="min-w-52 flex-1"><input value={n} onChange={e => setN(e.target.value)} placeholder="El libro verde" className={claseCampo} /></Campo>
               <Campo etiqueta="Cantidad" className="w-24"><input type="number" inputMode="numeric" min={1} value={q} onChange={e => setQ(e.target.value)} className={claseCampo} /></Campo>

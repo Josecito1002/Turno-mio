@@ -1,8 +1,8 @@
 /* Equipo de aventura (Manual del Jugador 2024) para las fichas de objeto del inventario. Textos propios en español,
    nunca traducidos del libro. al: cómo puede llamarse en el inventario (sin la cantidad); img: dibujo en
-   public/fichas/equipo. */
+   public/fichas/equipo. OBJETOS_CON_FICHA son objetos sueltos de la campaña que el DM puede dar con su dibujo. */
 
-export type EquipoAventura = { n: string; al: string[]; texto: string[]; img?: string };
+export type EquipoAventura = { n: string; al: string[]; texto: string[]; img?: string; tipo?: string };
 
 export const EQUIPO_AVENTURA: EquipoAventura[] = [
   { n: 'Antorcha', al: ['antorcha'], img: 'antorcha', texto: ['Arde una hora. Da luz brillante en 20 pies y luz tenue 20 pies más allá.', 'Si golpeas con ella encendida, hace 1 de daño de fuego.'] },
@@ -11,23 +11,23 @@ export const EQUIPO_AVENTURA: EquipoAventura[] = [
   { n: 'Vela', al: ['vela'], img: 'vela', texto: ['Arde una hora. Da luz brillante en 5 pies y luz tenue 5 pies más allá.'] },
   { n: 'Linterna con capucha', al: ['linterna con capucha', 'linterna de capucha'], img: 'linterna-capucha', texto: ['Con un frasco de aceite arde seis horas: luz brillante en 30 pies y luz tenue 30 pies más.', 'Bajar la capucha es una acción adicional: entonces solo da luz tenue en 5 pies.'] },
   { n: 'Linterna sorda', al: ['linterna sorda', 'linterna de ojo de buey'], img: 'linterna-sorda', texto: ['Con un frasco de aceite arde seis horas.', 'Da luz brillante en un cono de 60 pies y luz tenue 60 pies más allá.'] },
-  { n: 'Lámpara', al: ['lampara'], texto: ['Con un frasco de aceite arde seis horas.', 'Da luz brillante en 15 pies y luz tenue 30 pies más allá.'] },
+  { n: 'Lámpara', al: ['lampara'], img: 'lampara', texto: ['Con un frasco de aceite arde seis horas.', 'Da luz brillante en 15 pies y luz tenue 30 pies más allá.'] },
   { n: 'Ropa de abrigo', al: ['ropa de abrigo', 'ropa de invierno'], img: 'ropa-abrigo', texto: ['Capa, guantes y botas forradas para el frío de verdad.'] },
   { n: 'Manta', al: ['manta'], img: 'manta', texto: ['Abriga en el camino o en una noche de guardia.'] },
   { n: 'Petate', al: ['petate', 'saco de dormir'], img: 'saco-dormir', texto: ['Cabe una criatura Pequeña o Mediana.', 'Mientras duermes en él, superas sin tirar las salvaciones contra el frío extremo.'] },
   { n: 'Raciones', al: ['raciones', 'racion'], img: 'raciones', texto: ['Comida seca que no se estropea: cecina, galleta, fruta seca y frutos secos.', 'Cada ración es la comida de un día.'] },
   { n: 'Cuerda', al: ['cuerda'], img: 'cuerda', texto: ['50 pies de cuerda.', 'Atar un nudo es una prueba de Destreza (Juego de Manos) CD 10, y romperla, de Fuerza (Atletismo) CD 20.', 'Para atar a alguien Agarrado, Incapacitado o Apresado: Destreza (Juego de Manos) CD 15.'] },
   { n: 'Pitones de hierro', al: ['pitones', 'pitones de hierro', 'clavos de hierro'], img: 'pitones', texto: ['Un fardo de diez.', 'Con un martillo o algo contundente, clavas uno en madera o en tierra: sirve para atrancar una puerta o anclar una cuerda.'] },
-  { n: 'Palanca', al: ['palanca'], texto: ['Donde puedas hacer palanca, tienes ventaja en las pruebas de Fuerza.'] },
-  { n: 'Odre', al: ['odre'], texto: ['Lleva agua (o lo que quieras) para un día de camino.'] },
-  { n: 'Mochila', al: ['mochila'], texto: ['Lleva hasta 30 libras de equipo.'] },
-  { n: 'Útiles de sanador', al: ['utiles de sanador', 'kit de sanador'], texto: ['Vendas, ungüentos y tablillas: diez usos.', 'Gastando un uso, estabilizas a una criatura a 0 puntos de golpe sin tener que hacer una prueba de Medicina.'] },
-  { n: 'Grilletes', al: ['grilletes', 'esposas'], texto: ['Para una criatura Pequeña o Mediana que esté Agarrada, Incapacitada o Apresada.', 'Soltarse: Destreza (Juego de Manos) CD 20. Romperlos: Fuerza (Atletismo) CD 25.'] },
+  { n: 'Palanca', al: ['palanca'], img: 'palanca', texto: ['Donde puedas hacer palanca, tienes ventaja en las pruebas de Fuerza.'] },
+  { n: 'Odre', al: ['odre'], img: 'odre', texto: ['Lleva agua (o lo que quieras) para un día de camino.'] },
+  { n: 'Mochila', al: ['mochila'], img: 'mochila', texto: ['Lleva hasta 30 libras de equipo.'] },
+  { n: 'Útiles de sanador', al: ['utiles de sanador', 'kit de sanador'], img: 'utiles-sanador', texto: ['Vendas, ungüentos y tablillas: diez usos.', 'Gastando un uso, estabilizas a una criatura a 0 puntos de golpe sin tener que hacer una prueba de Medicina.'] },
+  { n: 'Grilletes', al: ['grilletes', 'esposas'], img: 'grilletes', texto: ['Para una criatura Pequeña o Mediana que esté Agarrada, Incapacitada o Apresada.', 'Soltarse: Destreza (Juego de Manos) CD 20. Romperlos: Fuerza (Atletismo) CD 25.'] },
   { n: 'Espejo', al: ['espejo'], texto: ['De acero pulido, del tamaño de una mano. Sirve para mirar tras una esquina o hacer señales con el sol.'] },
   { n: 'Abrojos', al: ['abrojos'], texto: ['Los esparces en un cuadrado de 5 pies.', 'Quien entre ahí hace una salvación de Destreza CD 15 o recibe 1 de daño perforante y su velocidad queda en 0 hasta el inicio de su siguiente turno.'] },
   { n: 'Bolitas de metal', al: ['bolitas de metal', 'canicas'], texto: ['Las esparces en un cuadrado de 10 pies.', 'Quien entre ahí hace una salvación de Destreza CD 10 o cae Derribado.'] },
-  { n: 'Agua bendita', al: ['agua bendita'], texto: ['Puedes lanzarla hasta 20 pies para que se rompa.', 'El objetivo hace una salvación de Destreza (CD 8 + tu Destreza + tu bonificador de competencia). Si falla y es un infernal o un muerto viviente, recibe 2d8 de daño radiante.'] },
-  { n: 'Garfio', al: ['garfio', 'gancho de escalada'], texto: ['Atado a una cuerda, lo lanzas a una baranda, una rama o una almena a 50 pies o menos.', 'Que se enganche es una prueba de Destreza (Acrobacias) CD 13.'] },
+  { n: 'Agua bendita', al: ['agua bendita'], img: 'agua-bendita', texto: ['Puedes lanzarla hasta 20 pies para que se rompa.', 'El objetivo hace una salvación de Destreza (CD 8 + tu Destreza + tu bonificador de competencia). Si falla y es un infernal o un muerto viviente, recibe 2d8 de daño radiante.'] },
+  { n: 'Garfio', al: ['garfio', 'gancho de escalada'], img: 'garfio', texto: ['Atado a una cuerda, lo lanzas a una baranda, una rama o una almena a 50 pies o menos.', 'Que se enganche es una prueba de Destreza (Acrobacias) CD 13.'] },
   { n: 'Silbato de señales', al: ['silbato'], texto: ['Se oye a 600 pies.'] },
   { n: 'Tienda de campaña', al: ['tienda de campana', 'tienda'], texto: ['Caben dos criaturas Pequeñas o Medianas.'] },
   { n: 'Equipo de escalador', al: ['equipo de escalador'], texto: ['Pitones, guantes y arnés.', 'Si te anclas con él, no puedes caer más de 25 pies desde el punto de anclaje, ni alejarte más sin soltarte.'] },
@@ -37,4 +37,19 @@ export const EQUIPO_AVENTURA: EquipoAventura[] = [
   { n: 'Carcaj', al: ['carcaj'], texto: ['Lleva hasta 20 flechas.'] },
   { n: 'Ropa de viaje', al: ['ropa de viaje'], texto: ['Botas, pantalón o falda, camisa y una capa para el camino.'] },
   { n: 'Ropa fina', al: ['ropa fina'], texto: ['Ropa cara, bien cortada, para presentarse ante quien importa.'] },
+];
+
+export const OBJETOS_CON_FICHA: EquipoAventura[] = [
+  { n: 'Escudo de serpientes', al: ['escudo de serpientes', 'escudo con serpientes', 'escudo de platino'], img: 'escudo-serpientes', tipo: 'Escudo · 50 po',
+    texto: ['Escudo de acero con filigrana de platino en forma de serpientes entrelazadas.', 'Mientras lo empuñas, tu CA aumenta en 2.'] },
+  { n: 'Espada corta de serpientes', al: ['espada corta de serpientes', 'espadas cortas de serpientes', 'espada de serpientes', 'espadas de serpientes'], img: 'espadas-serpientes', tipo: 'Arma marcial · 25 po',
+    texto: ['Espada corta con serpientes de platino enroscadas en la empuñadura. Hay otra igual: son pareja.', '**Daño:** 1d6 perforante. **Propiedades:** sutil, ligera. **Maestría: Hostigar.**'] },
+  { n: 'Lingotes de hierro', al: ['lingotes de hierro', 'lingote de hierro', 'lingotes'], img: 'lingotes-hierro', tipo: 'Mercancía · 1 po cada uno',
+    texto: ['Lingotes de 10 libras. Pesan mucho y valen poco, pero cualquier herrero los compra.'] },
+  { n: 'Anillo de natación', al: ['anillo de natacion'], img: 'anillo-natacion', tipo: 'Anillo, poco común',
+    texto: ['Un anillo fino de platino.', 'Mientras lo llevas puesto, tienes una **velocidad de nado de 40 pies**.'] },
+  { n: 'Cuerno de marfil', al: ['cuerno de marfil', 'cuerno para beber'], img: 'cuerno-marfil', tipo: 'Objeto de valor · 120 po',
+    texto: ['Cuerno para beber de marfil viejo, con serpientes de platino por todo el borde.'] },
+  { n: 'Bolsa de monedas', al: ['bolsa de monedas', 'monedas'], img: 'bolsa-monedas', tipo: 'Dinero',
+    texto: ['Una bolsita de cuero con monedas de oro y plata.'] },
 ];
