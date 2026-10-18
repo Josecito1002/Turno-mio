@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { S } from '@/app-shell/estado';
 import { Boton, Simbolo, claseCampo, cx } from '@/shared/ui/kit';
+import { PopupTarjeta } from '@/shared/ui/PopupGrande';
 import { avisar } from '@/shared/ui/avisos';
 import { modStr, norm } from '@/shared/utils/texto';
 import { AB } from '@/features/reglas/data/caracteristicas';
@@ -22,20 +23,29 @@ const abrevAb = (k: string) => AB.find(([x]) => x === k)?.[2] || k.toUpperCase()
 export function AvisosGrandes() {
   const lista = useSyncExternalStore(avisosGrandes.suscribir, avisosGrandes.lista, avisosGrandes.lista);
   const a = lista[0];
+  // Las salvaciones salen en una ventana chica con borde amarillo; lo demás, en pantalla completa
+  const chica = a?.tipo === 'salvacion' || a?.tipo === 'concentracion', grande = a && !chica ? a : null;
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const d = ref.current; if (!d) return;
-    if (a && !d.open) d.showModal();
-    if (!a && d.open) d.close();
-  }, [a]);
+    if (grande && !d.open) d.showModal();
+    if (!grande && d.open) d.close();
+  }, [grande]);
+  const mas = lista.length > 1 && <p className="m-0 text-center text-sm text-muted">Hay {lista.length - 1} aviso{lista.length > 2 ? 's' : ''} más después de este.</p>;
   return (
+    <>
+    <PopupTarjeta abierto={chica} tono="salvacion" etiqueta="Tirada de salvación">
+      {a?.tipo === 'salvacion' ? <Salvacion key={a.id} a={a} /> : a?.tipo === 'concentracion' ? <Concentracion key={a.id} a={a} /> : null}
+      {chica && mas}
+    </PopupTarjeta>
     <dialog ref={ref} aria-label="Aviso del combate" onCancel={e => e.preventDefault()}
       className="m-0 h-dvh max-h-none w-screen max-w-none overflow-auto bg-bg p-0 text-ink backdrop:bg-black/70 print:hidden">
-      {a && <div className="mx-auto grid min-h-full max-w-xl content-center gap-4 p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
-        {a.tipo === 'salvacion' ? <Salvacion key={a.id} a={a} /> : a.tipo === 'concentracion' ? <Concentracion key={a.id} a={a} /> : a.tipo === 'seguimiento' ? <Seguimiento a={a} /> : a.tipo === 'efecto' ? <Efecto a={a} /> : <Aviso a={a} />}
-        {lista.length > 1 && <p className="m-0 text-center text-sm text-muted">Hay {lista.length - 1} aviso{lista.length > 2 ? 's' : ''} más después de este.</p>}
+      {grande && <div className="mx-auto grid min-h-full max-w-xl content-center gap-4 p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+        {grande.tipo === 'seguimiento' ? <Seguimiento a={grande} /> : grande.tipo === 'efecto' ? <Efecto a={grande} /> : grande.tipo === 'aviso' ? <Aviso a={grande} /> : null}
+        {mas}
       </div>}
     </dialog>
+    </>
   );
 }
 
@@ -139,25 +149,23 @@ function Salvacion({ a }: { a: Extract<AvisoGrande, { tipo: 'salvacion' }> }) {
   };
   return (
     <>
-      <div className="rounded-3xl bg-adi/20 p-6 text-center">
-        <Simbolo n="shield" className="text-6xl text-adi" />
-        <h2 className="m-0 mt-2 font-serif text-3xl font-extrabold">{libra ? `Termina tu turno: repite la salvación contra ${o.condicion}` : 'Debes hacer una tirada de salvación'}</h2>
-        <p className="m-0 mt-2 font-serif text-4xl font-extrabold">{nombreAb(salv)} CD {cd}</p>
-        <p className="m-0 mt-2 text-lg">{o.de || 'Tu DM'}{o.nota ? `: ${o.nota}` : ''}</p>
-        <p className="m-0 mt-2 text-sm text-muted">{siFalla ? `Si fallas, ${siFalla}. ` : ''}Si la superas, {siSupera}.{o.repite && !libra && o.condicion ? ` Si quedas ${o.condicion}, repites la salvación al final de cada turno tuyo.` : ''}</p>
+      <div>
+        <h2 className="m-0 font-serif text-xl font-extrabold"><Simbolo n="shield" className="text-adi" /> {libra ? `Termina tu turno: repite la salvación de ${nombreAb(salv)} CD ${cd}` : `Debes hacer una salvación de ${nombreAb(salv)} CD ${cd}`}</h2>
+        <p className="m-0 mt-1">({o.nota && !libra ? `${o.nota}, ` : ''}{o.de || 'tu DM'}){' '}
+          <span className="text-muted">{siFalla ? `Si fallas, ${siFalla}; si` : 'Si'} la superas, {siSupera}.{o.repite && !libra && o.condicion ? ` Si quedas ${o.condicion}, repites la salvación al final de cada turno tuyo.` : ''}</span></p>
       </div>
       {sola ? (
-        <div className="grid gap-3 rounded-2xl bg-surface p-4">
-          <p className="m-0 text-center font-serif text-2xl font-extrabold text-acc">Estás {sola}: la fallas sin tirar</p>
-          <Boton variante="primario" className="min-h-14 text-lg" disabled={ocupado} onClick={confirmar}>Confirmar y avisar a tu DM</Boton>
+        <div className="grid gap-3">
+          <p className="m-0 font-bold text-acc">Estás {sola}: la fallas sin tirar.</p>
+          <Boton variante="primario" className="min-h-12" disabled={ocupado} onClick={confirmar}>Confirmar y avisar a tu DM</Boton>
         </div>
-      ) : <div className="grid gap-3 rounded-2xl bg-surface p-4">
+      ) : <div className="grid gap-3">
         <CampoTirada tipo="ataque" expr={expr} valor={nat} alCambiar={setNat} etiqueta={`Salvación de ${nombreAb(salv)} (CD ${cd})`} sinCritico
           desglose={`tu salvación de ${abrevAb(salv)}`} claseInput={claseCampo}
           mas={bendicion ? [{ dados: '1d4', por: 'Bendición', valor: bend === '' ? null : Math.round(+bend || 0) }] : []} />
         {bendicion && <CampoTirada tipo="dano" expr="1d4" valor={bend} alCambiar={setBend} etiqueta="Bendición" claseInput={claseCampo} />}
-        {total != null && <p className={cx('m-0 text-center font-serif text-2xl font-extrabold', supera ? 'text-pas' : 'text-acc')}>{total} contra CD {cd}: {supera ? '¡La superas!' : 'Fallas'}</p>}
-        <Boton variante="primario" className="min-h-14 text-lg" disabled={total == null || ocupado} onClick={confirmar}>
+        {total != null && <p className={cx('m-0 font-serif text-xl font-extrabold', supera ? 'text-pas' : 'text-acc')}>{total} contra CD {cd}: {supera ? '¡La superas!' : 'Fallas'}</p>}
+        <Boton variante="primario" className="min-h-12" disabled={total == null || ocupado} onClick={confirmar}>
           {total == null ? 'Escribe primero lo que salió' : 'Confirmar y avisar a tu DM'}
         </Boton>
       </div>}
@@ -181,27 +189,25 @@ function Concentracion({ a }: { a: Extract<AvisoGrande, { tipo: 'concentracion' 
   };
   if (!conc) return (
     <>
-      <p className="m-0 rounded-3xl bg-soft p-6 text-center text-lg">Ya no te estabas concentrando en nada.</p>
-      <Boton variante="primario" className="min-h-14 text-lg" onClick={() => avisosGrandes.quitar(a.id)}>Entendido</Boton>
+      <p className="m-0 text-lg">Ya no te estabas concentrando en nada.</p>
+      <Boton variante="primario" className="min-h-12" onClick={() => avisosGrandes.quitar(a.id)}>Entendido</Boton>
     </>
   );
   return (
     <>
-      <div className="rounded-3xl bg-adi/20 p-6 text-center">
-        <Simbolo n="psychology" className="text-6xl text-adi" />
-        <h2 className="m-0 mt-2 font-serif text-3xl font-extrabold">¿Mantienes la concentración?</h2>
-        <p className="m-0 mt-2 font-serif text-4xl font-extrabold">Constitución CD {a.cd}</p>
-        <p className="m-0 mt-2 text-lg">Te concentras en {conc.nombre} y recibiste {a.dano} de daño.</p>
-        <p className="m-0 mt-2 text-sm text-muted">Si fallas, {conc.nombre} se acaba para todos los que lo tenían.</p>
+      <div>
+        <h2 className="m-0 font-serif text-xl font-extrabold"><Simbolo n="psychology" className="text-adi" /> Debes hacer una salvación de Constitución CD {a.cd}</h2>
+        <p className="m-0 mt-1">(Concentración en {conc.nombre}, recibiste {a.dano} de daño){' '}
+          <span className="text-muted">Si fallas, {conc.nombre} se acaba para todos los que lo tenían.</span></p>
       </div>
-      <div className="grid gap-3 rounded-2xl bg-surface p-4">
+      <div className="grid gap-3">
         <CampoTirada tipo="ataque" expr={expr} valor={nat} alCambiar={setNat} etiqueta={`Concentración (CD ${a.cd})`} sinCritico adv={ventaja ? 1 : 0}
           desglose="tu salvación de CON" claseInput={claseCampo}
           mas={bendicion ? [{ dados: '1d4', por: 'Bendición', valor: bend === '' ? null : Math.round(+bend || 0) }] : []} />
         {ventaja && <p className="m-0 text-sm text-muted">Tienes ventaja por {ventaja}.</p>}
         {bendicion && <CampoTirada tipo="dano" expr="1d4" valor={bend} alCambiar={setBend} etiqueta="Bendición" claseInput={claseCampo} />}
-        {total != null && <p className={cx('m-0 text-center font-serif text-2xl font-extrabold', supera ? 'text-pas' : 'text-acc')}>{total} contra CD {a.cd}: {supera ? 'la mantienes' : 'la pierdes'}</p>}
-        <Boton variante="primario" className="min-h-14 text-lg" disabled={total == null} onClick={confirmar}>
+        {total != null && <p className={cx('m-0 font-serif text-xl font-extrabold', supera ? 'text-pas' : 'text-acc')}>{total} contra CD {a.cd}: {supera ? 'la mantienes' : 'la pierdes'}</p>}
+        <Boton variante="primario" className="min-h-12" disabled={total == null} onClick={confirmar}>
           {total == null ? 'Escribe primero lo que salió' : 'Confirmar'}
         </Boton>
       </div>
