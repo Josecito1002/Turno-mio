@@ -30,6 +30,9 @@ export function urlServidor(url: string | undefined) {
  *   postgres://...    -> Neon / Supabase / cualquier Postgres (postgres.js)
  *   pglite:./.data/pg -> Postgres embebido en una carpeta local, para desarrollo sin servidor
  */
+/** La opción existe en postgres.js (src/index.js) aunque sus tipos no la declaren. */
+const SIN_PIPELINE = { max_pipeline: 0 } as object;
+
 export function crearDb(url = process.env.DATABASE_URL || 'pglite:./.data/pg') {
   if (url.startsWith('pglite:')) {
     const dir = url.slice('pglite:'.length);
@@ -40,8 +43,12 @@ export function crearDb(url = process.env.DATABASE_URL || 'pglite:./.data/pg') {
   }
   // prepare:false sirve para Neon y para los poolers. En Vercel cada instancia de función abre sus conexiones: se
   // guardan pocas y se sueltan pronto para no acaparar el pooler. Fuera de Vercel, 5 y 20 s.
+  // max_pipeline:0: postgres.js manda varias consultas seguidas por la misma conexión sin esperar la respuesta
+  // (pipelining). El pooler de Supabase en modo transacción (6543) a veces no contesta las que van detrás, y la
+  // petición se quedaba colgada (la biblioteca pide diez tablas a la vez con 2 conexiones). Así cada conexión lleva
+  // una sola consulta a la vez y las demás esperan su turno.
   const enVercel = !!process.env.VERCEL;
-  const cliente = postgres(url, { prepare: false, max: enVercel ? 2 : 5, idle_timeout: enVercel ? 5 : 20, connect_timeout: 15 });
+  const cliente = postgres(url, { prepare: false, max: enVercel ? 2 : 5, idle_timeout: enVercel ? 5 : 20, connect_timeout: 15, ...SIN_PIPELINE });
   const db = drizzlePg(cliente, { schema: esquema });
   return { db, migrar: (carpeta: string) => migratePg(db, { migrationsFolder: carpeta }), cerrar: (segundos?: number) => cliente.end({ timeout: segundos }) };
 }
