@@ -95,8 +95,20 @@ export function ContadoresConjuros({ c }: { c: any }) {
 /** Buscador de los conjuros de la lista de tu clase, hasta el nivel que puedes lanzar, agrupados por nivel. */
 export function ListaConjuros({ pj, c }: { pj: any; c: any }) {
   const [q, setQ] = useState('');
+  const [filtro, setFiltro] = useState('');
   const idQ = useId();
   const nq = norm(q);
+  const pasa = (s: any) => {
+    if (!filtro) return true;
+    const d = norm(`${s.nombre} ${s.desc || ''}`);
+    if (filtro === 'conc') return !!s.conc && s.conc !== 'False';
+    if (filtro === 'ritual') return !!s.ritual && s.ritual !== 'False';
+    if (filtro === 'cura') return /recupera|cura|puntos de golpe temporales/.test(d);
+    if (filtro === 'dano') return (!!s.dados && !/recupera|cura/.test(d)) || (!!s.ataque && s.ataque !== 'False') || /dano/.test(d);
+    if (filtro === 'apoyo') return /aliad|ventaja|suma|\+\d|bonificador/.test(d) && !/dano/.test(d);
+    return true;
+  };
+  const FILTROS: [string, string][] = [['', 'Todos'], ['cura', 'Curación'], ['dano', 'Daño'], ['apoyo', 'Apoyo'], ['conc', 'Concentración'], ['ritual', 'Ritual']];
   // La lista de la clase, más las que abra una regla (Secretos Mágicos del bardo: clérigo, druida y mago)
   const listas = [listaDeConjuros(pj.clase, c.C) || c.listaSub, ...(c.listasExtra || [])].filter(Boolean) as string[];
   // Y los trucos de otra lista que da un estilo de combate (Guerrero bendito: clérigo; Guerrero druídico: druida)
@@ -107,14 +119,21 @@ export function ListaConjuros({ pj, c }: { pj: any; c: any }) {
     <>
       <label htmlFor={idQ} className="sr-only">Buscar conjuro por nombre</label>
       <input id={idQ} type="search" placeholder="Buscar por nombre…" value={q} onChange={e => setQ(e.target.value)} className={cx(claseCampo, 'mb-2')} />
+      <div role="group" aria-label="Filtrar conjuros" className="-mx-1 mb-3 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
+        {FILTROS.map(([k, n]) => (
+          <button key={k || 'todos'} type="button" aria-pressed={filtro === k} onClick={() => setFiltro(k)}
+            className={cx('min-h-10 shrink-0 cursor-pointer whitespace-nowrap rounded-full px-4 text-body-md', foco,
+              filtro === k ? 'bg-surface-container-highest font-semibold text-on-surface' : 'text-on-surface-variant ring-1 ring-surface-container-highest hover:text-on-surface')}>{n}</button>
+        ))}
+      </div>
       {niveles.map(n => {
         const todos = visibles.filter(s => (+s.nivel || 0) === n).sort((x, y) => x.nombre.localeCompare(y.nombre));
-        const filtrada = nq ? todos.filter(s => norm(s.nombre).includes(nq)) : todos;
-        if (nq && !filtrada.length) return null;
+        const filtrada = todos.filter(s => (!nq || norm(s.nombre).includes(nq)) && pasa(s));
+        if ((nq || filtro) && !filtrada.length) return null;
         const mios = todos.filter(s => pj.conjuros.some((x: any) => norm(x.nombre) === norm(s.nombre))).length;
         return (
           <Plegable key={n} titulo={n === 0 ? 'Trucos' : `Nivel ${n}`} nota={`${todos.length} conjuros${mios ? `, ${mios} elegido${mios > 1 ? 's' : ''}` : ''}`}
-            abierto={nq ? true : !!S.spOpen[n]} onToggle={o => { if (!nq) S.spOpen[n] = o; }}>
+            abierto={nq || filtro ? true : !!S.spOpen[n]} onToggle={o => { if (!nq && !filtro) S.spOpen[n] = o; }}>
             <ul className="m-0 list-none divide-y divide-soft p-0">{filtrada.map(s => <TarjetaConjuro key={s.nombre} s={s} c={c} pj={pj} />)}</ul>
           </Plegable>
         );
@@ -198,6 +217,19 @@ export function RasgoForm({ p }: { p: string }) {
   );
 }
 
+/** Plantillas de rasgo propio: llenan el formulario y el jugador cambia lo que quiera. [ícono, nombre, tipo, usos, recarga, texto] */
+const PLANTILLAS: [string, string, string, string, string, string][] = [
+  ['card_giftcard', 'Regalo del DM', 'pasiva', '0', 'largo', 'Describe aquí lo que te dio tu DM y cuándo aplica.'],
+  ['pets', 'Compañero animal', 'adicional', '0', 'largo', 'Tu compañero actúa en tu turno cuando le das una orden. Anota su CA, PG y ataque.'],
+  ['shield_moon', 'Bendición o maldición', 'pasiva', '0', 'largo', 'Efecto que te dejó un ser poderoso: qué hace y cómo se quita.'],
+  ['construction', 'Objeto especial', 'accion', '1', 'largo', 'Usas el objeto: describe qué pasa. Si tiene dados, escríbelos (ej. 2d6).'],
+];
+const usarPlantilla = (nombre: string, tipo: string, usos: string, reset: string, texto: string) => {
+  const poner = (id: string, v: string) => { const el = document.getElementById('r' + id) as HTMLInputElement | null; if (el) el.value = v; };
+  poner('N', nombre); poner('T', tipo); poner('U', usos); poner('R', reset); poner('X', texto);
+  document.getElementById('rN')?.focus();
+};
+
 export function PasoRasgos({ pj }: { pj: any }) {
   const agregar = () => { const r = leerRasgo('r'); if (!r) return; pj.rasgosExtra.push(r); savePj(); render(); avisar(`${r.nombre} agregado.`); };
   return (
@@ -216,6 +248,17 @@ export function PasoRasgos({ pj }: { pj: any }) {
           </li>
         )) : <li className="rounded-xl border border-dashed border-outline-variant p-4 text-center text-body-md text-on-surface-variant">Ninguno todavía. Es opcional: agrégalos solo si tu DM te dio algo especial.</li>}
       </ul>
+      <div className="mt-5">
+        <p className="m-0 mb-2 text-label-caps uppercase tracking-wider text-outline">Empieza rápido con una plantilla</p>
+        <div className="flex flex-wrap gap-2">
+          {PLANTILLAS.map(([icono, nombre, tipo, usos, reset, texto]) => (
+            <button key={nombre} type="button" onClick={() => usarPlantilla(nombre, tipo, usos, reset, texto)}
+              className={cx('inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg bg-surface-container px-3 text-body-md ring-1 ring-surface-container-highest hover:bg-surface-container-high', foco)}>
+              <Simbolo n={icono} className="text-headline-sm text-primary" />{nombre}
+            </button>
+          ))}
+        </div>
+      </div>
       <Seccion titulo="Agregar un rasgo">
         <div key={pj.rasgosExtra.length}><RasgoForm p="r" /></div>
         <Boton variante="primario" className="mt-3" onClick={agregar}>Agregar rasgo</Boton>
