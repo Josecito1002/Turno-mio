@@ -62,6 +62,8 @@ export async function versionBiblioteca(db: Db): Promise<string> {
 /* La biblioteca que leyó esta instancia del servidor, con la versión que tenía al leerla. Mientras la versión no cambie
    se responde con esta copia: son diez consultas y el md5 de cada imagen menos por carga. */
 let enMemoria: { version: string; lib: Promise<BibliotecaAnidada> } | null = null;
+/** Olvida la copia en memoria (por ejemplo si su lectura se quedó colgada y nunca va a terminar). */
+export function olvidarBibliotecaEnMemoria() { enMemoria = null; }
 
 /** La biblioteca como la pide la web, y su versión. Sin cambios en la base, sale de memoria con una sola consulta. */
 export async function leerBibliotecaConVersion(db: Db): Promise<{ version: string; lib: BibliotecaAnidada }> {

@@ -1,10 +1,11 @@
 import { createYoga, maskError } from 'graphql-yoga';
 import { GraphQLError } from 'graphql';
-import { db } from '@/shared/db/cliente';
+import { db, reiniciarConexion } from '@/shared/db/cliente';
 import { componerEsquema } from '@/shared/graphql/servidor';
 import { auth } from '@/features/cuentas/server/auth';
 import { cuentasGraphQL } from '@/features/cuentas/server/graphql';
 import { bibliotecaGraphQL } from '@/features/biblioteca/server/graphql';
+import { olvidarBibliotecaEnMemoria } from '@/features/biblioteca/server/repositorio';
 import { personajesGraphQL } from '@/features/personajes/server/graphql';
 import { mesaGraphQL } from '@/features/mesa/server/graphql';
 
@@ -49,5 +50,26 @@ const yoga = createYoga({
   },
 });
 
-export async function GET(request: Request) { return yoga.handleRequest(request, {}); }
-export async function POST(request: Request) { return yoga.handleRequest(request, {}); }
+/* Una consulta que no termina (una conexión muerta que nadie cierra) dejaba la petición colgada hasta que Vercel la
+   cortaba a los 300 s, y a las siguientes también, porque esperaban la misma conexión o la misma lectura de la
+   biblioteca. Pasado LIMITE se responde «base ocupada» (la web reintenta) y se descartan conexión y copia en memoria. */
+const LIMITE = 25_000;
+
+async function atender(request: Request) {
+  let reloj: ReturnType<typeof setTimeout> | undefined;
+  const corte = new Promise<null>(ok => { reloj = setTimeout(() => ok(null), LIMITE); });
+  try {
+    const r = await Promise.race([yoga.handleRequest(request, {}), corte]);
+    if (r) return r;
+  } finally { clearTimeout(reloj); }
+  console.error('[graphql] sin respuesta en', LIMITE / 1000, 's: se reinicia la conexión a la base');
+  reiniciarConexion();
+  olvidarBibliotecaEnMemoria();
+  return Response.json({ errors: [{
+    message: 'La base de datos está ocupada en este momento. Vuelve a intentarlo en unos segundos.',
+    extensions: { code: 'BASE_OCUPADA' },
+  }] }, { status: 503 });
+}
+
+export async function GET(request: Request) { return atender(request); }
+export async function POST(request: Request) { return atender(request); }
