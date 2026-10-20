@@ -468,7 +468,7 @@ export function PasoHabs({ pj, c }: { pj: any; c: any }) {
         </div>
       </div>
       <Seccion titulo={`Elige ${C.habN} de ${C.n.toLowerCase()}`} descripcion="Solo aparecen las habilidades de la lista de tu clase.">
-        <Checks field="habClase" list={lista} sel={pj.habClase} max={C.habN} disabled={bg} etiqueta={`Habilidades de ${C.n}`} bono={n => sign(c.skill?.[norm(n)] ?? 0)} />
+        <HabilidadesAgrupadas pj={pj} c={c} lista={lista} bg={bg} max={C.habN} clase={C.n} trasfondo={c.T?.n || 'Trasfondo'} />
       </Seccion>
       {(extraN > 0 || pj.habExtra.length > 0) && (
         <Seccion titulo="Habilidades extra" descripcion={`${razones.join('; ') || 'Dadas por tu DM'}.`}>
@@ -486,6 +486,48 @@ export function PasoHabs({ pj, c }: { pj: any; c: any }) {
         </Seccion>
       )}
     </>
+  );
+}
+
+/** Las 18 habilidades por característica: las del trasfondo con candado, las de la clase para elegir y el resto tenues. */
+function HabilidadesAgrupadas({ pj, c, lista, bg, max, clase, trasfondo }: { pj: any; c: any; lista: string[]; bg: Set<string>; max: number; clase: string; trasfondo: string }) {
+  const enLista = new Set(lista.map(norm)), deBg = new Set([...bg].map(norm));
+  const extra = new Set<string>((pj.habExtra || []).map(norm));
+  return (
+    <fieldset className="m-0 flex flex-col gap-4 border-0 p-0">
+      <legend className="sr-only">Habilidades de {clase}</legend>
+      {AB.filter(([k]) => k !== 'con').map(([k, , , nm]) => (
+        <section key={k} aria-label={nm} className="flex flex-col gap-1.5">
+          <h3 className="m-0 flex items-center gap-1.5 text-label-caps uppercase tracking-wider text-on-surface-variant">
+            <Simbolo n={ICONO_AB[k]} className="text-body-lg text-secondary" />{nm} <span className="text-outline">{sign(c.m[k])}</span>
+          </h3>
+          {SKILLS.filter(([, a]) => a === k).map(([n]) => {
+            const kn = norm(n), ya = deBg.has(kn), on = (pj.habClase || []).includes(n), ex = extra.has(kn), puede = enLista.has(kn) && !ya;
+            const activo = ya || on || ex;
+            return (
+              <label key={n} className={cx('flex min-h-12 items-center gap-2.5 rounded-lg bg-surface-container px-3 py-2 transition-colors',
+                'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-rea',
+                on ? 'ring-2 ring-primary' : activo ? 'ring-1 ring-outline-variant' : puede ? 'ring-1 ring-surface-container-highest' : 'ring-0',
+                puede ? 'cursor-pointer hover:bg-surface-container-high' : 'cursor-default', !activo && !puede && 'opacity-50')}>
+                <input type="checkbox" className="sr-only" checked={on || ya || ex} disabled={!puede}
+                  onChange={e => alternarEn('habClase', n, max, e.currentTarget)} />
+                {ya || ex ? <span aria-hidden="true" className="grid size-6 shrink-0 place-items-center rounded-md bg-surface-container-highest"><Simbolo n="lock" className="text-body-md text-outline" /></span>
+                  : on ? <span aria-hidden="true" className="grid size-6 shrink-0 place-items-center rounded-md bg-primary"><Simbolo n="check" className="text-body-lg text-on-primary" /></span>
+                  : <span aria-hidden="true" className={cx('size-6 shrink-0 rounded-md border-2', puede ? 'border-outline' : 'border-surface-container-highest')} />}
+                <span className="flex flex-1 flex-wrap items-center gap-1.5">
+                  {n}
+                  {ya && <span className="rounded-xs bg-surface-container-lowest px-1.5 text-body-sm text-on-surface-variant">{trasfondo}</span>}
+                  {ex && !ya && <span className="rounded-xs bg-surface-container-lowest px-1.5 text-body-sm text-on-surface-variant">Extra</span>}
+                  {on && <span className="rounded-xs bg-surface-container-lowest px-1.5 text-body-sm text-primary">{clase}</span>}
+                  {puede && !on && <span className="text-body-sm text-warn">Puede elegir</span>}
+                </span>
+                <b className={cx('text-body-lg', activo ? 'text-secondary' : 'text-outline')}>{sign(c.skill?.[kn] ?? c.m[k])}</b>
+              </label>
+            );
+          })}
+        </section>
+      ))}
+    </fieldset>
   );
 }
 

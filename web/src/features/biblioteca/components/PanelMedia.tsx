@@ -185,7 +185,7 @@ export function useAzar(n: number) {
     `azar` son las claves de imágenes de respaldo (las de la especie, o las de la subraza elegida si no tiene imagen propia): se elige una al azar y queda fija.
     Con `soloAzar` (clases) no hay imagen propia de la clave: solo las de `azar`, del set de especie y clase. */
 /** `elegida`, `datos` y `acciones`: en el creador, la tarjeta de lo que el jugador ya eligió (con sus datos clave y botones) */
-export function PanelMedia({ k, n, d, fuente, sub, azar, soloAzar, largo, children, elegida, datos, acciones }: { k: string; n: string; d: string; largo?: string; fuente?: Fuente; sub?: Sub; azar?: string[]; soloAzar?: boolean; children?: React.ReactNode; elegida?: boolean; datos?: [string, React.ReactNode][]; acciones?: React.ReactNode }) {
+export function PanelMedia({ k, n, d, fuente, sub, azar, soloAzar, largo, children, elegida, datos, acciones, rasgos }: { k: string; n: string; d: string; largo?: string; fuente?: Fuente; sub?: Sub; azar?: string[]; soloAzar?: boolean; children?: React.ReactNode; elegida?: boolean; datos?: [string, React.ReactNode][]; acciones?: React.ReactNode; rasgos?: [string, string][] }) {
   const LIB = getLib(), editando = S.crop && (S.crop.k === k || S.crop.k === sub?.k);
   const conImg = (azar || []).filter(x => LIB.img?.[x]);
   const i = useAzar(conImg.length);
@@ -216,6 +216,14 @@ export function PanelMedia({ k, n, d, fuente, sub, azar, soloAzar, largo, childr
               </div>
             ))}
           </dl>
+        )}
+        {rasgos && rasgos.length > 0 && (
+          <div>
+            <p className="m-0 mb-1 text-label-caps uppercase tracking-wider text-outline">Rasgos</p>
+            <ul className="m-0 flex list-none flex-col gap-1 p-0">
+              {rasgos.map(([icono, nombre]) => <li key={nombre} className="flex items-center gap-2"><Simbolo n={icono} className="text-body-lg text-primary" />{nombre}</li>)}
+            </ul>
+          </div>
         )}
         {sub && (
           <div className="rounded-xl bg-surface-container-lowest p-3 ring-2 ring-primary">

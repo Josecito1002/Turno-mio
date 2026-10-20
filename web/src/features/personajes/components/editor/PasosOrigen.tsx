@@ -91,11 +91,25 @@ function ElegirSubespecie({ pj, E, fija }: { pj: any; E: any; fija: boolean }) {
 }
 
 /** El cuadro de la especie; con subraza elegida, también su descripción y lo que da */
-function CuadroEspecie({ pj, E }: { pj: any; E: any }) {
+/** Ícono para un rasgo según su nombre (visión, resistencias, magia, movimiento…); si no encaja, una chispa */
+function iconoRasgo(n: string): string {
+  const x = norm(n);
+  if (/vision|sentid|oscur|percep/.test(x)) return 'visibility';
+  if (/trance|sueno|descans/.test(x)) return 'bedtime';
+  if (/resist|duro|robust|piel|aguant/.test(x)) return 'shield';
+  if (/magia|conjur|truco|linaje|legado|herencia/.test(x)) return 'auto_awesome';
+  if (/velocidad|movim|salto|vuelo|volar|nad/.test(x)) return 'directions_run';
+  if (/alient|fuego|aliento/.test(x)) return 'local_fire_department';
+  if (/suerte|afortun/.test(x)) return 'casino';
+  return 'star';
+}
+
+function CuadroEspecie({ pj, E, c }: { pj: any; E: any; c: any }) {
   const k = pj.especie.key, s = pj.especie.sub, x = s && E.subs?.[s];
   const rasgos = x ? rasgosDeSubespecie(pj, s) : [];
   return (
     <PanelMedia k={k} n={E.n} d={descEspecie(k)} fuente={fuenteEspecie(k, E)} azar={x ? clavesSubraza(k, s) : clavesEspecie(k, E)} elegida
+      rasgos={c.entries.filter((e: any) => e.grupo === 'especie' && e.nombre).map((e: any) => [iconoRasgo(e.nombre), e.nombre] as [string, string])}
       datos={[['Velocidad', `${String(Math.round((x?.vel || E.vel || 30) * 0.3 * 10) / 10).replace('.', ',')} m`], ['Visión en la oscuridad', (x?.vision ?? E.vision) ? `${String(Math.round((x?.vision ?? E.vision) * 0.3)).replace('.', ',')} m` : 'No']]}
       sub={x ? { k: claveSub(k, s), n: x.n + (x.dmg ? ` (${x.dmg})` : ''), d: descSubespecie(k, s) } : undefined}>
       {rasgos.length > 0 && (
@@ -144,7 +158,7 @@ export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
   const ents = c.entries.filter((e: any) => e.grupo === 'especie');
   return (
     <>
-      {E && pj.especie.key !== 'custom' && <CuadroEspecie pj={pj} E={E} />}
+      {E && pj.especie.key !== 'custom' && <CuadroEspecie pj={pj} E={E} c={c} />}
       {F && deF.length > 1 && (
         <Seccion titulo={F.n}>
           <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-2 p-0">
@@ -162,7 +176,7 @@ export function PasoEspecie({ pj, c }: { pj: any; c: any }) {
         </div>
       )}
       <ElegirElecciones pj={pj} elecciones={(c.elecciones || []).filter((e: any) => e.grupo === 'especie')} />
-      {ents.length > 0 && <Seccion titulo="Rasgos de tu especie">{ents.map((e: any, i: number) => <Entrada key={i} e={e} />)}</Seccion>}
+      {ents.length > 0 && <Seccion titulo="Qué hace cada rasgo">{ents.map((e: any, i: number) => <Entrada key={i} e={e} />)}</Seccion>}
       {E && c.lvl > 1
         ? <Nota>La especie se elige a nivel 1 y ya no se puede cambiar.</Nota>
         : <Seccion titulo={E ? 'Cambiar de especie' : 'Elige tu especie'}><TarjetasBuscables que="especie" items={items} /></Seccion>}
