@@ -224,6 +224,8 @@ function bloquesDm(s: SeccionDm): string {
 export function paginaImprimibles(titulo: string, x: Partial<Imprimibles> | Entregable[], origen: string): string {
   const { docs = [], mapas = [], dm = [], fichas = [] } = Array.isArray(x) ? { docs: x } : x;
   const copias = fichas.reduce((n, f) => n + f.copias, 0);
+  const soloMapas = mapas.length > 0 && !docs.length && !dm.length && !fichas.length;
+  const soloFichas = fichas.length > 0 && !docs.length && !dm.length && !mapas.length;
   const fuente = (n: string, f: string, extra = '') =>
     `@font-face{font-family:'${n}';src:url('${origen}/homebrewery/fonts/5e/${f}.woff2') format('woff2');${extra}}`;
   const tarjetas = docs.map((d) => `<section class="doc">
@@ -243,7 +245,7 @@ ${fuente('ScalySans', 'Scaly Sans')}
 ${fuente('ScalySans', 'Scaly Sans Italic', 'font-style:italic;')}
 ${fuente('ScalySans', 'Scaly Sans Bold', 'font-weight:bold;')}
 ${fuente('ScalySans', 'Scaly Sans Bold Italic', 'font-weight:bold;font-style:italic;')}
-@page { size: letter; margin: 1.2cm; }
+@page { size: letter; margin: ${soloMapas ? '0.5cm' : soloFichas ? '0' : '1.2cm'}; }
 @page mapa { size: letter portrait; margin: 0.8cm; }
 @page mapah { size: letter landscape; margin: 0.8cm; }
 @page tapete { size: letter landscape; margin: 0.5cm; }
@@ -297,7 +299,16 @@ ${fichas.length ? CSS_FICHAS : ''}
 @media print { body { background: none; } .barra { display: none; } main { padding: 0; max-width: none; } h2.parte { margin-top: 0; }
   .mapa { margin: 0; }
   /* lo primero que se imprime no salta de hoja: si no, algunos navegadores sacan una hoja en blanco al principio */
-  main > :first-child { break-before: auto; page-break-before: auto; } }
+  main > :first-child { break-before: auto; page-break-before: auto; }
+  /* con una sola parte no se usan hojas con nombre (Firefox mete una hoja en blanco al cambiar de una a otra y no gira
+     las apaisadas): todo va en carta vertical y los mapas apaisados y los tapetes se giran dentro de la hoja */
+  ${soloFichas ? '.hojaf { page: auto; }' : ''}
+  ${soloMapas ? `.mapa, .mapa.h, .mapa.tapete { page: auto; position: relative; height: 26.8cm; overflow: hidden; }
+  .mapa p { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; }
+  .mapa img { max-height: 26.1cm; }
+  .mapa.h img, .mapa.tapete img { position: absolute; left: 50%; top: calc(50% - .3cm); margin: 0;
+    transform: translate(-50%, -50%) rotate(90deg); }
+  .mapa.h img { max-width: 26cm; max-height: 20.5cm; }` : ''} }
 </style></head><body>
 <div class="barra"><span>${html(titulo)}: ${[
     docs.length && `${docs.length} documento${docs.length === 1 ? '' : 's'} para recortar`,
