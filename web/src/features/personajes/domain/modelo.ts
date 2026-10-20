@@ -4,7 +4,7 @@ import { AB } from '@/features/reglas/data/caracteristicas';
 import { getC, getE } from '@/features/biblioteca/domain/biblioteca';
 
 export function nuevoPj(){
-  return {v:2, id:'pj-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), nombre:'', jugador:'', alineamiento:'', historia:'',
+  return {v:2, id:'pj-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), nombre:'', jugador:'', alineamiento:'', historia:'', notas:'',
     especie:{key:'', sub:'', nombre:'', vel:30, vision:0},
     clase:'', nivel:1, subclase:'', subclaseNombre:'', pactoCadena:false, estilo:'', maestrias:[],
     trasfondo:{key:'', modo:'21', a:'', b:'', nombre:'', abs:['','',''], habs:['',''], dote:'', herr:''},

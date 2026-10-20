@@ -4,15 +4,13 @@ import { S, render, useRender, irArriba, esAdmin, esDM, esInvitado, type Vista }
 import { cargarTodo, vaciarPendientes, almacen } from './almacen';
 import { leerArchivos } from './importar';
 import { Aviso, Boton, Dialogo, Insignia, Simbolo, cx, foco } from '@/shared/ui/kit';
-import { avisar } from '@/shared/ui/avisos';
 import { slug } from '@/shared/utils/texto';
 import { BandejaDados, useDados } from '@/features/dados/components/Bandeja';
 import { DialogoConfirmar } from '@/shared/ui/confirmar';
 import { compute } from '@/features/personajes/domain/calculo';
 import { reparar } from '@/features/personajes/domain/modelo';
 import { faltaParaSubir } from '@/features/personajes/domain/pendientes';
-import { getC } from '@/features/biblioteca/domain/biblioteca';
-import { abrirSubida, bajarArchivo, bajarNivel, borrarPj, descansar, gastarRecurso, quedaRecurso } from '@/features/personajes/acciones';
+import { bajarArchivo, bajarNivel, borrarPj, descansar, editarPj, gastarRecurso, pedirSubida, quedaRecurso, verInventario } from '@/features/personajes/acciones';
 import { Ficha } from '@/features/personajes/components/ficha/Ficha';
 import { RecibirEntregas } from '@/features/personajes/components/RecibirEntregas';
 import { MesaJugadorVista } from '@/features/mesa/components/UnirseMesa';
@@ -44,19 +42,16 @@ const ICONOS: Record<string, string> = {
 type ItemNav = { vista: Vista; texto: string; activa: boolean };
 function itemsNav(): ItemNav[] {
   const v = S.view;
-  const items: ItemNav[] = [
-    { vista: 'home', texto: 'Personajes', activa: v === 'home' || ((v === 'ficha' || v === 'editor') && !S.combateMesa) },
-    { vista: 'lib', texto: 'Biblioteca', activa: v === 'lib' },
-  ];
-  if (esDM()) items.push({ vista: 'mesa', texto: 'Mesa del DM', activa: v === 'mesa' });
+  const items: ItemNav[] = [{ vista: 'home', texto: 'Personajes', activa: v === 'home' || ((v === 'ficha' || v === 'editor') && !S.combateMesa) }];
   // La mesa a la que te uniste con el código de tu DM: su combate está ahí
   if (!esInvitado()) items.push({ vista: 'mesaj', texto: 'Campañas', activa: v === 'mesaj' || (v === 'ficha' && !!S.combateMesa) });
+  items.push({ vista: 'lib', texto: 'Biblioteca', activa: v === 'lib' });
+  if (esDM()) items.push({ vista: 'mesa', texto: 'Mesa del DM', activa: v === 'mesa' });
   if (esAdmin()) items.push({ vista: 'cuentas', texto: 'Cuentas', activa: v === 'cuentas' });
   return items;
 }
 const ir = (v: Vista) => { S.view = v; S.dialogo = ''; S.hojaMesa = null; S.ajeno = null; S.combateMesa = null; S.combateHoja = false; S.campJ = null; if (v === 'mesa') S.camp = null; render(); irArriba(); };
 
-const editar = () => { S.dialogo = ''; S.view = 'editor'; S.step = S.step || 'especie'; render(); irArriba(); };
 const verHoja = () => { S.combateHoja = true; S.dialogo = ''; S.view = 'ficha'; S.tab = 'turno'; render(); irArriba(); };
 const abrirDialogo = (d: string) => { S.view = 'ficha'; S.dialogo = d; render(); };
 const marcarImportarEnCampana = () => { S.importCamp = S.camp; };
@@ -164,11 +159,6 @@ function MenuCompleto({ invitado, onCerrar, onClave, onNombre, onCompartir }: { 
   const falta = c ? faltaParaSubir(c) : [];
   const nAv = c ? c.avisos.filter((a: { nivel: string }) => a.nivel === 'aviso').length : 0;
   const rol = S.usuario?.rol === 'admin' ? 'Admin' : S.usuario?.rol === 'dm' ? 'DM' : 'Jugador';
-  const subir = () => {
-    if (!falta.length) return abrirSubida();
-    avisar(`No puedes subir de nivel: tienes elecciones pendientes (${falta.map((a: { t: string }) => a.t.toLowerCase()).join(', ')}). Míralas en Revisar.`, 'aviso');
-    abrirDialogo('revisar');
-  };
   // El diálogo se cierra antes de imprimir para que no salga en el papel
   const imprimir = () => { onCerrar(); setTimeout(() => window.print(), 50); };
   return (
@@ -194,12 +184,12 @@ function MenuCompleto({ invitado, onCerrar, onClave, onNombre, onCompartir }: { 
         <>
           <TituloMenu>{pj.nombre || 'Personaje'}</TituloMenu>
           {enEditor && <ItemMenu icono="description" onClick={hacer(verHoja)}>Listo</ItemMenu>}
-          {enFicha && <ItemMenu icono="edit" onClick={hacer(editar)}>Editar personaje</ItemMenu>}
+          {enFicha && <ItemMenu icono="edit" onClick={hacer(editarPj)}>Editar personaje</ItemMenu>}
           {enFicha && <ItemMenu icono="hourglass_empty" onClick={hacer(() => descansar('corto'))}>Descanso corto</ItemMenu>}
           {enFicha && <ItemMenu icono="bedtime" onClick={hacer(() => descansar('largo'))}>Descanso largo</ItemMenu>}
-          {c.C && c.lvl < 20 && <ItemMenu icono="arrow_upward" onClick={hacer(subir)} extra={falta.length ? <span className="text-label-caps uppercase text-outline">Falta elegir</span> : undefined}>Subir a nivel {c.lvl + 1}</ItemMenu>}
+          {c.C && c.lvl < 20 && <ItemMenu icono="arrow_upward" onClick={hacer(pedirSubida)} extra={falta.length ? <span className="text-label-caps uppercase text-outline">Falta elegir</span> : undefined}>Subir a nivel {c.lvl + 1}</ItemMenu>}
           {c.C && c.lvl > 1 && <ItemMenu icono="arrow_downward" onClick={hacer(bajarNivel)}>Bajar a nivel {c.lvl - 1}</ItemMenu>}
-          <ItemMenu icono="backpack" onClick={hacer(() => abrirDialogo('equipo'))}>Equipo e inventario</ItemMenu>
+          <ItemMenu icono="backpack" onClick={hacer(verInventario)}>Equipo e inventario</ItemMenu>
           <ItemMenu icono="checklist" onClick={hacer(() => abrirDialogo('revisar'))}
             extra={nAv > 0 ? <Insignia etiqueta={`${nAv} cosas por elegir`}>{nAv}</Insignia> : undefined}>Revisar</ItemMenu>
           <ItemMenu icono="print" onClick={imprimir}>Imprimir o guardar PDF</ItemMenu>
@@ -253,15 +243,10 @@ function BarraSuperior({ invitado }: { invitado: boolean }) {
   const [clave, setClave] = useState(false);
   const [nombre, setNombre] = useState(false);
   const [compartir, setCompartir] = useState(false);
-  const pj = S.pj, conPj = !!pj && (S.view === 'ficha' || S.view === 'editor');
-  const listo = !!S.usuario && !S.cargando;
-  const clase = conPj ? getC(pj, pj.clase)?.n : '';
-  // Píldoras: la hoja abierta primero, luego las secciones de la app y el inventario del personaje
-  const pildoras: { id: string; texto: string; activa: boolean; accion: () => void }[] = listo ? [
-    ...(pj ? [{ id: 'hoja', texto: 'Hoja de personaje', activa: S.view === 'ficha' || S.view === 'editor', accion: verHoja }] : []),
-    ...itemsNav().map(it => ({ id: it.vista, texto: it.texto, activa: it.vista === S.view, accion: () => ir(it.vista) })),
-    ...(pj ? [{ id: 'inv', texto: 'Inventario', activa: false, accion: () => abrirDialogo('equipo') }] : []),
-  ] : [];
+  const pj = S.pj, listo = !!S.usuario && !S.cargando;
+  // Secciones de la app; con una hoja abierta queda marcada Personajes (o Campañas, en el combate de una mesa)
+  const pildoras = listo ? itemsNav() : [];
+  const inicial = (S.usuario?.nombre || '?').trim().charAt(0).toUpperCase();
   return (
     <Cabecera>
       <div className="flex h-20 w-full items-center justify-between gap-5 px-4 lg:px-6">
@@ -276,12 +261,12 @@ function BarraSuperior({ invitado }: { invitado: boolean }) {
             </span>
           </button>
           {pildoras.length > 0 && (
-            <nav aria-label="Principal" className="ml-3 hidden min-w-0 items-center gap-1 overflow-x-auto rounded-lg bg-surface-container-low p-1 [scrollbar-width:none] xl:flex">
+            <nav aria-label="Principal" className="ml-3 hidden min-w-0 items-center gap-1 overflow-x-auto [scrollbar-width:none] lg:flex">
               {pildoras.map(p => (
-                <button key={p.id} type="button" aria-current={p.activa ? 'page' : undefined} onClick={p.accion}
-                  className={cx('shrink-0 cursor-pointer whitespace-nowrap rounded px-3 py-2 text-body-md transition-all', foco,
-                    p.activa ? 'bg-primary-container font-semibold text-on-primary-container shadow-[0_0_12px_rgba(212,175,55,0.25)]'
-                      : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface')}>
+                <button key={p.vista} type="button" aria-current={p.activa ? 'page' : undefined} onClick={() => ir(p.vista)}
+                  className={cx('min-h-11 shrink-0 cursor-pointer whitespace-nowrap rounded-lg px-4 text-body-md transition-colors', foco,
+                    p.activa ? 'bg-surface-container-high font-semibold text-on-surface'
+                      : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface')}>
                   {p.texto}
                 </button>
               ))}
@@ -290,39 +275,23 @@ function BarraSuperior({ invitado }: { invitado: boolean }) {
         </div>
 
         <div className="flex shrink-0 items-center gap-3">
-          <button type="button" onClick={() => tirar('1d20', 'd20', { neutral: true })}
-            className={cx('flex min-h-11 cursor-pointer items-center gap-2 rounded bg-surface-container-high px-3 text-primary shadow-[0_0_10px_rgba(212,175,55,0.2)] transition-all hover:bg-primary hover:text-on-primary', foco)}>
-            <Simbolo n="casino" className="text-headline-sm" />
-            <span className="hidden text-label-caps uppercase tracking-widest sm:inline">Tirar D20</span>
+          <button type="button" onClick={() => tirar('1d20', 'd20', { neutral: true })} aria-label="Tirar d20"
+            className={cx('flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-3 font-semibold text-on-surface ring-1 ring-outline-variant transition-colors hover:bg-surface-container-high sm:px-4', foco)}>
+            <Simbolo n="casino" className="text-headline-sm text-primary sm:hidden" />
+            <span className="hidden sm:inline">Tirar d20</span>
           </button>
-          {S.view === 'ficha' && pj && (
-            <div className="hidden items-center rounded bg-surface-container-low p-1 md:flex">
-              <button type="button" onClick={() => descansar('corto')}
-                className={cx('flex cursor-pointer items-center gap-1 rounded-xs px-3 py-1 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface', foco)}>
-                <Simbolo n="hourglass_empty" className="text-body-md" />Descanso corto
-              </button>
-              <button type="button" onClick={() => descansar('largo')}
-                className={cx('flex cursor-pointer items-center gap-1 rounded-xs px-3 py-1 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface', foco)}>
-                <Simbolo n="bedtime" className="text-body-md" />Descanso largo
-              </button>
-            </div>
-          )}
-          {conPj && (
-            <div className="flex items-center gap-3 pl-2">
-              <div className="hidden flex-col text-right 2xl:flex">
-                <span className="font-serif text-headline-sm leading-tight text-on-surface">{pj.nombre || 'Sin nombre'}</span>
-                <span className="text-label-caps uppercase tracking-wider text-secondary">Nivel {pj.nivel}{clase ? ` • ${clase}` : ''}</span>
-              </div>
-              <span aria-hidden="true" className="grid size-8 place-items-center rounded-full bg-surface-container-high font-serif text-body-lg font-bold text-primary shadow-[0_0_8px_rgba(212,175,55,0.3)] ring-2 ring-primary-container">
-                {(pj.nombre || '?').trim().charAt(0).toUpperCase()}
-              </span>
-            </div>
-          )}
           {listo && (
-            <button type="button" onClick={() => setMenu(true)} aria-label="Abrir menú" aria-haspopup="dialog"
-              className={cx('grid size-11 cursor-pointer place-items-center rounded text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface', foco)}>
-              <Simbolo n="menu" className="text-[26px]" />
-            </button>
+            <>
+              {/* En pantallas grandes el menú se abre desde la inicial del jugador; en el teléfono, con las tres rayas */}
+              <button type="button" onClick={() => setMenu(true)} aria-label="Abrir menú" aria-haspopup="dialog" title={S.usuario?.nombre}
+                className={cx('hidden size-12 cursor-pointer place-items-center rounded-full font-serif text-headline-sm text-primary ring-2 ring-primary-container transition-colors hover:bg-surface-container-high lg:grid', foco)}>
+                {inicial}
+              </button>
+              <button type="button" onClick={() => setMenu(true)} aria-label="Abrir menú" aria-haspopup="dialog"
+                className={cx('grid size-11 cursor-pointer place-items-center rounded text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface lg:hidden', foco)}>
+                <Simbolo n="menu" className="text-[26px]" />
+              </button>
+            </>
           )}
         </div>
       </div>
