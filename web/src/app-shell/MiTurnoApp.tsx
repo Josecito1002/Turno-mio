@@ -401,7 +401,7 @@ export function MiTurnoApp({ invitado = false, enlace }: { invitado?: boolean; e
       <input ref={fileIn} type="file" className="sr-only" tabIndex={-1} aria-hidden="true" multiple accept="application/json,.json"
         onChange={e => { leerArchivos(e.target.files); e.target.value = ''; }} />
 
-      <main id="contenido" tabIndex={-1} className={cx('outline-none print:p-0', ancha ? 'w-full pb-28 md:pb-0' : cx('mx-auto px-4 pb-28 pt-2 md:pb-14', S.view === 'editor' && S.pj ? 'max-w-[1376px] lg:px-8' : 'max-w-5xl'))}>
+      <main id="contenido" tabIndex={-1} className={cx('outline-none print:p-0', ancha ? 'w-full pb-28 md:pb-0' : cx('mx-auto px-4 pb-28 pt-2 md:pb-14', (S.view === 'editor' && S.pj) || S.view === 'mesa' ? 'max-w-[1376px] lg:px-8' : 'max-w-5xl'))}>
         {S.cargando ? <p className="mt-10 text-center text-muted" role="status">Cargando tu mesa…</p>
           : S.error ? <Aviso tipo="error" titulo="No se pudo cargar" accion={<Boton onClick={() => location.reload()}>Reintentar</Boton>}>{S.error}</Aviso>
           : <>

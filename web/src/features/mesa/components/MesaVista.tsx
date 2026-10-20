@@ -1321,6 +1321,8 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
   const tirar = useDados();
   const cb = cp.combate;
   const vivo = useEconomiaVivo(cp.id, !!cb.activo), economia = vivo.eco;
+  // Combatiente que el DM tiene abierto en el centro; sin elegir, el del turno actual
+  const [sel, setSel] = useState<string | null>(null);
   /** Quita un enemigo del combate. Con `huyo`, en un combate de la sesión queda anotado con sus PG por si vuelve en otro. */
   const quitarMon = (id: string, huyo = false) => conCamp(c => {
     const m = c.monstruos.find((x: any) => x.id === id);
@@ -1405,22 +1407,60 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
     conCamp(c => { guardarSobrevivientes(c); c.combate = { activo: false, ronda: 1, turno: 0, orden: [] }; if (quitar) c.monstruos = []; });
   };
   const fijarInit = (k: string, v: number) => conCamp(c => { const o = c.combate.orden.find((o: any) => o.k === k); if (!o) return false; o.init = v; ordenar(c); });
+  const iActual = cb.turno, kVista = sel && cb.orden.some((o: any) => o.k === sel) ? sel : actual?.k;
+  const iVista = cb.orden.findIndex((o: any) => o.k === kVista);
+  const sig = cb.orden.length ? combatiente(cb.orden[(cb.turno + 1) % cb.orden.length].k, cp) : null;
+  const jugadores = cb.orden.map((o: any) => combatiente(o.k, cp)).filter((x: any) => x && x.tipo !== 'm');
+  const ultimas = jugadores.filter((x: any) => x.tipo === 'jug' && vivo.ultimas?.[x.u.personajeId]);
+  const tarjeta = (o: any, i: number) => {
+    const x = combatiente(o.k, cp); if (!x) return null;
+    const caido = x.pg <= 0, esTurno = i === cb.turno;
+    return (
+      <Tarjeta as="section" key={o.k} aria-label={`${x.nombre}${esTurno ? ', turno actual' : ''}`}
+        className={cx('border-l-4', x.tipo === 'm' ? 'border-acc' : 'border-rea', esTurno && 'ring-2! ring-primary!')}>
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col items-center gap-1">
+            <label className="sr-only" htmlFor={`ini-${o.k}`}>Iniciativa de {x.nombre}</label>
+            <input id={`ini-${o.k}`} key={o.init} type="number" defaultValue={o.init} className={cx(claseCampo, 'w-16! px-1 text-center font-serif text-xl font-bold')}
+              onBlur={e => { if (+e.target.value !== o.init) fijarInit(o.k, +e.target.value || 0); }} onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} />
+            <button type="button" aria-label={`Tirar iniciativa de ${x.nombre}`} onClick={() => tirar(`1d20${modStr(x.bono)}`, `Iniciativa de ${x.nombre}`, { noRepeat: true }).then(r => fijarInit(o.k, r.total))}
+              className={cx('min-h-9 cursor-pointer rounded-lg bg-soft px-2 text-sm font-bold hover:bg-rule/70', foco)}>d20</button>
+          </div>
+          <div className="min-w-0 flex-1">
+            <span className={cx('mb-0.5 inline-block text-label-caps uppercase tracking-wider', esTurno ? 'text-primary' : 'text-outline')}>{esTurno ? 'Turno de' : 'Viendo a'}</span>
+            <b className="block font-serif text-headline-md leading-tight">{x.nombre}</b>
+            <span className="block text-sm text-muted">CA {x.ca}{x.tipo === 'm' ? (x.m.aliado ? ', compañero' : ', enemigo') : `, percepción pasiva ${x.c.passive}`}{x.tipo === 'jug' ? `, juega ${x.jugador}` : ''}{caido ? ', caído' : ''}</span>
+          </div>
+          {x.tipo !== 'm' ? <div className="flex flex-wrap justify-end gap-2">
+            {x.tipo === 'pj' ? <Boton tamano="sm" onClick={() => abrir(x.pj.id)}>Hoja</Boton>
+              : <Boton tamano="sm" onClick={() => verHoja(x.k)} aria-label={`Ver la hoja de ${x.nombre}`}>Hoja</Boton>}
+            <Boton tamano="sm" onClick={() => sacarJugador(x)} aria-label={`Quitar a ${x.nombre} del combate`}>Quitar</Boton>
+          </div>
+            : <div className="flex flex-wrap justify-end gap-2">
+                {cp.encuentroActual && !x.m.aliado && !caido && <Boton tamano="sm" onClick={() => { quitarMon(x.m.id, true); avisar(`${x.nombre} huyó con ${x.m.pg} PG: volverá así en el combate que lo traiga.`); }}
+                  aria-label={`${x.nombre} huyó`}>Huyó</Boton>}
+                <Boton tamano="sm" onClick={() => quitarMon(x.m.id)} aria-label={`Quitar ${x.nombre}`}>Quitar</Boton>
+              </div>}
+        </div>
+        <AccionesRonda cp={cp} x={x} campId={cp.id} clave={x.tipo === 'jug' ? x.u.personajeId : x.k} nombre={x.nombre} eco={economia[x.tipo === 'jug' ? x.u.personajeId : x.k]} />
+        {x.tipo === 'jug' && <Boton tamano="sm" className="mt-1" onClick={() => mandarOrden(cp.id, 'inspiracion', x.u.personajeId)}>Dar inspiración a {x.nombre}</Boton>}
+        {x.tipo === 'jug' && vivo.ultimas?.[x.u.personajeId] && <p className="m-0 mt-1 rounded-xl bg-soft p-2 text-sm"><b>Última acción:</b> {vivo.ultimas[x.u.personajeId].nombre}{vivo.ultimas[x.u.personajeId].resumen ? ` · ${vivo.ultimas[x.u.personajeId].resumen}` : ''}</p>}
+        <GolpesPendientes cp={cp} k={x.k} nombre={x.nombre} golpes={vivo.golpes} />
+        {x.tipo === 'm' && !x.m.aliado && <InfoParaJugadores cp={cp} x={x} peticiones={vivo.peticiones} />}
+        {x.tipo === 'jug' && <details className="mt-1"><summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center gap-1 rounded-lg bg-soft px-3 text-sm font-bold text-ink ring-1 ring-inset ring-muted/60 hover:bg-rule/60 sm:min-h-9 [&::-webkit-details-marker]:hidden', foco)}><Simbolo n="description" />Hoja resumida</summary><Pasivas x={x} /></details>}
+        <PuntosGolpe cp={cp} x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
+        {x.tipo === 'm' && x.m.ref && <VerBloque cp={cp} r={x.m.ref} nombre={x.nombre} />}
+      </Tarjeta>
+    );
+  };
+  const vista = iVista >= 0 ? tarjeta(cb.orden[iVista], iVista) : null;
   return (
     <>
-      <div className="sticky top-[calc(var(--alto-cabecera,0px)+3.75rem)] z-[5] -mx-4 mt-2 flex flex-wrap items-center gap-2 bg-bg px-4 py-2 backdrop-blur">
-        <p className="m-0 flex-1" aria-live="polite">Ronda {cb.ronda}. Turno de <b>{(actual && combatiente(actual.k, cp)?.nombre) || '—'}</b>.</p>
+      <div className="sticky top-[calc(var(--alto-cabecera,0px)+3.75rem)] z-[5] -mx-4 mt-2 flex flex-wrap items-center gap-2 bg-bg/95 px-4 py-2 backdrop-blur">
+        <span className="rounded-lg bg-surface-container px-3 py-1 text-body-md font-bold text-primary">Ronda {cb.ronda}</span>
+        <p className="m-0 flex-1" aria-live="polite">Turno de <b>{(actual && combatiente(actual.k, cp)?.nombre) || '—'}</b>.</p>
         {nuevos.length > 0 && <Boton onClick={sumarNuevos}>Sumar {nuevos.length === 1 ? `a ${combatiente(nuevos[0], cp)?.nombre}` : `a ${nuevos.length} jugadores`}</Boton>}
         {hayQueDeshacer(cp.id) && <Boton onClick={() => deshacer()}>↶ Deshacer</Boton>}
-        <details className="w-full">
-          <summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center gap-1 rounded-lg bg-soft px-3 text-sm font-bold text-ink ring-1 ring-inset ring-muted/60 hover:bg-rule/60 sm:min-h-9 [&::-webkit-details-marker]:hidden', foco)}><Simbolo n="bedtime" />Descansos e inspiración</summary>
-          <div className="mt-1 flex flex-wrap gap-2">
-            <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'corto')}>Descanso corto</Boton>
-            <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'largo')}>Descanso largo</Boton>
-            <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'inspiracion')}>Inspiración a todos</Boton>
-          </div>
-          <p className="m-0 mt-1 text-xs text-muted">Cada hoja lo aplica sola cuando su jugador la tiene abierta.</p>
-        </details>
-        <Boton variante="primario" onClick={siguiente}>Siguiente turno</Boton>
         <Boton onClick={terminar}>Terminar combate</Boton>
       </div>
       <RespuestasSalvacion campId={cp.id} respuestas={vivo.respuestas} />
@@ -1428,50 +1468,92 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
       {vivo.golpes.filter(g => !golpesAplicados.has(g.id) && !combatiente(g.objetivo, cp)).map(g => (
         <Aviso key={g.id} tipo="aviso" titulo={`${g.de} actuó sobre alguien que ya no está`} accion={<Boton tamano="sm" onClick={() => descartarGolpe(cp.id, g)}>Descartar</Boton>}>{g.nota || 'Sin detalle.'}</Aviso>
       ))}
-      <ol className="m-0 mt-2 grid list-none gap-2 p-0" aria-label="Orden de iniciativa">
-        {cb.orden.map((o: any, i: number) => {
-          const x = combatiente(o.k, cp); if (!x) return null;
-          const caido = x.pg <= 0, esTurno = i === cb.turno;
-          return (
-            <Tarjeta as="li" key={o.k} aria-current={esTurno ? 'step' : undefined}
-              className={cx('border-l-4', x.tipo === 'm' ? 'border-acc' : 'border-rea', esTurno && 'ring-[3px]! ring-adi!', caido && 'opacity-60')}>
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col items-center gap-1">
-                  <label className="sr-only" htmlFor={`ini-${o.k}`}>Iniciativa de {x.nombre}</label>
-                  <input id={`ini-${o.k}`} key={o.init} type="number" defaultValue={o.init} className={cx(claseCampo, 'w-16! px-1 text-center font-serif text-xl font-bold')}
-                    onBlur={e => { if (+e.target.value !== o.init) fijarInit(o.k, +e.target.value || 0); }} onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} />
-                  <button type="button" aria-label={`Tirar iniciativa de ${x.nombre}`} onClick={() => tirar(`1d20${modStr(x.bono)}`, `Iniciativa de ${x.nombre}`, { noRepeat: true }).then(r => fijarInit(o.k, r.total))}
-                    className={cx('min-h-9 cursor-pointer rounded-lg bg-soft px-2 text-sm font-bold hover:bg-rule/70', foco)}>d20</button>
-                </div>
-                <div className="min-w-0 flex-1">
-                  {esTurno && <span className="mb-0.5 inline-block rounded-full bg-adi px-2 text-xs font-extrabold text-bg">Turno actual</span>}
-                  <b className="block font-serif text-lg">{x.nombre}</b>
-                  <span className="block text-sm text-muted">CA {x.ca}{x.tipo === 'm' ? (x.m.aliado ? ', compañero' : ', enemigo') : `, percepción pasiva ${x.c.passive}`}{x.tipo === 'jug' ? `, juega ${x.jugador}` : ''}{caido ? ', caído' : ''}</span>
-                </div>
-                {x.tipo !== 'm' ? <div className="flex flex-wrap justify-end gap-2">
-                  {x.tipo === 'pj' ? <Boton tamano="sm" onClick={() => abrir(x.pj.id)}>Hoja</Boton>
-                    : <Boton tamano="sm" onClick={() => verHoja(x.k)} aria-label={`Ver la hoja de ${x.nombre}`}>Hoja</Boton>}
-                  <Boton tamano="sm" onClick={() => sacarJugador(x)} aria-label={`Quitar a ${x.nombre} del combate`}>Quitar</Boton>
-                </div>
-                  : <div className="flex flex-wrap justify-end gap-2">
-                      {cp.encuentroActual && !x.m.aliado && !caido && <Boton tamano="sm" onClick={() => { quitarMon(x.m.id, true); avisar(`${x.nombre} huyó con ${x.m.pg} PG: volverá así en el combate que lo traiga.`); }}
-                        aria-label={`${x.nombre} huyó`}>Huyó</Boton>}
-                      <Boton tamano="sm" onClick={() => quitarMon(x.m.id)} aria-label={`Quitar ${x.nombre}`}>Quitar</Boton>
-                    </div>}
-              </div>
-              <AccionesRonda cp={cp} x={x} campId={cp.id} clave={x.tipo === 'jug' ? x.u.personajeId : x.k} nombre={x.nombre} eco={economia[x.tipo === 'jug' ? x.u.personajeId : x.k]} />
-              {x.tipo === 'jug' && <Boton tamano="sm" className="mt-1" onClick={() => mandarOrden(cp.id, 'inspiracion', x.u.personajeId)}>Dar inspiración a {x.nombre}</Boton>}
-              {x.tipo === 'jug' && vivo.ultimas?.[x.u.personajeId] && <p className="m-0 mt-1 rounded-xl bg-soft p-2 text-sm"><b>Última acción:</b> {vivo.ultimas[x.u.personajeId].nombre}{vivo.ultimas[x.u.personajeId].resumen ? ` · ${vivo.ultimas[x.u.personajeId].resumen}` : ''}</p>}
-              <GolpesPendientes cp={cp} k={x.k} nombre={x.nombre} golpes={vivo.golpes} />
-              {x.tipo === 'm' && !x.m.aliado && <InfoParaJugadores cp={cp} x={x} peticiones={vivo.peticiones} />}
-              {x.tipo === 'jug' && <details className="mt-1"><summary className={cx('inline-flex min-h-11 cursor-pointer list-none items-center gap-1 rounded-lg bg-soft px-3 text-sm font-bold text-ink ring-1 ring-inset ring-muted/60 hover:bg-rule/60 sm:min-h-9 [&::-webkit-details-marker]:hidden', foco)}><Simbolo n="description" />Hoja resumida</summary><Pasivas x={x} /></details>}
-              <PuntosGolpe cp={cp} x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
-              {x.tipo === 'm' && x.m.ref && <VerBloque cp={cp} r={x.m.ref} nombre={x.nombre} />}
-            </Tarjeta>
-          );
-        })}
-      </ol>
-      <FormEnemigos abierto={false} cp={cp} />
+      <div className="mt-2 grid items-start gap-5 xl:grid-cols-[340px_minmax(0,1fr)_280px]">
+        {/* Centro: el combatiente del turno (o el que el DM tocó en la lista), con todo para manejarlo */}
+        <div className="flex min-w-0 flex-col gap-3 xl:order-2">
+          {sel && kVista !== actual?.k && (
+            <button type="button" onClick={() => setSel(null)} className={cx('self-start rounded-lg px-2 text-body-md text-secondary underline', foco)}>← Volver al turno actual</button>
+          )}
+          {vista}
+          <Boton variante="primario" className="min-h-13 w-full text-body-lg" onClick={() => { setSel(null); siguiente(); }}>
+            Siguiente turno{sig ? `: ${sig.nombre}` : ''} →
+          </Boton>
+        </div>
+
+        {/* Izquierda: orden de iniciativa compacto; tocar uno lo abre en el centro */}
+        <section aria-labelledby="titulo-iniciativa" className="flex flex-col gap-2 xl:sticky xl:top-[calc(var(--alto-cabecera,0px)+7.5rem)] xl:order-1">
+          <h2 id="titulo-iniciativa" className="m-0 font-serif text-headline-md">Iniciativa</h2>
+          <ol className="m-0 flex list-none flex-col gap-1.5 p-0" aria-label="Orden de iniciativa">
+            {cb.orden.map((o: any, i: number) => {
+              const x = combatiente(o.k, cp); if (!x) return null;
+              const caido = x.pg <= 0, esTurno = i === iActual, abierto = o.k === kVista;
+              const pct = x.pgMax ? Math.max(0, Math.min(100, (x.pg / x.pgMax) * 100)) : 0;
+              const conds: string[] = cp.estado?.[o.k]?.cond || [];
+              return (
+                <li key={o.k}>
+                  <button type="button" onClick={() => setSel(esTurno ? null : o.k)} aria-current={esTurno ? 'step' : undefined} aria-pressed={abierto}
+                    className={cx('flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left transition-colors', foco,
+                      esTurno ? 'bg-surface-container-high ring-2 ring-primary' : abierto ? 'bg-surface-container ring-2 ring-secondary' : 'bg-surface-container ring-1 ring-surface-container-highest hover:bg-surface-container-high',
+                      caido && 'opacity-50')}>
+                    <span className={cx('grid size-9 shrink-0 place-items-center rounded-lg bg-surface-container-lowest font-bold', esTurno ? 'text-primary' : 'text-on-surface-variant')}>{o.init}</span>
+                    <span className="flex min-w-0 flex-1 flex-col gap-1">
+                      <span className="flex flex-wrap items-center gap-1.5">
+                        <b className="truncate">{x.nombre}</b>
+                        <span className={cx('rounded-xs bg-surface-container-lowest px-1.5 text-[0.65rem] font-bold uppercase tracking-wider', x.tipo === 'm' ? (x.m.aliado ? 'text-pas' : 'text-error') : 'text-secondary')}>
+                          {x.tipo === 'm' ? (x.m.aliado ? 'Aliado' : 'Enemigo') : 'Jugador'}</span>
+                        {conds.slice(0, 2).map(cd => <span key={cd} className="rounded-full px-1.5 text-[0.7rem] font-semibold text-warn ring-1 ring-warn">{cd}</span>)}
+                        {conds.length > 2 && <span className="text-[0.7rem] text-warn">+{conds.length - 2}</span>}
+                      </span>
+                      <span aria-hidden="true" className="h-1.5 overflow-hidden rounded-full bg-surface-container-highest">
+                        <span className={cx('block h-full rounded-full', pct <= 25 ? 'bg-error' : pct <= 50 ? 'bg-warn' : 'bg-pas')} style={{ width: `${pct}%` }} />
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-right leading-tight">
+                      <b>{x.pg}</b><span className="text-body-sm text-outline">/{x.pgMax}</span><br />
+                      <span className="text-body-sm text-on-surface-variant">CA {x.ca}</span>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+          <FormEnemigos abierto={false} cp={cp} />
+        </section>
+
+        {/* Derecha: lo de todo el grupo */}
+        <aside className="flex flex-col gap-3 xl:order-3">
+          {jugadores.length > 0 && (
+            <section className="rounded-xl bg-surface-container p-4">
+              <h2 className="m-0 mb-1 flex items-center gap-2 font-serif text-headline-sm"><Simbolo n="groups" className="text-primary" />Jugadores</h2>
+              <ul className="m-0 list-none p-0">
+                {jugadores.map((x: any) => (
+                  <li key={x.k} className="flex items-center gap-2 border-b border-surface-container-highest py-1.5 text-body-md last:border-0">
+                    <b className="flex-1 truncate">{x.nombre}</b>
+                    <span className="text-body-sm text-on-surface-variant">Perc. {x.c?.passive ?? '—'}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          <section className="flex flex-col gap-2 rounded-xl bg-surface-container p-4">
+            <h2 className="m-0 mb-1 flex items-center gap-2 font-serif text-headline-sm"><Simbolo n="bolt" className="text-primary" />Para todos</h2>
+            <Boton onClick={() => mandarOrden(cp.id, 'corto')}><Simbolo n="hourglass_empty" className="text-secondary" />Descanso corto</Boton>
+            <Boton onClick={() => mandarOrden(cp.id, 'largo')}><Simbolo n="bedtime" className="text-gol" />Descanso largo</Boton>
+            <Boton onClick={() => mandarOrden(cp.id, 'inspiracion')}><Simbolo n="auto_awesome" className="text-primary" />Inspiración a todos</Boton>
+            <p className="m-0 text-body-sm text-outline">Cada hoja lo aplica sola cuando su jugador la tiene abierta.</p>
+          </section>
+          {ultimas.length > 0 && (
+            <section className="rounded-xl bg-surface-container p-4">
+              <h2 className="m-0 mb-1 flex items-center gap-2 font-serif text-headline-sm"><Simbolo n="history" className="text-primary" />Lo último</h2>
+              <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-body-md text-on-surface-variant">
+                {ultimas.map((x: any) => { const u = vivo.ultimas?.[x.u.personajeId]; if (!u) return null; return (
+                  <li key={x.k}><b className="text-on-surface">{x.nombre}</b>: {u.nombre}{u.resumen ? ` · ${u.resumen}` : ''}</li>
+                ); })}
+              </ul>
+            </section>
+          )}
+        </aside>
+      </div>
     </>
   );
 }
