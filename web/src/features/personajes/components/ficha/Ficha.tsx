@@ -458,12 +458,12 @@ function Competencias({ c }: { c: any }) {
 
 /* ===================== Columna central ===================== */
 /** Recursos de clase y rasgos (Oleada de Acción, Tomar Aliento, Ki…); los PG y los espacios de conjuro van en su tarjeta. */
-export function RecursosClase({ c, columna }: { c: any; columna?: boolean }) {
+export function RecursosClase({ c }: { c: any }) {
   const u = c.pj.used || {}, lectura = useLectura();
   const rs = c.recursos.filter((r: any) => r.id !== 'pg' && !/^slot\d/.test(r.id));
   if (!rs.length) return null;
   return (
-    <div className={cx('grid grid-cols-1 gap-3', !columna && 'sm:grid-cols-2')}>
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       {rs.map((r: any, i: number) => {
         const used = Math.min(u[r.id] || 0, r.max), left = r.max - used, azul = i % 2 === 1;
         const nota = r.nota || (r.reset === 'corto' ? 'Vuelve con descanso corto' : 'Vuelve con descanso largo');
@@ -513,6 +513,82 @@ export function RecursosClase({ c, columna }: { c: any; columna?: boolean }) {
           </div>
           <ParaQueSirve c={c} r={r} />
           </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Columna de la hoja: todos los recursos en una tarjeta, uno por fila, con puntos para gastar y recuperar. */
+function PanelRecursos({ c }: { c: any }) {
+  const u = c.pj.used || {}, lectura = useLectura();
+  // Los espacios de conjuro primero (como en el diseño), luego los de clase y rasgos
+  const rs = [...c.recursos.filter((r: any) => /^slot\d/.test(r.id)), ...c.recursos.filter((r: any) => r.id !== 'pg' && !/^slot\d/.test(r.id))];
+  return (
+    <section aria-labelledby="titulo-recursos" className="rounded-lg bg-surface-container-low p-5 shadow-lg">
+      <h2 id="titulo-recursos" className="m-0 mb-2 flex items-center gap-2 font-serif text-headline-md text-on-surface">
+        <Simbolo n="bolt" className="text-headline-sm text-primary" />Recursos
+      </h2>
+      <ul className="m-0 list-none divide-y divide-outline-variant/40 p-0">
+        {rs.map((r: any) => {
+          const used = Math.min(u[r.id] || 0, r.max), left = r.max - used, slot = /^slot\d/.test(r.id);
+          const corto = r.reset === 'corto' || r.reset === 'corto1';
+          const nombre = slot ? `Espacios nivel ${r.id.slice(4)}` : r.nombre;
+          const nota = r.nota || (corto ? 'Vuelve con descanso corto' : 'Vuelve con descanso largo');
+          const color = corto || slot ? 'primary' : 'secondary';
+          return (
+            <li key={r.id} className="py-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="m-0 text-body-lg font-normal text-on-surface">{nombre}</h3>
+                  <span className="block text-label-caps uppercase text-outline">{nota}</span>
+                </div>
+                <ControlRecurso r={r} nombre={nombre} left={left} used={used} color={color} lectura={lectura} />
+              </div>
+              <div className="mt-2"><ParaQueSirve c={c} r={r} /></div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+/** Puntos si son pocos (tocar uno gasta o recupera hasta él); con muchos, un contador, y una reserva se escribe. */
+function ControlRecurso({ r, nombre, left, used, color, lectura }: { r: any; nombre: string; left: number; used: number; color: 'primary' | 'secondary'; lectura: boolean }) {
+  const lleno = color === 'primary' ? 'bg-primary border-primary' : 'bg-secondary border-secondary';
+  if (r.tipo === 'pool' && !lectura) return (
+    <label className="flex shrink-0 items-baseline gap-1 text-body-sm text-outline">
+      <input key={left} type="number" inputMode="numeric" min={0} max={r.max} defaultValue={left} aria-label={`${nombre}: quedan (de ${r.max})`}
+        onBlur={e => { if (+e.target.value !== left) fijarPool(r.id, r.max, e.target.value); }} onKeyDown={alSoltarEnter}
+        className={cx('w-14 rounded bg-surface-container-lowest px-1 py-1 text-center text-stat-modifier font-bold text-primary shadow-inner', SIN_FLECHAS, foco)} />
+      / {r.max}
+    </label>
+  );
+  if (r.max > 8 || r.tipo === 'pool') return (
+    <div className="flex shrink-0 items-center gap-1">
+      {!lectura && used > 0 && (
+        <button type="button" onClick={() => moverPool(r.id, 1)} aria-label={`Recuperar 1 de ${nombre}`} title="Recuperar uno"
+          className={cx('grid size-8 cursor-pointer place-items-center rounded text-outline hover:bg-surface-container-high hover:text-on-surface', foco)}>
+          <Simbolo n="undo" className="text-body-md" />
+        </button>
+      )}
+      <button type="button" disabled={lectura || !left} onClick={() => moverPool(r.id, -1)} aria-label={`Gastar 1 de ${nombre}: quedan ${left} de ${r.max}`}
+        className={cx('rounded px-3 py-1 text-label-md font-bold', foco, left ? cx(lleno, 'text-surface-container-lowest', !lectura && 'cursor-pointer hover:brightness-110') : 'bg-surface-container-highest text-outline opacity-60')}>
+        {left} / {r.max}
+      </button>
+    </div>
+  );
+  return (
+    <div role="group" aria-label={`${nombre}: quedan ${left} de ${r.max}`} className="flex shrink-0 flex-wrap justify-end">
+      {Array.from({ length: r.max }, (_, i) => {
+        const libre = i < left;
+        const punto = <span aria-hidden="true" className={cx('block size-5 rounded-full border-2', libre ? lleno : 'border-outline bg-transparent')} />;
+        if (lectura) return <span key={i} className="grid size-7 place-items-center">{punto}</span>;
+        return (
+          <button key={i} type="button" aria-pressed={!libre} onClick={() => tocarPip(r.id, i, r.max)}
+            aria-label={`${nombre} ${i + 1} de ${r.max}: ${libre ? 'disponible, toca para gastar' : 'gastado, toca para recuperar'}`}
+            className={cx('grid size-8 cursor-pointer place-items-center rounded-full', foco)}>{punto}</button>
         );
       })}
     </div>
@@ -626,28 +702,23 @@ export function FilaArsenal({ a, c, sinTirar }: { a: any; c: any; sinTirar?: boo
   );
 }
 
+/** Las armas y el golpe sin armas, dentro de la sección Acción. */
 function Arsenal({ c }: { c: any }) {
   const armas = [...c.armas.filter((a: any) => a.mano), ...(c.naturales || [])];
   const guardadas = c.armas.filter((a: any) => !a.mano);
   const sinArmas = { puno: true, nombre: 'Golpe sin armas', atk: c.unarmed.atk, expr: c.unarmed.expr, dmg: c.unarmed.dmg, atkDesg: c.unarmed.atkDesg, dmgDesg: c.unarmed.dmgDesg, notas: [`También puede Agarrar o Empujar (CD ${c.grappleDC})`] };
   const ataques = ataquesPorAccion(c);
   return (
-    <section aria-labelledby="titulo-arsenal" className="flex flex-col gap-3 rounded-lg bg-surface-container-low p-5 shadow-lg">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-1">
-          <Simbolo n="swords" className="text-headline-sm text-primary" />
-          <h2 id="titulo-arsenal" className="m-0 font-serif text-headline-md text-primary">Arsenal de combate</h2>
-        </div>
-        {c.extraAttack && <span className="rounded bg-surface-container-high px-2 py-1 text-label-caps uppercase text-secondary">Ataque extra ({ataques} ataques/turno)</span>}
-      </div>
+    <div className="mb-3 flex flex-col gap-3">
+      {c.extraAttack && <span className="self-start rounded bg-surface-container-high px-2 py-1 text-label-caps uppercase text-secondary">Ataque extra ({ataques} ataques/turno)</span>}
       {armas.map((a: any, i: number) => <FilaArsenal key={(a.i ?? 'n') + '-' + i} a={a} c={c} />)}
       <FilaArsenal a={sinArmas} c={c} />
       {guardadas.length > 0 && (
-        <Desplegable titulo="Armas guardadas" nota="Sacar una es interactuar con un objeto. Cambia lo que empuñas en Equipo.">
+        <Desplegable titulo="Armas guardadas" nota="Sacar una es interactuar con un objeto. Cambia lo que empuñas en Inventario.">
           <div className="flex flex-col gap-3">{guardadas.map((a: any) => <FilaArsenal key={'g' + a.i} a={a} c={c} />)}</div>
         </Desplegable>
       )}
-    </section>
+    </div>
   );
 }
 
@@ -674,7 +745,7 @@ function TiradorRapido() {
   );
 }
 
-/** Lo demás que puedes hacer en tu turno (rasgos por tipo de acción); los ataques y los conjuros tienen su propia tarjeta. */
+/** Lo que puedes hacer en tu turno, por tipo de acción: en Acción van primero las armas; los conjuros tienen su pestaña. */
 function OtrasAcciones({ c }: { c: any }) {
   const lectura = useLectura();
   // Familiares y criaturas van justo debajo de Acción adicional (aunque esa sección no tenga nada)
@@ -696,6 +767,7 @@ function OtrasAcciones({ c }: { c: any }) {
                 <h2 id={`sec-${t}`} className="m-0 font-serif text-headline-md text-on-surface">{TIPOS[t][0]}</h2>
               </div>
               {TIPOS[t][1] && <p className="mb-2 ml-6 mt-0.5 text-body-sm text-outline">{TIPOS[t][1]}</p>}
+              {t === 'accion' && <Arsenal c={c} />}
               {ents.map((e: any, i: number) => <Entrada key={i} e={e} />)}
               {com.length > 0 && (
                 <Desplegable titulo={t === 'accion' ? 'Acciones que cualquiera puede hacer' : 'Para cualquier personaje'}>
@@ -908,8 +980,11 @@ function BarraHoja({ c }: { c: any }) {
       <div className="flex flex-wrap items-center gap-2">
         <Descansar clase={cx(boton, 'text-on-surface ring-1 ring-outline-variant hover:bg-surface-container-high')} />
         <button type="button" onClick={editarPj} className={cx(boton, 'text-on-surface ring-1 ring-outline-variant hover:bg-surface-container-high')}>Editar</button>
-        {c.C && c.lvl < 20 && (
-          <button type="button" onClick={pedirSubida} className={cx(boton, 'bg-primary text-on-primary hover:bg-primary-fixed-dim')}>Subir a nivel {c.lvl + 1}</button>
+        {c.lvl < 20 ? (
+          <button type="button" onClick={pedirSubida} disabled={!c.C} title={c.C ? undefined : 'Primero elige una clase en Editar'}
+            className={cx(boton, 'bg-primary text-on-primary hover:bg-primary-fixed-dim disabled:cursor-not-allowed disabled:opacity-50')}>Subir a nivel {c.lvl + 1}</button>
+        ) : (
+          <span className="flex min-h-11 items-center rounded-lg px-4 font-semibold text-outline ring-1 ring-outline-variant">Nivel 20 (máximo)</span>
         )}
       </div>
     </div>
@@ -1013,7 +1088,7 @@ export function Ficha({ c, lectura = false }: { c: any; lectura?: boolean }) {
   const [tabLectura, setTabLectura] = useState('acciones');
   const conMagia = !!(c.conjuros?.length || c.casterAb || c.recursos.some((r: any) => /^slot\d/.test(r.id)));
   const conRasgos = c.entries.some((e: any) => e.t === 'pasiva');
-  const conRecursos = c.recursos.some((r: any) => r.id !== 'pg' && !/^slot\d/.test(r.id));
+  const conRecursos = c.recursos.some((r: any) => r.id !== 'pg');
   const pestanas = PESTANAS.filter(([id]) => id !== 'conjuros' || conMagia);
   const pedida = lectura ? tabLectura : S.tab;
   const tab = pestanas.some(([id]) => id === pedida) ? pedida : 'acciones';
@@ -1041,7 +1116,6 @@ export function Ficha({ c, lectura = false }: { c: any; lectura?: boolean }) {
           <div role="tabpanel" id="hoja-panel" aria-labelledby={`hoja-tab-${tab}`} className={cx('flex min-w-0 flex-col gap-5', conRecursos ? 'lg:col-span-8' : 'lg:col-span-12')}>
             {tab === 'acciones' && (
               <>
-                <Arsenal c={c} />
                 <OtrasAcciones c={c} />
                 <TiradorRapido />
               </>
@@ -1059,7 +1133,7 @@ export function Ficha({ c, lectura = false }: { c: any; lectura?: boolean }) {
           </div>
           {conRecursos && (
             <aside aria-label="Recursos" className="flex flex-col gap-5 lg:col-span-4">
-              <RecursosClase c={c} columna />
+              <PanelRecursos c={c} />
             </aside>
           )}
         </div>
