@@ -889,9 +889,9 @@ function RespuestasSalvacion({ campId, respuestas }: { campId: string; respuesta
   const cerrar = (r: RespuestaSalvacion) => { respuestasCerradas.add(r.id); setN(n => n + 1); quitarRespuestas(campId, [r.id]).catch(() => {}); };
   const lista = respuestas.filter(r => !respuestasCerradas.has(r.id)), r = lista[0];
   return (
-    <PopupGrande abierto={!!r} tono="salvacion" titulo={r ? `${r.de} ${r.supero ? 'superó' : 'falló'} la salvación` : ''} texto={r ? `Sacó ${r.total}.` : undefined}>
+    <PopupGrande abierto={!!r} tono="salvacion" titulo={r ? (r.evito ? `${r.de} evitó el ataque` : `${r.de} ${r.supero ? 'superó' : 'falló'} la salvación`) : ''} texto={r ? (r.evito ? 'Su reacción hizo fallar el ataque: no hace la salvación.' : `Sacó ${r.total}.`) : undefined}>
       {r && <>
-        <p className="m-0 text-center text-lg">{r.supero && r.condicion ? `Se libra de ${r.condicion}` : [r.dano ? `Recibió ${r.dano} de daño` : r.supero ? 'No le pasa nada' : '', r.condicion ? `queda ${r.condicion}` : ''].filter(Boolean).join(' y ') || 'Ya se aplicó en su hoja'}.</p>
+        <p className="m-0 text-center text-lg">{r.evito ? 'No recibe daño ni la condición' : r.supero && r.condicion ? `Se libra de ${r.condicion}` : [r.dano ? `Recibió ${r.dano} de daño` : r.supero ? 'No le pasa nada' : '', r.condicion ? `queda ${r.condicion}` : ''].filter(Boolean).join(' y ') || 'Ya se aplicó en su hoja'}.</p>
         {lista.length > 1 && <p className="m-0 text-center text-sm text-muted">Hay {lista.length - 1} aviso{lista.length > 2 ? 's' : ''} más después de este.</p>}
         <Boton variante="primario" className="min-h-14 text-lg" onClick={() => cerrar(r)}>Entendido</Boton>
       </>}
