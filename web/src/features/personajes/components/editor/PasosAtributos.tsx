@@ -400,12 +400,23 @@ function Checks({ field, list, sel, max, disabled = new Set(), etiqueta }: { fie
   return (
     <fieldset className="m-0 border-0 p-0">
       <legend className="sr-only">{etiqueta}</legend>
-      <p aria-live="polite" className="m-0 text-sm text-muted">{elegidas} de {max} elegidas</p>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(190px,1fr))] gap-x-3">
-        {list.map(n => (
-          <CasillaKit key={n} checked={sel.includes(n) || disabled.has(n)} disabled={disabled.has(n)} onChange={(_, el) => toggle(n, el)}
-            nota={disabled.has(n) ? '(ya la tienes)' : undefined}>{n}</CasillaKit>
-        ))}
+      <p aria-live="polite" className="m-0 mb-2 text-sm text-muted">{elegidas} de {max} elegidas</p>
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-2">
+        {list.map(n => {
+          const ya = disabled.has(n), on = sel.includes(n);
+          return (
+            <label key={n} className={cx('flex min-h-11 items-center gap-2.5 rounded-lg bg-surface-container px-3 py-2 transition-colors',
+              ya ? 'cursor-default opacity-80' : 'cursor-pointer hover:bg-surface-container-high', on ? 'ring-2 ring-primary' : 'ring-1 ring-surface-container-highest',
+              'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-rea')}>
+              <input type="checkbox" checked={on || ya} disabled={ya} onChange={e => toggle(n, e.currentTarget)} className="sr-only" />
+              {ya ? <span aria-hidden="true" className="grid size-6 shrink-0 place-items-center rounded-md bg-surface-container-highest"><Simbolo n="lock" className="text-body-md text-outline" /></span>
+                : on ? <span aria-hidden="true" className="grid size-6 shrink-0 place-items-center rounded-md bg-primary"><Simbolo n="check" className="text-body-lg text-on-primary" /></span>
+                : <span aria-hidden="true" className="size-6 shrink-0 rounded-md border-2 border-outline" />}
+              <span className="flex-1">{n}</span>
+              {ya && <span className="rounded-xs bg-surface-container-lowest px-1.5 text-body-sm text-on-surface-variant">Ya la tienes</span>}
+            </label>
+          );
+        })}
       </div>
     </fieldset>
   );
@@ -502,8 +513,25 @@ export function PasoEquipo({ pj, c }: { pj: any; c: any }) {
   const armaduras = Object.keys(ARMADURAS).filter(k => !k.startsWith('x:') && compArm[ARMADURAS[k].cat]);
   const armaduraFuera = c.armorKey && !armaduras.includes(c.armorKey);
   const armasOk = Object.keys(ARMAS).filter(k => !k.startsWith('x:') && competenteArma(c, k));
+  const kits = (
+    <>
+      {C && <Seccion titulo={`Equipo del ${C.n.toLowerCase()}`}><EquipoClase pj={pj} /></Seccion>}
+      {c.T && <Seccion titulo={`Equipo del ${(c.T.n || 'trasfondo').toLowerCase()}`}><EquipoTrasfondo pj={pj} /></Seccion>}
+    </>
+  );
   return (
     <>
+      {/* Lo que importa de un vistazo: la CA, el dinero y cuántas armas llevas */}
+      <dl className="m-0 mb-2 grid grid-cols-3 gap-2">
+        {([['shield', 'Clase de armadura', String(c.ac), 'text-on-surface'], ['paid', 'Dinero', `${pj.oro || 0} po`, 'text-primary'],
+          ['swords', 'Armas', String(c.armas.length), 'text-on-surface']] as [string, string, string, string][]).map(([i, e, v, col]) => (
+          <div key={e} className="rounded-xl bg-surface-container px-3 py-2">
+            <dt className="flex items-center gap-1 text-label-caps uppercase tracking-wider text-outline"><Simbolo n={i} className="text-body-md text-primary" />{e}</dt>
+            <dd className={cx('m-0 font-serif text-headline-md font-bold', col)}>{v}</dd>
+          </div>
+        ))}
+      </dl>
+      {kits}
       <Seccion titulo="Armadura" descripcion={`Eres competente con: ${textoArmaduras(c).toLowerCase()}.`}>
         <div className="grid gap-3 sm:grid-cols-2">
           <Campo etiqueta="Armadura puesta">
@@ -537,8 +565,6 @@ export function PasoEquipo({ pj, c }: { pj: any; c: any }) {
           <Boton variante="primario" onClick={agregar}>Agregar</Boton>
         </div>
       </Seccion>
-      {C && <Seccion titulo="Equipo de la clase"><EquipoClase pj={pj} /></Seccion>}
-      {c.T && <Seccion titulo="Equipo del trasfondo"><EquipoTrasfondo pj={pj} /></Seccion>}
       <Seccion titulo="Lo demás">
         <div className="grid gap-3">
           <Campo etiqueta="Oro (po)" className="max-w-40"><CampoNumero path="oro" value={pj.oro || 0} min={0} /></Campo>

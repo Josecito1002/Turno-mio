@@ -4,7 +4,7 @@ import { useId, useState } from 'react';
 import { S, render } from '@/app-shell/estado';
 import { avisar } from '@/shared/ui/avisos';
 import { norm, richT, sign } from '@/shared/utils/texto';
-import { Aviso, Boton, Campo, Fila, Lista, Nota, Plegable, Seccion, claseCampo, cx, foco } from '@/shared/ui/kit';
+import { Aviso, Boton, Campo, Fila, Lista, Nota, Plegable, Seccion, Simbolo, claseCampo, cx, foco } from '@/shared/ui/kit';
 import { Desplegable } from '@/shared/ui/desplegable';
 import { AB, ALIN_OPC, TIPOS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { TIEMPO_N } from '@/features/reglas/data/conjuros';
@@ -134,6 +134,14 @@ export function PasoConjuros({ pj, c }: { pj: any; c: any }) {
       {lista ? (
         <>
           <ContadoresConjuros c={c} />
+          <dl className="m-0 my-3 grid grid-cols-3 gap-2">
+            {([['CD de conjuros', String(c.dcSpell)], ['Ataque de conjuro', sign(c.atkSpell)], ['Característica', abInfo(c.casterAb)[3]]] as [string, string][]).map(([e, v]) => (
+              <div key={e} className="rounded-xl bg-surface-container px-3 py-2">
+                <dt className="text-label-caps uppercase tracking-wider text-outline">{e}</dt>
+                <dd className="m-0 font-serif text-headline-md font-bold text-secondary">{v}</dd>
+              </div>
+            ))}
+          </dl>
           <Nota>Los <b>trucos</b> se lanzan cuando quieras. Los <b>conjuros preparados</b> gastan un espacio de conjuro{pj.clase === 'brujo' ? ' de pacto' : ''} y los cambias al terminar un descanso largo. Tu CD es {c.dcSpell} y tu ataque de conjuro {sign(c.atkSpell)}, con {abInfo(c.casterAb)[3]}.</Nota>
           {c.conjurosRasgo.length > 0 && <Nota>Los que te dan tus rasgos ya están en tu hoja y no cuentan en el límite.</Nota>}
         </>
@@ -194,16 +202,21 @@ export function PasoRasgos({ pj }: { pj: any }) {
   const agregar = () => { const r = leerRasgo('r'); if (!r) return; pj.rasgosExtra.push(r); savePj(); render(); avisar(`${r.nombre} agregado.`); };
   return (
     <>
-      <p className="mt-2">Habilidades de tu personaje que la app no trae: poderes de objetos mágicos, regalos de tu DM o reglas de la casa.</p>
-      <Lista etiqueta="Rasgos propios">
+      <p className="m-0 mb-1 mt-2 text-label-caps uppercase tracking-wider text-outline">Tus rasgos ({pj.rasgosExtra.length})</p>
+      <ul className="m-0 flex list-none flex-col gap-2 p-0" aria-label="Rasgos propios">
         {pj.rasgosExtra.length ? pj.rasgosExtra.map((r: any, i: number) => (
-          <Fila key={i}>
-            <span className="flex items-center gap-2"><FormaTipo t={r.t || 'pasiva'} /> {r.nombre} <span className="text-sm text-muted">{TIPOS[r.t || 'pasiva'][0]}{+r.n > 1 ? `, desde nivel ${r.n}` : ''}</span></span>
-            <Boton tamano="sm" onClick={() => { pj.rasgosExtra.splice(i, 1); savePj(); render(); }} aria-label={`Quitar ${r.nombre}`}>Quitar</Boton>
-          </Fila>
-        )) : <Fila><span className="text-sm text-muted">Ninguno todavía.</span></Fila>}
-      </Lista>
-      <Seccion titulo="Agregar rasgo">
+          <li key={i} className="flex items-start gap-3 rounded-xl bg-surface-container p-3">
+            <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-surface-container-high"><Simbolo n="auto_fix_high" className="text-headline-sm text-primary" /></span>
+            <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span className="flex flex-wrap items-center gap-2"><b>{r.nombre}</b>
+                <span className="inline-flex items-center gap-1 text-body-sm text-on-surface-variant"><FormaTipo t={r.t || 'pasiva'} />{TIPOS[r.t || 'pasiva'][0]}{+r.n > 1 ? `, desde nivel ${r.n}` : ''}</span></span>
+              {r.texto && <span className="line-clamp-2 text-body-md text-on-surface-variant">{r.texto}</span>}
+            </span>
+            <Boton tamano="sm" variante="fantasma" onClick={() => { pj.rasgosExtra.splice(i, 1); savePj(); render(); }} aria-label={`Quitar ${r.nombre}`}>Quitar</Boton>
+          </li>
+        )) : <li className="rounded-xl border border-dashed border-outline-variant p-4 text-center text-body-md text-on-surface-variant">Ninguno todavía. Es opcional: agrégalos solo si tu DM te dio algo especial.</li>}
+      </ul>
+      <Seccion titulo="Agregar un rasgo">
         <div key={pj.rasgosExtra.length}><RasgoForm p="r" /></div>
         <Boton variante="primario" className="mt-3" onClick={agregar}>Agregar rasgo</Boton>
       </Seccion>

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { S, render } from '@/app-shell/estado';
 import { norm } from '@/shared/utils/texto';
-import { Boton, Campo, Nota, Plegable, Seccion, Simbolo } from '@/shared/ui/kit';
+import { Boton, Campo, Nota, Plegable, Seccion, Simbolo, cx } from '@/shared/ui/kit';
 import { ALL_AB, SKILLS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { ESPECIES } from '@/features/reglas/data/especies';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
@@ -346,7 +346,20 @@ export function PasoTrasfondo({ pj, c }: { pj: any; c: any }) {
               ))}</div>
             </fieldset>
           </div>
-        ) : <p className="m-0">Habilidades: <b>{T.habs.join(' y ')}</b>. Herramienta: <b>{T.herr}</b>.</p>}
+        ) : (
+          <>
+            <p className="m-0 mb-1 flex items-center gap-1 text-label-caps uppercase tracking-wider text-pas"><Simbolo n="check_circle" className="text-body-md" />Elegido</p>
+            <dl className="m-0 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {([['Mejora', (T.ab || []).map((a: string) => a.toUpperCase()).join(' · ') || '—'], ['Habilidades', T.habs.join(', ')], ['Herramienta', T.herr || '—'],
+                ['Dote de origen', allDotes()[tb.dote || T.dote]?.n || '—']] as [string, string][]).map(([e, v]) => (
+                <div key={e} className="rounded-lg bg-surface-container-lowest px-3 py-2">
+                  <dt className="text-label-caps uppercase tracking-wider text-outline">{e}</dt>
+                  <dd className={cx('m-0 font-bold', e === 'Dote de origen' ? 'text-primary' : 'text-on-surface')}>{v}</dd>
+                </div>
+              ))}
+            </dl>
+          </>
+        )}
       </Seccion>
       <Seccion titulo="Mejora de características" descripcion="En 2024 los bonificadores vienen del trasfondo.">
         <div className="grid gap-3 sm:grid-cols-3">
