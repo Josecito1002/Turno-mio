@@ -236,24 +236,23 @@ export function PasoStats({ pj, c }: { pj: any; c: any }) {
             <ul className="m-0 flex list-none flex-col gap-2 p-0">{AB.map(([k, , ab, nm]) => {
               const clave = claves.includes(k);
               return (
-                <li key={k} className={cx('flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl bg-surface-container px-3 py-2 sm:px-4', clave ? 'ring-1 ring-outline-variant' : '')}>
-                  <span className="flex min-w-0 flex-1 items-center gap-2">
-                    <Simbolo n={ICONO_AB[k]} className="text-headline-sm text-secondary" />
-                    <span className="font-semibold">{nm}</span>
-                    {clave && <span className="rounded-xs bg-surface-container-lowest px-1.5 text-label-caps uppercase tracking-wider text-primary">Clave</span>}
+                <li key={k} className={cx('flex items-center gap-3 rounded-xl bg-surface-container px-3 py-2 sm:px-4', clave ? 'ring-1 ring-outline-variant' : 'ring-1 ring-surface-container-highest')}>
+                  <Simbolo n={ICONO_AB[k]} className="text-headline-sm text-secondary" />
+                  <span className="flex min-w-0 flex-1 flex-col leading-tight">
+                    <span className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold">{nm}</span>
+                      {clave && <span className="rounded-xs bg-surface-container-lowest px-1.5 text-label-caps uppercase tracking-wider text-primary">Clave</span>}
+                    </span>
+                    <span className="text-body-sm text-on-surface-variant">{g.compra[k]}{c.bono[k] ? ` + ${c.bono[k]} trasfondo` : ''}</span>
                   </span>
-                  <span className="flex items-center gap-2">
-                    <button type="button" onClick={() => comprar(g, k, -1)} disabled={g.compra[k] <= 8} aria-label={`Bajar ${nm}`}
-                      className={cx('grid size-10 cursor-pointer place-items-center rounded-lg bg-surface-container-high text-headline-sm font-bold disabled:cursor-default disabled:opacity-30', foco)}>−</button>
-                    <b className="w-7 text-center text-body-lg" aria-live="polite">{g.compra[k]}</b>
-                    <button type="button" onClick={() => comprar(g, k, 1)} disabled={g.compra[k] >= 15} aria-label={`Subir ${nm}`}
-                      className={cx('grid size-10 cursor-pointer place-items-center rounded-lg bg-surface-container-high text-headline-sm font-bold disabled:cursor-default disabled:opacity-30', foco)}>+</button>
+                  <button type="button" onClick={() => comprar(g, k, -1)} disabled={g.compra[k] <= 8} aria-label={`Bajar ${nm}`}
+                    className={cx('grid size-11 shrink-0 cursor-pointer place-items-center rounded-lg bg-surface-container-high text-headline-sm font-bold disabled:cursor-default disabled:opacity-30', foco)}>−</button>
+                  <span className="flex w-11 shrink-0 flex-col items-center leading-none" aria-live="polite" aria-label={`${ab}: ${c.sc[k]}, modificador ${sign(c.m[k])}`}>
+                    <b className="text-headline-md">{c.sc[k]}</b>
+                    <b className="mt-0.5 text-body-md text-secondary">{sign(c.m[k])}</b>
                   </span>
-                  <span className="flex w-28 items-baseline justify-end gap-2" aria-label={`${ab}: total ${c.sc[k]}, modificador ${sign(c.m[k])}`}>
-                    {c.bono[k] ? <span className="text-body-sm font-bold text-pas">+{c.bono[k]}</span> : null}
-                    <b className="font-serif text-headline-md">{c.sc[k]}</b>
-                    <b className="w-8 text-right text-body-lg text-secondary">{sign(c.m[k])}</b>
-                  </span>
+                  <button type="button" onClick={() => comprar(g, k, 1)} disabled={g.compra[k] >= 15} aria-label={`Subir ${nm}`}
+                    className={cx('grid size-11 shrink-0 cursor-pointer place-items-center rounded-lg bg-surface-container-high text-headline-sm font-bold disabled:cursor-default disabled:opacity-30', foco)}>+</button>
                 </li>
               );
             })}</ul>
@@ -363,23 +362,40 @@ export function EquipoClase({ pj }: { pj: any }) {
   if (!kit) return <Nota>Esta clase no trae equipo inicial. Agrega tus armas abajo y el resto en el inventario.</Nota>;
   const letra = (i: number) => String.fromCharCode(65 + i);
   const oro = typeof kit.alternativa === 'number' ? `${kit.alternativa} po` : `${kit.alternativa.dados} po (se tira al tomarlo)`;
-  const describir = (v: VarianteKit) => [
-    v.armadura && ARMADURAS[v.armadura]?.n, v.escudo && 'escudo',
-    ...(v.armas || []).map(([k, q]) => `${ARMAS[k]?.n || k}${q > 1 ? ` (${q})` : ''}`), ...v.objetos,
-  ].filter(Boolean).join(', ') + (v.oro ? ` y ${v.oro} po` : '');
+  const piezas = (v: VarianteKit): [string, string][] => [
+    ...(v.armadura ? [['shield', ARMADURAS[v.armadura]?.n || v.armadura] as [string, string]] : []), ...(v.escudo ? [['shield', 'Escudo'] as [string, string]] : []),
+    ...(v.armas || []).map(([k, q]) => ['swords', `${q > 1 ? q + ' ' : ''}${ARMAS[k]?.n || k}`] as [string, string]),
+    ...v.objetos.map(o => ['backpack', o] as [string, string]), ...(v.oro ? [['paid', `${v.oro} po`] as [string, string]] : []),
+  ];
+  const tomada = (op: number | 'oro') => pj.inicial === (op === 'oro' ? letra(kit.variantes.length) : letra(op)) || (op === 0 && pj.inicial === true);
+  const opciones: [number | 'oro', string, string, [string, string][]][] = [
+    ...kit.variantes.map((v, i) => [i, `Opción ${letra(i)}`, 'el kit armado', piezas(v)] as [number, string, string, [string, string][]]),
+    ['oro', `Opción ${letra(kit.variantes.length)}`, `${oro} para comprar`, []],
+  ];
   return (
-    <div className="rounded-2xl bg-soft p-4 ring-1 ring-rule/60">
-      {kit.variantes.map((v, i) => <p key={i} className="mb-1 mt-0"><b>Opción {letra(i)}:</b> {describir(v)}.</p>)}
-      <p className="m-0"><b>Opción {letra(kit.variantes.length)}:</b> {oro} para comprar tu equipo.</p>
-      <p className="mb-0 mt-1 text-xs text-muted">Fuente: {kit.fuente}.</p>
-      {pj.inicial
-        ? <div className="mt-3 flex flex-wrap items-center gap-3"><p className="m-0 font-bold text-pas">✓ Ya tomaste {typeof pj.inicial === 'string' ? `la opción ${pj.inicial}` : 'el equipo inicial'}.</p><Boton tamano="sm" variante="fantasma" onClick={quitarEquipoClase}>Quitar y elegir otra</Boton></div>
-        : (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {kit.variantes.map((_, i) => <Boton key={i} variante={i === 0 ? 'primario' : undefined} onClick={() => tomarEquipoClase(i)}>Tomar el kit {letra(i)}</Boton>)}
-            <Boton onClick={() => tomarEquipoClase('oro')}>Tomar el oro ({letra(kit.variantes.length)})</Boton>
-          </div>
-        )}
+    <div className="flex flex-col gap-2">
+      {opciones.map(([op, t1, t2, cosas]) => {
+        const on = tomada(op);
+        return (
+          <button key={String(op)} type="button" aria-pressed={on} disabled={!!pj.inicial && !on} onClick={() => { if (!pj.inicial) tomarEquipoClase(op); }}
+            className={cx('flex w-full items-start gap-3 rounded-xl bg-surface-container p-3 text-left transition-colors', foco,
+              on ? 'ring-2 ring-primary' : 'ring-1 ring-surface-container-highest', !pj.inicial ? 'cursor-pointer hover:bg-surface-container-high' : !on && 'opacity-50')}>
+            <span aria-hidden="true" className={cx('mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border-2', on ? 'border-primary' : 'border-outline')}>{on && <span className="size-2.5 rounded-full bg-primary" />}</span>
+            <span className="flex min-w-0 flex-1 flex-col gap-1.5">
+              <span><b>{t1}</b><span className="text-body-md text-on-surface-variant"> · {t2}</span></span>
+              {cosas.length > 0 && (
+                <span className="flex flex-wrap gap-1">
+                  {cosas.map(([i, x], j) => <span key={j} className="inline-flex items-center gap-1 rounded-md bg-surface-container-lowest px-2 py-0.5 text-body-sm"><Simbolo n={i} className="text-body-md text-primary" />{x}</span>)}
+                </span>
+              )}
+            </span>
+          </button>
+        );
+      })}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="text-xs text-muted">Fuente: {kit.fuente}.</span>
+        {pj.inicial && <Boton tamano="sm" variante="fantasma" onClick={quitarEquipoClase}>Cambiar de opción</Boton>}
+      </div>
     </div>
   );
 }
@@ -394,7 +410,7 @@ function alternarEn(field: string, v: string, max: number, el: HTMLInputElement)
   guardar();
 }
 
-function Checks({ field, list, sel, max, disabled = new Set(), etiqueta }: { field: string; list: string[]; sel: string[]; max: number; disabled?: Set<string>; etiqueta: string }) {
+function Checks({ field, list, sel, max, disabled = new Set(), etiqueta, bono }: { field: string; list: string[]; sel: string[]; max: number; disabled?: Set<string>; etiqueta: string; bono?: (n: string) => string }) {
   const toggle = (v: string, el: HTMLInputElement) => alternarEn(field, v, max, el);
   const elegidas = sel.filter(s => list.includes(s)).length;
   return (
@@ -414,6 +430,7 @@ function Checks({ field, list, sel, max, disabled = new Set(), etiqueta }: { fie
                 : <span aria-hidden="true" className="size-6 shrink-0 rounded-md border-2 border-outline" />}
               <span className="flex-1">{n}</span>
               {ya && <span className="rounded-xs bg-surface-container-lowest px-1.5 text-body-sm text-on-surface-variant">Ya la tienes</span>}
+              {bono && <b className={cx('text-body-lg', on || ya ? 'text-secondary' : 'text-outline')}>{bono(n)}</b>}
             </label>
           );
         })}
@@ -451,11 +468,11 @@ export function PasoHabs({ pj, c }: { pj: any; c: any }) {
         </div>
       </div>
       <Seccion titulo={`Elige ${C.habN} de ${C.n.toLowerCase()}`} descripcion="Solo aparecen las habilidades de la lista de tu clase.">
-        <Checks field="habClase" list={lista} sel={pj.habClase} max={C.habN} disabled={bg} etiqueta={`Habilidades de ${C.n}`} />
+        <Checks field="habClase" list={lista} sel={pj.habClase} max={C.habN} disabled={bg} etiqueta={`Habilidades de ${C.n}`} bono={n => sign(c.skill?.[norm(n)] ?? 0)} />
       </Seccion>
       {(extraN > 0 || pj.habExtra.length > 0) && (
         <Seccion titulo="Habilidades extra" descripcion={`${razones.join('; ') || 'Dadas por tu DM'}.`}>
-          <Checks field="habExtra" list={SKILLS.map(s => s[0])} sel={pj.habExtra} max={Math.max(extraN, pj.habExtra.length)} disabled={new Set([...bg, ...pj.habClase])} etiqueta="Habilidades extra" />
+          <Checks field="habExtra" list={SKILLS.map(s => s[0])} sel={pj.habExtra} max={Math.max(extraN, pj.habExtra.length)} disabled={new Set([...bg, ...pj.habClase])} etiqueta="Habilidades extra" bono={n => sign(c.skill?.[norm(n)] ?? 0)} />
         </Seccion>
       )}
       {pn > 0 && (

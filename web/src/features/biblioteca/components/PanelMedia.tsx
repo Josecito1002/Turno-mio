@@ -193,6 +193,43 @@ export function PanelMedia({ k, n, d, fuente, sub, azar, soloAzar, largo, childr
   const mostrada = (sub && LIB.img?.[sub.k]) || (deAzar && LIB.img![deAzar]) || (!soloAzar && LIB.img?.[k]);
   // Las imágenes de especie con clase son retratos verticales: en el cuadro se ve la parte de arriba
   const retrato = !(sub && LIB.img?.[sub.k]) && deAzar.startsWith(PREFIJO_ORIGEN);
+  // En el creador: franja con miniatura, «Elegida» y nombre; debajo la descripción, los datos y lo demás (como el diseño)
+  if (elegida && !editando) return (
+    <section aria-label={`Sobre ${n}`} className="my-4 overflow-hidden rounded-2xl bg-surface-container ring-1 ring-surface-container-highest">
+      <div className="flex items-center gap-3 bg-surface-container-high px-4 py-3">
+        {mostrada
+          ? <Imagen className={cx('size-16 shrink-0 rounded-xl object-cover sm:size-20', retrato && 'object-top')} src={mostrada} alt="" />
+          : <span aria-hidden="true" className="grid size-16 shrink-0 place-items-center rounded-xl bg-surface-container font-serif text-3xl font-bold text-primary">{n.charAt(0)}</span>}
+        <div className="min-w-0 flex-1">
+          <p className="m-0 flex items-center gap-1 text-label-caps uppercase tracking-wider text-pas"><Simbolo n="check_circle" className="text-body-md" />Elegida</p>
+          <h2 className="m-0 font-serif text-headline-lg leading-tight">{n}{fuente && <EtiquetaFuente fuente={fuente} className="ml-2 align-middle" />}</h2>
+        </div>
+      </div>
+      <div className="flex flex-col gap-3 px-4 py-4">
+        {(largo || d) ? <p className="m-0 text-on-surface-variant">{largo || d}</p> : <p className="m-0 text-sm text-muted">Sin descripción todavía.</p>}
+        {datos && datos.length > 0 && (
+          <dl className="m-0 grid grid-cols-2 gap-2">
+            {datos.map(([e, v]) => (
+              <div key={e} className="rounded-lg bg-surface-container-lowest px-3 py-2">
+                <dt className="text-label-caps uppercase tracking-wider text-outline">{e}</dt>
+                <dd className="m-0 font-bold text-on-surface">{v}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        {sub && (
+          <div className="rounded-xl bg-surface-container-lowest p-3 ring-2 ring-primary">
+            <p className="m-0 text-label-caps uppercase tracking-wider text-warn">Tu linaje</p>
+            <h3 className="m-0 font-serif text-xl font-bold">{sub.n}</h3>
+            {sub.d && <p className="mb-0 mt-1 text-body-md text-on-surface-variant">{sub.d}</p>}
+            {children}
+          </div>
+        )}
+        {acciones && <div className="flex flex-wrap gap-2 [&>*]:flex-1">{acciones}</div>}
+        {esAdmin() && <EditarMedia k={k} d={d} titulo={soloAzar ? 'Editar descripción' : 'Editar descripción o imagen'} sinImagen={soloAzar} />}
+      </div>
+    </section>
+  );
   return (
     <Tarjeta as="section" aria-label={`Sobre ${n}`} className="my-4 flex flex-wrap gap-4">
       {editando ? <Recorte nombre={S.crop.k === k ? n : sub!.n} /> : mostrada ? <Imagen className={cx('aspect-square w-full max-w-80 shrink-0 rounded-xl object-cover sm:w-60 md:w-72', retrato && 'object-top')} src={mostrada} alt={`Ilustración de ${sub ? sub.n : n}`} /> : null}

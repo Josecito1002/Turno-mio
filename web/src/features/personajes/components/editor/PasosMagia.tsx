@@ -24,27 +24,34 @@ function TarjetaConjuro({ s, c, pj }: { s: any; c: any; pj: any }) {
   if (s.conc) bits.push('Concentración'); if (s.ritual) bits.push('Ritual');
   const efecto = [s.ataque && 'Tirada de ataque', s.salv && `Salvación de ${s.salv}`, s.dados && `${s.dados}${s.tipo ? ' ' + s.tipo : ''}`, s.alcance && `Alcance: ${s.alcance}`].filter(Boolean).join('. ');
   const agregar = () => { pj.conjuros.push({ ...s, extra: false }); savePj(); render(); avisar(`${s.nombre} agregado.`); };
+  const marcado = tiene >= 0 || c.siempre.has(norm(s.nombre));
+  const alternar = () => { if (tiene >= 0) quitarConjuro(tiene); else if (!c.siempre.has(norm(s.nombre)) && !lleno) agregar(); };
+  const resumenCorto = String(s.desc || '').replace(/<[^>]+>/g, '').replace(/^Componentes:[^.]*\.\s*/i, '').split(/(?<=\.)\s/)[0];
   return (
-    <li className="grid grid-cols-[1fr_auto] items-start gap-2 py-1">
-      <details className="group min-w-0">
-        <summary className={cx('flex min-h-12 cursor-pointer list-none flex-col justify-center rounded-lg py-1 [&::-webkit-details-marker]:hidden', foco)}>
-          <span className="font-serif text-[1.05rem] font-bold">
-            <span aria-hidden="true" className="mr-1 inline-block text-muted transition-transform group-open:rotate-90">▸</span>
-            {s.nombre}{(tiene >= 0 || c.siempre.has(norm(s.nombre))) && <span className="ml-1 text-pas" aria-label={tiene >= 0 ? '(ya lo tienes)' : '(siempre preparado por un rasgo)'}>✓</span>}
+    <li className={cx('flex items-start gap-3 rounded-xl bg-surface-container p-3', marcado ? 'ring-2 ring-primary' : 'ring-1 ring-surface-container-highest', !marcado && lleno && 'opacity-60')}>
+      <button type="button" role="checkbox" aria-checked={marcado} onClick={alternar} disabled={c.siempre.has(norm(s.nombre)) || (!marcado && lleno)}
+        aria-label={tiene >= 0 ? `Quitar ${s.nombre}` : c.siempre.has(norm(s.nombre)) ? `${s.nombre}: siempre preparado` : lleno ? `${s.nombre}: sin cupo` : `Preparar ${s.nombre}`}
+        className={cx('mt-0.5 grid size-7 shrink-0 cursor-pointer place-items-center rounded-md disabled:cursor-default', foco, marcado ? 'bg-primary' : 'border-2 border-outline')}>
+        {marcado && <Simbolo n="check" className="text-headline-sm text-on-primary" />}
+      </button>
+      <details className="group min-w-0 flex-1">
+        <summary className={cx('flex cursor-pointer list-none flex-col gap-0.5 rounded [&::-webkit-details-marker]:hidden', foco)}>
+          <span className="flex flex-wrap items-center gap-2">
+            <b className="text-body-lg">{s.nombre}</b>
+            {TIEMPO_N[s.tiempo] && s.tiempo !== 'fuera' ? <span className="inline-flex items-center gap-1 text-body-sm text-on-surface-variant"><FormaTipo t={s.tiempo} />{s.tiempo === 'adicional' ? 'Adicional' : TIEMPO_N[s.tiempo]}</span>
+              : <span className="text-body-sm text-on-surface-variant">{TIEMPO_N[s.tiempo] || 'Acción'}</span>}
+            {s.conc && s.conc !== 'False' && <span className="rounded-xs bg-surface-container-lowest px-1.5 text-body-sm font-bold text-gol">Conc.</span>}
+            {s.ritual && s.ritual !== 'False' && <span className="rounded-xs bg-surface-container-lowest px-1.5 text-body-sm font-bold text-pas">Ritual</span>}
+            {c.siempre.has(norm(s.nombre)) && <span className="text-body-sm text-pas">Siempre preparado</span>}
           </span>
-          <span className="text-sm text-muted">{bits.join(', ')}</span>
+          {resumenCorto && <span className="line-clamp-2 text-body-md text-on-surface-variant">{resumenCorto}</span>}
+          <span className="text-body-sm text-secondary group-open:hidden">Ver detalle</span>
         </summary>
-        <div className="pb-2 pl-4 text-[0.95rem]">
-          {efecto && <p className="m-0 text-sm text-muted">{efecto}.</p>}
+        <div className="pt-2 text-[0.95rem]">
+          <p className="m-0 text-sm text-muted">{bits.join(', ')}{efecto ? `. ${efecto}` : ''}.</p>
           <p className="mb-0 mt-1" dangerouslySetInnerHTML={{ __html: richT(s.desc || 'Sin descripción.') }} />
         </div>
       </details>
-      <div className="pt-1.5">
-        {tiene >= 0 ? <Boton tamano="sm" onClick={() => quitarConjuro(tiene)} aria-label={`Quitar ${s.nombre}`}>Quitar</Boton>
-          : c.siempre.has(norm(s.nombre)) ? <span className="inline-flex min-h-9 items-center px-1 text-sm text-muted">Ya preparado</span>
-          : lleno ? <Boton tamano="sm" disabled aria-label={`${s.nombre}: sin cupo`}>Sin cupo</Boton>
-          : <Boton tamano="sm" variante="primario" onClick={agregar} aria-label={`Agregar ${s.nombre}`}>Agregar</Boton>}
-      </div>
     </li>
   );
 }
@@ -134,7 +141,7 @@ export function ListaConjuros({ pj, c }: { pj: any; c: any }) {
         return (
           <Plegable key={n} titulo={n === 0 ? 'Trucos' : `Nivel ${n}`} nota={`${todos.length} conjuros${mios ? `, ${mios} elegido${mios > 1 ? 's' : ''}` : ''}`}
             abierto={nq || filtro ? true : !!S.spOpen[n]} onToggle={o => { if (!nq && !filtro) S.spOpen[n] = o; }}>
-            <ul className="m-0 list-none divide-y divide-soft p-0">{filtrada.map(s => <TarjetaConjuro key={s.nombre} s={s} c={c} pj={pj} />)}</ul>
+            <ul className="m-0 flex list-none flex-col gap-2 p-0 pt-1">{filtrada.map(s => <TarjetaConjuro key={s.nombre} s={s} c={c} pj={pj} />)}</ul>
           </Plegable>
         );
       })}

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { S, render } from '@/app-shell/estado';
 import { norm } from '@/shared/utils/texto';
-import { Boton, Campo, Nota, Plegable, Seccion, Simbolo, cx } from '@/shared/ui/kit';
+import { Boton, Campo, Nota, Plegable, Seccion, Simbolo, cx, foco } from '@/shared/ui/kit';
 import { ALL_AB, SKILLS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { ESPECIES } from '@/features/reglas/data/especies';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
@@ -297,20 +297,31 @@ export function EquipoTrasfondo({ pj }: { pj: any }) {
   if (!T || !kit) return <Nota>Este trasfondo no trae equipo. Anota el tuyo en el paso Equipo.</Nota>;
   const armas = (kit.armas || []).map(([k, q]) => `${ARMAS[k]?.n || k}${q > 1 ? ` (${q})` : ''}`);
   const tomado = pj.trasfondo.equipo;
+  const cosas: [string, string][] = [...armas.map(x => ['swords', x] as [string, string]), ...kit.objetos.map((o: string) => ['backpack', o] as [string, string]), ['paid', `${kit.oro} po`]];
+  const opciones: ['A' | 'B', string, string, [string, string][]][] = [['A', `Paquete del ${T.n.toLowerCase()}`, 'el kit armado', cosas],
+    ...(kit.alternativa != null ? [['B', `${kit.alternativa} piezas de oro`, 'compras tu equipo en el paso Equipo', []] as ['B', string, string, [string, string][]]] : [])];
   return (
-    <div className="rounded-2xl bg-soft p-4 ring-1 ring-rule/60">
-      <p className="m-0"><b>Opción A:</b> {[...armas, ...kit.objetos].join(', ')} y {kit.oro} po.</p>
-      {kit.alternativa != null && <p className="mb-0 mt-1"><b>Opción B:</b> {kit.alternativa} po para comprar tu equipo.</p>}
-      <p className="mb-0 mt-1 text-xs text-muted">{kit.sugerido ? 'Kit sugerido: este trasfondo no tiene versión oficial con equipo.' : `Fuente: ${kit.fuente}.`}</p>
-      {tomado
-        ? <div className="mt-3 flex flex-wrap items-center gap-3"><p className="m-0 font-bold text-pas">✓ Ya tomaste la opción {tomado}{tomado === 'A' ? ': las armas están en Equipo y lo demás en tu inventario.' : '.'}</p><Boton tamano="sm" variante="fantasma" onClick={quitarEquipoTrasfondo}>Quitar y elegir otra</Boton></div>
-        : (
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Boton variante="primario" onClick={() => tomarEquipoTrasfondo('A')}>Tomar el kit (A)</Boton>
-            {kit.alternativa != null && <Boton onClick={() => tomarEquipoTrasfondo('B')}>Tomar {kit.alternativa} po (B)</Boton>}
-          </div>
-        )}
-    </div>
+    <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+      <legend className="mb-2 text-label-caps uppercase tracking-wider text-warn">Elige tu equipo inicial</legend>
+      {opciones.map(([op, t1, t2, lista]) => {
+        const on = tomado === op;
+        return (
+          <button key={op} type="button" aria-pressed={on} disabled={!!tomado && !on} onClick={() => { if (!tomado) tomarEquipoTrasfondo(op); }}
+            className={cx('flex w-full items-start gap-3 rounded-xl bg-surface-container-lowest p-3 text-left transition-colors', foco,
+              on ? 'ring-2 ring-primary' : 'ring-1 ring-surface-container-highest', !tomado ? 'cursor-pointer hover:bg-surface-container-high' : !on && 'opacity-50')}>
+            <span aria-hidden="true" className={cx('mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border-2', on ? 'border-primary' : 'border-outline')}>{on && <span className="size-2.5 rounded-full bg-primary" />}</span>
+            <span className="flex min-w-0 flex-1 flex-col gap-1.5">
+              <span><b>{t1}</b><span className="text-body-md text-on-surface-variant"> · {t2}</span></span>
+              {lista.length > 0 && <span className="flex flex-wrap gap-1">{lista.map(([i, x], j) => <span key={j} className="inline-flex items-center gap-1 rounded-md bg-surface-container px-2 py-0.5 text-body-sm"><Simbolo n={i} className="text-body-md text-primary" />{x}</span>)}</span>}
+            </span>
+          </button>
+        );
+      })}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="text-xs text-muted">{kit.sugerido ? 'Kit sugerido: este trasfondo no tiene versión oficial con equipo.' : `Fuente: ${kit.fuente}.`}</span>
+        {tomado && <Boton tamano="sm" variante="fantasma" onClick={quitarEquipoTrasfondo}>Cambiar de opción</Boton>}
+      </div>
+    </fieldset>
   );
 }
 

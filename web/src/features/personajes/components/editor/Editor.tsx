@@ -143,13 +143,13 @@ export function Editor({ c }: { c: any }) {
       <nav aria-label="Navegación entre pasos"
         className="fixed inset-x-0 bottom-[var(--alto-nav-inferior,0px)] z-10 border-t border-rule bg-surface-container-lowest/95 backdrop-blur print:hidden">
         <div className="mx-auto flex max-w-[1376px] items-center justify-between gap-2 px-4 py-3 lg:px-8">
-          {i > 0 ? <Boton onClick={() => irPaso(PASOS[i - 1])} aria-label={`Volver a ${PASO_N[PASOS[i - 1]]}`}>← <span className="hidden sm:inline">{PASO_N[PASOS[i - 1]]}</span></Boton> : <span />}
+          {i > 0 ? <Boton className="min-h-12 min-w-12 shrink-0" onClick={() => irPaso(PASOS[i - 1])} aria-label={`Volver a ${PASO_N[PASOS[i - 1]]}`}>← <span className="hidden sm:inline">{PASO_N[PASOS[i - 1]]}</span></Boton> : <span className="hidden sm:block" />}
           <span className="hidden text-center text-body-md text-on-surface-variant sm:block" aria-live="polite">
             Paso {i + 1} de {PASOS.length} · {faltaAqui ? <span className="text-warn">Falta algo en este paso</span> : paso === 'rasgos' ? 'Opcional' : <span className="text-pas">Listo</span>}
           </span>
           {i < PASOS.length - 1
-            ? <Boton variante="primario" onClick={() => irPaso(PASOS[i + 1])}>Siguiente: {PASO_N[PASOS[i + 1]]} →</Boton>
-            : <Boton variante="primario" onClick={() => { S.view = 'ficha'; S.tab = 'turno'; render(); irArriba(); }}>Ver la hoja →</Boton>}
+            ? <Boton variante="primario" className="min-h-12 flex-1 sm:flex-none" onClick={() => irPaso(PASOS[i + 1])}>Siguiente: {PASO_N[PASOS[i + 1]]} →</Boton>
+            : <Boton variante="primario" className="min-h-12 flex-1 sm:flex-none" onClick={() => { S.view = 'ficha'; S.tab = 'turno'; render(); irArriba(); }}>Ver la hoja →</Boton>}
         </div>
       </nav>
     </>
