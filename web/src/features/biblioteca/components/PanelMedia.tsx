@@ -3,7 +3,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { S, render, esAdmin } from '@/app-shell/estado';
 import { guardarLibExtras } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
-import { Boton, Plegable, Tarjeta, claseCampo, cx, foco } from '@/shared/ui/kit';
+import { Boton, Plegable, Tarjeta, claseCampo, cx, foco, Simbolo } from '@/shared/ui/kit';
 import { getLib } from '../domain/biblioteca';
 import { leerImagenOriginal } from '../api';
 import type { Fuente } from '@/features/reglas/data/fuentes';
@@ -184,7 +184,8 @@ export function useAzar(n: number) {
     Con `sub` (la subraza elegida) el mismo cuadro muestra su nombre, su descripción, lo que da (`children`) y su imagen.
     `azar` son las claves de imágenes de respaldo (las de la especie, o las de la subraza elegida si no tiene imagen propia): se elige una al azar y queda fija.
     Con `soloAzar` (clases) no hay imagen propia de la clave: solo las de `azar`, del set de especie y clase. */
-export function PanelMedia({ k, n, d, fuente, sub, azar, soloAzar, largo, children }: { k: string; n: string; d: string; largo?: string; fuente?: Fuente; sub?: Sub; azar?: string[]; soloAzar?: boolean; children?: React.ReactNode }) {
+/** `elegida`, `datos` y `acciones`: en el creador, la tarjeta de lo que el jugador ya eligió (con sus datos clave y botones) */
+export function PanelMedia({ k, n, d, fuente, sub, azar, soloAzar, largo, children, elegida, datos, acciones }: { k: string; n: string; d: string; largo?: string; fuente?: Fuente; sub?: Sub; azar?: string[]; soloAzar?: boolean; children?: React.ReactNode; elegida?: boolean; datos?: [string, React.ReactNode][]; acciones?: React.ReactNode }) {
   const LIB = getLib(), editando = S.crop && (S.crop.k === k || S.crop.k === sub?.k);
   const conImg = (azar || []).filter(x => LIB.img?.[x]);
   const i = useAzar(conImg.length);
@@ -196,8 +197,20 @@ export function PanelMedia({ k, n, d, fuente, sub, azar, soloAzar, largo, childr
     <Tarjeta as="section" aria-label={`Sobre ${n}`} className="my-4 flex flex-wrap gap-4">
       {editando ? <Recorte nombre={S.crop.k === k ? n : sub!.n} /> : mostrada ? <Imagen className={cx('aspect-square w-full max-w-80 shrink-0 rounded-xl object-cover sm:w-60 md:w-72', retrato && 'object-top')} src={mostrada} alt={`Ilustración de ${sub ? sub.n : n}`} /> : null}
       <div className="min-w-56 flex-1">
+        {elegida && <p className="m-0 mb-0.5 flex items-center gap-1 text-label-caps uppercase tracking-wider text-pas"><Simbolo n="check_circle" className="text-body-md" />Elegida</p>}
         <h2 className="m-0 font-serif text-2xl font-bold">{n}{fuente && <EtiquetaFuente fuente={fuente} className="ml-2 align-middle" />}</h2>
         {(largo || d) ? <p className="mb-0 mt-1">{largo || d}</p> : <p className="mb-0 mt-1 text-sm text-muted">Sin descripción todavía.</p>}
+        {datos && datos.length > 0 && (
+          <dl className="m-0 mt-3 grid grid-cols-2 gap-2">
+            {datos.map(([e, v]) => (
+              <div key={e} className="rounded-lg bg-surface-container-lowest px-3 py-2">
+                <dt className="text-label-caps uppercase tracking-wider text-outline">{e}</dt>
+                <dd className="m-0 font-bold text-on-surface">{v}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        {acciones && <div className="mt-3 flex flex-wrap gap-2">{acciones}</div>}
         {sub && (
           <div className="mt-4 border-t border-rule pt-3">
             <h3 className="m-0 font-serif text-xl font-bold">{sub.n}</h3>

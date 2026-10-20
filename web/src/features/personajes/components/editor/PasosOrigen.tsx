@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { S, render } from '@/app-shell/estado';
 import { norm } from '@/shared/utils/texto';
-import { Boton, Campo, Nota, Plegable, Seccion } from '@/shared/ui/kit';
+import { Boton, Campo, Nota, Plegable, Seccion, Simbolo } from '@/shared/ui/kit';
 import { ALL_AB, SKILLS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { ESPECIES } from '@/features/reglas/data/especies';
 import { TRASFONDOS } from '@/features/reglas/data/trasfondos';
@@ -95,7 +95,8 @@ function CuadroEspecie({ pj, E }: { pj: any; E: any }) {
   const k = pj.especie.key, s = pj.especie.sub, x = s && E.subs?.[s];
   const rasgos = x ? rasgosDeSubespecie(pj, s) : [];
   return (
-    <PanelMedia k={k} n={E.n} d={descEspecie(k)} fuente={fuenteEspecie(k, E)} azar={x ? clavesSubraza(k, s) : clavesEspecie(k, E)}
+    <PanelMedia k={k} n={E.n} d={descEspecie(k)} fuente={fuenteEspecie(k, E)} azar={x ? clavesSubraza(k, s) : clavesEspecie(k, E)} elegida
+      datos={[['Velocidad', `${String(Math.round((x?.vel || E.vel || 30) * 0.3 * 10) / 10).replace('.', ',')} m`], ['Visión en la oscuridad', (x?.vision ?? E.vision) ? `${String(Math.round((x?.vision ?? E.vision) * 0.3)).replace('.', ',')} m` : 'No']]}
       sub={x ? { k: claveSub(k, s), n: x.n + (x.dmg ? ` (${x.dmg})` : ''), d: descSubespecie(k, s) } : undefined}>
       {rasgos.length > 0 && (
         <div className="mt-2">
@@ -259,7 +260,11 @@ export function PasoClase({ pj, c }: { pj: any; c: any }) {
   const falta = faltaParaSubir(c);
   return (
     <>
-      <PanelMedia k={'c:' + pj.clase} n={C.n} d={descClase(pj.clase)} largo={descClaseLarga(pj.clase)} fuente={fuenteClase(pj.clase)} soloAzar
+      <PanelMedia k={'c:' + pj.clase} n={C.n} d={descClase(pj.clase)} largo={descClaseLarga(pj.clase)} fuente={fuenteClase(pj.clase)} soloAzar elegida
+        datos={[['Dado de golpe', <span key="d" className="text-secondary">d{C.dado}</span>], ['Salvaciones', (C.sv || []).map((a: string) => a.toUpperCase()).join(' · ') || '—'],
+          ['Armaduras', C.arm || 'Ninguna'], ['Armas', C.armas || '—']]}
+        acciones={<Boton onClick={() => document.getElementById('editor-subclases')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+          <Simbolo n="auto_stories" className="text-headline-sm text-primary" />Ver subclases del {C.n}</Boton>}
         azar={(pj.subclase && temasDe(pj, pj.clase, pj.subclase).length ? temasDe(pj, pj.clase, pj.subclase) : temasDe(pj, pj.clase))} />
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
@@ -273,6 +278,7 @@ export function PasoClase({ pj, c }: { pj: any; c: any }) {
       <ElegirElecciones pj={pj} elecciones={(c.elecciones || []).filter((e: any) => e.grupo === 'clase')} />
       {/* El Pacto de la Cadena ahora se elige como invocación; la casilla solo queda para quien ya la tenía marcada */}
       {pj.clase === 'brujo' && pj.pactoCadena && <Casilla path="pactoCadena" checked={pj.pactoCadena}>Pacto de la Cadena (casilla antigua: ahora elígelo en Invocaciones)</Casilla>}
+      <div id="editor-subclases" className="scroll-mt-28" />
       <Seccion titulo="Subclase" descripcion={c.lvl < c.subNivel ? `La eliges al llegar a nivel ${c.subNivel}.` : 'Toca una para ver qué da en cada nivel.'}>
         <ElegirSubclase pj={pj} c={c} />
       </Seccion>
