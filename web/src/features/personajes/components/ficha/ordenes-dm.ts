@@ -5,13 +5,16 @@ import { responderSalvacionMesa, type OrdenDm } from '@/features/mesa/api';
 import { norm } from '@/shared/utils/texto';
 import { descansar, moverPool, setVal } from '../../acciones';
 import { cdConcentracion, concentracionActual, quitarEfectosDe } from './concentracion';
+import { efectoDeReaccion, resultadoReaccion, type EfectoReaccion } from '@/features/mesa/domain/reacciones';
 
 /* Avisos en grande (pantalla completa) para lo que le pasa al personaje en combate: el daño que recibe (con las
    reacciones que podría usar), una salvación que debe tirar y lo que su DM le cuenta. Se muestran de a uno. */
 export type Mesa = { dmId: string; campanaId: string; personajeId: string };
 export type AvisoGrande =
   /** Daño o curación recibidos. Con `pendiente`, el daño todavía no se restó: el jugador puede reaccionar antes. */
-  | { id: string; tipo: 'efecto'; o: OrdenDm; reacciones: { nombre: string; texto: string }[]; pendiente?: { mesa: Mesa | null; pid?: string } }
+  | { id: string; tipo: 'efecto'; o: OrdenDm; reacciones: { nombre: string; texto: string }[]; pendiente?: { mesa: Mesa | null; pid?: string };
+      /** La reacción que usó mientras esperaba, y lo que hace con el daño (si se pudo leer de su texto) */
+      reaccion?: { nombre: string; efecto: EfectoReaccion | null } }
   | { id: string; tipo: 'salvacion'; o: OrdenDm; mesa: Mesa | null }
   | { id: string; tipo: 'aviso'; o: OrdenDm }
   /** Un ataque acertó y se puede seguir: lo que se suma o la acción que sigue (celeste) */
@@ -138,6 +141,27 @@ export function confirmarDano(a: Extract<AvisoGrande, { tipo: 'efecto' }>, dano:
     avisar(`Evitaste ${a.o.nota || 'el ataque'}${a.o.de ? ` de ${a.o.de}` : ''}.`);
   } else aplicarEfecto({ ...a.o, dano }, false, mesa);
   avisosGrandes.quitar(a.id);
+}
+
+/** Usó una reacción con un daño esperando: se aplica sola según lo que dice (Escudo sube la CA y, si el ataque ya no
+ *  acierta, no le pasa nada; Esquiva asombrosa, la mitad). Si pide dados o no se sabe lo que sacó el ataque, el aviso
+ *  vuelve con lo que falta. */
+export function reaccionUsada(nombre: string, texto: string) {
+  const a = cola.find((x): x is Extract<AvisoGrande, { tipo: 'efecto' }> => x.tipo === 'efecto' && !!x.pendiente && !x.reaccion);
+  const c = S.c; if (!a || !c) return;
+  let efecto = efectoDeReaccion(texto, { pb: +c.pb || 2, car: +c.m?.car || 0 });
+  // Subir la CA solo sirve contra un ataque, no contra el daño de una salvación
+  if (efecto?.tipo === 'ca' && a.o.salv) efecto = null;
+  const n = Math.max(0, Math.round(a.o.dano || 0)), ataque = a.o.ataque ?? null;
+  const r = efecto && !('dados' in efecto && efecto.dados) ? resultadoReaccion(efecto, n, +c.ac || 10, ataque) : null;
+  if (r) {
+    confirmarDano(a, r.dano, r.falla);
+    avisoGrande(`reac-${a.id}`, r.falla ? `${nombre}: el ataque falla` : r.dano ? `${nombre}: recibes ${r.dano} de daño` : `${nombre}: no recibes daño`,
+      r.caNueva != null ? `Tu CA sube a ${r.caNueva} y el ataque sacó ${ataque === 99 ? 'un 20 natural' : ataque}${r.falla ? ', así que no te acierta.' : ': te acierta igual.'}` : `En lugar de ${n}.`);
+    return;
+  }
+  cola = cola.map(x => (x === a ? { ...a, reaccion: { nombre, efecto } } : x));
+  avisar_();
 }
 
 const claveVistos = (pid: string) => 'mt-ordenes-' + pid;

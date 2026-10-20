@@ -14,6 +14,7 @@ import { fallaSola } from '@/features/mesa/domain/condiciones';
 import { setVal } from '../../acciones';
 import { textoDuracion } from '@/features/mesa/domain/duracion';
 import { concentracionActual, terminarConcentracion, ventajaConcentracion } from './concentracion';
+import { resultadoReaccion } from '@/features/mesa/domain/reacciones';
 
 const nombreAb = (k: string) => AB.find(([x]) => x === k)?.[3] || k.toUpperCase();
 const abrevAb = (k: string) => AB.find(([x]) => x === k)?.[2] || k.toUpperCase();
@@ -81,7 +82,7 @@ function DanoPendiente({ a }: { a: Extract<AvisoGrande, { tipo: 'efecto' }> }) {
         {o.condicion ? <p className="m-0 mt-2 text-lg font-bold">Y quedas {o.condicion}</p> : null}
         <p className="m-0 mt-2 text-sm text-muted">Todavía no se restó de tus PG.</p>
       </div>
-      <Reaccionar reacciones={a.reacciones} antes="Antes de recibirlo" />
+      {a.reaccion ? <ConReaccion a={a} /> : <Reaccionar reacciones={a.reacciones} antes="Antes de recibirlo" />}
       <div className="grid gap-2 rounded-2xl bg-surface p-4">
         <label className="font-bold" htmlFor={`dano-${a.id}`}>Daño que recibes</label>
         <div className="flex flex-wrap gap-2">
@@ -95,6 +96,33 @@ function DanoPendiente({ a }: { a: Extract<AvisoGrande, { tipo: 'efecto' }> }) {
       {/* Un golpe que falla por la reacción (Escudo) no hace nada, tampoco la salvación que traía */}
       {!o.salv && <Boton className="min-h-12" onClick={() => confirmarDano(a, 0, true)}>Mi reacción hizo fallar el ataque</Boton>}
     </>
+  );
+}
+
+/** Volvió de usar su reacción y falta algo para aplicarla sola: los dados que pide o saber si el ataque todavía acierta. */
+function ConReaccion({ a }: { a: Extract<AvisoGrande, { tipo: 'efecto' }> }) {
+  const r = a.reaccion!, e = r.efecto, n = Math.max(0, Math.round(a.o.dano || 0)), ataque = a.o.ataque ?? null, ca = +S.c?.ac || 10;
+  const [tiro, setTiro] = useState('');
+  const dados = e && e.tipo !== 'mitad' ? e.dados : undefined;
+  const tirada = dados ? totalTirada(dados, tiro) : 0;
+  const res = e && tirada != null ? resultadoReaccion(e, n, ca, ataque, tirada) : null;
+  const caNueva = e?.tipo === 'ca' && tirada != null ? ca + (e.bono ?? tirada) : null;
+  return (
+    <div className="grid gap-3 rounded-2xl bg-surface p-4 ring-1 ring-adi">
+      <p className="m-0 font-bold text-adi"><Simbolo n="bolt" /> Usaste {r.nombre}</p>
+      {!e && <p className="m-0 text-sm text-muted">No sé qué hace con el daño: escribe abajo cuánto recibes.</p>}
+      {dados && <CampoTirada tipo="dano" expr={dados} valor={tiro} alCambiar={setTiro} etiqueta={r.nombre} claseInput={claseCampo} />}
+      {res && <Boton variante="primario" className="min-h-12" onClick={() => confirmarDano(a, res.dano, res.falla)}>
+        {res.falla ? `CA ${res.caNueva} contra ${ataque}: el ataque falla` : `Recibir ${res.dano} de daño`}</Boton>}
+      {/* Sin lo que sacó el ataque (el DM lo aplicó a mano), se pregunta si con la CA nueva todavía acierta */}
+      {e?.tipo === 'ca' && ataque == null && caNueva != null && <>
+        <p className="m-0">Tu CA sube a {caNueva}. ¿El ataque sacó menos de {caNueva}?</p>
+        <div className="flex flex-wrap gap-2">
+          <Boton variante="primario" className="min-h-12" onClick={() => confirmarDano(a, 0, true)}>Sí, falla</Boton>
+          <Boton className="min-h-12" onClick={() => confirmarDano(a, e.luegoMitad ? Math.floor(n / 2) : n)}>No, acierta igual</Boton>
+        </div>
+      </>}
+    </div>
   );
 }
 

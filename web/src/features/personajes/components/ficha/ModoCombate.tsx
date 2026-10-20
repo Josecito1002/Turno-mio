@@ -12,7 +12,7 @@ import { esc, norm, richT, sign } from '@/shared/utils/texto';
 import { moverPool, setVal } from '../../acciones';
 import { resumen } from '../../domain/modelo';
 import { combateMesa, enviarGolpeMesa, gastarAccionMesa, type CombateVivo, type EconomiaRonda, type TipoAccionRonda } from '@/features/mesa/api';
-import { aplicarOrdenes, avisoGrande, avisosGrandes, fijarCondicionesMias, fijarReaccion, pedirConcentracion } from './ordenes-dm';
+import { aplicarOrdenes, avisoGrande, avisosGrandes, fijarCondicionesMias, fijarReaccion, pedirConcentracion, reaccionUsada } from './ordenes-dm';
 import { incapacidad } from '@/features/mesa/domain/condiciones';
 import { INCAPACITANTES, terminarConcentracion } from './concentracion';
 import { EFECTO_CONDICION } from '@/features/mesa/domain/condiciones';
@@ -547,7 +547,7 @@ export function ModoCombate({ c }: { c: any }) {
       </Dialogo>
 
       <UsoAccion c={c} uso={uso} ventaja={yo?.ven || ''} enemigos={objetivos} mesa={{ dmId, campanaId, personajeId }} yaGastada={!!(uso && eco[uso.tipo])} alCerrar={() => setUso(null)} alSeguir={t => { setElegido(null); setAbierto(t); }}
-        alUsar={t => { toques.current[t] = Date.now(); setEco(p => ({ ...p, [t]: true })); }} alMarcar={marcar} ahora={yo && viv ? { ronda: viv.ronda || 1, turno: viv.turno || 0, orden: viv.orden || [], k: yo.k } : undefined} />
+        alUsar={t => { toques.current[t] = Date.now(); setEco(p => ({ ...p, [t]: true })); if (t === 'reaccion' && uso) reaccionUsada(uso.nombre, uso.texto); }} alMarcar={marcar} ahora={yo && viv ? { ronda: viv.ronda || 1, turno: viv.turno || 0, orden: viv.orden || [], k: yo.k } : undefined} />
     </div>
   );
 }
