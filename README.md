@@ -1,6 +1,6 @@
 # Mi turno
 
-Creador y hoja de personaje para D&D 2024, con mesa del DM.
+Creador y hoja de personaje para D&D 2024, con mesa del DM.  www.miturno.com.es
 
 - `index.html`: versión original (una sola página, guardaba en localStorage).
 - `biblioteca-mi-turno.json`: biblioteca exportada; se usa para sembrar la base.
