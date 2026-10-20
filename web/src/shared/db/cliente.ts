@@ -13,4 +13,12 @@ export const db = new Proxy({} as DB, {
     return typeof v === 'function' ? (v as (...a: unknown[]) => unknown).bind(real) : v;
   },
 });
+/** Suelta las conexiones de esta instancia: la próxima consulta abre otras. Para cuando una se quedó colgada
+    (por ejemplo un socket muerto después de que Vercel congeló la instancia) y todo lo que la usa espera para siempre. */
+export function reiniciarConexion() {
+  const vieja = g.__miturnoDb;
+  g.__miturnoDb = undefined;
+  vieja?.cerrar(0).catch(() => {});
+}
+
 export type { DB };

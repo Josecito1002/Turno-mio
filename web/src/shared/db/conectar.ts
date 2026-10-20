@@ -43,5 +43,5 @@ export function crearDb(url = process.env.DATABASE_URL || 'pglite:./.data/pg') {
   const enVercel = !!process.env.VERCEL;
   const cliente = postgres(url, { prepare: false, max: enVercel ? 2 : 5, idle_timeout: enVercel ? 5 : 20, connect_timeout: 15 });
   const db = drizzlePg(cliente, { schema: esquema });
-  return { db, migrar: (carpeta: string) => migratePg(db, { migrationsFolder: carpeta }), cerrar: () => cliente.end() };
+  return { db, migrar: (carpeta: string) => migratePg(db, { migrationsFolder: carpeta }), cerrar: (segundos?: number) => cliente.end({ timeout: segundos }) };
 }
