@@ -442,6 +442,20 @@ export function agregarObjeto(nombre: string, q: number, texto = '') {
 }
 /** Mete en el inventario un objeto que dio el DM desde la mesa. */
 export function recibirObjeto(o: ObjetoEntregado) {
+  if (o.tipo === 'quitar') {
+    const pj = S.pj, i = (pj.objetos || []).findIndex((x: any) => norm(x.n) === norm(o.n));
+    if (i >= 0) { cambiarObjeto(i, -o.q); avisar(`Tu DM quitó de tu inventario: ${o.q > 1 ? `${o.q} × ` : ''}${o.n}.`); }
+    return;
+  }
+  if (o.tipo === 'quitarArma') {
+    const i = (S.pj.armas || []).findIndex((a: any) => a[0] === o.k);
+    if (i >= 0) { cambiarCantidadArma(i, -(S.pj.armas[i][1] || 1)); avisar('Tu DM quitó un arma de tu inventario.'); }
+    return;
+  }
+  if (o.tipo === 'oro') {
+    S.pj.oro = Math.max(0, (+S.pj.oro || 0) + o.d); savePj(); render();
+    avisar(o.d > 0 ? `Tu DM te dio ${o.d} po.` : `Tu DM te quitó ${-o.d} po.`); return;
+  }
   if (o.tipo === 'objeto') { agregarObjeto(o.n, o.q, o.t); avisar(`Tu DM te dio: ${o.q > 1 ? `${o.q} × ` : ''}${o.n}.`); }
   else if (o.tipo === 'arma') agregarArma(o.k);
   else if (o.tipo === 'armadura') agregarArmadura(o.k);

@@ -99,3 +99,55 @@ export function DarObjeto({ campId, personajeId, nombre }: { campId: string; per
     </Plegable>
   );
 }
+
+/** DM: corrige el inventario de un personaje de la mesa (quitar objetos o armas, sumar o restar oro).
+    Igual que al dar un objeto, el cambio le llega a su hoja en cuanto la abra. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function EditarInventario({ campId, personajeId, nombre, pj }: { campId: string; personajeId: string; nombre: string; pj: any }) {
+  const [oro, setOro] = useState('');
+  const [enviando, setEnviando] = useState(false);
+  const mandar = async (o: ObjetoEntregado, que: string) => {
+    setEnviando(true);
+    try { await darObjetoDm(campId, personajeId, o); avisar(`${que}. Se aplica en la hoja de ${nombre} en cuanto la abra.`); }
+    catch (e) { avisar(`No se pudo enviar: ${(e as Error).message}`, 'error'); }
+    finally { setEnviando(false); }
+  };
+  const objetos: { n: string; q: number }[] = pj?.objetos || [];
+  const armas: [string, number][] = pj?.armas || [];
+  const nombreArma = (k: string) => pj?.armasPropias?.[k]?.n || ARMAS[k]?.n || k;
+  const fila = 'flex min-h-11 items-center gap-2 border-b border-surface-container-highest py-1 last:border-0';
+  return (
+    <Plegable titulo={`Editar el inventario de ${nombre}`}>
+      <div className="flex flex-col gap-4 px-4 pb-4">
+        <div>
+          <p className="m-0 mb-1 text-label-caps uppercase tracking-wider text-outline">Dinero: {+pj?.oro || 0} po</p>
+          <div className="flex flex-wrap items-end gap-2">
+            <Campo etiqueta="Cantidad (po)" className="w-32"><input type="number" min={1} value={oro} onChange={e => setOro(e.target.value)} className={claseCampo} /></Campo>
+            <Boton tamano="sm" disabled={enviando || !(+oro > 0)} onClick={() => { mandar({ tipo: 'oro', d: Math.trunc(+oro) }, `+${Math.trunc(+oro)} po`); setOro(''); }}>Dar oro</Boton>
+            <Boton tamano="sm" disabled={enviando || !(+oro > 0)} onClick={() => { mandar({ tipo: 'oro', d: -Math.trunc(+oro) }, `−${Math.trunc(+oro)} po`); setOro(''); }}>Quitar oro</Boton>
+          </div>
+        </div>
+        <div>
+          <p className="m-0 mb-1 text-label-caps uppercase tracking-wider text-outline">Armas</p>
+          {armas.length ? <ul className="m-0 list-none p-0">{armas.map(([k, q]) => (
+            <li key={k} className={fila}>
+              <span className="flex-1">{q > 1 ? `${q} × ` : ''}{nombreArma(k)}</span>
+              <Boton tamano="sm" variante="fantasma" disabled={enviando} onClick={() => mandar({ tipo: 'quitarArma', k }, `Quitada: ${nombreArma(k)}`)} aria-label={`Quitar ${nombreArma(k)}`}>Quitar</Boton>
+            </li>
+          ))}</ul> : <p className="m-0 text-sm text-muted">No lleva armas.</p>}
+        </div>
+        <div>
+          <p className="m-0 mb-1 text-label-caps uppercase tracking-wider text-outline">Objetos</p>
+          {objetos.length ? <ul className="m-0 list-none p-0">{objetos.map((o, i) => (
+            <li key={i} className={fila}>
+              <span className="flex-1">{o.q > 1 ? `${o.q} × ` : ''}{o.n}</span>
+              {o.q > 1 && <Boton tamano="sm" disabled={enviando} onClick={() => mandar({ tipo: 'quitar', n: o.n, q: 1 }, `Quitado 1 × ${o.n}`)} aria-label={`Quitar uno de ${o.n}`}>−1</Boton>}
+              <Boton tamano="sm" variante="fantasma" disabled={enviando} onClick={() => mandar({ tipo: 'quitar', n: o.n, q: o.q }, `Quitado: ${o.n}`)} aria-label={`Quitar ${o.n}`}>Quitar</Boton>
+            </li>
+          ))}</ul> : <p className="m-0 text-sm text-muted">Sin objetos en el inventario.</p>}
+        </div>
+        <p className="m-0 text-xs text-muted">Para agregar cosas usa «Dar un objeto». Lo que ves aquí es su hoja al último cambio que guardó.</p>
+      </div>
+    </Plegable>
+  );
+}

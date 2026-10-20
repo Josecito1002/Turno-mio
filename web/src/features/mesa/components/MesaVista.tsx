@@ -30,7 +30,7 @@ import { combatesOrigen, conservarVinculos, danosDe, enemigosDe, leerSesion, mar
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
 import { BloqueMonstruo, BuscadorEnemigo, VistaBestiario, monstruoDe, useCatalogo } from './Bestiario';
 import { SubirHomebrewery } from '@/features/homebrewery/components/SubirHomebrewery';
-import { DarObjeto } from './DarObjeto';
+import { DarObjeto, EditarInventario } from './DarObjeto';
 
 const val = (id: string) => (document.getElementById(id) as HTMLInputElement | null)?.value || '';
 /** Cada acción trabaja sobre una copia fresca de la campaña, la guarda y redibuja. */
@@ -264,6 +264,7 @@ function TarjetaJugador({ cp, x, alQuitar }: { cp: any; x: any; alQuitar: () => 
       <Pasivas x={x} />
       <PuntosGolpe cp={cp} x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
       <DarObjeto campId={cp.id} personajeId={x.u.personajeId} nombre={x.nombre} />
+      <EditarInventario campId={cp.id} personajeId={x.u.personajeId} nombre={x.nombre} pj={x.pj} />
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
         <span className="text-xs text-muted">Hoja actualizada {hora(x.u.actualizadoEn)}</span>
         <Boton tamano="sm" variante="fantasma" onClick={quitar}>Quitar de la mesa</Boton>
@@ -1722,6 +1723,17 @@ function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) 
       <PanelPestana idBase="mesa" activa={mtab}>
         {mtab === 'grupo' ? (
           <>
+            {unidos.length > 0 && (
+              <section aria-label="Para todos los jugadores" className="mb-4 rounded-xl bg-surface-container p-3">
+                <p className="m-0 mb-2 flex items-center gap-1.5 text-label-caps uppercase tracking-wider text-outline"><Simbolo n="bolt" className="text-body-lg text-primary" />Para todos los jugadores</p>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  <Boton onClick={() => mandarOrden(cp.id, 'corto')}><Simbolo n="hourglass_empty" className="text-secondary" />Descanso corto</Boton>
+                  <Boton onClick={() => mandarOrden(cp.id, 'largo')}><Simbolo n="bedtime" className="text-gol" />Descanso largo</Boton>
+                  <Boton onClick={() => mandarOrden(cp.id, 'inspiracion')}><Simbolo n="auto_awesome" className="text-primary" />Inspiración a todos</Boton>
+                </div>
+                <p className="m-0 mt-2 text-body-sm text-outline">Cada hoja lo aplica sola cuando su jugador la tiene abierta.</p>
+              </section>
+            )}
             <CodigoMesa campId={cp.id} />
             <PortadaCampana cp={cp} />
             <div className="mb-0 mt-6 flex flex-wrap items-baseline justify-between gap-2">
@@ -1740,13 +1752,6 @@ function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) 
             {unidos.length
               ? <ul className="m-0 mt-2 grid list-none grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3 p-0">{unidos.map((x: any) => <TarjetaJugador key={x.k} cp={cp} x={x} alQuitar={() => mesa.leer()} />)}</ul>
               : !mesa.error && <Nota className="mt-2">{mesa.cargando ? 'Buscando jugadores…' : 'Nadie se ha unido todavía. Cuando un jugador escriba el código, su personaje aparece aquí solo.'}</Nota>}
-            {unidos.length > 0 && (
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'corto')}>Descanso corto para todos</Boton>
-                <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'largo')}>Descanso largo para todos</Boton>
-                <Boton tamano="sm" onClick={() => mandarOrden(cp.id, 'inspiracion')}>Inspiración a todos</Boton>
-              </div>
-            )}
             <h2 className="mb-0 mt-6 font-serif text-2xl font-bold">Tus copias de personajes</h2>
             {grupo.length
               ? <ul className="m-0 mt-2 grid list-none grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3 p-0">{grupo.map((x: any) => <TarjetaPj key={x.k} cp={cp} x={x} />)}</ul>
