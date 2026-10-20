@@ -121,7 +121,7 @@ const typeDefs = /* GraphQL */ `
     "DM: le cuenta algo a un jugador unido (si su objetivo superó o falló la salvación)."
     avisarJugadorDm(campanaId: ID!, personajeId: ID!, texto: String!): Boolean!
     "Jugador: el resultado de la salvación que le pidió el DM (ya aplicado en su hoja)."
-    responderSalvacionMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, pedido: String!, total: Int!, supero: Boolean!, dano: Int!, condicion: String, rondas: Int, hastaRonda: Int, hastaK: String, conc: String, repite: Boolean, salv: String, cd: Int): Boolean!
+    responderSalvacionMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, pedido: String!, total: Int!, supero: Boolean!, dano: Int!, condicion: String, rondas: Int, hastaRonda: Int, hastaK: String, conc: String, repite: Boolean, salv: String, cd: Int, evito: Boolean): Boolean!
     "Jugador: deja de concentrarse; a todos se les acaba lo que dependía de esa concentración."
     terminarConcentracionMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, conc: String!, nombre: String!): Boolean!
     "DM: un enemigo deja de concentrarse; a los jugadores se les acaba lo que dependía de eso."
@@ -416,11 +416,11 @@ export const mesaGraphQL: ModuloGraphQL = {
         await agregarOrden(ctx, u.id, a.campanaId, { tipo: 'aviso', personajeId: a.personajeId, nota: String(a.texto).slice(0, 160) });
         return true;
       },
-      responderSalvacionMesa: async (_: unknown, a: { dmId: string; campanaId: string; personajeId: string; pedido: string; total: number; supero: boolean; dano: number; condicion?: string | null; salv?: string | null; cd?: number | null } & Extras, ctx: Contexto) => {
+      responderSalvacionMesa: async (_: unknown, a: { dmId: string; campanaId: string; personajeId: string; pedido: string; total: number; supero: boolean; dano: number; condicion?: string | null; salv?: string | null; cd?: number | null; evito?: boolean | null } & Extras, ctx: Contexto) => {
         await exigirUnido(ctx, a);
         if (!/^[\w-]{1,60}$/.test(a.pedido) || !Number.isInteger(a.total) || Math.abs(a.total) > 99 || !Number.isInteger(a.dano) || a.dano < 0 || a.dano > 999) throw new GraphQLError('Esa respuesta no es válida.');
         const [p] = await ctx.db.select({ n: personajes.nombre }).from(personajes).where(and(eq(personajes.usuarioId, requiereUsuario(ctx).id), eq(personajes.id, a.personajeId))).limit(1);
-        const item = { id: randomUUID(), pedido: a.pedido, pid: a.personajeId, de: p?.n || 'Un jugador', total: a.total, supero: !!a.supero, dano: a.dano, condicion: a.condicion ? String(a.condicion).slice(0, 40) : null, ts: new Date().toISOString(), ...extrasGolpe({ ...a, tipoDano: null }),
+        const item = { id: randomUUID(), pedido: a.pedido, pid: a.personajeId, de: p?.n || 'Un jugador', total: a.total, supero: !!a.supero, dano: a.dano, condicion: a.condicion ? String(a.condicion).slice(0, 40) : null, ts: new Date().toISOString(), ...extrasGolpe({ ...a, tipoDano: null }), ...(a.evito ? { evito: true } : {}),
           ...(a.repite && a.salv && /^(fue|des|con|int|sab|car)$/i.test(a.salv) && Number.isInteger(a.cd) && a.cd! > 0 && a.cd! <= 40 ? { salv: a.salv.toLowerCase(), cd: a.cd } : {}) };
         const lista = sql`coalesce(${campanas.combateVivo}->'respuestas', '[]'::jsonb)`;
         await ctx.db.update(campanas).set({

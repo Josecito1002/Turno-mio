@@ -12,7 +12,7 @@ import { esc, norm, richT, sign } from '@/shared/utils/texto';
 import { moverPool, setVal } from '../../acciones';
 import { resumen } from '../../domain/modelo';
 import { combateMesa, enviarGolpeMesa, gastarAccionMesa, type CombateVivo, type EconomiaRonda, type TipoAccionRonda } from '@/features/mesa/api';
-import { aplicarOrdenes, avisoGrande, fijarCondicionesMias, pedirConcentracion } from './ordenes-dm';
+import { aplicarOrdenes, avisoGrande, avisosGrandes, fijarCondicionesMias, fijarReaccion, pedirConcentracion } from './ordenes-dm';
 import { incapacidad } from '@/features/mesa/domain/condiciones';
 import { INCAPACITANTES, terminarConcentracion } from './concentracion';
 import { EFECTO_CONDICION } from '@/features/mesa/domain/condiciones';
@@ -453,6 +453,12 @@ export function ModoCombate({ c }: { c: any }) {
     else if (pgActual <= 0) void terminarConcentracion({ dmId, campanaId, personajeId }, 'caíste a 0 PG');
     else if (conc.hasta && rondasRestantes(conc.hasta, viv) == null) { setVal('concentracion', null); avisar(`Se acabó ${conc.nombre}.`); }
   }, [viv, c.pj.concentracion, incapacitado, pgActual, dmId, campanaId, personajeId]);
+
+  // Desde un aviso (daño o salvación) se puede ir a usar la reacción antes de que se aplique: el aviso vuelve al cerrar el menú
+  const reaccionLibre = !eco.reaccion && !incap;
+  useEffect(() => { fijarReaccion(() => { setElegido(null); setAbierto('reaccion'); }, reaccionLibre); }, [reaccionLibre]);
+  useEffect(() => () => { fijarReaccion(null, true); avisosGrandes.reanudar(); }, []);
+  useEffect(() => { if (!abierto && !uso) avisosGrandes.reanudar(); }, [abierto, uso]);
 
   const gastar = (t: TipoAccionRonda, gastado: boolean) => {
     toques.current[t] = Date.now();

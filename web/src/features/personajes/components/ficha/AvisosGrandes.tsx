@@ -9,7 +9,7 @@ import { modStr, norm } from '@/shared/utils/texto';
 import { AB } from '@/features/reglas/data/caracteristicas';
 import { CampoTirada, totalTirada } from '@/features/dados/components/CampoTirada';
 import { responderSalvacionMesa } from '@/features/mesa/api';
-import { aplicarEfecto, avisosGrandes, condicionesMias, type AvisoGrande } from './ordenes-dm';
+import { aplicarEfecto, avisosGrandes, condicionesMias, confirmarDano, reaccionesALaSalvacion, type AvisoGrande } from './ordenes-dm';
 import { fallaSola } from '@/features/mesa/domain/condiciones';
 import { setVal } from '../../acciones';
 import { textoDuracion } from '@/features/mesa/domain/duracion';
@@ -49,8 +49,58 @@ export function AvisosGrandes() {
   );
 }
 
+/** Las reacciones que sirven ahora y el botón para ir a usarla antes de seguir (el aviso vuelve al terminar). */
+function Reaccionar({ reacciones, antes }: { reacciones: { nombre: string; texto: string }[]; antes: string }) {
+  const puede = avisosGrandes.puedeReaccionar();
+  if (!reacciones.length && !puede) return null;
+  return (
+    <div className="rounded-2xl bg-surface p-4 ring-1 ring-adi">
+      <p className="m-0 font-bold text-adi"><Simbolo n="bolt" /> {reacciones.length ? `${antes}, puedes reaccionar con:` : `${antes}, puedes usar tu reacción.`}</p>
+      {reacciones.length > 0 && <ul className="m-0 mt-2 grid list-none gap-2 p-0">
+        {reacciones.map(r => <li key={r.nombre}><b>{r.nombre}</b><span className="block text-sm text-muted">{r.texto}</span></li>)}
+      </ul>}
+      {puede
+        ? <Boton className="mt-3 min-h-12 w-full" onClick={() => avisosGrandes.reaccionar()}><Simbolo n="bolt" /> Usar mi reacción primero</Boton>
+        : <p className="m-0 mt-2 text-sm text-muted">Úsala desde el botón Reacción de tu pantalla de combate.</p>}
+      {puede && <p className="m-0 mt-2 text-sm text-muted">Al terminar vuelves aquí.</p>}
+    </div>
+  );
+}
+
+/** Daño que todavía no se restó: primero puedes reaccionar, y después confirmas cuánto recibes (todo, otra cantidad o nada). */
+function DanoPendiente({ a }: { a: Extract<AvisoGrande, { tipo: 'efecto' }> }) {
+  const o = a.o, n = Math.max(0, Math.round(o.dano || 0));
+  const [valor, setValor] = useState(String(n));
+  const dano = Math.max(0, Math.round(+valor || 0));
+  return (
+    <>
+      <div className="rounded-3xl bg-acc/20 p-6 text-center">
+        <Simbolo n="heart_broken" className="text-6xl text-acc" />
+        <h2 className="m-0 mt-2 font-serif text-4xl font-extrabold">Te van a hacer {n} de daño{o.tipoDano ? ` ${o.tipoDano}` : ''}</h2>
+        <p className="m-0 mt-2 text-lg">{o.de || 'Alguien'}{o.nota ? `: ${o.nota}` : ''}</p>
+        {o.condicion ? <p className="m-0 mt-2 text-lg font-bold">Y quedas {o.condicion}</p> : null}
+        <p className="m-0 mt-2 text-sm text-muted">Todavía no se restó de tus PG.</p>
+      </div>
+      <Reaccionar reacciones={a.reacciones} antes="Antes de recibirlo" />
+      <div className="grid gap-2 rounded-2xl bg-surface p-4">
+        <label className="font-bold" htmlFor={`dano-${a.id}`}>Daño que recibes</label>
+        <div className="flex flex-wrap gap-2">
+          <input id={`dano-${a.id}`} type="number" inputMode="numeric" min={0} value={valor} onChange={e => setValor(e.target.value)} className={cx(claseCampo, 'w-28!')} />
+          {n > 1 && <Boton onClick={() => setValor(String(Math.floor(n / 2)))}>La mitad ({Math.floor(n / 2)})</Boton>}
+          {dano !== n && <Boton variante="fantasma" onClick={() => setValor(String(n))}>Todo ({n})</Boton>}
+        </div>
+        <p className="m-0 text-sm text-muted">Cámbialo si tu reacción lo redujo (Esquiva asombrosa: la mitad).</p>
+      </div>
+      <Boton variante="primario" className="min-h-14 text-lg" onClick={() => confirmarDano(a, dano)}>{dano ? `Recibir ${dano} de daño` : 'No recibo daño'}</Boton>
+      {/* Un golpe que falla por la reacción (Escudo) no hace nada, tampoco la salvación que traía */}
+      {!o.salv && <Boton className="min-h-12" onClick={() => confirmarDano(a, 0, true)}>Mi reacción hizo fallar el ataque</Boton>}
+    </>
+  );
+}
+
 function Efecto({ a }: { a: Extract<AvisoGrande, { tipo: 'efecto' }> }) {
   const o = a.o, n = Math.max(0, Math.round(o.dano || 0));
+  if (a.pendiente) return <DanoPendiente key={a.id} a={a} />;
   return (
     <>
       <div className={cx('rounded-3xl p-6 text-center', o.cura ? 'bg-pas/20' : n ? 'bg-acc/20' : 'bg-soft')}>
@@ -118,6 +168,7 @@ function Aviso({ a }: { a: Extract<AvisoGrande, { tipo: 'aviso' }> }) {
 function Salvacion({ a }: { a: Extract<AvisoGrande, { tipo: 'salvacion' }> }) {
   const o = a.o, salv = String(o.salv || '').toLowerCase(), cd = o.cd || 10, dano = Math.max(0, o.dano || 0);
   const mod = S.c?.saves?.[salv] ?? 0;
+  const reacciones = reaccionesALaSalvacion(S.c, dano, o.tipoDano);
   const bendicion = (S.pj?.efectos || []).some((e: any) => /^(bendicion|bendecid)/.test(norm(e.nombre || '')));
   const [nat, setNat] = useState(''), [bend, setBend] = useState(''), [ocupado, setOcupado] = useState(false);
   const expr = `1d20${modStr(mod)}`;
@@ -136,7 +187,8 @@ function Salvacion({ a }: { a: Extract<AvisoGrande, { tipo: 'salvacion' }> }) {
     if (libra) {
       if (supera) setVal('efectos', (S.pj?.efectos || []).filter((x: any) => x.nombre !== cond));
       avisar(supera ? `Te libras de ${cond}.` : `Sigues ${cond}: vuelves a tirar al final de tu próximo turno.`);
-    } else if (final || cond) aplicarEfecto({ ...o, tipo: 'efecto', dano: final, condicion: cond }, false, a.mesa);
+    // El daño espera a que confirmes, por si todavía quieres reaccionar (si ya gastaste la reacción, entra al momento)
+    } else if (final || cond) aplicarEfecto({ ...o, id: `${o.id}-dano`, tipo: 'efecto', dano: final, condicion: cond }, !!final && avisosGrandes.quedaReaccion(), a.mesa);
     else avisar(`Superaste la salvación de ${nombreAb(salv)}.`);
     try {
       const dura = cond && !libra && o.rondas ? { rondas: o.rondas, ...(o.hasta ? { hastaRonda: o.hasta.ronda, hastaK: o.hasta.k } : {}), ...(o.conc ? { conc: o.conc } : {}) } : {};
@@ -153,7 +205,9 @@ function Salvacion({ a }: { a: Extract<AvisoGrande, { tipo: 'salvacion' }> }) {
         <h2 className="m-0 font-serif text-xl font-extrabold"><Simbolo n="shield" className="text-adi" /> {libra ? `Termina tu turno: repite la salvación de ${nombreAb(salv)} CD ${cd}` : `Debes hacer una salvación de ${nombreAb(salv)} CD ${cd}`}</h2>
         <p className="m-0 mt-1">({o.nota && !libra ? `${o.nota}, ` : ''}{o.de || 'tu DM'}){' '}
           <span className="text-muted">{siFalla ? `Si fallas, ${siFalla}; si` : 'Si'} la superas, {siSupera}.{o.repite && !libra && o.condicion ? ` Si quedas ${o.condicion}, repites la salvación al final de cada turno tuyo.` : ''}</span></p>
+        {!libra && dano > 0 && avisosGrandes.quedaReaccion() && <p className="m-0 mt-1 text-sm text-muted">El daño no se resta hasta que lo confirmes: si fallas, todavía puedes reaccionar antes.</p>}
       </div>
+      {!libra && <Reaccionar reacciones={reacciones} antes="Antes de tirar" />}
       {sola ? (
         <div className="grid gap-3">
           <p className="m-0 font-bold text-acc">Estás {sola}: la fallas sin tirar.</p>
