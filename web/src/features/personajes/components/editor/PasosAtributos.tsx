@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { S, render } from '@/app-shell/estado';
 import { avisar } from '@/shared/ui/avisos';
 import { norm, sign } from '@/shared/utils/texto';
-import { Aviso, Boton, Campo, Casilla as CasillaKit, Dialogo, Fila, Lista, Nota, Plegable, Seccion, Segmentado, Tarjeta, cx, foco } from '@/shared/ui/kit';
+import { Aviso, Boton, Campo, Casilla as CasillaKit, Dialogo, Fila, Lista, Nota, Plegable, Seccion, Segmentado, Simbolo, Tarjeta, cx, foco } from '@/shared/ui/kit';
 import { Desplegable } from '@/shared/ui/desplegable';
 import { AB, ALL_AB, COMPRA, ESTANDAR, SKILLS, TIPOS, abInfo } from '@/features/reglas/data/caracteristicas';
 import { ARMAS, ARMADURAS, MAESTRIAS } from '@/features/reglas/data/equipo';
@@ -21,6 +21,8 @@ import { quitarEquipoClase, savePj, tirarPg, tomarEquipoClase } from '../../acci
 import { AbSel, CampoArea, CampoNumero, CampoTexto, Selector } from './campos';
 import { EquipoTrasfondo } from './PasosOrigen';
 import { ElegirElecciones } from './InfoSubclase';
+
+const ICONO_AB: Record<string, string> = { fue: 'fitness_center', des: 'bolt', con: 'shield', int: 'auto_stories', sab: 'visibility', car: 'theater_comedy' };
 
 /* ---------- Características ---------- */
 /* Las acciones cambian el personaje fuera del componente: el componente solo lee y las llama */
@@ -146,6 +148,8 @@ export function PasoStats({ pj, c }: { pj: any; c: any }) {
   const faltan = 6 - g.valores.length;
   const gasto = AB.reduce((s, [k]) => s + (COMPRA[g.compra[k]] || 0), 0);
   const nombreAb = (k: string) => AB.find(a => a[0] === k)![3];
+  // Las dos características más importantes de la clase (según la sugerencia), marcadas como «Clave»
+  const claves: string[] = pj.clase ? (sugerenciaDe(pj.clase)?.orden || []).slice(0, 2) : [];
   return (
     <>
       <Seccion titulo="Cómo generas las características">
@@ -219,16 +223,40 @@ export function PasoStats({ pj, c }: { pj: any; c: any }) {
         )}
         {g.metodo === 'compra' && (
           <>
-            <p aria-live="polite" className="my-3">Te quedan <b>{27 - gasto}</b> de 27 puntos. Cada característica va de 8 a 15.</p>
-            <Lista>{AB.map(([k, , , nm]) => (
-              <Fila key={k}><span>{nm}</span>
-                <span className="flex items-center gap-2">
-                  <Boton tamano="sm" onClick={() => comprar(g, k, -1)} disabled={g.compra[k] <= 8} aria-label={`Bajar ${nm}`}>−</Boton>
-                  <b className="w-8 text-center font-serif text-xl" aria-live="polite">{g.compra[k]}</b>
-                  <Boton tamano="sm" onClick={() => comprar(g, k, 1)} disabled={g.compra[k] >= 15} aria-label={`Subir ${nm}`}>+</Boton>
-                </span>
-              </Fila>
-            ))}</Lista>
+            <div className="my-3 flex items-center gap-4 rounded-xl bg-surface-container px-4 py-3">
+              <div className="flex-1">
+                <p className="m-0 text-label-caps uppercase tracking-wider text-outline">Puntos</p>
+                <p className="m-0 text-body-md text-on-surface-variant">Cada punto sube una característica. Van de 8 a 15.</p>
+              </div>
+              <p aria-live="polite" className="m-0 text-right leading-tight">
+                <b className={cx('font-serif text-[2rem]', 27 - gasto > 0 ? 'text-primary' : 'text-pas')}>{27 - gasto}</b>
+                <span className="text-outline"> / 27</span><br /><span className="text-body-sm text-on-surface-variant">te quedan</span>
+              </p>
+            </div>
+            <ul className="m-0 flex list-none flex-col gap-2 p-0">{AB.map(([k, , ab, nm]) => {
+              const clave = claves.includes(k);
+              return (
+                <li key={k} className={cx('flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl bg-surface-container px-3 py-2 sm:px-4', clave ? 'ring-1 ring-outline-variant' : '')}>
+                  <span className="flex min-w-0 flex-1 items-center gap-2">
+                    <Simbolo n={ICONO_AB[k]} className="text-headline-sm text-secondary" />
+                    <span className="font-semibold">{nm}</span>
+                    {clave && <span className="rounded-xs bg-surface-container-lowest px-1.5 text-label-caps uppercase tracking-wider text-primary">Clave</span>}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <button type="button" onClick={() => comprar(g, k, -1)} disabled={g.compra[k] <= 8} aria-label={`Bajar ${nm}`}
+                      className={cx('grid size-10 cursor-pointer place-items-center rounded-lg bg-surface-container-high text-headline-sm font-bold disabled:cursor-default disabled:opacity-30', foco)}>−</button>
+                    <b className="w-7 text-center text-body-lg" aria-live="polite">{g.compra[k]}</b>
+                    <button type="button" onClick={() => comprar(g, k, 1)} disabled={g.compra[k] >= 15} aria-label={`Subir ${nm}`}
+                      className={cx('grid size-10 cursor-pointer place-items-center rounded-lg bg-surface-container-high text-headline-sm font-bold disabled:cursor-default disabled:opacity-30', foco)}>+</button>
+                  </span>
+                  <span className="flex w-28 items-baseline justify-end gap-2" aria-label={`${ab}: total ${c.sc[k]}, modificador ${sign(c.m[k])}`}>
+                    {c.bono[k] ? <span className="text-body-sm font-bold text-pas">+{c.bono[k]}</span> : null}
+                    <b className="font-serif text-headline-md">{c.sc[k]}</b>
+                    <b className="w-8 text-right text-body-lg text-secondary">{sign(c.m[k])}</b>
+                  </span>
+                </li>
+              );
+            })}</ul>
           </>
         )}
         {g.metodo === 'manual' && (
@@ -237,10 +265,15 @@ export function PasoStats({ pj, c }: { pj: any; c: any }) {
           </div>
         )}
       </Seccion>
-      <Seccion titulo="Resultado">
-        <Lista>{AB.map(([k, , , nm]) => (
-          <Fila key={k}><span>{nm}</span><span>{c.base[k]}{c.bono[k] ? ` + ${c.bono[k]}` : ''} = <b className="font-serif text-lg">{c.sc[k]}</b> ({sign(c.m[k])})</span></Fila>
-        ))}</Lista>
+      <Seccion titulo="Así queda">
+        <ul className="m-0 grid list-none grid-cols-3 gap-2 p-0 sm:grid-cols-6">{AB.map(([k, , ab, nm]) => (
+          <li key={k} className="flex flex-col items-center rounded-xl bg-surface-container px-2 py-2 text-center" aria-label={`${nm}: ${c.sc[k]}, modificador ${sign(c.m[k])}`}>
+            <span className="flex items-center gap-1 text-label-caps uppercase tracking-wider text-outline"><Simbolo n={ICONO_AB[k]} className="text-body-md text-secondary" />{ab}</span>
+            <b className="font-serif text-[1.75rem] leading-tight">{c.sc[k]}</b>
+            <b className={cx('text-body-lg', claves.includes(k) ? 'text-primary' : 'text-secondary')}>{sign(c.m[k])}</b>
+            <span className="text-body-sm text-outline">{c.base[k]}{c.bono[k] ? ` + ${c.bono[k]}` : ''}</span>
+          </li>
+        ))}</ul>
       </Seccion>
       {c.asiLv.length > 0 && (
         <Seccion titulo="Mejoras por nivel" descripcion="+2 a una característica, +1 a dos, o una dote.">
@@ -395,7 +428,17 @@ export function PasoHabs({ pj, c }: { pj: any; c: any }) {
   const pn = periciaN(pj.clase, c.lvl);
   return (
     <>
-      <p className="mt-2">Del trasfondo ya tienes: <b>{c.bgHabs.join(' y ') || '—'}</b>.</p>
+      <div className="mb-2 grid gap-2 sm:grid-cols-2">
+        <div className={cx('flex items-center gap-3 rounded-xl bg-surface-container px-4 py-3 ring-1', pj.habClase.length < C.habN ? 'ring-warn' : 'ring-pas/60')}>
+          <Simbolo n="swords" className="text-headline-md text-primary" />
+          <span className="flex-1 leading-tight"><b>Elige {C.habN} de {C.n.toLowerCase()}</b><br /><span className="text-body-sm text-on-surface-variant">De la lista de tu clase</span></span>
+          <b aria-live="polite" className={cx('font-serif text-headline-md', pj.habClase.length < C.habN ? 'text-warn' : 'text-pas')}>{pj.habClase.length}/{C.habN}</b>
+        </div>
+        <div className="flex items-center gap-3 rounded-xl bg-surface-container px-4 py-3">
+          <Simbolo n="lock" className="text-headline-md text-outline" />
+          <span className="flex-1 leading-tight"><b>Ya vienen dadas</b><br /><span className="text-body-sm text-on-surface-variant">Del trasfondo: {c.bgHabs.join(' y ') || '—'}</span></span>
+        </div>
+      </div>
       <Seccion titulo={`Elige ${C.habN} de ${C.n.toLowerCase()}`} descripcion="Solo aparecen las habilidades de la lista de tu clase.">
         <Checks field="habClase" list={lista} sel={pj.habClase} max={C.habN} disabled={bg} etiqueta={`Habilidades de ${C.n}`} />
       </Seccion>

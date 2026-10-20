@@ -11,8 +11,8 @@ import { TIEMPO_N } from '@/features/reglas/data/conjuros';
 import { conjuroDeLaLista, listaDeConjuros } from '@/features/reglas/domain/restricciones';
 import { FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { todosConjuros } from '@/features/biblioteca/domain/biblioteca';
-import { confirmarNoLanzador, leerRasgo, savePj } from '../../acciones';
-import { CampoArea, CampoTexto, Selector } from './campos';
+import { confirmarNoLanzador, leerRasgo, savePj, setVal } from '../../acciones';
+import { CampoArea, CampoTexto } from './campos';
 
 function quitarConjuro(i: number) { S.pj.conjuros.splice(i, 1); savePj(); render(); }
 
@@ -220,9 +220,21 @@ export function PasoDetalles({ pj }: { pj: any }) {
           ? <Campo etiqueta="Jugador" ayuda="Es tu nombre de jugador; se cambia en el menú, en Cuenta."><input value={S.usuario.nombre} readOnly className={claseCampo} /></Campo>
           : <Campo etiqueta="Jugador"><CampoTexto path="jugador" value={pj.jugador} autoComplete="off" /></Campo>}
       </div>
-      <Campo etiqueta="Alineamiento" className="max-w-sm">
-        <Selector path="alineamiento" value={pj.alineamiento}><option value="">Elige…</option>{ALIN_OPC.map(a => <option key={a} value={a}>{a}</option>)}</Selector>
-      </Campo>
+      <fieldset className="m-0 border-0 p-0">
+        <legend className="mb-1.5 font-bold">Alineamiento</legend>
+        <div role="radiogroup" aria-label="Alineamiento" className="grid max-w-xl grid-cols-3 gap-1.5">
+          {ALIN_OPC.map(a => {
+            const on = pj.alineamiento === a;
+            return (
+              <button key={a} type="button" role="radio" aria-checked={on} onClick={() => setVal('alineamiento', on ? '' : a)}
+                className={cx('min-h-11 cursor-pointer rounded-lg bg-surface-container-lowest px-2 text-body-md transition-colors', foco,
+                  on ? 'font-semibold text-on-surface ring-2 ring-primary' : 'text-on-surface-variant ring-1 ring-surface-container-highest hover:text-on-surface')}>
+                {a}
+              </button>
+            );
+          })}
+        </div>
+      </fieldset>
       <Campo etiqueta="Historia"><CampoArea path="historia" value={pj.historia} rows={6} /></Campo>
     </div>
   );
