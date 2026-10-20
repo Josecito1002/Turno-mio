@@ -295,7 +295,9 @@ ${fichas.length ? CSS_FICHAS : ''}
 .reloj { display: flex; gap: 6px; margin: .2cm 0 .3cm; }
 .reloj span { flex: 1; height: 1.4cm; border: 2px solid #1f1a14; border-radius: 4px; padding: 2px 4px; font-weight: bold; font-size: 11px; }
 @media print { body { background: none; } .barra { display: none; } main { padding: 0; max-width: none; } h2.parte { margin-top: 0; }
-  .mapa { margin: 0; } }
+  .mapa { margin: 0; }
+  /* lo primero que se imprime no salta de hoja: si no, algunos navegadores sacan una hoja en blanco al principio */
+  main > :first-child { break-before: auto; page-break-before: auto; } }
 </style></head><body>
 <div class="barra"><span>${html(titulo)}: ${[
     docs.length && `${docs.length} documento${docs.length === 1 ? '' : 's'} para recortar`,
