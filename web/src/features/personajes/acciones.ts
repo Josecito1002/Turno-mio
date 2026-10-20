@@ -12,7 +12,7 @@ import { kitClase } from '@/features/reglas/data/equipo-clases';
 import type { OpcionesTirada, Resultado } from '@/features/dados/domain/dados';
 import { nuevoPj, reparar, resumen, asegurarTiradas } from './domain/modelo';
 import { compute, puedeLanzar } from './domain/calculo';
-import { pendientesAlSubir } from './domain/pendientes';
+import { faltaParaSubir, pendientesAlSubir } from './domain/pendientes';
 import { snapshot } from './domain/importar-personaje';
 import { manosDe, aDosManos, puedeIrEnLaOtra } from './domain/manos';
 import { armadurasDe, bolsaDe, guardarBolsa, juntar, nuevaClave, pagar, pasoEquipoEnEditor } from './domain/inventario';
@@ -190,6 +190,13 @@ export function moverRasgo(k: string, t: string) {
 
 /* ---- Niveles ---- */
 export function abrirSubida() { if (S.pj.nivel < 20) { S.subida = { id: S.pj.id, fase: 'elegir' }; render(); } }
+/** Botón Subir de nivel: si quedan elecciones pendientes, lo dice y abre Revisar en lugar de subir. */
+export function pedirSubida() {
+  const falta = faltaParaSubir(compute(S.pj));
+  if (!falta.length) return abrirSubida();
+  avisar(`No puedes subir de nivel: tienes elecciones pendientes (${falta.map((a: any) => a.t.toLowerCase()).join(', ')}). Míralas en Revisar.`, 'aviso');
+  S.view = 'ficha'; S.dialogo = 'revisar'; render();
+}
 export function confirmarSubida() {
   const pj = S.pj, antes = compute(pj), L = pj.nivel + 1;
   const copia = structuredClone(pj); // para que Deshacer también quite lo que se elija en el diálogo
@@ -311,10 +318,16 @@ export function tomarEquipoTrasfondo(op: 'A' | 'B') {
   avisar(op === 'A' ? `Kit de ${T?.n || 'trasfondo'} agregado: armas, inventario y ${kit.oro} po.` : `${kit.alternativa} po agregadas.`);
 }
 
+/** Vuelve a la lista de personajes desde la hoja. */
+export function volverALista() { S.view = 'home'; S.dialogo = ''; S.combateMesa = null; S.combateHoja = false; render(); irArriba(); }
+export function editarPj() { S.dialogo = ''; S.view = 'editor'; S.step = S.step || 'especie'; render(); irArriba(); }
+/** Abre la pestaña Inventario de la hoja (antes era un diálogo). */
+export function verInventario() { S.view = 'ficha'; S.dialogo = ''; S.tab = 'inventario'; render(); }
+
 export function irAPaso(paso: string) {
   S.subida = null;
   // Pasada la creación, el equipo está en la pestaña Equipo de la hoja
-  if (paso === 'equipo' && S.pj && !pasoEquipoEnEditor(S.pj, compute(S.pj), kitClase, kitTrasfondo)) { S.view = 'ficha'; S.dialogo = 'equipo'; }
+  if (paso === 'equipo' && S.pj && !pasoEquipoEnEditor(S.pj, compute(S.pj), kitClase, kitTrasfondo)) { S.view = 'ficha'; S.dialogo = ''; S.tab = 'inventario'; }
   else { S.view = 'editor'; S.step = paso; S.dialogo = ''; }
   render(); irArriba();
 }

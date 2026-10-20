@@ -12,7 +12,7 @@ import { EtiquetaTipo, FormaTipo } from '@/features/reglas/components/TipoAccion
 import { BotonTirada, TextoConDados } from '@/features/dados/components/BotonTirada';
 import { useDados } from '@/features/dados/components/Bandeja';
 import { Entrada, LanzarConjuro, Mover, datosConjuro } from '../piezas';
-import { descansar, fijarPool, irAPaso, moverPool, setVal, tocarPip } from '../../acciones';
+import { descansar, editarPj, fijarPool, irAPaso, moverPool, pedirSubida, setVal, tocarPip, volverALista } from '../../acciones';
 import { desglose } from '../../domain/calculo';
 import { usosDeRecurso, type UsoRecurso } from '../../domain/usos-recurso';
 import { ataquesPorAccion, extrasAtaque } from '../../domain/lanzar';
@@ -452,24 +452,18 @@ function Competencias({ c }: { c: any }) {
           ))}
         </dl>
       </div>
-      {pj.historia && (
-        <div className="rounded-lg bg-surface-container-low p-3 shadow-lg">
-          <Rotulo icono="history_edu">Historia</Rotulo>
-          <p className="m-0 text-body-sm text-on-surface-variant" dangerouslySetInnerHTML={{ __html: richT(pj.historia) }} />
-        </div>
-      )}
     </>
   );
 }
 
 /* ===================== Columna central ===================== */
 /** Recursos de clase y rasgos (Oleada de Acción, Tomar Aliento, Ki…); los PG y los espacios de conjuro van en su tarjeta. */
-export function RecursosClase({ c }: { c: any }) {
+export function RecursosClase({ c, columna }: { c: any; columna?: boolean }) {
   const u = c.pj.used || {}, lectura = useLectura();
   const rs = c.recursos.filter((r: any) => r.id !== 'pg' && !/^slot\d/.test(r.id));
   if (!rs.length) return null;
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div className={cx('grid grid-cols-1 gap-3', !columna && 'sm:grid-cols-2')}>
       {rs.map((r: any, i: number) => {
         const used = Math.min(u[r.id] || 0, r.max), left = r.max - used, azul = i % 2 === 1;
         const nota = r.nota || (r.reset === 'corto' ? 'Vuelve con descanso corto' : 'Vuelve con descanso largo');
@@ -900,6 +894,111 @@ function Avisos({ c }: { c: any }) {
   );
 }
 
+/* ===================== Barra de la hoja y pestañas ===================== */
+const PESTANAS: [string, string][] = [['acciones', 'Acciones'], ['conjuros', 'Conjuros'], ['habilidades', 'Habilidades'], ['rasgos', 'Rasgos'], ['inventario', 'Inventario'], ['notas', 'Notas']];
+
+/** Volver a la lista a la izquierda; Descansar, Editar y Subir de nivel a la derecha. */
+function BarraHoja({ c }: { c: any }) {
+  const boton = cx('min-h-11 cursor-pointer whitespace-nowrap rounded-lg px-4 font-semibold transition-colors', foco);
+  return (
+    <div className="mx-auto mb-5 flex max-w-[1600px] flex-wrap items-center justify-between gap-3">
+      <button type="button" onClick={volverALista} className={cx('flex min-h-11 cursor-pointer items-center gap-1 rounded text-body-md text-on-surface-variant hover:text-on-surface', foco)}>
+        <span aria-hidden="true">←</span> Tus personajes
+      </button>
+      <div className="flex flex-wrap items-center gap-2">
+        <Descansar clase={cx(boton, 'text-on-surface ring-1 ring-outline-variant hover:bg-surface-container-high')} />
+        <button type="button" onClick={editarPj} className={cx(boton, 'text-on-surface ring-1 ring-outline-variant hover:bg-surface-container-high')}>Editar</button>
+        {c.C && c.lvl < 20 && (
+          <button type="button" onClick={pedirSubida} className={cx(boton, 'bg-primary text-on-primary hover:bg-primary-fixed-dim')}>Subir a nivel {c.lvl + 1}</button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Botón Descansar: abre las dos opciones (corto y largo). */
+function Descansar({ clase }: { clase: string }) {
+  const [abierto, setAbierto] = useState(false);
+  const caja = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!abierto) return;
+    const fuera = (e: MouseEvent) => { if (!caja.current?.contains(e.target as Node)) setAbierto(false); };
+    const tecla = (e: KeyboardEvent) => { if (e.key === 'Escape') setAbierto(false); };
+    document.addEventListener('mousedown', fuera); document.addEventListener('keydown', tecla);
+    return () => { document.removeEventListener('mousedown', fuera); document.removeEventListener('keydown', tecla); };
+  }, [abierto]);
+  const opcion = (tipo: 'corto' | 'largo', icono: string, texto: string, nota: string) => (
+    <button type="button" role="menuitem" onClick={() => { setAbierto(false); descansar(tipo); }}
+      className={cx('flex w-full cursor-pointer items-start gap-3 rounded px-3 py-2 text-left hover:bg-surface-container-high', foco)}>
+      <Simbolo n={icono} className="mt-0.5 text-headline-sm text-primary" />
+      <span className="flex flex-col"><b className="text-body-md text-on-surface">{texto}</b><span className="text-body-sm text-on-surface-variant">{nota}</span></span>
+    </button>
+  );
+  return (
+    <div ref={caja} className="relative">
+      <button type="button" aria-haspopup="menu" aria-expanded={abierto} onClick={() => setAbierto(a => !a)} className={clase}>Descansar</button>
+      {abierto && (
+        <div role="menu" className="absolute right-0 top-full z-20 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-lg bg-surface-container p-1 shadow-xl ring-1 ring-outline-variant">
+          {opcion('corto', 'hourglass_empty', 'Descanso corto', 'Recuperas lo que vuelve con descanso corto.')}
+          {opcion('largo', 'bedtime', 'Descanso largo', 'Recuperas PG, dados de golpe y todos los usos.')}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Pestañas subrayadas de la hoja (patrón ARIA: flechas, Inicio y Fin). */
+function PestanasHoja({ items, activa, onCambiar }: { items: [string, string][]; activa: string; onCambiar: (id: string) => void }) {
+  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const mover = (e: React.KeyboardEvent, i: number) => {
+    const n = items.length;
+    const j = e.key === 'ArrowRight' ? (i + 1) % n : e.key === 'ArrowLeft' ? (i - 1 + n) % n : e.key === 'Home' ? 0 : e.key === 'End' ? n - 1 : -1;
+    if (j < 0) return;
+    e.preventDefault(); onCambiar(items[j][0]); refs.current[j]?.focus();
+  };
+  return (
+    <div role="tablist" aria-label="Secciones de la hoja" className="mb-6 flex overflow-x-auto border-b border-outline-variant [scrollbar-width:none]">
+      {items.map(([id, texto], i) => {
+        const sel = id === activa;
+        return (
+          <button key={id} ref={el => { refs.current[i] = el; }} role="tab" type="button" id={`hoja-tab-${id}`} aria-selected={sel} aria-controls="hoja-panel"
+            tabIndex={sel ? 0 : -1} onClick={() => onCambiar(id)} onKeyDown={e => mover(e, i)}
+            className={cx('-mb-px min-h-12 shrink-0 cursor-pointer whitespace-nowrap border-b-2 px-4 text-body-lg transition-colors sm:px-6', foco,
+              sel ? 'border-primary font-semibold text-on-surface' : 'border-transparent text-on-surface-variant hover:text-on-surface')}>
+            {texto}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Notas libres del jugador y la historia del personaje (que se escribe en el editor). */
+function Notas({ c }: { c: any }) {
+  const pj = c.pj, lectura = useLectura();
+  return (
+    <div className="flex flex-col gap-5">
+      <section aria-labelledby="titulo-notas" className="rounded-lg bg-surface-container-low p-5 shadow-lg">
+        <h2 id="titulo-notas" className="m-0 mb-3 font-serif text-headline-md text-on-surface">Notas</h2>
+        {lectura ? (
+          pj.notas ? <p className="m-0 whitespace-pre-wrap text-body-md text-on-surface-variant">{pj.notas}</p> : <p className="m-0 text-body-md text-outline">Sin notas.</p>
+        ) : (
+          <textarea key={pj.id} defaultValue={pj.notas || ''} rows={10} aria-labelledby="titulo-notas"
+            placeholder="Pistas de la campaña, nombres, deudas, lo que quieras recordar…"
+            onBlur={e => { if (e.target.value !== (pj.notas || '')) setVal('notas', e.target.value); }}
+            className={cx('w-full resize-y rounded-lg bg-surface-container-lowest p-3 text-body-md text-on-surface ring-1 ring-outline-variant placeholder:text-outline', foco)} />
+        )}
+      </section>
+      {pj.historia && (
+        <section aria-labelledby="titulo-historia" className="rounded-lg bg-surface-container-low p-5 shadow-lg">
+          <h2 id="titulo-historia" className="m-0 mb-3 font-serif text-headline-md text-on-surface">Historia</h2>
+          <p className="m-0 text-body-md text-on-surface-variant" dangerouslySetInnerHTML={{ __html: richT(pj.historia) }} />
+        </section>
+      )}
+    </div>
+  );
+}
+
 /* ===================== Ficha ===================== */
 /** La hoja del personaje. Con `lectura`, la de un jugador vista desde la mesa del DM: todo visible, nada editable. */
 export function Ficha({ c, lectura = false }: { c: any; lectura?: boolean }) {
@@ -910,6 +1009,15 @@ export function Ficha({ c, lectura = false }: { c: any; lectura?: boolean }) {
     S.hojaLectura = c.pj;
     return () => { if (S.hojaLectura === c.pj) S.hojaLectura = null; };
   }, [lectura, c.pj]);
+  // Pestaña abierta: la del personaje propio se recuerda en S.tab (el menú y los avisos la cambian); la de solo lectura, aquí
+  const [tabLectura, setTabLectura] = useState('acciones');
+  const conMagia = !!(c.conjuros?.length || c.casterAb || c.recursos.some((r: any) => /^slot\d/.test(r.id)));
+  const conRasgos = c.entries.some((e: any) => e.t === 'pasiva');
+  const conRecursos = c.recursos.some((r: any) => r.id !== 'pg' && !/^slot\d/.test(r.id));
+  const pestanas = PESTANAS.filter(([id]) => id !== 'conjuros' || conMagia);
+  const pedida = lectura ? tabLectura : S.tab;
+  const tab = pestanas.some(([id]) => id === pedida) ? pedida : 'acciones';
+  const cambiarTab = (id: string) => { if (lectura) setTabLectura(id); else { S.tab = id; render(); } };
   return (
     <Lectura.Provider value={lectura}>
       {/* Al imprimir sale la hoja de papel en lugar de la interactiva */}
@@ -917,6 +1025,7 @@ export function Ficha({ c, lectura = false }: { c: any; lectura?: boolean }) {
       <div className="print:hidden">
       {/* Identidad y vitales */}
       <section aria-label="Personaje" className="w-full bg-surface-container-lowest px-4 py-5 lg:px-6">
+        {!lectura && <BarraHoja c={c} />}
         <div className="mx-auto flex max-w-[1600px] flex-col items-stretch justify-between gap-5 xl:flex-row">
           <Identidad c={c} />
           <Vitales c={c} />
@@ -925,34 +1034,40 @@ export function Ficha({ c, lectura = false }: { c: any; lectura?: boolean }) {
 
       <Caracteristicas c={c} />
 
-      {/* Tablero de 3 columnas */}
-      <div className="mx-auto w-full max-w-[1600px] px-4 py-8 lg:px-6">
+      {/* Pestañas de la hoja, con los recursos al lado */}
+      <div className="mx-auto w-full max-w-[1600px] px-4 py-6 lg:px-6">
+        <PestanasHoja items={pestanas} activa={tab} onCambiar={cambiarTab} />
         <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-12">
-          <div className="flex flex-col gap-5 lg:col-span-3">
-            <SentidosPasivos c={c} />
-            <Habilidades c={c} />
-            <Competencias c={c} />
-            {lectura && <EquipoLectura c={c} />}
+          <div role="tabpanel" id="hoja-panel" aria-labelledby={`hoja-tab-${tab}`} className={cx('flex min-w-0 flex-col gap-5', conRecursos ? 'lg:col-span-8' : 'lg:col-span-12')}>
+            {tab === 'acciones' && (
+              <>
+                <Arsenal c={c} />
+                <OtrasAcciones c={c} />
+                <TiradorRapido />
+              </>
+            )}
+            {tab === 'conjuros' && <Magia c={c} />}
+            {tab === 'habilidades' && (
+              <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2">
+                <div className="flex flex-col gap-5"><Habilidades c={c} /></div>
+                <div className="flex flex-col gap-5"><SentidosPasivos c={c} /><Competencias c={c} /></div>
+              </div>
+            )}
+            {tab === 'rasgos' && (conRasgos ? <Rasgos c={c} /> : <p className="m-0 text-body-md text-on-surface-variant">Este personaje todavía no tiene rasgos pasivos.</p>)}
+            {tab === 'inventario' && (lectura ? <EquipoLectura c={c} /> : <section aria-label="Inventario" className="rounded-lg bg-surface-container-low p-5 shadow-lg"><Inventario c={c} /></section>)}
+            {tab === 'notas' && <Notas c={c} />}
           </div>
-          <div className="flex flex-col gap-5 lg:col-span-6">
-            <RecursosClase c={c} />
-            <Arsenal c={c} />
-            <Magia c={c} />
-            <TiradorRapido />
-            <OtrasAcciones c={c} />
-          </div>
-          <div className="flex flex-col gap-5 lg:col-span-3">
-            <Rasgos c={c} />
-          </div>
+          {conRecursos && (
+            <aside aria-label="Recursos" className="flex flex-col gap-5 lg:col-span-4">
+              <RecursosClase c={c} columna />
+            </aside>
+          )}
         </div>
       </div>
       </div>
 
       {!lectura && (
         <>
-          <Dialogo abierto={S.dialogo === 'equipo'} onCerrar={cerrarDialogo} titulo="Equipo" ancho="lg">
-            <Inventario c={c} />
-          </Dialogo>
           <Dialogo abierto={S.dialogo === 'revisar'} onCerrar={cerrarDialogo} titulo="Revisar">
             <Avisos c={c} />
           </Dialogo>
