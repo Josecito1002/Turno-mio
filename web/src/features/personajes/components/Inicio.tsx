@@ -5,6 +5,8 @@ import { Boton, EncabezadoPagina, Simbolo, Tarjeta, cx, foco } from '@/shared/ui
 import { FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { abrir, borrarPj, nuevo } from '../acciones';
 import { borrarVarios } from '../acciones-compartir';
+import { almacen } from '@/app-shell/almacen';
+import { vitalesDe, type Vitales } from '../domain/vitales';
 
 const ECONOMIA: [string, string, string][] = [
   ['accion', 'Acción', 'Una por turno: atacar, lanzar un conjuro, correr.'],
@@ -77,6 +79,7 @@ export function Inicio() {
                 <span className="mt-0.5 text-sm text-muted">{p.sub || 'Falta elegir la clase'}</span>
               </span>
             </div>
+            {p.sub && <PgCa v={vitalesDe(almacen.pj(p.id))} />}
             <div className="mt-auto flex gap-2">
               <button type="button" onClick={() => abrir(p.id)}
                 className={cx('min-h-11 flex-1 cursor-pointer rounded-lg bg-surface-container-highest font-semibold text-on-surface transition-colors hover:bg-surface-bright', foco)}>
@@ -91,5 +94,31 @@ export function Inicio() {
         ))}
       </ul>
     </>
+  );
+}
+
+/** PG con su barra y CA en la tarjeta de un personaje terminado. */
+function PgCa({ v }: { v: Vitales | null }) {
+  if (!v) return null;
+  const pct = v.pgMax ? (v.pg / v.pgMax) * 100 : 0;
+  const barra = pct <= 25 ? 'bg-error' : pct <= 50 ? 'bg-primary-fixed-dim' : 'bg-primary';
+  return (
+    <div className="flex items-stretch gap-3">
+      <div className="flex flex-1 flex-col justify-center gap-1.5 rounded-lg bg-surface-container-low px-3 py-2">
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="text-label-caps uppercase tracking-wider text-muted">Puntos de golpe</span>
+          <span className="text-sm text-muted">
+            <b className="text-lg text-on-surface">{v.pg}</b> / {v.pgMax}{v.temp > 0 && <span className="text-primary"> +{v.temp}</span>}
+          </span>
+        </div>
+        <div className="h-1.5 overflow-hidden rounded-full bg-surface-container-highest" role="img" aria-label={`${v.pg} de ${v.pgMax} puntos de golpe`}>
+          <div className={cx('h-full rounded-full', barra)} style={{ width: `${Math.max(0, Math.min(100, pct))}%` }} />
+        </div>
+      </div>
+      <div className="flex w-16 shrink-0 flex-col items-center justify-center rounded-lg bg-surface-container-low py-2">
+        <span className="text-label-caps uppercase tracking-wider text-muted">CA</span>
+        <b className="font-serif text-2xl leading-none text-on-surface">{v.ca}</b>
+      </div>
+    </div>
   );
 }
