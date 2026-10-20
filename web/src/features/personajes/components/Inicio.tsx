@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { S } from '@/app-shell/estado';
-import { Boton, EncabezadoPagina, Tarjeta, cx, foco } from '@/shared/ui/kit';
+import { Boton, EncabezadoPagina, Simbolo, Tarjeta, cx, foco } from '@/shared/ui/kit';
 import { FormaTipo } from '@/features/reglas/components/TipoAccion';
 import { abrir, borrarPj, nuevo } from '../acciones';
 import { borrarVarios } from '../acciones-compartir';
@@ -54,7 +54,7 @@ export function Inicio() {
           <Boton tamano="sm" variante="peligro" disabled={!marcados.length} onClick={borrar}>Borrar{marcados.length ? ` (${marcados.length})` : ''}</Boton>
         </div>
       )}
-      <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3 p-0">
+      <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4 p-0">
         {S.list.map(p => sel ? (
           <li key={p.id}>
             <label className={cx('flex min-h-24 cursor-pointer items-start gap-3 rounded-2xl bg-surface p-4 shadow-sm ring-1 transition-shadow hover:shadow-md', sel.has(p.id) ? 'ring-2 ring-primary' : 'ring-rule/60')}>
@@ -66,14 +66,26 @@ export function Inicio() {
             </label>
           </li>
         ) : (
-          <li key={p.id} className="flex flex-col rounded-2xl bg-surface shadow-sm ring-1 ring-rule/60 transition-shadow hover:shadow-md">
-            <button type="button" onClick={() => abrir(p.id)}
-              className={cx('flex min-h-24 w-full flex-1 cursor-pointer flex-col justify-center rounded-2xl p-4 pb-2 text-left', foco)}>
-              <b className="font-serif text-xl leading-tight">{p.name}</b>
-              <span className="mt-1 text-sm text-muted">{p.sub || 'Sin clase todavía'}</span>
-            </button>
-            <div className="flex justify-end px-3 pb-3">
-              <Boton variante="peligro" tamano="sm" onClick={() => borrarPj(p.id)} aria-label={`Borrar a ${p.name}`}>Borrar</Boton>
+          <li key={p.id} className={cx('flex flex-col gap-4 rounded-2xl bg-surface p-5 shadow-sm ring-1 transition-shadow hover:shadow-md', p.sub ? 'ring-rule/60' : 'border border-dashed border-rule ring-0')}>
+            <div className="flex items-center gap-4">
+              <span aria-hidden="true" className="grid size-14 shrink-0 place-items-center rounded-xl bg-surface-container-high font-serif text-2xl font-bold text-primary ring-1 ring-rule">
+                {(p.name || '?').trim().charAt(0).toUpperCase()}
+              </span>
+              <span className="flex min-w-0 flex-col">
+                {!p.sub && <span className="text-label-caps uppercase tracking-wider text-warn">Sin terminar</span>}
+                <b className="font-serif text-2xl leading-tight [overflow-wrap:anywhere]">{p.name}</b>
+                <span className="mt-0.5 text-sm text-muted">{p.sub || 'Falta elegir la clase'}</span>
+              </span>
+            </div>
+            <div className="mt-auto flex gap-2">
+              <button type="button" onClick={() => abrir(p.id)}
+                className={cx('min-h-11 flex-1 cursor-pointer rounded-lg bg-surface-container-highest font-semibold text-on-surface transition-colors hover:bg-surface-bright', foco)}>
+                {p.sub ? 'Abrir hoja' : 'Seguir creándolo'}
+              </button>
+              <button type="button" onClick={() => borrarPj(p.id)} aria-label={`Borrar a ${p.name}`} title="Borrar"
+                className={cx('grid size-11 shrink-0 cursor-pointer place-items-center rounded-lg text-outline ring-1 ring-rule transition-colors hover:bg-error-container hover:text-on-error-container', foco)}>
+                <Simbolo n="delete" className="text-headline-sm" />
+              </button>
             </div>
           </li>
         ))}

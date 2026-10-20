@@ -260,7 +260,7 @@ function Vitales({ c }: { c: any }) {
             </label>
           )}
         </div>
-        <div className="my-1 flex flex-wrap items-baseline justify-between gap-2">
+        <div className="my-1">
           <div className="flex items-baseline gap-1">
             {lectura ? <span className="text-stat-display text-primary">{actual}</span> : (
               <input key={actual} type="number" inputMode="numeric" min={0} max={max} defaultValue={actual} aria-label={`Puntos de golpe actuales (de ${max})`}
@@ -270,40 +270,44 @@ function Vitales({ c }: { c: any }) {
             )}
             <span className="whitespace-nowrap text-body-lg text-outline">/ {max} máx.</span>
           </div>
-          <div className={cx('flex items-center gap-1', lectura && 'hidden')}>
-            {[-5, -1, 1, 5].map(n => (
-              <button key={n} type="button" onClick={() => (n < 0 ? danar(-n) : curar(n))}
-                aria-label={n < 0 ? `Recibir ${-n} de daño` : `Curar ${n}`}
-                className={cx('min-h-7 min-w-7 cursor-pointer rounded bg-surface-container-high px-1.5 py-1 text-body-sm font-bold shadow-sm transition-all', foco,
-                  n < 0 ? 'text-error hover:bg-error-container hover:text-on-error-container' : 'text-primary hover:bg-primary-container hover:text-on-primary-container')}>
-                {n > 0 ? `+${n}` : n}
-              </button>
-            ))}
-          </div>
         </div>
         <div className="relative h-3 w-full overflow-hidden rounded-full bg-surface-container-lowest p-0.5 shadow-inner">
           <div className={cx('h-full rounded-full transition-all duration-300', barra)} style={{ width: `${Math.max(pct, actual > 0 ? 3 : 0)}%` }} />
         </div>
+        {/* Botones grandes de daño y curación, debajo de la barra */}
+        {!lectura && (
+          <div className="mt-3 grid grid-cols-4 gap-2">
+            {[-5, -1, 1, 5].map(n => (
+              <button key={n} type="button" onClick={() => (n < 0 ? danar(-n) : curar(n))}
+                aria-label={n < 0 ? `Recibir ${-n} de daño` : `Curar ${n}`}
+                className={cx('min-h-11 cursor-pointer rounded-lg bg-surface-container-high text-body-lg font-bold shadow-sm transition-all', foco,
+                  n < 0 ? 'text-error hover:bg-error-container hover:text-on-error-container' : 'text-primary hover:bg-primary-container hover:text-on-primary-container')}>
+                {n > 0 ? `+${n}` : `−${-n}`}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Dados de golpe y salvaciones contra muerte */}
       <div className="col-span-2 flex flex-col justify-between rounded-lg bg-surface-container-low p-3 shadow-lg md:col-span-1">
         <div>
-          <div className="flex items-center justify-between text-outline">
-            <span className="text-label-caps uppercase tracking-wider">Dados golpe</span>
-            <span className="text-label-caps text-secondary">{c.lvl}d{c.die}</span>
-          </div>
-          <div className="mt-1 flex items-center justify-between">
-            <span className="font-serif text-headline-sm text-on-surface">{dgQuedan} / {c.lvl}</span>
+          <span className="text-label-caps uppercase tracking-wider text-outline">Dados de golpe</span>
+          <div className="mt-1 flex items-center justify-between gap-2">
+            <span className="inline-flex flex-col items-center leading-tight">
+              <span className="text-stat-display text-on-surface">{dgQuedan} / {c.lvl}</span>
+              <span className="text-headline-sm font-bold text-secondary">d{c.die}</span>
+            </span>
             {!lectura && (
               <button type="button" onClick={gastarDado} title="Gastar un dado de golpe: tira y te cura" aria-label={`Gastar un dado de golpe (1d${c.die}${modStr(c.m.con)}), quedan ${dgQuedan}`}
-                className={cx('grid size-8 cursor-pointer place-items-center rounded bg-surface-container-high text-primary transition-all hover:bg-primary hover:text-on-primary', foco)}>
-                <Simbolo n="healing" className="text-body-md" />
+                className={cx('grid size-11 cursor-pointer place-items-center rounded-lg bg-surface-container-high text-primary transition-all hover:bg-primary hover:text-on-primary', foco)}>
+                <Simbolo n="healing" className="text-headline-sm" />
               </button>
             )}
           </div>
         </div>
-        <div className="mt-1 rounded-lg bg-surface-container-lowest/50 p-1">
+        <div className="mt-2 rounded-lg bg-surface-container-lowest/50 p-1.5">
+          <p className="m-0 mb-1 text-label-caps uppercase tracking-wider text-on-surface">Salvaciones de muerte</p>
           <div className="flex items-center justify-between text-label-caps uppercase text-outline">
             <span>Éxitos</span><Salvaciones clave="muerte-exitos" n={exitos} acento="accent-primary" nombre="Éxito" />
           </div>
