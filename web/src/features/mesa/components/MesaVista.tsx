@@ -1528,6 +1528,12 @@ function Combate({ cp, grupo }: { cp: any; grupo: any[] }) {
               <ul className="m-0 list-none p-0">
                 {jugadores.map((x: any) => (
                   <li key={x.k} className="flex items-center gap-2 border-b border-surface-container-highest py-1.5 text-body-md last:border-0">
+                    {x.tipo === 'jug' && (() => {
+                      // «Activo» = su hoja se actualizó hace menos de 10 minutos (no hay presencia en vivo)
+                      const activo = Date.now() - new Date(x.u.actualizadoEn).getTime() < 10 * 60 * 1000;
+                      return <span title={activo ? 'Su hoja se actualizó hace poco' : 'Sin cambios recientes en su hoja'} aria-label={activo ? 'activo' : 'sin actividad reciente'}
+                        className={cx('size-2 shrink-0 rounded-full', activo ? 'bg-pas' : 'bg-outline-variant')} />;
+                    })()}
                     <b className="flex-1 truncate">{x.nombre}</b>
                     <span className="text-body-sm text-on-surface-variant">Perc. {x.c?.passive ?? '—'}</span>
                   </li>
@@ -1699,10 +1705,20 @@ function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) 
     <>
       <EncabezadoPagina id="titulo-vista" titulo={cp.nombre} subtitulo={`${total} personaje${total === 1 ? '' : 's'}${unidos.length ? `, ${unidos.length} unido${unidos.length === 1 ? '' : 's'} con el código` : ''}. Condiciones e iniciativa quedan guardadas en la campaña.`}>
         <Boton variante="fantasma" onClick={() => abrirCampana(null)}>← Todas las campañas</Boton>
+        {almacen.infoMesa(cp.id).codigo && (
+          <span className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-surface-container px-3">
+            <span className="text-label-caps uppercase tracking-wider text-outline">Código</span>
+            <b className="font-mono text-body-lg tracking-[0.15em] text-primary">{almacen.infoMesa(cp.id).codigo}</b>
+            <button type="button" aria-label="Copiar código" onClick={() => navigator.clipboard?.writeText(almacen.infoMesa(cp.id).codigo || '').then(() => avisar('Código copiado.'))}
+              className={cx('grid size-8 cursor-pointer place-items-center rounded text-on-surface-variant hover:text-on-surface', foco)}><Simbolo n="content_copy" className="text-body-lg" /></button>
+          </span>
+        )}
       </EncabezadoPagina>
       <Pestanas idBase="mesa" etiqueta="Secciones de la campaña" activa={mtab} onCambiar={k => { S.mtab = k; render(); }}
-        items={[{ id: 'grupo', texto: 'Grupo' }, { id: 'sesion', texto: encuentros.length ? `Sesión · ${encuentros.length}` : 'Sesión' },
-          { id: 'combate', texto: cp.combate.activo ? `Combate · ronda ${cp.combate.ronda}` : 'Combate' }, { id: 'bestiario', texto: 'Bestiario' }]} />
+        items={[{ id: 'grupo', texto: <><Simbolo n="groups" className="mr-1 align-middle text-body-lg" />Grupo</> },
+          { id: 'sesion', texto: <><Simbolo n="event_note" className="mr-1 align-middle text-body-lg" />{encuentros.length ? `Sesión · ${encuentros.length}` : 'Sesión'}</> },
+          { id: 'combate', texto: <><Simbolo n="swords" className={cx('mr-1 align-middle text-body-lg', cp.combate.activo && 'text-primary')} />{cp.combate.activo ? `Combate · ronda ${cp.combate.ronda}` : 'Combate'}</> },
+          { id: 'bestiario', texto: <><Simbolo n="pets" className="mr-1 align-middle text-body-lg" />Bestiario</> }]} />
       <PanelPestana idBase="mesa" activa={mtab}>
         {mtab === 'grupo' ? (
           <>
