@@ -1,7 +1,7 @@
 'use client';
 import { useId, useState, type ReactNode } from 'react';
 import { norm } from '@/shared/utils/texto';
-import { claseCampo, cx, foco } from '@/shared/ui/kit';
+import { Simbolo, cx, foco } from '@/shared/ui/kit';
 import { ETIQUETA_FUENTE, type Fuente } from '@/features/reglas/data/fuentes';
 import { Imagen } from '@/shared/ui/imagen';
 
@@ -15,10 +15,14 @@ export function TarjetasBuscables({ que, items }: { que: string; items: Tarjeta[
   const vis = items.filter(it => !nq || it.q.includes(nq));
   return (
     <div>
-      <label htmlFor={id} className="sr-only">Buscar {que}</label>
-      <input id={id} type="search" placeholder={`Buscar ${que}…`} value={q} onChange={e => setQ(e.target.value)} className={cx(claseCampo, 'mb-3')} />
+      <label className="mb-4 flex min-h-11 items-center gap-2 rounded-lg bg-surface-container px-3 focus-within:ring-2 focus-within:ring-primary">
+        <Simbolo n="search" className="text-headline-sm text-outline" />
+        <span className="sr-only">Buscar {que}</span>
+        <input id={id} type="search" placeholder={`Buscar ${que}…`} value={q} onChange={e => setQ(e.target.value)}
+          className="min-w-0 flex-1 bg-transparent py-2 text-body-lg text-on-surface outline-none placeholder:text-outline" />
+      </label>
       <p aria-live="polite" className="sr-only">{nq ? `${vis.length} resultados` : ''}</p>
-      <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-2 p-0">
+      <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-3 p-0">
         {vis.map(it => <li key={it.key} className="flex">{it.node}</li>)}
       </ul>
       {nq && !vis.length && <p className="text-sm text-muted">No hay {que} con “{q}”.</p>}
@@ -30,12 +34,15 @@ export function TarjetasBuscables({ que, items }: { que: string; items: Tarjeta[
 export function Tarjeta({ on, onClick, img, imgArriba, titulo, sub, clampSub, fuente }: { on: boolean; onClick: () => void; img?: string; imgArriba?: boolean; titulo: string; sub: string; clampSub?: boolean; clase?: string; fuente?: Fuente }) {
   return (
     <button type="button" aria-pressed={on} onClick={onClick}
-      className={cx('flex w-full cursor-pointer flex-col rounded-2xl bg-surface p-3 text-left ring-1 transition-shadow hover:shadow-md', foco,
-        on ? 'ring-[2.5px] ring-ink' : 'ring-rule')}>
-      {img && <Imagen src={img} className={cx('mb-2 aspect-square w-full rounded-xl bg-soft object-cover', imgArriba && 'object-top')} />}
-      <b className="flex items-center gap-1.5 font-serif text-[1.08rem] leading-tight">{on && <span aria-hidden="true">✓</span>}{titulo}</b>
-      {sub && <span className={cx('mt-0.5 text-sm text-muted', clampSub && 'line-clamp-6')}>{sub}</span>}
-      {fuente && <EtiquetaFuente fuente={fuente} className="mt-auto self-start pt-2" />}
+      className={cx('relative flex w-full cursor-pointer flex-col overflow-hidden rounded-xl bg-surface-container text-left transition-colors hover:bg-surface-container-high', foco,
+        on ? 'ring-2 ring-primary' : 'ring-1 ring-surface-container-highest')}>
+      {img && <Imagen src={img} className={cx('aspect-[4/3] w-full bg-surface-container-high object-cover', imgArriba && 'object-top')} />}
+      {on && <span className="absolute right-2 top-2 grid size-7 place-items-center rounded-full bg-surface-container-lowest/80"><Simbolo n="check_circle" relleno className="text-headline-sm text-primary" /></span>}
+      <span className="flex flex-1 flex-col gap-1 p-3">
+        <b className="font-serif text-headline-sm leading-tight">{titulo}<span className="sr-only">{on ? ' (elegida)' : ''}</span></b>
+        {sub && <span className={cx('text-body-md text-on-surface-variant', clampSub && 'line-clamp-3')}>{sub}</span>}
+        {fuente && <EtiquetaFuente fuente={fuente} className="mt-auto self-start pt-1" />}
+      </span>
     </button>
   );
 }
