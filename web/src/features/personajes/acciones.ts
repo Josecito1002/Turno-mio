@@ -5,6 +5,7 @@ import { almacen, guardarLib } from '@/app-shell/almacen';
 import { avisar } from '@/shared/ui/avisos';
 import { confirmar } from '@/shared/ui/confirmar';
 import { norm, setPath } from '@/shared/utils/texto';
+import { puedeSubir } from './domain/progresion';
 import { TIPOS } from '@/features/reglas/data/caracteristicas';
 import { getC, getLib, getSubs, getT, subNivel } from '@/features/biblioteca/domain/biblioteca';
 import { kitTrasfondo } from '@/features/reglas/data/equipo-trasfondos';
@@ -201,6 +202,7 @@ export function confirmarSubida() {
   const pj = S.pj, antes = compute(pj), L = pj.nivel + 1;
   const copia = structuredClone(pj); // para que Deshacer también quite lo que se elija en el diálogo
   pj.nivel = L; if (pj.pgModo === 'tiradas') pj.pgTiradas[L - 2] = null;
+  if ((+pj.nivelesDados || 0) > 0) pj.nivelesDados--; // el hito del DM se gasta al subir
   const desp = compute(pj), vistos = new Set(antes.entries.map((e: any) => e.nombre + '|' + e.texto));
   const elegir = pendientesAlSubir(desp, getSubs(pj, pj.clase).some((s: any) => s.key !== 'cadena'));
   S.subida = {
@@ -451,6 +453,14 @@ export function recibirObjeto(o: ObjetoEntregado) {
     const i = (S.pj.armas || []).findIndex((a: any) => a[0] === o.k);
     if (i >= 0) { cambiarCantidadArma(i, -(S.pj.armas[i][1] || 1)); avisar('Tu DM quitó un arma de tu inventario.'); }
     return;
+  }
+  if (o.tipo === 'xp') {
+    S.pj.xp = (+S.pj.xp || 0) + o.d; S.pj.enCampana = true; savePj(); render();
+    avisar(`Tu DM te dio ${o.d} de experiencia.${puedeSubir(S.pj) ? ' ¡Ya puedes subir de nivel!' : ''}`); return;
+  }
+  if (o.tipo === 'nivel') {
+    S.pj.nivelesDados = (+S.pj.nivelesDados || 0) + 1; S.pj.enCampana = true; savePj(); render();
+    avisar('Tu DM te dio un hito: ¡ya puedes subir de nivel!'); return;
   }
   if (o.tipo === 'oro') {
     S.pj.oro = Math.max(0, (+S.pj.oro || 0) + o.d); savePj(); render();

@@ -10,6 +10,7 @@ import { EQUIPO_AVENTURA, OBJETOS_CON_FICHA } from '@/features/reglas/data/equip
 import { esPropia } from '@/features/personajes/domain/inventario';
 import { darObjetoDm } from '../api';
 import type { ObjetoEntregado } from '../domain/entregas';
+import { puedeSubir, xpSiguiente } from '@/features/personajes/domain/progresion';
 
 type Tipo = 'objeto' | 'magico' | 'arma' | 'armadura';
 const Mayus = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -197,6 +198,38 @@ export function EditarInventario({ campId, personajeId, nombre, pj }: { campId: 
           ))}</ul> : <p className="m-0 text-sm text-muted">Sin objetos en el inventario.</p>}
         </div>
         <p className="m-0 text-xs text-muted">Para agregar cosas usa «Dar un objeto». Lo que ves aquí es su hoja al último cambio que guardó.</p>
+      </div>
+    </Plegable>
+  );
+}
+
+/** DM: experiencia e hitos de un personaje de la mesa. Con XP suficiente (o un hito), su hoja le avisa que puede subir. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function DarProgreso({ campId, personajeId, nombre, pj }: { campId: string; personajeId: string; nombre: string; pj: any }) {
+  const [xp, setXp] = useState('');
+  const [enviando, setEnviando] = useState(false);
+  const mandar = async (o: ObjetoEntregado, que: string) => {
+    setEnviando(true);
+    try { await darObjetoDm(campId, personajeId, o); avisar(`${que} para ${nombre}. Le llega en cuanto abra su hoja.`); }
+    catch (e) { avisar(`No se pudo enviar: ${(e as Error).message}`, 'error'); }
+    finally { setEnviando(false); }
+  };
+  const nivel = +pj?.nivel || 1, sig = xpSiguiente(nivel), actual = +pj?.xp || 0;
+  return (
+    <Plegable titulo={`Experiencia de ${nombre}`} nota={puedeSubir(pj) ? 'puede subir de nivel' : sig != null ? `${actual} / ${sig} XP` : 'nivel 20'}>
+      <div className="flex flex-col gap-3 px-4 pb-4">
+        {sig != null && (
+          <div>
+            <div className="flex justify-between text-body-sm text-on-surface-variant"><span>Nivel {nivel}</span><span>{actual} / {sig} XP para el nivel {nivel + 1}</span></div>
+            <div aria-hidden="true" className="mt-1 h-2 overflow-hidden rounded-full bg-surface-container-highest"><div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, (actual / sig) * 100)}%` }} /></div>
+          </div>
+        )}
+        <div className="flex flex-wrap items-end gap-2">
+          <Campo etiqueta="Experiencia" className="w-36"><input type="number" min={1} value={xp} onChange={e => setXp(e.target.value)} className={claseCampo} /></Campo>
+          <Boton tamano="sm" disabled={enviando || !(+xp > 0)} onClick={() => { mandar({ tipo: 'xp', d: Math.trunc(+xp) }, `+${Math.trunc(+xp)} XP`); setXp(''); }}>Dar XP</Boton>
+          <Boton tamano="sm" variante="primario" disabled={enviando || nivel >= 20} onClick={() => mandar({ tipo: 'nivel' }, 'Hito (sube un nivel)')}>Dar un hito</Boton>
+        </div>
+        <p className="m-0 text-xs text-muted">Usa XP o hitos, como juegues. Un hito deja subir un nivel sin contar experiencia.</p>
       </div>
     </Plegable>
   );

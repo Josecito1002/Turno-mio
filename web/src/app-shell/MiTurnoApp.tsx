@@ -18,6 +18,7 @@ import { ModoCombate } from '@/features/personajes/components/ficha/ModoCombate'
 import { SubidaNivel } from '@/features/personajes/components/ficha/SubidaNivel';
 import { Editor } from '@/features/personajes/components/editor/Editor';
 import { Inicio } from '@/features/personajes/components/Inicio';
+import { Panel } from '@/features/personajes/components/Panel';
 import { BibliotecaVista } from '@/features/biblioteca/components/BibliotecaVista';
 import { MesaVista } from '@/features/mesa/components/MesaVista';
 import { CuentasVista } from '@/features/cuentas/components/CuentasVista';
@@ -32,6 +33,7 @@ const Icono = ({ d }: { d: string }) => (
   <svg viewBox="0 0 24 24" aria-hidden="true" className="size-6 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"><path d={d} /></svg>
 );
 const ICONOS: Record<string, string> = {
+  panel: 'M3 11l9-8 9 8M5 9.5V21h5v-6h4v6h5V9.5',
   home: 'M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 15.6 7.1 18.2 8 12.7 4 8.8 9.5 8z',
   lib: 'M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zm0 0v16M8 7h7',
   mesa: 'M12 2l8 5v10l-8 5-8-5V7zm0 0v20M4 7l8 5 8-5',
@@ -42,7 +44,7 @@ const ICONOS: Record<string, string> = {
 type ItemNav = { vista: Vista; texto: string; activa: boolean };
 function itemsNav(): ItemNav[] {
   const v = S.view;
-  const items: ItemNav[] = [{ vista: 'home', texto: 'Personajes', activa: v === 'home' || ((v === 'ficha' || v === 'editor') && !S.combateMesa) }];
+  const items: ItemNav[] = [{ vista: 'panel', texto: 'Inicio', activa: v === 'panel' }, { vista: 'home', texto: 'Personajes', activa: v === 'home' || ((v === 'ficha' || v === 'editor') && !S.combateMesa) }];
   // La mesa a la que te uniste con el código de tu DM: su combate está ahí
   if (!esInvitado()) items.push({ vista: 'mesaj', texto: 'Campañas', activa: v === 'mesaj' || (v === 'ficha' && !!S.combateMesa) });
   items.push({ vista: 'lib', texto: 'Biblioteca', activa: v === 'lib' });
@@ -60,7 +62,7 @@ const marcarImportarEnCampana = () => { S.importCamp = S.camp; };
     sin personaje abierto se vuelve al inicio. Se ajusta fuera del componente, que solo la lee. */
 function vistaPermitida(): Vista {
   if ((S.view === 'mesa' && !esDM()) || (S.view === 'cuentas' && !esAdmin()) || (S.view === 'ajeno' && !S.ajeno)) S.view = 'home';
-  if (!['mesa', 'mesaj', 'lib', 'cuentas', 'ajeno'].includes(S.view) && (!S.pj || S.view === 'home')) S.view = 'home';
+  if (!['panel', 'mesa', 'mesaj', 'lib', 'cuentas', 'ajeno'].includes(S.view) && (!S.pj || S.view === 'home')) S.view = 'home';
   return S.view;
 }
 /** Calcula el personaje abierto y lo deja en S.c para las acciones que lo necesitan. */
@@ -73,6 +75,7 @@ function Vista({ elegirArchivos, importarHojas }: { elegirArchivos: () => void; 
   if (vista === 'lib') return <BibliotecaVista elegirArchivos={elegirArchivos} />;
   if (vista === 'cuentas') return <CuentasVista />;
   if (vista === 'ajeno') return <HojaAjena />;
+  if (vista === 'panel') return <Panel />;
   if (vista === 'home') return <Inicio />;
   const c = calcularAbierto();
   const recibir = <RecibirEntregas personajeId={S.pj.id} />;
@@ -89,7 +92,7 @@ function Vista({ elegirArchivos, importarHojas }: { elegirArchivos: () => void; 
   return <>{recibir}{vista === 'editor' ? <Editor c={c} /> : <Ficha c={c} />}</>;
 }
 
-const TITULOS: Record<string, string> = { home: 'Personajes', lib: 'Biblioteca', mesa: 'Mesa del DM', mesaj: 'Campañas', cuentas: 'Cuentas' };
+const TITULOS: Record<string, string> = { panel: 'Inicio', home: 'Personajes', lib: 'Biblioteca', mesa: 'Mesa del DM', mesaj: 'Campañas', cuentas: 'Cuentas' };
 
 /** La barra de abajo (móvil) publica su altura real en --alto-nav-inferior, con el borde y la zona segura del teléfono,
  *  para que lo que se pega sobre ella (la navegación entre pasos del editor) quede justo encima, sin hueco ni encimarse. */
@@ -148,7 +151,7 @@ function ItemMenu({ icono, children, onClick, peligro, activo, extra }: { icono:
     </button>
   );
 }
-const ICONO_SECCION: Record<string, string> = { home: 'groups', lib: 'auto_stories', mesa: 'swords', mesaj: 'groups', cuentas: 'manage_accounts' };
+const ICONO_SECCION: Record<string, string> = { panel: 'home', home: 'groups', lib: 'auto_stories', mesa: 'swords', mesaj: 'groups', cuentas: 'manage_accounts' };
 const TituloMenu = ({ children }: { children: ReactNode }) => <p className="m-0 px-3 pb-1 pt-4 text-label-caps uppercase tracking-wider text-outline">{children}</p>;
 
 function MenuCompleto({ invitado, onCerrar, onClave, onNombre, onCompartir }: { invitado: boolean; onCerrar: () => void; onClave: () => void; onNombre: () => void; onCompartir: () => void }) {
@@ -251,7 +254,7 @@ function BarraSuperior({ invitado }: { invitado: boolean }) {
     <Cabecera>
       <div className="flex h-20 w-full items-center justify-between gap-5 px-4 lg:px-6">
         <div className="flex min-w-0 items-center gap-5">
-          <button type="button" disabled={S.cargando} onClick={() => ir('home')} className={cx('flex shrink-0 cursor-pointer items-center gap-3 rounded text-left', foco)}>
+          <button type="button" disabled={S.cargando} onClick={() => ir('panel')} className={cx('flex shrink-0 cursor-pointer items-center gap-3 rounded text-left', foco)}>
             <span className="grid size-9 shrink-0 place-items-center rounded-full bg-linear-to-b from-primary-container to-on-primary-container shadow-[0_0_12px_rgba(212,175,55,0.35)] ring-1 ring-primary/40">
               <Simbolo n="auto_stories" relleno className="text-[20px] text-surface-container-lowest" />
             </span>
@@ -315,7 +318,7 @@ function BarraSuperior({ invitado }: { invitado: boolean }) {
 }
 
 const CLAVE_PANTALLA = 'miturno-pantalla';
-const VISTAS_RECORDADAS = ['home', 'ficha', 'editor', 'lib', 'mesa', 'mesaj', 'cuentas'];
+const VISTAS_RECORDADAS = ['panel', 'home', 'ficha', 'editor', 'lib', 'mesa', 'mesaj', 'cuentas'];
 
 function guardarPantalla(invitado: boolean) {
   try {
@@ -349,7 +352,8 @@ export function MiTurnoApp({ invitado = false, enlace }: { invitado?: boolean; e
       S.usuario = usuario; S.list = lista;
       const last = usuario?.ultimoPj;
       if (enlace) { S.cargando = false; render(); abrirEnlace(enlace); return; }
-      if (last && S.list.some(p => p.id === last)) { const p = almacen.pj(last); if (p) { S.pj = reparar(p); S.view = 'ficha'; } }
+      if (last && S.list.some(p => p.id === last)) { const p = almacen.pj(last); if (p) S.pj = reparar(p); }
+      S.view = 'panel';
       restaurarPantalla(invitado);
       S.cargando = false; render();
     }).catch((e: Error) => { S.error = e.message; S.cargando = false; render(); });

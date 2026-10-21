@@ -19,7 +19,7 @@ import { OpcionesDeTipo } from '@/features/personajes/components/ficha/ModoComba
 import type { Extra } from '@/features/personajes/domain/lanzar';
 import { gruposExtras, type Uso } from '@/features/personajes/components/ficha/UsoAccion';
 import { CONDICIONES, actualizarPgUnido, cambiarPg, campActual, camps, claveUnido, combatiente, estadoDe, fijarUnidos, guardarCamp, ordenar, sumarCompaneros, unidosCargados, unidosDe } from '../domain/combate';
-import { codigoMesa, guardarCampana, jugadoresMesa, quitarDeMesa } from '../api';
+import { codigoMesa, darObjetoDm, guardarCampana, jugadoresMesa, quitarDeMesa } from '../api';
 import { conectarMesaRealtime } from '../realtime-cliente';
 import { publicarCombate } from '../domain/combate-vivo';
 import { avisarJugadorDm, combateVivoDm, confirmarGolpes, enviarEfectoDm, enviarOrdenDm, fijarAccionDm, pedirSalvacionDm, quitarPeticiones, quitarRespuestas, resolverSalvacion, terminarConcentracionDm, type CombateVivo, type EconomiaRonda, type Golpe, type Peticion, type RespuestaSalvacion, type Salvacion, type TipoAccionRonda } from '../api';
@@ -31,7 +31,8 @@ import { cargarBestiario } from '@/features/reglas/data/bestiario';
 import { BloqueMonstruo, BuscadorEnemigo, VistaBestiario, monstruoDe, useCatalogo } from './Bestiario';
 import { SubirHomebrewery } from '@/features/homebrewery/components/SubirHomebrewery';
 import { EscucharGuia } from '@/features/audioguia/components/EscucharGuia';
-import { DarObjeto, EditarInventario } from './DarObjeto';
+import { DarObjeto, DarProgreso, EditarInventario } from './DarObjeto';
+import type { ObjetoEntregado } from '../domain/entregas';
 
 const val = (id: string) => (document.getElementById(id) as HTMLInputElement | null)?.value || '';
 /** Cada acción trabaja sobre una copia fresca de la campaña, la guarda y redibuja. */
@@ -245,6 +246,24 @@ function Pasivas({ x }: { x: any }) {
 const hora = (iso: string) => new Date(iso).toLocaleString('es', { dateStyle: 'short', timeStyle: 'short' });
 const verHoja = (k: string) => { S.hojaMesa = k; render(); irArriba(); };
 
+/** XP o un hito para todos los jugadores unidos a la mesa. */
+function ProgresoGrupo({ campId, unidos }: { campId: string; unidos: any[] }) {
+  const [xp, setXp] = useState('');
+  const dar = async (o: ObjetoEntregado, que: string) => {
+    if (!(await confirmar({ titulo: `¿${que} a todos los jugadores?`, texto: `Se envía a ${unidos.length} personaje${unidos.length === 1 ? '' : 's'}.`, si: 'Enviar' }))) return;
+    const r = await Promise.allSettled(unidos.map(x => darObjetoDm(campId, x.u.personajeId, o)));
+    const mal = r.filter(x => x.status === 'rejected').length;
+    avisar(mal ? `${que}: no llegó a ${mal} personaje${mal === 1 ? '' : 's'}.` : `${que} enviado a todos.`, mal ? 'error' : undefined);
+  };
+  return (
+    <div className="mt-2 flex flex-wrap items-end gap-2 border-t border-surface-container-highest pt-2">
+      <Campo etiqueta="Experiencia para cada uno" className="w-44"><input type="number" min={1} value={xp} onChange={e => setXp(e.target.value)} className={claseCampo} /></Campo>
+      <Boton disabled={!(+xp > 0)} onClick={() => { dar({ tipo: 'xp', d: Math.trunc(+xp) }, `${Math.trunc(+xp)} XP`); setXp(''); }}><Simbolo n="military_tech" className="text-primary" />Dar XP a todos</Boton>
+      <Boton onClick={() => dar({ tipo: 'nivel' }, 'Un hito')}><Simbolo n="arrow_upward" className="text-primary" />Hito para todos</Boton>
+    </div>
+  );
+}
+
 function TarjetaJugador({ cp, x, alQuitar }: { cp: any; x: any; alQuitar: () => void }) {
   const subN = x.c.SD ? x.c.SD.n : '';
   const quitar = async () => {
@@ -265,6 +284,7 @@ function TarjetaJugador({ cp, x, alQuitar }: { cp: any; x: any; alQuitar: () => 
       <Pasivas x={x} />
       <PuntosGolpe cp={cp} x={x} /><Muerte cp={cp} x={x} /><Condiciones cp={cp} k={x.k} nombre={x.nombre} />
       <DarObjeto campId={cp.id} personajeId={x.u.personajeId} nombre={x.nombre} />
+      <DarProgreso campId={cp.id} personajeId={x.u.personajeId} nombre={x.nombre} pj={x.pj} />
       <EditarInventario campId={cp.id} personajeId={x.u.personajeId} nombre={x.nombre} pj={x.pj} />
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
         <span className="text-xs text-muted">Hoja actualizada {hora(x.u.actualizadoEn)}</span>
@@ -1733,6 +1753,7 @@ function Campana({ cp, importarHojas }: { cp: any; importarHojas: () => void }) 
                   <Boton onClick={() => mandarOrden(cp.id, 'largo')}><Simbolo n="bedtime" className="text-gol" />Descanso largo</Boton>
                   <Boton onClick={() => mandarOrden(cp.id, 'inspiracion')}><Simbolo n="auto_awesome" className="text-primary" />Inspiración a todos</Boton>
                 </div>
+                <ProgresoGrupo campId={cp.id} unidos={unidos} />
                 <p className="m-0 mt-2 text-body-sm text-outline">Cada hoja lo aplica sola cuando su jugador la tiene abierta.</p>
               </section>
             )}
