@@ -16,14 +16,36 @@ import { puedeSubir } from '../domain/progresion';
 
 /* Inicio con sesión: seguir con el último personaje, los demás, tus campañas (como DM y como jugador) y atajos. */
 
+/** Saludos al entrar: se elige uno al azar. {n} es el nombre del jugador. */
+const SALUDOS: string[] = [
+  'Hola, {n}', '¡Bienvenido de vuelta, {n}!', 'La taberna te esperaba, {n}', '¿Listo para tirar, {n}?', 'Tu turno, {n}',
+  'Saludos, aventurero {n}', '¡Que los dados te sonrían, {n}!', 'El grupo te estaba buscando, {n}', 'Otra jornada de aventura, {n}',
+];
+
+/** Personajes que dan el consejo del día; cada uno con su ícono y su forma de hablar. */
+const QUIEN: [string, string, string][] = [
+  ['El tabernero', 'sports_bar', 'Escucha, viajero:'], ['La archimaga Elara', 'auto_awesome', 'Aprendiz, recuerda:'],
+  ['Un goblin muy listo', 'pest_control', '¡Eh, eh! Goblin sabe cosa:'], ['El viejo paladín', 'shield', 'Hazme caso, joven:'],
+  ['La pícara Nyx', 'visibility_off', 'Te lo digo en voz baja:'], ['El bardo del camino', 'music_note', 'Como dice la canción:'],
+  ['Tu DM', 'casino', 'Antes de que preguntes:'], ['Un dragón aburrido', 'local_fire_department', 'Hmm, mortal. Ten en cuenta:'],
+];
+
+/** Reglas y comentarios cortos (2024); se elige uno al azar en cada visita. */
 const REGLAS: string[] = [
-  'En 2024, <b>Ayudar</b> da ventaja en la siguiente prueba de un aliado si eres competente en esa habilidad.',
-  'Un <b>golpe crítico</b> duplica los dados de daño, no el bonificador.',
-  'Con <b>Inspiración heroica</b> puedes repetir cualquier tirada de d20 y quedarte con el nuevo resultado.',
-  'Si caes a 0 PG, cada <b>salvación contra muerte</b> con 20 natural te devuelve a 1 PG.',
-  'La <b>Concentración</b> se pierde si recibes daño y fallas una salvación de CON (CD 10 o la mitad del daño).',
-  'Con <b>Esconderse</b> (CD 15 de Destreza/Sigilo) ganas la condición Invisible hasta que te descubran o hagas ruido.',
-  'Puedes interactuar con <b>un objeto gratis</b> en tu turno: desenvainar, abrir una puerta, recoger algo.',
+  'en 2024, <b>Ayudar</b> da ventaja en la siguiente prueba de un aliado si eres competente en esa habilidad.',
+  'un <b>golpe crítico</b> duplica los dados de daño, no el bonificador.',
+  'con <b>Inspiración heroica</b> puedes repetir cualquier tirada de d20 y quedarte con el nuevo resultado.',
+  'si caes a 0 PG, un <b>20 natural</b> en la salvación contra muerte te devuelve a 1 PG.',
+  'la <b>Concentración</b> se pierde si recibes daño y fallas una salvación de CON (CD 10 o la mitad del daño).',
+  'con <b>Esconderse</b> (CD 15 de Destreza o Sigilo) quedas Invisible hasta que te descubran o hagas ruido.',
+  'puedes interactuar con <b>un objeto gratis</b> en tu turno: desenvainar, abrir una puerta, recoger algo.',
+  'usar <b>Esquivar</b> hace que los ataques contra ti tengan desventaja hasta tu siguiente turno.',
+  'puedes <b>moverte, actuar y seguir moviéndote</b>: el movimiento se puede partir antes y después de la acción.',
+  'un <b>descanso corto</b> dura una hora y te deja gastar dados de golpe para curarte.',
+  'las <b>maestrías de armas</b> de 2024 dan un efecto extra al golpear: Debilitar, Derribar, Empujar…',
+  'el terreno difícil cuesta <b>el doble de movimiento</b>; arrastrarse, también.',
+  'una criatura <b>Derribada</b> tiene desventaja al atacar, y tú ventaja si estás a 1,5 m.',
+  'con <b>Preparar</b> puedes guardar tu acción para usarla como reacción cuando pase algo.',
 ];
 
 const ir = (v: any, extra?: () => void) => { S.view = v; S.dialogo = ''; extra?.(); render(); irArriba(); };
@@ -128,17 +150,31 @@ export function Panel() {
   const ultimo = S.usuario?.ultimoPj && conClase.some(p => p.id === S.usuario!.ultimoPj) ? S.usuario!.ultimoPj : conClase[0]?.id || S.list[0]?.id || null;
   const otros = S.list.filter(p => p.id !== ultimo);
   const misCamps = esDM() ? camps() : [];
-  const nombre = S.usuario && !esInvitado() && /\p{L}/u.test(S.usuario.nombre) ? S.usuario.nombre.split(' ')[0] : '';
+  const nombre = S.usuario && !esInvitado() ? S.usuario.nombre.trim() : '';
+  // Un saludo, quién da el consejo y el consejo: al azar en cada visita (fijos mientras la pantalla está abierta)
+  const [azar] = useState(() => [Math.random(), Math.random(), Math.random()]);
+  const saludo = nombre ? SALUDOS[Math.floor(azar[0] * SALUDOS.length)].replace('{n}', nombre) : '¡Hola, aventurero!';
+  const [quien, icono, entrada] = QUIEN[Math.floor(azar[1] * QUIEN.length)];
   const hoy = new Date();
   const fecha = hoy.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' });
-  const regla = REGLAS[Math.floor(hoy.getTime() / 86400000) % REGLAS.length];
+  const regla = REGLAS[Math.floor(azar[2] * REGLAS.length)];
+  const consejo = (clase: string) => (
+    <section aria-label="¿Sabías que…?" className={cx('flex gap-3 rounded-2xl bg-surface-container p-4 ring-1 ring-surface-container-highest sm:p-5', clase)}>
+      <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-full bg-surface-container-high"><Simbolo n={icono} className="text-headline-sm text-primary" /></span>
+      <div className="min-w-0">
+        <p className="m-0 text-label-caps uppercase tracking-wider text-secondary">¿Sabías que…? · {quien}</p>
+        <p className="m-0 mt-1"><i className="text-on-surface-variant">{entrada}</i> <span dangerouslySetInnerHTML={{ __html: regla }} /></p>
+      </div>
+    </section>
+  );
 
   return (
     <div className="flex flex-col gap-6 pb-6">
       <header>
         <p className="m-0 text-label-caps uppercase tracking-wider text-outline first-letter:uppercase">{fecha}</p>
-        <h1 id="titulo-vista" tabIndex={-1} className="m-0 font-serif text-[clamp(2rem,6vw,2.75rem)] font-bold leading-tight outline-none">Hola{nombre ? `, ${nombre}` : ''}</h1>
+        <h1 id="titulo-vista" tabIndex={-1} className="m-0 font-serif text-[clamp(2rem,6vw,2.75rem)] font-bold leading-tight outline-none [overflow-wrap:anywhere]">{saludo}</h1>
       </header>
+      {consejo('lg:hidden')}
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="flex min-w-0 flex-col gap-5">
@@ -231,10 +267,7 @@ export function Panel() {
             </div>
           </Caja>
 
-          <section aria-label="Regla rápida" className="rounded-2xl bg-surface-container p-4 ring-1 ring-surface-container-highest sm:p-5">
-            <p className="m-0 text-label-caps uppercase tracking-wider text-secondary">¿Sabías que…?</p>
-            <p className="m-0 mt-1.5" dangerouslySetInnerHTML={{ __html: regla }} />
-          </section>
+          {consejo('hidden lg:flex')}
         </div>
       </div>
     </div>
