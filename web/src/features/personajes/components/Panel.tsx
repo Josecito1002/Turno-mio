@@ -9,6 +9,8 @@ import { camps } from '@/features/mesa/domain/combate';
 import { misMesas, type MesaUnida } from '@/features/mesa/api';
 import { abrir, descansar, nuevo } from '../acciones';
 import { reparar } from '../domain/modelo';
+import { compute } from '../domain/calculo';
+import { PASO_N } from './ficha/Ficha';
 import { vitalesDe } from '../domain/vitales';
 import { puedeSubir } from '../domain/progresion';
 
@@ -70,6 +72,53 @@ function SeguirJugando({ id }: { id: string }) {
   );
 }
 
+/** Abre el creador en el primer paso que le falta */
+const seguir = (id: string, paso: string) => { abrir(id, 'editor'); S.step = paso; render(); };
+
+/** Lo que quedó a medias: personajes con pasos sin terminar y campañas sin jugadores todavía. */
+function AMedias() {
+  const pjs = S.list.map(p => {
+    const datos = almacen.pj(p.id); if (!datos) return null;
+    let pendientes: { t: string; paso: string }[] = [];
+    try { pendientes = (compute(reparar(datos)).avisos || []).filter((a: any) => a.nivel === 'aviso' && a.paso); } catch { /* hoja dañada: se omite */ }
+    return pendientes.length ? { p, pendientes } : null;
+  }).filter(Boolean) as { p: { id: string; name: string; sub: string }; pendientes: { t: string; paso: string }[] }[];
+  const campanas = esDM() ? camps().filter(cp => !(cp.pjs || []).length && !almacen.infoMesa(cp.id).unidos) : [];
+  if (!pjs.length && !campanas.length) return null;
+  return (
+    <section aria-label="Sigue donde te quedaste">
+      <h2 className="m-0 mb-3 flex items-center gap-2 font-serif text-headline-md"><Simbolo n="pending_actions" className="text-warn" />Sigue donde te quedaste</h2>
+      <ul className="m-0 flex list-none flex-col gap-2 p-0">
+        {pjs.slice(0, 4).map(({ p, pendientes }) => {
+          const pasos = [...new Set(pendientes.map(a => a.paso))];
+          return (
+            <li key={p.id} className="flex flex-wrap items-center gap-3 rounded-xl bg-surface-container px-4 py-3 border border-dashed border-outline-variant">
+              <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-lg bg-surface-container-high"><Simbolo n="person_edit" className="text-warn" /></span>
+              <span className="min-w-0 flex-1 leading-tight">
+                <b className="block [overflow-wrap:anywhere]">{p.name || 'Personaje sin nombre'}</b>
+                <span className="text-body-sm text-on-surface-variant">{p.sub || 'Sin clase todavía'} · <span className="text-warn">Falta: {pasos.map(k => (PASO_N[k] || k).toLowerCase()).join(', ')}</span></span>
+              </span>
+              <button type="button" onClick={() => seguir(p.id, pasos[0])}
+                className={cx('min-h-11 shrink-0 cursor-pointer rounded-lg bg-surface-container-highest px-4 font-semibold hover:bg-surface-bright', foco)}>Seguir creándolo</button>
+            </li>
+          );
+        })}
+        {campanas.slice(0, 3).map(cp => (
+          <li key={cp.id} className="flex flex-wrap items-center gap-3 rounded-xl bg-surface-container px-4 py-3 border border-dashed border-outline-variant">
+            <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-lg bg-surface-container-high"><Simbolo n="group_add" className="text-warn" /></span>
+            <span className="min-w-0 flex-1 leading-tight">
+              <b className="block [overflow-wrap:anywhere]">{cp.nombre}</b>
+              <span className="text-body-sm text-on-surface-variant">Campaña · <span className="text-warn">todavía sin jugadores</span></span>
+            </span>
+            <button type="button" onClick={() => ir('mesa', () => { S.camp = cp.id; S.mtab = 'grupo'; })}
+              className={cx('min-h-11 shrink-0 cursor-pointer rounded-lg bg-surface-container-highest px-4 font-semibold hover:bg-surface-bright', foco)}>Invitar jugadores</button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export function Panel() {
   const tirar = useDados();
   const [mesas, setMesas] = useState<MesaUnida[] | null>(null);
@@ -100,6 +149,8 @@ export function Panel() {
               <button type="button" onClick={nuevo} className={cx('inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-xl bg-primary px-5 font-bold text-on-primary', foco)}>Crear mi personaje <Simbolo n="arrow_forward" /></button>
             </section>
           )}
+
+          <AMedias />
 
           {ultimo && (
             <section aria-label="Tus personajes">
