@@ -318,12 +318,14 @@ function BarraSuperior({ invitado }: { invitado: boolean }) {
 }
 
 const CLAVE_PANTALLA = 'miturno-pantalla';
+/** Tras tanto tiempo sin usar la app, al volver se abre Inicio en vez de la última pantalla (una recarga sí la conserva). */
+const AUSENCIA_LARGA = 6 * 60 * 60 * 1000;
 const VISTAS_RECORDADAS = ['panel', 'home', 'ficha', 'editor', 'lib', 'mesa', 'mesaj', 'cuentas'];
 
 function guardarPantalla(invitado: boolean) {
   try {
     const v = S.view === 'ajeno' ? S.ajeno?.volver || 'home' : S.view;
-    localStorage.setItem(CLAVE_PANTALLA, JSON.stringify({ invitado, view: v, pj: S.pj?.id || null, tab: S.tab, step: S.step, camp: S.camp, mtab: S.mtab, campJ: S.campJ, campJTab: S.campJTab, combateMesa: S.combateMesa, combateHoja: S.combateHoja }));
+    localStorage.setItem(CLAVE_PANTALLA, JSON.stringify({ invitado, ts: Date.now(), view: v, pj: S.pj?.id || null, tab: S.tab, step: S.step, camp: S.camp, mtab: S.mtab, campJ: S.campJ, campJTab: S.campJTab, combateMesa: S.combateMesa, combateHoja: S.combateHoja }));
   } catch { /* sin almacenamiento: no pasa nada */ }
 }
 
@@ -331,6 +333,8 @@ function restaurarPantalla(invitado: boolean) {
   let g: Record<string, any> | null = null; // eslint-disable-line @typescript-eslint/no-explicit-any
   try { g = JSON.parse(localStorage.getItem(CLAVE_PANTALLA) || 'null'); } catch { /* sin datos */ }
   if (!g || g.invitado !== invitado || !VISTAS_RECORDADAS.includes(g.view)) return;
+  // Primera vez en mucho rato (o en el día): se queda en Inicio
+  if (!g.ts || Date.now() - g.ts > AUSENCIA_LARGA || new Date(g.ts).toDateString() !== new Date().toDateString()) return;
   if (g.pj && S.pj?.id !== g.pj && S.list.some(p => p.id === g.pj)) { const p = almacen.pj(g.pj); if (p) S.pj = reparar(p); }
   if ((g.view === 'ficha' || g.view === 'editor') && (!S.pj || S.pj.id !== g.pj)) return;
   S.view = g.view; S.tab = g.tab || 'turno'; S.step = g.step || S.step; S.mtab = g.mtab || S.mtab;

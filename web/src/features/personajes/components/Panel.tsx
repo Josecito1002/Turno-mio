@@ -74,10 +74,12 @@ export function Panel() {
   const tirar = useDados();
   const [mesas, setMesas] = useState<MesaUnida[] | null>(null);
   useEffect(() => { if (!esInvitado()) misMesas().then(setMesas).catch(() => setMesas([])); }, []);
-  const ultimo = S.usuario?.ultimoPj && S.list.some(p => p.id === S.usuario!.ultimoPj) ? S.usuario!.ultimoPj : S.list[0]?.id || null;
+  // El último que abriste; si quedó a medio crear (sin clase), el primero que ya tenga clase
+  const conClase = S.list.filter(p => p.sub);
+  const ultimo = S.usuario?.ultimoPj && conClase.some(p => p.id === S.usuario!.ultimoPj) ? S.usuario!.ultimoPj : conClase[0]?.id || S.list[0]?.id || null;
   const otros = S.list.filter(p => p.id !== ultimo);
   const misCamps = esDM() ? camps() : [];
-  const nombre = S.usuario && !esInvitado() ? S.usuario.nombre.split(' ')[0] : '';
+  const nombre = S.usuario && !esInvitado() && /\p{L}/u.test(S.usuario.nombre) ? S.usuario.nombre.split(' ')[0] : '';
   const hoy = new Date();
   const fecha = hoy.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' });
   const regla = REGLAS[Math.floor(hoy.getTime() / 86400000) % REGLAS.length];
@@ -109,11 +111,11 @@ export function Panel() {
                 {otros.slice(0, 3).map(p => {
                   const v = vitalesDe(almacen.pj(p.id));
                   return (
-                    <li key={p.id} className="w-40 shrink-0 sm:w-auto">
+                    <li key={p.id} className="w-44 shrink-0 sm:w-auto">
                       <button type="button" onClick={() => abrir(p.id)} className={cx('flex h-full w-full cursor-pointer flex-col gap-2 rounded-2xl bg-surface-container p-3.5 text-left ring-1 ring-surface-container-highest hover:bg-surface-container-high', foco)}>
-                        <span className="flex items-center gap-2.5">
+                        <span className="flex items-start gap-2.5">
                           <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-lg bg-surface-container-high font-serif text-xl font-bold text-primary">{(p.name || '?').charAt(0).toUpperCase()}</span>
-                          <b className="min-w-0 truncate font-serif text-headline-sm">{p.name}</b>
+                          <b className="line-clamp-2 min-w-0 font-serif text-headline-sm leading-tight [overflow-wrap:anywhere]">{p.name}</b>
                         </span>
                         <span className="text-body-sm text-on-surface-variant">{p.sub || 'Sin clase todavía'}</span>
                         {v && <span className="text-body-sm text-on-surface-variant">PG <b className="text-on-surface">{v.pg}/{v.pgMax}</b> · CA <b className="text-on-surface">{v.ca}</b></span>}
