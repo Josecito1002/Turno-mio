@@ -30,6 +30,7 @@ import { combatesOrigen, conservarVinculos, danosDe, enemigosDe, leerSesion, mar
 import { cargarBestiario } from '@/features/reglas/data/bestiario';
 import { BloqueMonstruo, BuscadorEnemigo, VistaBestiario, monstruoDe, useCatalogo } from './Bestiario';
 import { SubirHomebrewery } from '@/features/homebrewery/components/SubirHomebrewery';
+import { EscucharGuia } from '@/features/audioguia/components/EscucharGuia';
 import { DarObjeto, EditarInventario } from './DarObjeto';
 
 const val = (id: string) => (document.getElementById(id) as HTMLInputElement | null)?.value || '';
@@ -1646,6 +1647,7 @@ export function MesaVista({ importarHojas }: { importarHojas: () => void }) {
           </div>
         </Seccion>
         <SubirHomebrewery />
+        <EscucharGuia />
       </>
     );
   }
