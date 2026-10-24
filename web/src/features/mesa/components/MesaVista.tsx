@@ -1044,12 +1044,13 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar, alTerminar, alS
       ya tirado, que entra entero, a la mitad o nada según la supere). */
   type Pend = { a: any; k: string; nombre: string; dano: number; cd: number; salv: string; condicion?: string; mitad: boolean };
   /** Aplica el daño a un objetivo: a un jugador unido le llega a su hoja (con la condición, si la hay). */
-  const aplicar = async (k: string, nombre: string, dano: number, a: any, condicion?: string, repite?: Repite) => {
+  const aplicar = async (k: string, nombre: string, dano: number, a: any, condicion?: string, repite?: Repite, ataque?: number) => {
     const y = combatiente(k, campActual() || cp);
     if (!y || !(dano || condicion)) return;
     const tipoDano = dano ? (a.dano || []).map((d: any) => d.tipo).filter(Boolean).join(', ') : '';
     const dura = condicion ? duracionDe(a, k) : null;
-    if (y.tipo === 'jug') await enviarEfectoDm(cp.id, y.u.personajeId, { de: x.nombre, dano, nota: a.n, ...(condicion ? { condicion } : {}), ...(tipoDano ? { tipoDano } : {}), ...(dura?.extras || {}) });
+    // Con lo que sacó el ataque, el jugador sabe si su reacción (Escudo) lo hace fallar
+    if (y.tipo === 'jug') await enviarEfectoDm(cp.id, y.u.personajeId, { de: x.nombre, dano, nota: a.n, ...(condicion ? { condicion } : {}), ...(tipoDano ? { tipoDano } : {}), ...(ataque != null ? { ataque } : {}), ...(dura?.extras || {}) });
     conCamp(c => {
       if (y.tipo !== 'jug' && dano) cambiarPg(c, k, -dano);
       if (condicion) ponerCondicion(c, k, condicion, dura?.hasta, dura?.conc, repite);
@@ -1089,7 +1090,7 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar, alTerminar, alS
   };
   /** El daño ya tirado (a mano o en la app): con salvación en lugar del ataque, primero se pide la salvación;
       tras un ataque que acierta, entra entero y después llega la salvación de su condición. */
-  const danar = async (a: any, dano: number, k: string = obj) => {
+  const danar = async (a: any, dano: number, k: string = obj, ataque?: number) => {
     const y = blancos.find((b: any) => b.k === k);
     if (!y) { avisar('Elige primero el objetivo.', 'aviso'); return false; }
     const ef = efectoSalvacion(a);
@@ -1097,7 +1098,7 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar, alTerminar, alS
       let p: Pend | null = null;
       if (ef && a.atk == null) p = { a, k: y.k, nombre: y.nombre, dano, ...ef };
       else {
-        await aplicar(y.k, y.nombre, dano, a);
+        await aplicar(y.k, y.nombre, dano, a, undefined, undefined, ataque);
         if (ef) p = { a, k: y.k, nombre: y.nombre, dano: 0, ...ef, mitad: false };
       }
       if (!gastada) marcar(true);
@@ -1156,7 +1157,7 @@ function AccionesMonstruo({ cp, x, ficha, tipo, gastada, marcar, alTerminar, alS
 }
 
 /** Una acción del bloque. Si tiene varios ataques (dos rayos, Ataque Extra), cada uno se hace por separado con su objetivo. */
-function AccionMonstruo({ x, a, blancos, obj, danar, pedirSalv, alListo }: { x: any; a: any; blancos: any[]; obj: string; danar: (a: any, dano: number, k?: string) => Promise<boolean>; pedirSalv: (a: any) => void; alListo: (seguir: Extra[]) => void }) {
+function AccionMonstruo({ x, a, blancos, obj, danar, pedirSalv, alListo }: { x: any; a: any; blancos: any[]; obj: string; danar: (a: any, dano: number, k?: string, ataque?: number) => Promise<boolean>; pedirSalv: (a: any) => void; alListo: (seguir: Extra[]) => void }) {
   const n = Math.max(1, +a.golpes || 1), [hechos, setHechos] = useState<boolean[]>(() => Array(n).fill(false)), seguir = useRef<Extra[]>([]);
   const dexpr = (a.dano || []).map((d: any) => d.d).join('+');
   const atkExpr = a.atk != null ? `1d20${modStr(a.atk)}` : '';
@@ -1179,7 +1180,7 @@ function AccionMonstruo({ x, a, blancos, obj, danar, pedirSalv, alListo }: { x: 
 }
 
 /** Un ataque (o el daño de una acción): objetivo, el d20 (natural, el bono se suma solo) contra su CA, lo que se suma al acertar y el daño. */
-function GolpeAccion({ i, n, x, a, blancos, obj, hecho, danar, alHecho }: { i: number; n: number; x: any; a: any; blancos: any[]; obj: string; hecho: boolean; danar: (a: any, dano: number, k?: string) => Promise<boolean>; alHecho: (seguir?: Extra[]) => void }) {
+function GolpeAccion({ i, n, x, a, blancos, obj, hecho, danar, alHecho }: { i: number; n: number; x: any; a: any; blancos: any[]; obj: string; hecho: boolean; danar: (a: any, dano: number, k?: string, ataque?: number) => Promise<boolean>; alHecho: (seguir?: Extra[]) => void }) {
   const [k, setK] = useState<string | null>(null), [nat, setNat] = useState(''), [dados, setDados] = useState(''), [advElegida, setAdv] = useState<number | null>(null), [cerca, setCerca] = useState(true);
   const [sel, setSel] = useState<Record<string, string>>({}), [valX, setValX] = useState<Record<string, string>>({});
   const kElegido = k ?? obj, elegido = blancos.find((y: any) => y.k === kElegido);
@@ -1202,7 +1203,8 @@ function GolpeAccion({ i, n, x, a, blancos, obj, hecho, danar, alHecho }: { i: n
   const salvPrimero = a.atk == null && !!efectoSalvacion(a);
   const aplicar = async (cuanto: number) => {
     const conExtras = extras.length ? { ...a, n: `${a.n} + ${extras.map(e => e.nombre).join(' y ')}` } : a;
-    if (await danar(conExtras, cuanto, kElegido)) {
+    // Un 20 natural acierta siempre: se manda como 99 para que ninguna reacción lo haga fallar
+    if (await danar(conExtras, cuanto, kElegido, total == null ? undefined : nat === '20' ? 99 : total)) {
       if (extras.length) avisar(`Descuenta ${extras.map(e => e.nombre).join(' y ')} en la hoja de ${x.nombre}.`);
       alHecho((a.extras || []).filter((e: Extra) => e.atk));
     }
