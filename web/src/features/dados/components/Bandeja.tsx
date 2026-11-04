@@ -12,7 +12,7 @@ const DIE_PTS: Record<number, string> = {
   12: '50,3 97,37 79,95 21,95 3,37', 20: '50,2 95,26 95,74 50,98 5,74 5,26',
 };
 
-function Dado({ sides, cls, valor }: { sides: number; cls: string; valor: number | string }) {
+export function Dado({ sides, cls, valor }: { sides: number; cls: string; valor: number | string }) {
   const y = sides === 4 ? 64 : sides === 10 ? 47 : 52;
   return (
     <svg className={`die ${cls}`} viewBox="0 0 100 100" aria-hidden="true">

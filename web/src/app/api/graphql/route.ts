@@ -8,6 +8,7 @@ import { bibliotecaGraphQL } from '@/features/biblioteca/server/graphql';
 import { olvidarBibliotecaEnMemoria } from '@/features/biblioteca/server/repositorio';
 import { personajesGraphQL } from '@/features/personajes/server/graphql';
 import { mesaGraphQL } from '@/features/mesa/server/graphql';
+import { sorteosGraphQL } from '@/features/sorteos/server/graphql';
 
 /** Junta los mensajes del error y de sus causas (drizzle envuelve el error de postgres en "Failed query: ..."). */
 function mensajes(e: unknown): string {
@@ -39,7 +40,7 @@ const explicar: typeof maskError = (error, message, isDev) => {
 };
 
 const yoga = createYoga({
-  schema: componerEsquema([cuentasGraphQL, bibliotecaGraphQL, personajesGraphQL, mesaGraphQL]),
+  schema: componerEsquema([cuentasGraphQL, bibliotecaGraphQL, personajesGraphQL, mesaGraphQL, sorteosGraphQL]),
   graphqlEndpoint: '/api/graphql',
   fetchAPI: { Response },
   graphiql: process.env.NODE_ENV !== 'production',

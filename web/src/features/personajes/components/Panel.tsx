@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import { useEffect, useState, type ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import { S, render, irArriba, esDM, esInvitado } from '@/app-shell/estado';
 import { almacen } from '@/app-shell/almacen';
 import { Simbolo, cx, foco } from '@/shared/ui/kit';
@@ -188,6 +189,7 @@ function AMedias() {
 
 export function Panel() {
   const tirar = useDados();
+  const router = useRouter();
   const [mesas, setMesas] = useState<MesaUnida[] | null>(null);
   useEffect(() => { if (!esInvitado()) misMesas().then(setMesas).catch(() => setMesas([])); }, []);
   // El último que abriste; si quedó a medio crear (sin clase), el primero que ya tenga clase
@@ -304,7 +306,8 @@ export function Panel() {
               {([['casino', 'text-primary', 'Tirar d20', () => tirar('1d20', 'd20', { neutral: true })],
                 ['menu_book', 'text-secondary', 'Biblioteca', () => ir('lib')],
                 ...(esDM() ? [['swords', 'text-primary', 'Mesa del DM', () => ir('mesa', () => { S.camp = null; })]] : []),
-                ['person', 'text-secondary', 'Personajes', () => ir('home')]] as [string, string, string, () => void][]).map(([i, c, t, f]) => (
+                ['person', 'text-secondary', 'Personajes', () => ir('home')],
+                ['donut_large', 'text-primary', 'Sorteos', () => router.push('/sorteo')]] as [string, string, string, () => void][]).map(([i, c, t, f]) => (
                 <button key={t} type="button" onClick={f} className={cx('flex min-h-18 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl bg-surface-container-lowest text-body-md font-semibold hover:bg-surface-container-high', foco)}>
                   <Simbolo n={i} className={cx('text-headline-md', c)} />{t}
                 </button>
