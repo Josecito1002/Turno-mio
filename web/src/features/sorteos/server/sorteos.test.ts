@@ -5,6 +5,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createRequire } from 'node:module';
+import { sql } from 'drizzle-orm';
 import { crearDb } from '@/shared/db/conectar';
 import { MAX_TIRADAS } from '../domain/sorteo';
 
@@ -48,4 +49,11 @@ test('sala de sorteo: crear, entrar, tirar, permisos y presencia', async () => {
 
   await assert.rejects(M.tirarSorteo(null, { codigo, visitante: 'host-12345', quien: 'Jose', secreto, tipo: 'dados', expr: 'xx' }, ctx()), /1d20/);
   await assert.rejects(M.latidoSorteo(null, { codigo: 'ZZZZZZ', visitante: 'host-12345', quien: 'Jose' }, ctx()), /no existe/);
+});
+
+test('si la tabla no existe (migración sin aplicar), se crea al usarla', async () => {
+  await base.db.execute(sql.raw('DROP TABLE "salas_sorteo"'));
+  const { codigo } = await M.crearSalaSorteo(null, { visitante: 'host-12345', quien: 'Jose' }, ctx());
+  const vista = await M.latidoSorteo(null, { codigo, visitante: 'host-12345', quien: 'Jose' }, ctx());
+  assert.equal(vista.codigo, codigo);
 });
