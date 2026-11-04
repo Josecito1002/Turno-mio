@@ -109,7 +109,7 @@ const typeDefs = /* GraphQL */ `
     "Jugador: marca como recogidos (ya en su inventario) los objetos que le dio el DM."
     recibirEntregas(dmId: ID!, campanaId: ID!, personajeId: ID!, ids: [String!]!): Boolean!
     "DM: le manda a un jugador unido el daño, la curación o la condición de un enemigo; su hoja lo aplica al conectarse."
-    enviarEfectoDm(campanaId: ID!, personajeId: ID!, de: String!, dano: Int!, cura: Boolean, condicion: String, nota: String, tipoDano: String, rondas: Int, hastaRonda: Int, hastaK: String, conc: String, repite: Boolean): Boolean!
+    enviarEfectoDm(campanaId: ID!, personajeId: ID!, de: String!, dano: Int!, cura: Boolean, condicion: String, nota: String, ataque: Int, tipoDano: String, rondas: Int, hastaRonda: Int, hastaK: String, conc: String, repite: Boolean): Boolean!
     "Jugador: pide al DM que le cuente lo que sabe de un enemigo (el DM aprueba o no)."
     pedirInfoMesa(dmId: ID!, campanaId: ID!, personajeId: ID!, objetivo: String!): Boolean!
     "DM: da por resueltas las peticiones de información con esos ids."
@@ -357,11 +357,12 @@ export const mesaGraphQL: ModuloGraphQL = {
           .where(and(eq(campanas.usuarioId, a.dmId), eq(campanas.id, a.campanaId)));
         return true;
       },
-      enviarEfectoDm: async (_: unknown, a: { campanaId: string; personajeId: string; de: string; dano: number; cura?: boolean | null; condicion?: string | null; nota?: string | null } & Extras, ctx: Contexto) => {
+      enviarEfectoDm: async (_: unknown, a: { campanaId: string; personajeId: string; de: string; dano: number; cura?: boolean | null; condicion?: string | null; nota?: string | null; ataque?: number | null } & Extras, ctx: Contexto) => {
         const u = await exigir(ctx, 'usarMesa', SOLO_DM);
         if (!/^[\w-]{1,60}$/.test(a.personajeId)) throw new GraphQLError('Ese personaje no es válido.');
         if (!Number.isInteger(a.dano) || a.dano < 0 || a.dano > 999) throw new GraphQLError('Ese daño no es válido.');
-        const orden = JSON.stringify([{ id: randomUUID(), tipo: 'efecto', personajeId: a.personajeId, de: String(a.de).slice(0, 60), dano: a.dano, cura: !!a.cura, condicion: a.condicion ? String(a.condicion).slice(0, 40) : null, bono: null, nota: a.nota ? String(a.nota).slice(0, 80) : null, ts: new Date().toISOString(), ...extrasGolpe(a) }]);
+        const orden = JSON.stringify([{ id: randomUUID(), tipo: 'efecto', personajeId: a.personajeId, de: String(a.de).slice(0, 60), dano: a.dano, cura: !!a.cura, condicion: a.condicion ? String(a.condicion).slice(0, 40) : null, bono: null, nota: a.nota ? String(a.nota).slice(0, 80) : null, ts: new Date().toISOString(), ...extrasGolpe(a),
+          ...(Number.isInteger(a.ataque) && Math.abs(a.ataque!) <= 99 ? { ataque: a.ataque } : {}) }]);
         const lista = sql`coalesce(${campanas.combateVivo}->'ordenes', '[]'::jsonb) || ${orden}::jsonb`;
         const ultimas = sql`coalesce((select jsonb_agg(o order by n) from (select o, n from jsonb_array_elements(${lista}) with ordinality t(o, n) order by n desc limit 30) x), '[]'::jsonb)`;
         await ctx.db.update(campanas).set({ combateVivo: sql`coalesce(${campanas.combateVivo}, '{}'::jsonb) || jsonb_build_object('ordenes', ${ultimas})` })
