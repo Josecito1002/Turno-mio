@@ -81,6 +81,8 @@
 }
 @keyframes dado-gira { 0% { transform: rotate(-260deg) scale(.45); } 65% { transform: rotate(18deg) scale(1.1); } 100% { transform: rotate(0) scale(1); } }
 @keyframes dado-pop { 0% { transform: scale(.5); } 100% { transform: scale(1); } }
+/* La moneda de las salas de sorteo sube y cae mientras gira (el giro va en el elemento de dentro) */
+@keyframes moneda-salta { 0%, 100% { translate: 0 0; scale: 1; } 45% { translate: 0 -38px; scale: 1.18; } }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }

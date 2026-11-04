@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import { S, render, useRender, irArriba, esAdmin, esDM, esInvitado, type Vista } from './estado';
 import { cargarTodo, vaciarPendientes, almacen } from './almacen';
 import { leerArchivos } from './importar';
@@ -156,6 +157,7 @@ const TituloMenu = ({ children }: { children: ReactNode }) => <p className="m-0 
 
 function MenuCompleto({ invitado, onCerrar, onClave, onNombre, onCompartir }: { invitado: boolean; onCerrar: () => void; onClave: () => void; onNombre: () => void; onCompartir: () => void }) {
   const hacer = (f: () => void) => () => { onCerrar(); f(); };
+  const router = useRouter();
   const pj = S.pj, enFicha = S.view === 'ficha' && pj, enEditor = S.view === 'editor' && pj;
   const c = pj && (enFicha || enEditor) ? compute(pj) : null;
   const ajena = !enFicha && !enEditor ? hojaParaDuplicar() : null;
@@ -181,6 +183,8 @@ function MenuCompleto({ invitado, onCerrar, onClave, onNombre, onCompartir }: { 
           <ItemMenu key={it.vista} icono={ICONO_SECCION[it.vista] || 'circle'}
             activo={it.vista === S.view} onClick={hacer(() => ir(it.vista))}>{it.texto}</ItemMenu>
         ))}
+        {/* Fuera de la app: una página aparte que se comparte con un enlace */}
+        <ItemMenu icono="donut_large" onClick={hacer(() => router.push('/sorteo'))}>Sorteos y tiradas</ItemMenu>
       </nav>
 
       {(enFicha || enEditor) && c && (

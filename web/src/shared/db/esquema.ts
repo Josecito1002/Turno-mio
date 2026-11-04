@@ -3,3 +3,4 @@ export * from '../../features/cuentas/server/tablas';
 export * from '../../features/biblioteca/server/tablas';
 export * from '../../features/personajes/server/tablas';
 export * from '../../features/mesa/server/tablas';
+export * from '../../features/sorteos/server/tablas';
