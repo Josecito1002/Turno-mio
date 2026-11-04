@@ -73,11 +73,48 @@ async function latir(ctx: Contexto, codigo: string, visitante: string, quien: st
   return comoSala(f, ahora);
 }
 
+/* Si la migración 0008 no se aplicó al publicar (el despliegue sigue aunque falle), la tabla se crea aquí la primera vez
+   que se usa. Es la misma que la migración, que también usa IF NOT EXISTS, así ninguna de las dos estorba a la otra. */
+const CREAR_TABLA = [
+  `CREATE TABLE IF NOT EXISTS "salas_sorteo" ("codigo" text PRIMARY KEY NOT NULL, "nombre" text NOT NULL, "secreto" text NOT NULL,
+    "config" jsonb NOT NULL, "tiradas" jsonb DEFAULT '[]'::jsonb NOT NULL, "presencia" jsonb DEFAULT '{}'::jsonb NOT NULL,
+    "creado_en" timestamp with time zone DEFAULT now() NOT NULL, "actualizado_en" timestamp with time zone DEFAULT now() NOT NULL)`,
+  `CREATE INDEX IF NOT EXISTS "salas_sorteo_actualizado_idx" ON "salas_sorteo" USING btree ("actualizado_en")`,
+  `ALTER TABLE "salas_sorteo" ENABLE ROW LEVEL SECURITY`,
+];
+const codigoPg = (e: unknown): string | undefined => {
+  for (let x = e as { code?: string; cause?: unknown } | undefined, i = 0; x && i < 5; i++, x = x.cause as typeof x) if (x.code) return x.code;
+};
+const mensajePg = (e: unknown) => {
+  const partes: string[] = [];
+  for (let x = e as { message?: string; cause?: unknown } | undefined, i = 0; x && i < 5; i++, x = x.cause as typeof x) if (x.message) partes.push(x.message);
+  return partes.at(-1) || 'error desconocido';
+};
+
+/** Corre un resolver: crea la tabla si falta y, si falla otra cosa de la base, lo dice en vez de «Unexpected error». */
+function seguro<A>(fn: (_: unknown, a: A, ctx: Contexto) => Promise<unknown>) {
+  return async (raiz: unknown, a: A, ctx: Contexto) => {
+    try { return await fn(raiz, a, ctx); }
+    catch (e) {
+      if (e instanceof GraphQLError) throw e;
+      if (codigoPg(e) === '42P01') {
+        console.error('[sorteos] falta la tabla salas_sorteo: se crea ahora');
+        for (const q of CREAR_TABLA) await ctx.db.execute(sql.raw(q));
+        return fn(raiz, a, ctx);
+      }
+      // «Base ocupada» y parecidos los explica la ruta de GraphQL; lo demás se muestra con el mensaje de la base
+      if (/max ?clients|too many (clients|connections)|CONNECT_TIMEOUT|ECONN|ETIMEDOUT/i.test(mensajePg(e))) throw e;
+      console.error('[sorteos]', e);
+      throw err(`No se pudo completar (${mensajePg(e).slice(0, 160)}).`);
+    }
+  };
+}
+
 export const sorteosGraphQL: ModuloGraphQL = {
   typeDefs,
   resolvers: {
     Mutation: {
-      async crearSalaSorteo(_: unknown, a: { nombre?: string; visitante: string; quien: string }, ctx: Contexto) {
+      crearSalaSorteo: seguro(async (_: unknown, a: { nombre?: string; visitante: string; quien: string }, ctx: Contexto) => {
         const visitante = idVisitante(a.visitante), quien = limpiarNombre(a.quien);
         // Limpieza de paso: las salas sin uso en una semana se borran
         await ctx.db.delete(salasSorteo).where(lt(salasSorteo.actualizadoEn, new Date(Date.now() - 7 * 86_400_000)));
@@ -92,12 +129,12 @@ export const sorteosGraphQL: ModuloGraphQL = {
           if (f) return { codigo: f.codigo, secreto };
         }
         throw err('No se pudo crear la sala. Vuelve a intentarlo.');
-      },
+      }),
 
-      latidoSorteo: (_: unknown, a: { codigo: string; visitante: string; quien: string }, ctx: Contexto) =>
-        latir(ctx, normalizarCodigo(a.codigo), idVisitante(a.visitante), limpiarNombre(a.quien)),
+      latidoSorteo: seguro((_: unknown, a: { codigo: string; visitante: string; quien: string }, ctx: Contexto) =>
+        latir(ctx, normalizarCodigo(a.codigo), idVisitante(a.visitante), limpiarNombre(a.quien))),
 
-      async tirarSorteo(_: unknown, a: { codigo: string; visitante: string; quien: string; secreto?: string; tipo: string; expr?: string; cuantos?: number }, ctx: Contexto) {
+      tirarSorteo: seguro(async (_: unknown, a: { codigo: string; visitante: string; quien: string; secreto?: string; tipo: string; expr?: string; cuantos?: number }, ctx: Contexto) => {
         const codigo = normalizarCodigo(a.codigo), visitante = idVisitante(a.visitante), quien = limpiarNombre(a.quien);
         const [f] = await ctx.db.select().from(salasSorteo).where(eq(salasSorteo.codigo, codigo));
         if (!f) throw err(SIN_SALA, 'NO_EXISTE');
@@ -122,9 +159,9 @@ export const sorteosGraphQL: ModuloGraphQL = {
           actualizadoEn: new Date(),
         }).where(eq(salasSorteo.codigo, codigo));
         return latir(ctx, codigo, visitante, quien);
-      },
+      }),
 
-      async configurarSorteo(_: unknown, a: { codigo: string; secreto: string; nombre?: string | null; todosTiran?: boolean | null; opciones?: string[] | null }, ctx: Contexto) {
+      configurarSorteo: seguro(async (_: unknown, a: { codigo: string; secreto: string; nombre?: string | null; todosTiran?: boolean | null; opciones?: string[] | null }, ctx: Contexto) => {
         const codigo = normalizarCodigo(a.codigo);
         const [f] = await ctx.db.select().from(salasSorteo).where(eq(salasSorteo.codigo, codigo));
         if (!f) throw err(SIN_SALA, 'NO_EXISTE');
@@ -137,7 +174,7 @@ export const sorteosGraphQL: ModuloGraphQL = {
           ...(a.nombre != null ? { nombre: limpiarNombre(a.nombre, f.nombre) } : {}),
         }).where(eq(salasSorteo.codigo, codigo)).returning();
         return comoSala(g);
-      },
+      }),
     },
   },
 };
