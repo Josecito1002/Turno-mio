@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
   // Hay un package-lock.json suelto en la carpeta del usuario; la raíz del proyecto es esta.
   // La voz Piper del lector de guías pide `fs` en su rama de Node; en el navegador basta un módulo vacío.
   turbopack: { root: process.cwd(), resolveAlias: { ...UMD_A_ESM, fs: { browser: './src/shared/vacio.ts' } } },
+  // El revisor de mazos de MTG (repo Josecito1002/Deckreviewer) vive en otro proyecto de Vercel servido bajo /mtg:
+  // miturno.com.es/mtg/... se reenvía allí. Al estar en el mismo dominio, comparte la sesión si usan el mismo AUTH_SECRET.
+  async rewrites() {
+    const revisor = 'https://miturnodeckchech.vercel.app';
+    return [{ source: '/mtg', destination: `${revisor}/mtg` }, { source: '/mtg/:ruta*', destination: `${revisor}/mtg/:ruta*` }];
+  },
   // Imágenes de la biblioteca copiadas al compilar: el nombre es la huella del contenido, así que no cambian nunca.
   async headers() {
     return [{ source: '/img/biblioteca/:archivo', headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }] }];
