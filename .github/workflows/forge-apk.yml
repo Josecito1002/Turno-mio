@@ -1,0 +1,96 @@
+# Temporal: compila el APK de Android de Card-Forge/forge 2.0.16 (release de Star Trek)
+# y lo publica como Release de este repo. No tiene que ver con la app Mi turno.
+name: Forge APK 2.0.16
+
+on:
+  push:
+    branches: [ 'claude/project-thread-455lwi' ]
+    paths: [ '.github/workflows/forge-apk.yml' ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  FORGE_TAG: forge-2.0.16
+  RELEASE_TAG: forge-android-2.0.16
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout Forge
+        uses: actions/checkout@v4
+        with:
+          repository: Card-Forge/forge
+          ref: ${{ env.FORGE_TAG }}
+          path: forge
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Android SDK 35
+        run: |
+          JAVA_HOME=${JAVA_HOME_17_X64} ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT --install "build-tools;35.0.0" "platform-tools" "platforms;android-35"
+
+      - name: Recursos desde este Release (el sitio de Forge ya no tiene la 2.0.16)
+        working-directory: forge
+        run: |
+          F=forge-gui-mobile/src/forge/assets/AssetsDownloader.java
+          URL="https://github.com/${{ github.repository }}/releases/download/${RELEASE_TAG}/assets.zip"
+          sed -i "s#releaseURL + versionString + \"/\" + \"assets.zip\"#\"${URL}\"#" "$F"
+          grep -n "assets.zip" "$F"
+          grep -q "$URL" "$F"
+
+      - name: Android maven plugin
+        working-directory: forge
+        run: |
+          D=~/.m2/repository/com/simpligility/maven/plugins/android-maven-plugin/4.6.2
+          mkdir -p $D
+          curl -fL -o $D/android-maven-plugin-4.6.2.jar https://github.com/Card-Forge/android-maven-plugin/releases/download/4.6.2/android-maven-plugin-4.6.2.jar
+          curl -fL -o $D/android-maven-plugin-4.6.2.pom https://github.com/Card-Forge/android-maven-plugin/releases/download/4.6.2/android-maven-plugin-4.6.2.pom
+          mvn -B install -Dmaven.test.skip=true
+
+      - name: Build APK
+        working-directory: forge
+        run: |
+          command -v Xvfb >/dev/null 2>&1 || { sudo apt-get update && sudo apt-get install -y xvfb; }
+          export DISPLAY=":1"
+          Xvfb :1 -screen 0 800x600x8 &
+          export _JAVA_OPTIONS="-Xmx3g"
+          mvn -B -P android-test-build verify -e -Dandroid.sdk.path=$ANDROID_SDK_ROOT -Dandroid.buildToolsVersion=35.0.0 -Dmaven.test.skip=true
+          ls -la forge-gui-android/target/
+
+      - name: assets.zip
+        working-directory: forge
+        run: |
+          T=$PWD/forge-gui-android/target
+          rm -rf "$T/res" && mkdir -p "$T/res/res/cardsfolder"
+          cp forge-gui/LICENSE.txt forge-gui/release-files/CONTRIBUTORS.txt forge-gui/release-files/INSTALLATION.txt forge-gui/release-files/ISSUES.txt "$T/res/" || true
+          (cd forge-gui && tar cf - --exclude='res/cardsfolder' --exclude='*.xcf' res) | (cd "$T/res" && tar xf -)
+          cp "$T/classes/assets/build.txt" "$T/res/res/" || true
+          (cd forge-gui/res/cardsfolder && zip -q -1 -r "$T/res/res/cardsfolder/cardsfolder.zip" .)
+          (cd "$T/res" && zip -q -1 -r "$T/assets.zip" .)
+          mkdir -p ../upload
+          cp "$T"/*-aligned-debugSigned.apk ../upload/forge-android-2.0.16-starTrek.apk || cp "$(ls "$T"/*.apk | grep -i signed | head -1)" ../upload/forge-android-2.0.16-starTrek.apk
+          cp "$T/assets.zip" ../upload/
+          ls -la ../upload
+          $ANDROID_SDK_ROOT/build-tools/35.0.0/aapt dump badging ../upload/forge-android-2.0.16-starTrek.apk | head -5
+          $ANDROID_SDK_ROOT/build-tools/35.0.0/apksigner verify --verbose ../upload/forge-android-2.0.16-starTrek.apk | head -6
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: Forge Android 2.0.16 (Star Trek)
+          prerelease: true
+          body: |
+            APK de Card-Forge/forge 2.0.16 compilado desde el código oficial, firmado con llave de prueba.
+            Desinstala cualquier Forge anterior antes de instalarlo. Al abrirlo por primera vez baja assets.zip de este mismo Release.
+          files: |
+            upload/forge-android-2.0.16-starTrek.apk
+            upload/assets.zip
