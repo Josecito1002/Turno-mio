@@ -46,6 +46,14 @@ jobs:
           grep -n "assets.zip" "$F"
           grep -q "$URL" "$F"
 
+      - name: Paquete propio (forge.app.dev) y providers sin nombres genericos
+        working-directory: forge
+        run: |
+          P=forge-gui-android/pom.xml
+          sed -i 's#<manifestVersionName>${snapshot-version}-dev</manifestVersionName>#<manifestVersionName>${snapshot-version}</manifestVersionName>#' $P
+          sed -i 's#<manifestApplicationLabel>Forge (dev)</manifestApplicationLabel>#<manifestApplicationLabel>Forge 2.0.16</manifestApplicationLabel>#' $P
+          grep -nE "manifestVersionName|manifestApplicationLabel|renameManifestPackage|app.id.dev" $P
+
       - name: Android maven plugin
         working-directory: forge
         run: |
@@ -62,7 +70,7 @@ jobs:
           export DISPLAY=":1"
           Xvfb :1 -screen 0 800x600x8 &
           export _JAVA_OPTIONS="-Xmx3g"
-          mvn -B -P android-test-build verify -e -Dandroid.sdk.path=$ANDROID_SDK_ROOT -Dandroid.buildToolsVersion=35.0.0 -Dmaven.test.skip=true
+          mvn -B -P android-dev-build verify -e -Dandroid.sdk.path=$ANDROID_SDK_ROOT -Dandroid.buildToolsVersion=35.0.0 -Dmaven.test.skip=true
           ls -la forge-gui-android/target/
 
       - name: assets.zip
@@ -76,10 +84,13 @@ jobs:
           (cd forge-gui/res/cardsfolder && zip -q -1 -r "$T/res/res/cardsfolder/cardsfolder.zip" .)
           (cd "$T/res" && zip -q -1 -r "$T/assets.zip" .)
           mkdir -p ../upload
-          cp "$T"/*-aligned-debugSigned.apk ../upload/forge-android-2.0.16-starTrek.apk || cp "$(ls "$T"/*.apk | grep -i signed | head -1)" ../upload/forge-android-2.0.16-starTrek.apk
+          APK=$(ls "$T"/*.apk | grep -i -E "aligned|signed" | head -1)
+          echo "APK: $APK"
+          cp "$APK" ../upload/forge-android-2.0.16-starTrek.apk
           cp "$T/assets.zip" ../upload/
           ls -la ../upload
           $ANDROID_SDK_ROOT/build-tools/35.0.0/aapt dump badging ../upload/forge-android-2.0.16-starTrek.apk | head -5
+          $ANDROID_SDK_ROOT/build-tools/35.0.0/aapt dump xmltree ../upload/forge-android-2.0.16-starTrek.apk AndroidManifest.xml | grep -A1 -i authorities
           $ANDROID_SDK_ROOT/build-tools/35.0.0/apksigner verify --verbose ../upload/forge-android-2.0.16-starTrek.apk | head -6
 
       - name: Release
@@ -89,7 +100,7 @@ jobs:
           name: Forge Android 2.0.16 (Star Trek)
           prerelease: true
           body: |
-            APK de Card-Forge/forge 2.0.16 compilado desde el código oficial, firmado con llave de prueba.
+            APK de Card-Forge/forge 2.0.16 compilado desde el código oficial, firmado con llave de prueba. Se instala como app aparte (Forge 2.0.16, paquete forge.app.dev), así que no choca con otro Forge.
             Desinstala cualquier Forge anterior antes de instalarlo. Al abrirlo por primera vez baja assets.zip de este mismo Release.
           files: |
             upload/forge-android-2.0.16-starTrek.apk
